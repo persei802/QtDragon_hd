@@ -1,0 +1,53 @@
+loadrt and2 count=1
+loadrt near
+addf and2.0 servo-thread
+#addf and2.1 servo-thread
+addf near.0 servo-thread
+setp near.0.scale 1.01
+
+# the unlink pin commands are only used, because they are connected 
+# in core_sim.hal and we use this file to simulate
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.0.tool-prep-number
+
+net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
+net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+
+net spindle-pause    qtdragon.spindle_inhibit => spindle.0.inhibit
+net spindle-pause    qtdragon.led_inhibit
+net spindle-rpm      spindle.0.speed-out-rps => spindle.0.speed-in
+net spindle-cmd      spindle.0.speed-out-abs near.0.in1
+net spindle-cmd      near.0.in2
+net at_speed         near.0.out => and2.0.in1
+#net at_speed         and2.0.in1
+net forward          spindle.0.forward => and2.0.in0
+#net reverse          spindle.0.reverse => and2.0.in1
+net at_speed_fwd      spindle.0.at-speed <= and2.0.out
+net at_speed_fwd      qtdragon.led_at_speed
+#net at_speed_rev     qtdragon.action_spindle_rev-led <= and2.1.out
+
+# external offset stuff
+net eoffset_enable   qtdragon.eoffset_enable => axis.z.eoffset-enable
+net eoffset_clear    qtdragon.eoffset_clear => axis.z.eoffset-clear
+net eoffset_count    qtdragon.eoffset_count => axis.z.eoffset-counts
+net eoffset          qtdragon.eoffset_value <= axis.z.eoffset
+net limited          qtdragon.led_eoffset_limit <= motion.eoffset-limited
+setp axis.z.eoffset-scale 1.0
+
+# basic probe results
+net xwidth           motion.analog-out-00 => qtdragon.x_width
+net ywidth           motion.analog-out-01 => qtdragon.y_width
+net avg_dia          motion.analog-out-02 => qtdragon.avg_diameter
+net edge_angle       motion.analog-out-03 => qtdragon.edge_angle
+net edge_delta       motion.analog-out-04 => qtdragon.edge_delta
+net xminus           motion.analog-out-05 => qtdragon.x_minus
+net yminus           motion.analog-out-06 => qtdragon.y_minus
+net zminus           motion.analog-out-07 => qtdragon.z_minus
+net xplus            motion.analog-out-08 => qtdragon.x_plus
+net yplus            motion.analog-out-09 => qtdragon.y_plus
+net xcenter          motion.analog-out-10 => qtdragon.x_center
+net ycenter          motion.analog-out-11 => qtdragon.y_center
+net cal_offset       motion.analog-out-12 => qtdragon.cal_offset
+
