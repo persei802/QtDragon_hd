@@ -73,7 +73,8 @@ class HandlerClass:
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
         STATUS.connect('program-pause-changed', lambda w, state: self.w.btn_pause_spindle.setEnabled(state))
         STATUS.connect('actual-spindle-speed-changed', lambda w, speed: self.update_rpm_bar(speed))
-        STATUS.connect('user-system-changed', self.user_system_changed)
+        STATUS.connect('user-system-changed', lambda w, data: self.user_system_changed(data))
+        STATUS.connect('metric-mode-changed', lambda w, mode: self.metric_mode_changed(mode))
         STATUS.connect('file-loaded', self.file_loaded)
         STATUS.connect('homed', self.homed)
         STATUS.connect('all-homed', self.all_homed)
@@ -95,6 +96,7 @@ class HandlerClass:
         self.w.basicprobe.hide()
         self.w.btn_pause_spindle.setEnabled(False)
         self.w.btn_dimensions.setChecked(True)
+        self.w.btn_touch_sensor.setEnabled(self.w.chk_use_tool_sensor.isChecked())
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.filemanager.onUserClicked()    
         self.w.filemanager_usb.onMediaClicked()
@@ -334,10 +336,19 @@ class HandlerClass:
         elif wait_code and name == 'MESSAGE':
             self.h['eoffset_clear'] = False
 
-    def user_system_changed(self, obj, data):
+    def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
         self.w.offset_table.selectRow(int(data) + 3)
         self.w.actionbutton_rel.setText(sys)
+
+    def metric_mode_changed(self, mode):
+        if mode is False:
+            self.w.lbl_jog_linear.setText('JOG RATE\nIN/MIN')
+            maxvel = float(self.max_linear_velocity) / 25.4
+        else:
+            self.w.lbl_jog_linear.setText('JOG RATE\nMM/MIN')
+            maxvel = float(self.max_linear_velocity)
+        self.w.lbl_max_rapid.setText("{:4.0f}".format(maxvel))
 
     def file_loaded(self, obj, filename):
         if filename is not None:
@@ -607,11 +618,8 @@ class HandlerClass:
         if not STATUS.is_all_homed():
             self.add_status("Must be homed to perform tool touchoff")
             return
-        sensor = self.w.sender().property('sensor')
-        if sensor == "_toolsensor_" and not self.w.chk_use_tool_sensor.isChecked():
-            self.add_status("Tool sensor is disabled")
-            return
         # instantiate dialog box
+        sensor = self.w.sender().property('sensor')
         info = "Ensure tooltip is within {} mm of tool sensor and click OK".format(self.w.lineEdit_max_probe.text())
         mess = {'NAME':'MESSAGE', 'ID':sensor, 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
         ACTION.CALL_DIALOG(mess)
@@ -646,6 +654,9 @@ class HandlerClass:
     def chk_alpha_mode_changed(self, state):
         self.w.gcodegraphics.set_alpha_mode(state)
 
+    def chk_use_sensor_changed(self, state):
+        self.w.btn_touch_sensor.setEnabled(state)
+
     def chk_use_virtual_changed(self, state):
         if state:
             self.w.btn_keyboard.show()
@@ -673,7 +684,6 @@ class HandlerClass:
 
     def disable_spindle_pause(self):
         self.h['eoffset_count'] = 0
-        self.h['eoffset_clear'] = True
         self.h['spindle_inhibit'] = False
         if self.w.btn_pause_spindle.isChecked():
             self.w.btn_pause_spindle.setChecked(False)

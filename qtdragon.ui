@@ -9522,6 +9522,9 @@ LINEAR</string>
                      <property name="textTemplate" stdset="0">
                       <string>%d</string>
                      </property>
+                     <property name="alt_textTemplate" stdset="0">
+                      <string>%d</string>
+                     </property>
                      <property name="jograte_status" stdset="0">
                       <bool>true</bool>
                      </property>
@@ -10033,12 +10036,15 @@ ANGULAR</string>
                          <number>1</number>
                         </property>
                         <property name="text">
-                         <string>100</string>
+                         <string>200</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignCenter</set>
                         </property>
                         <property name="textTemplate" stdset="0">
+                         <string>%d</string>
+                        </property>
+                        <property name="alt_textTemplate" stdset="0">
                          <string>%d</string>
                         </property>
                         <property name="max_velocity_override_status" stdset="0">
@@ -13103,7 +13109,7 @@ RESET</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>03:35:11 PM</string>
+            <string>09:39:40 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -13778,6 +13784,38 @@ RESET</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>chk_use_tool_sensor</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_use_sensor_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>568</x>
+     <y>574</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>563</x>
+     <y>1069</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>slider_rapid_ovr</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slider_rapid_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1099</x>
+     <y>857</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1111</x>
+     <y>1078</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <designerdata>
   <property name="gridDeltaX">
@@ -13841,6 +13879,7 @@ RESET</string>
   <slot>chk_alpha_mode_changed()</slot>
   <slot>btn_pause_spindle_clicked()</slot>
   <slot>btn_stop_clicked()</slot>
+  <slot>chk_use_sensor_changed()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="mode_buttonGroup"/>
