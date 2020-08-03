@@ -511,9 +511,6 @@
                 <property name="index" stdset="0">
                  <number>0</number>
                 </property>
-                <property name="page" stdset="0">
-                 <number>0</number>
-                </property>
                 <attribute name="buttonGroup">
                  <string notr="true">page_buttonGroup</string>
                 </attribute>
@@ -546,9 +543,6 @@
                  <bool>true</bool>
                 </property>
                 <property name="index" stdset="0">
-                 <number>1</number>
-                </property>
-                <property name="page" stdset="0">
                  <number>1</number>
                 </property>
                 <attribute name="buttonGroup">
@@ -585,9 +579,6 @@
                 <property name="index" stdset="0">
                  <number>2</number>
                 </property>
-                <property name="page" stdset="0">
-                 <number>2</number>
-                </property>
                 <attribute name="buttonGroup">
                  <string notr="true">page_buttonGroup</string>
                 </attribute>
@@ -620,9 +611,6 @@
                  <bool>true</bool>
                 </property>
                 <property name="index" stdset="0">
-                 <number>3</number>
-                </property>
-                <property name="page" stdset="0">
                  <number>3</number>
                 </property>
                 <attribute name="buttonGroup">
@@ -659,16 +647,13 @@
                 <property name="index" stdset="0">
                  <number>4</number>
                 </property>
-                <property name="page" stdset="0">
-                 <number>4</number>
-                </property>
                 <attribute name="buttonGroup">
                  <string notr="true">page_buttonGroup</string>
                 </attribute>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="btnprobe">
+               <widget class="QPushButton" name="btn_probe">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -696,7 +681,38 @@
                 <property name="index" stdset="0">
                  <number>0</number>
                 </property>
-                <property name="page" stdset="0">
+                <attribute name="buttonGroup">
+                 <string notr="true">page_buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btn_camera">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>80</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>CAMVIEW</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="index" stdset="0">
                  <number>5</number>
                 </property>
                 <attribute name="buttonGroup">
@@ -731,9 +747,6 @@
                  <bool>true</bool>
                 </property>
                 <property name="index" stdset="0">
-                 <number>5</number>
-                </property>
-                <property name="page" stdset="0">
                  <number>6</number>
                 </property>
                 <attribute name="buttonGroup">
@@ -768,9 +781,6 @@
                  <bool>true</bool>
                 </property>
                 <property name="index" stdset="0">
-                 <number>6</number>
-                </property>
-                <property name="page" stdset="0">
                  <number>7</number>
                 </property>
                 <attribute name="buttonGroup">
@@ -805,9 +815,6 @@
                  <bool>true</bool>
                 </property>
                 <property name="index" stdset="0">
-                 <number>7</number>
-                </property>
-                <property name="page" stdset="0">
                  <number>8</number>
                 </property>
                 <attribute name="buttonGroup">
@@ -958,7 +965,7 @@
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>7</number>
+                    <number>5</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -2568,6 +2575,28 @@ TO FILE</string>
                     </layout>
                    </widget>
                    <widget class="QWidget" name="main_tab_widgetPage6">
+                    <layout class="QVBoxLayout" name="verticalLayout_14">
+                     <property name="spacing">
+                      <number>4</number>
+                     </property>
+                     <property name="leftMargin">
+                      <number>4</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>4</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="CamView" name="camview"/>
+                     </item>
+                    </layout>
+                   </widget>
+                   <widget class="QWidget" name="main_tab_widgetPage7">
                     <layout class="QHBoxLayout" name="horizontalLayout_15">
                      <property name="spacing">
                       <number>4</number>
@@ -2657,7 +2686,7 @@ TO FILE</string>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="main_tab_widgetPage7">
+                   <widget class="QWidget" name="main_tab_widgetPage8">
                     <layout class="QHBoxLayout" name="horizontalLayout_41">
                      <property name="spacing">
                       <number>4</number>
@@ -2685,7 +2714,7 @@ TO FILE</string>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="main_tab_widgetPage8">
+                   <widget class="QWidget" name="main_tab_widgetPage9">
                     <layout class="QHBoxLayout" name="horizontalLayout_5">
                      <property name="spacing">
                       <number>4</number>
@@ -2947,6 +2976,19 @@ TO FILE</string>
                          </widget>
                         </item>
                         <item>
+                         <widget class="QCheckBox" name="chk_use_camera">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="text">
+                           <string>USE CAMVIEW</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
                          <widget class="QCheckBox" name="chk_override_limits">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -2976,6 +3018,7 @@ TO FILE</string>
                        <zorder>chk_use_tool_sensor</zorder>
                        <zorder>chk_override_limits</zorder>
                        <zorder>chk_eoffsets</zorder>
+                       <zorder>chk_use_camera</zorder>
                       </widget>
                      </item>
                      <item>
@@ -3429,6 +3472,111 @@ TO FILE</string>
                              </property>
                              <property name="readOnly">
                               <bool>false</bool>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QWidget" name="widget_camera_offset" native="true">
+                          <layout class="QHBoxLayout" name="horizontalLayout_63">
+                           <property name="spacing">
+                            <number>4</number>
+                           </property>
+                           <property name="leftMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>0</number>
+                           </property>
+                           <item>
+                            <widget class="QLabel" name="label_5">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="minimumSize">
+                              <size>
+                               <width>180</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>180</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="text">
+                              <string>CAMERA OFFSET</string>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QLineEdit" name="lineEdit_camera_x">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="minimumSize">
+                              <size>
+                               <width>60</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>60</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="maxLength">
+                              <number>8</number>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignCenter</set>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QLineEdit" name="lineEdit_camera_y">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="minimumSize">
+                              <size>
+                               <width>60</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>60</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="maxLength">
+                              <number>8</number>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignCenter</set>
                              </property>
                             </widget>
                            </item>
@@ -7384,13 +7532,13 @@ SPINDLE</string>
               <property name="minimumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="toolTip">
@@ -7577,13 +7725,13 @@ G30</string>
               <property name="minimumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="toolTip">
@@ -7609,13 +7757,13 @@ HOME</string>
               <property name="minimumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="toolTip">
@@ -7641,13 +7789,13 @@ SENSOR</string>
               <property name="minimumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="toolTip">
@@ -7709,13 +7857,13 @@ OFF</string>
               <property name="minimumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="toolTip">
@@ -7724,6 +7872,32 @@ OFF</string>
               <property name="text">
                <string>REF
 LASER</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btn_ref_camera">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>44</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>80</width>
+                <height>44</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>REF
+CAMERA</string>
               </property>
              </widget>
             </item>
@@ -7738,13 +7912,13 @@ LASER</string>
               <property name="minimumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="toolTip">
@@ -7773,13 +7947,13 @@ PLATE</string>
               <property name="minimumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>80</width>
-                <height>50</height>
+                <height>44</height>
                </size>
               </property>
               <property name="toolTip">
@@ -7793,19 +7967,6 @@ SENSOR</string>
                <string>_toolsensor_</string>
               </property>
              </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </widget>
@@ -13109,7 +13270,7 @@ RESET</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>09:39:40 AM</string>
+            <string>10:18:22 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -13229,6 +13390,11 @@ RESET</string>
    <class>MachineLog</class>
    <extends>QTextEdit</extends>
    <header>qtvcp.widgets.machine_log</header>
+  </customwidget>
+  <customwidget>
+   <class>CamView</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.camview_widget</header>
   </customwidget>
   <customwidget>
    <class>StatusLabel</class>
@@ -13359,8 +13525,8 @@ RESET</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>588</x>
-     <y>106</y>
+     <x>599</x>
+     <y>615</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -13375,8 +13541,8 @@ RESET</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>588</x>
-     <y>116</y>
+     <x>599</x>
+     <y>333</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -13391,8 +13557,8 @@ RESET</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>588</x>
-     <y>116</y>
+     <x>599</x>
+     <y>399</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -13471,8 +13637,8 @@ RESET</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>588</x>
-     <y>106</y>
+     <x>1788</x>
+     <y>162</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -13487,8 +13653,8 @@ RESET</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>588</x>
-     <y>106</y>
+     <x>1788</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -13503,8 +13669,8 @@ RESET</string>
    <slot>btn_dimensions_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>597</x>
-     <y>105</y>
+     <x>1307</x>
+     <y>386</y>
     </hint>
     <hint type="destinationlabel">
      <x>454</x>
@@ -13520,7 +13686,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>764</x>
-     <y>531</y>
+     <y>504</y>
     </hint>
     <hint type="destinationlabel">
      <x>554</x>
@@ -13568,7 +13734,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>764</x>
-     <y>558</y>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -13584,7 +13750,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>764</x>
-     <y>396</y>
+     <y>369</y>
     </hint>
     <hint type="destinationlabel">
      <x>708</x>
@@ -13616,7 +13782,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>482</x>
-     <y>739</y>
+     <y>727</y>
     </hint>
     <hint type="destinationlabel">
      <x>472</x>
@@ -13632,7 +13798,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>482</x>
-     <y>793</y>
+     <y>775</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
@@ -13679,8 +13845,8 @@ RESET</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>588</x>
-     <y>106</y>
+     <x>1788</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
      <x>1770</x>
@@ -13743,8 +13909,8 @@ RESET</string>
    <slot>disable_spindle_pause()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>668</x>
-     <y>417</y>
+     <x>764</x>
+     <y>396</y>
     </hint>
     <hint type="destinationlabel">
      <x>678</x>
@@ -13791,8 +13957,8 @@ RESET</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>568</x>
-     <y>574</y>
+     <x>764</x>
+     <y>558</y>
     </hint>
     <hint type="destinationlabel">
      <x>563</x>
@@ -13813,6 +13979,54 @@ RESET</string>
     <hint type="destinationlabel">
      <x>1111</x>
      <y>1078</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_use_camera</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_use_camera_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>631</x>
+     <y>574</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>623</x>
+     <y>1085</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_ref_laser</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_ref_laser_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>438</x>
+     <y>855</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-21</x>
+     <y>846</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_ref_camera</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_ref_camera_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>425</x>
+     <y>895</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-40</x>
+     <y>880</y>
     </hint>
    </hints>
   </connection>
@@ -13880,9 +14094,11 @@ RESET</string>
   <slot>btn_pause_spindle_clicked()</slot>
   <slot>btn_stop_clicked()</slot>
   <slot>chk_use_sensor_changed()</slot>
+  <slot>chk_use_camera_changed()</slot>
+  <slot>btn_ref_camera_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>

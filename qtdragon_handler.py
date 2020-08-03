@@ -27,9 +27,10 @@ TAB_OFFSETS = 2
 TAB_TOOL = 3
 TAB_STATUS = 4
 TAB_PROBE = 5
-TAB_GCODES = 6
-TAB_SETUP = 7
-TAB_SETTINGS = 8
+TAB_CAMVIEW = 6
+TAB_GCODES = 7
+TAB_SETUP = 8
+TAB_SETTINGS = 9
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
@@ -50,12 +51,13 @@ class HandlerClass:
         self.max_spindle_rpm = INFO.MAX_SPINDLE_SPEED
         self.max_linear_velocity = INFO.MAX_LINEAR_VELOCITY * 60
         self.system_list = ["G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3"]
+        self.tab_index_code = (0, 1, 2, 3, 0, 0, 2, 0, 0, 0)
         self.slow_jog_factor = 10
         self.reload_tool = 0
         self.last_loaded_program = ""
         self.first_turnon = True
-        self.lineedit_list = ["work_height", "touch_height", "sensor_height",
-                              "laser_x", "laser_y", "sensor_x", "sensor_y",
+        self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y",
+                              "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
         self.onoff_list = ["frame_program", "frame_dro"]
         self.auto_list = ["chk_eoffsets", "cmb_gcode_history"]
@@ -101,6 +103,7 @@ class HandlerClass:
         self.w.filemanager.onUserClicked()    
         self.w.filemanager_usb.onMediaClicked()
         self.chk_run_from_line_checked(self.w.chk_run_from_line.isChecked())
+        self.chk_use_camera_changed(self.w.chk_use_camera.isChecked())
     # hide widgets for A axis if not present
         if "A" not in INFO.AVAILABLE_AXES:
             for i in self.axis_a_list:
@@ -147,6 +150,8 @@ class HandlerClass:
         self.w.lineEdit_laser_y.setText(str(self.w.PREFS_.getpref('Laser Y', -20, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_sensor_x.setText(str(self.w.PREFS_.getpref('Sensor X', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_sensor_y.setText(str(self.w.PREFS_.getpref('Sensor Y', 10, float, 'CUSTOM_FORM_ENTRIES')))
+        self.w.lineEdit_camera_x.setText(str(self.w.PREFS_.getpref('Camera X', 10, float, 'CUSTOM_FORM_ENTRIES')))
+        self.w.lineEdit_camera_y.setText(str(self.w.PREFS_.getpref('Camera Y', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_work_height.setText(str(self.w.PREFS_.getpref('Work Height', 20, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_touch_height.setText(str(self.w.PREFS_.getpref('Touch Height', 40, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_sensor_height.setText(str(self.w.PREFS_.getpref('Sensor Height', 40, float, 'CUSTOM_FORM_ENTRIES')))
@@ -161,6 +166,7 @@ class HandlerClass:
         self.w.chk_use_tool_sensor.setChecked(self.w.PREFS_.getpref('Use tool sensor', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_use_virtual.setChecked(self.w.PREFS_.getpref('Use virtual keyboard', False, bool, 'CUSTOM_FORM_ENTRIES'))
+        self.w.chk_use_camera.setChecked(self.w.PREFS_.getpref('Use camera', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_alpha_mode.setChecked(self.w.PREFS_.getpref('Use alpha display mode', False, bool, 'CUSTOM_FORM_ENTRIES'))
         
     def closing_cleanup__(self):
@@ -172,6 +178,8 @@ class HandlerClass:
         self.w.PREFS_.putpref('Laser Y', self.w.lineEdit_laser_y.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Sensor X', self.w.lineEdit_sensor_x.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Sensor Y', self.w.lineEdit_sensor_y.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camera X', self.w.lineEdit_camera_x.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camera Y', self.w.lineEdit_camera_y.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Work Height', self.w.lineEdit_work_height.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Touch Height', self.w.lineEdit_touch_height.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Sensor Height', self.w.lineEdit_sensor_height.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
@@ -186,6 +194,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Use tool_sensor', self.w.chk_use_tool_sensor.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use virtual keyboard', self.w.chk_use_virtual.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Use camera', self.w.chk_use_camera.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use alpha display mode', self.w.chk_alpha_mode.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
 
     def init_widgets(self):
@@ -329,12 +338,15 @@ class HandlerClass:
         plate_code = bool(message.get('ID') == '_touchplate_')
         sensor_code = bool(message.get('ID') == '_toolsensor_')
         wait_code = bool(message.get('ID') == '_wait_resume_')
+        unhome_code = bool(message.get('ID') == '_unhome_')
         if plate_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('touchplate')
         elif sensor_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('sensor')
         elif wait_code and name == 'MESSAGE':
             self.h['eoffset_clear'] = False
+        elif unhome_code and name == 'MESSAGE' and rtn is True:
+            ACTION.SET_MACHINE_UNHOMED(-1)
 
     def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
@@ -413,20 +425,15 @@ class HandlerClass:
             self.w.btn_main.setChecked(True)
             return
         index = btn.property("index")
-        page = btn.property("page")
-        if index is None or page is None: return
-        self.w.main_tab_widget.setCurrentIndex(index)
-        if page == TAB_PROBE:
+        if index is None: return
+        if index == TAB_MAIN:
+            self.w.btn_keyboard.setChecked(False)
+        if btn == self.w.btn_probe:
             self.w.basicprobe.show()
         else:
             self.w.basicprobe.hide()
-        if page == TAB_MAIN:
-            self.w.btn_keyboard.setChecked(False)
-            self.w.stackedWidget.setCurrentIndex(0)
-        elif page == TAB_FILE:
-            self.w.stackedWidget.setCurrentIndex(1)
-        else:
-            self.w.stackedWidget.setCurrentIndex(0)
+        self.w.main_tab_widget.setCurrentIndex(index)
+        self.w.stackedWidget.setCurrentIndex(self.tab_index_code[index])
 
     # gcode frame
     def cmb_gcode_history_clicked(self):
@@ -513,12 +520,25 @@ class HandlerClass:
         command = "G10 L20 P0 X{:3.4f} Y{:3.4f}".format(x, y)
         ACTION.CALL_MDI(command)
     
+    def btn_ref_camera_clicked(self):
+        x = float(self.w.lineEdit_camera_x.text())
+        y = float(self.w.lineEdit_camera_y.text())
+        if not STATUS.is_metric_mode():
+            x = x / 25.4
+            y = y / 25.4
+        self.add_status("Camera offsets set")
+        command = "G10 L20 P0 X{:3.4f} Y{:3.4f}".format(x, y)
+        ACTION.CALL_MDI(command)
+    
     # DRO frame
     def btn_home_all_clicked(self, obj):
         if self.home_all is False:
             ACTION.SET_MACHINE_HOMING(-1)
         else:
-            ACTION.SET_MACHINE_UNHOMED(-1)
+        # instantiate dialog box
+            info = "Unhome All Axes?"
+            mess = {'NAME':'MESSAGE', 'ID':'_unhome_', 'MESSAGE':'UNHOME ALL', 'MORE':info, 'TYPE':'OKCANCEL'}
+            ACTION.CALL_DIALOG(mess)
 
     def btn_home_clicked(self):
         joint = self.w.sender().property('joint')
@@ -653,6 +673,13 @@ class HandlerClass:
 
     def chk_alpha_mode_changed(self, state):
         self.w.gcodegraphics.set_alpha_mode(state)
+
+    def chk_use_camera_changed(self, state):
+        self.w.btn_ref_camera.setEnabled(state)
+        if state :
+            self.w.btn_camera.show()
+        else:
+            self.w.btn_camera.hide()
 
     def chk_use_sensor_changed(self, state):
         self.w.btn_touch_sensor.setEnabled(state)
