@@ -660,6 +660,16 @@ class HandlerClass:
         self.w.gcodegraphics.show_extents_option = state
         self.w.gcodegraphics.clear_live_plotter()
         
+    # camview tab
+    def cam_zoom_changed(self, value):
+        self.w.camview.scale = float(value) / 10
+
+    def cam_dia_changed(self, value):
+        self.w.camview.diameter = value
+
+    def cam_rot_changed(self, value):
+        self.w.camview.rotation = float(value) / 10
+
     # settings tab
     def chk_override_limits_checked(self, state):
         if state:

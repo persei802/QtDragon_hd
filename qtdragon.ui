@@ -2575,24 +2575,203 @@ TO FILE</string>
                     </layout>
                    </widget>
                    <widget class="QWidget" name="main_tab_widgetPage6">
-                    <layout class="QVBoxLayout" name="verticalLayout_14">
-                     <property name="spacing">
-                      <number>4</number>
-                     </property>
-                     <property name="leftMargin">
-                      <number>4</number>
-                     </property>
-                     <property name="topMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="rightMargin">
-                      <number>4</number>
-                     </property>
-                     <property name="bottomMargin">
-                      <number>0</number>
-                     </property>
+                    <layout class="QHBoxLayout" name="horizontalLayout_67">
                      <item>
                       <widget class="CamView" name="camview"/>
+                     </item>
+                     <item>
+                      <widget class="QWidget" name="widget_cam_controls" native="true">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <layout class="QVBoxLayout" name="verticalLayout_32">
+                        <property name="spacing">
+                         <number>4</number>
+                        </property>
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>8</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>8</number>
+                        </property>
+                        <item>
+                         <widget class="QLabel" name="label_66">
+                          <property name="maximumSize">
+                           <size>
+                            <width>16777215</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>ZOOM</string>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignCenter</set>
+                          </property>
+                         </widget>
+                        </item>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="QSlider" name="cam_zoom">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>30</width>
+                            <height>120</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>30</width>
+                            <height>16777215</height>
+                           </size>
+                          </property>
+                          <property name="minimum">
+                           <number>10</number>
+                          </property>
+                          <property name="maximum">
+                           <number>50</number>
+                          </property>
+                          <property name="orientation">
+                           <enum>Qt::Vertical</enum>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="verticalSpacer_18">
+                          <property name="orientation">
+                           <enum>Qt::Vertical</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>20</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_64">
+                          <property name="maximumSize">
+                           <size>
+                            <width>16777215</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>DIA</string>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignCenter</set>
+                          </property>
+                         </widget>
+                        </item>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="QSlider" name="cam_diameter">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>30</width>
+                            <height>120</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>30</width>
+                            <height>16777215</height>
+                           </size>
+                          </property>
+                          <property name="minimum">
+                           <number>20</number>
+                          </property>
+                          <property name="maximum">
+                           <number>100</number>
+                          </property>
+                          <property name="singleStep">
+                           <number>2</number>
+                          </property>
+                          <property name="orientation">
+                           <enum>Qt::Vertical</enum>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="verticalSpacer_20">
+                          <property name="orientation">
+                           <enum>Qt::Vertical</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>20</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_65">
+                          <property name="maximumSize">
+                           <size>
+                            <width>16777215</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>ROT</string>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignCenter</set>
+                          </property>
+                         </widget>
+                        </item>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="QSlider" name="cam_rotate">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>30</width>
+                            <height>120</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>30</width>
+                            <height>16777215</height>
+                           </size>
+                          </property>
+                          <property name="maximum">
+                           <number>900</number>
+                          </property>
+                          <property name="orientation">
+                           <enum>Qt::Vertical</enum>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </widget>
                      </item>
                     </layout>
                    </widget>
@@ -13270,7 +13449,7 @@ RESET</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>10:18:22 AM</string>
+            <string>03:17:12 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -13526,7 +13705,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>599</x>
-     <y>615</y>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -13542,7 +13721,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>599</x>
-     <y>333</y>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -13558,7 +13737,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>599</x>
-     <y>399</y>
+     <y>129</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -13637,8 +13816,8 @@ RESET</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1788</x>
-     <y>162</y>
+     <x>650</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -13653,8 +13832,8 @@ RESET</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1788</x>
-     <y>218</y>
+     <x>650</x>
+     <y>126</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -13669,8 +13848,8 @@ RESET</string>
    <slot>btn_dimensions_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1307</x>
-     <y>386</y>
+     <x>603</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>454</x>
@@ -13686,7 +13865,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>764</x>
-     <y>504</y>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
      <x>554</x>
@@ -13702,7 +13881,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>764</x>
-     <y>612</y>
+     <y>87</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -13734,7 +13913,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>764</x>
-     <y>531</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -13750,7 +13929,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>764</x>
-     <y>369</y>
+     <y>73</y>
     </hint>
     <hint type="destinationlabel">
      <x>708</x>
@@ -13845,8 +14024,8 @@ RESET</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1788</x>
-     <y>218</y>
+     <x>650</x>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel">
      <x>1770</x>
@@ -13910,7 +14089,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>764</x>
-     <y>396</y>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
      <x>678</x>
@@ -13958,7 +14137,7 @@ RESET</string>
    <hints>
     <hint type="sourcelabel">
      <x>764</x>
-     <y>558</y>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>563</x>
@@ -13989,8 +14168,8 @@ RESET</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>631</x>
-     <y>574</y>
+     <x>764</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>623</x>
@@ -14027,6 +14206,54 @@ RESET</string>
     <hint type="destinationlabel">
      <x>-40</x>
      <y>880</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cam_zoom</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cam_zoom_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1769</x>
+     <y>162</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1784</x>
+     <y>-48</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cam_diameter</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cam_dia_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1764</x>
+     <y>355</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1703</x>
+     <y>-46</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cam_rotate</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cam_rot_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1763</x>
+     <y>535</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1737</x>
+     <y>-42</y>
     </hint>
    </hints>
   </connection>
@@ -14096,6 +14323,9 @@ RESET</string>
   <slot>chk_use_sensor_changed()</slot>
   <slot>chk_use_camera_changed()</slot>
   <slot>btn_ref_camera_clicked()</slot>
+  <slot>cam_zoom_changed()</slot>
+  <slot>cam_dia_changed()</slot>
+  <slot>cam_rot_changed()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="page_buttonGroup"/>
