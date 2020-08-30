@@ -303,13 +303,6 @@
                   <property name="toolTip">
                    <string>History of loaded GCODE programs</string>
                   </property>
-                  <property name="styleSheet">
-                   <string notr="true">    background: rgb(240,240,240);
-    border: none;
-    font: 10pt &quot;Lato Heavy&quot;;
-    color: black;
-</string>
-                  </property>
                   <property name="editable">
                    <bool>false</bool>
                   </property>
@@ -823,43 +816,6 @@
                </widget>
               </item>
               <item>
-               <widget class="PushButton" name="btn_keyboard">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>80</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>KEYBD</string>
-                </property>
-                <property name="checkable">
-                 <bool>true</bool>
-                </property>
-                <property name="python_command_option" stdset="0">
-                 <bool>true</bool>
-                </property>
-                <property name="true_python_cmd_string" stdset="0">
-                 <string>INSTANCE.stackedWidget_dro.setCurrentIndex(1)</string>
-                </property>
-                <property name="false_python_cmd_string" stdset="0">
-                 <string>INSTANCE.stackedWidget_dro.setCurrentIndex(0)</string>
-                </property>
-               </widget>
-              </item>
-              <item>
                <spacer name="horizontalSpacer">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -965,7 +921,7 @@
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>5</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1654,10 +1610,13 @@
                        </property>
                        <property name="background_color" stdset="0">
                         <color>
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
+                         <red>80</red>
+                         <green>80</green>
+                         <blue>80</blue>
                         </color>
+                       </property>
+                       <property name="_use_gradient_background" stdset="0">
+                        <bool>true</bool>
                        </property>
                        <property name="overlay" stdset="0">
                         <bool>false</bool>
@@ -1941,8 +1900,11 @@ GCODE</string>
                           <property name="autoScrollMargin">
                            <number>16</number>
                           </property>
+                          <property name="alternatingRowColors">
+                           <bool>false</bool>
+                          </property>
                           <property name="selectionBehavior">
-                           <enum>QAbstractItemView::SelectRows</enum>
+                           <enum>QAbstractItemView::SelectItems</enum>
                           </property>
                           <property name="cornerButtonEnabled">
                            <bool>false</bool>
@@ -2154,6 +2116,9 @@ ROTATION</string>
                        </property>
                        <property name="frameShape">
                         <enum>QFrame::NoFrame</enum>
+                       </property>
+                       <property name="alternatingRowColors">
+                        <bool>false</bool>
                        </property>
                        <attribute name="horizontalHeaderDefaultSectionSize">
                         <number>60</number>
@@ -8397,19 +8362,6 @@ SENSOR</string>
                        <height>50</height>
                       </size>
                      </property>
-                     <property name="styleSheet">
-                      <string notr="true">DROLabel {
-    background-color: black;
-/*    border: 2px solid black;*/
-    font: 20pt &quot;Lato Heavy&quot;;
-    color: #00FF00;
-}
-
-DROLabel[homed=false] {
-    color: red;
-}
-</string>
-                     </property>
                      <property name="frameShape">
                       <enum>QFrame::WinPanel</enum>
                      </property>
@@ -8447,18 +8399,6 @@ DROLabel[homed=false] {
                        <height>50</height>
                       </size>
                      </property>
-                     <property name="styleSheet">
-                      <string notr="true">DROLabel {
-    background-color: black;
-    font: 20pt &quot;Lato Heavy&quot;;
-    color: #00FF00;
-}
-
-DROLabel[homed=false] {
-    color: red;
-}
-</string>
-                     </property>
                      <property name="frameShape">
                       <enum>QFrame::WinPanel</enum>
                      </property>
@@ -8495,18 +8435,6 @@ DROLabel[homed=false] {
                        <width>16777215</width>
                        <height>50</height>
                       </size>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">DROLabel {
-    background-color: black;
-    font: 20pt &quot;Lato Heavy&quot;;
-    color: #00FF00;
-}
-
-DROLabel[homed=false] {
-    color: red;
-}
-</string>
                      </property>
                      <property name="frameShape">
                       <enum>QFrame::WinPanel</enum>
@@ -9118,18 +9046,6 @@ DROLabel[homed=false] {
                        <width>16777215</width>
                        <height>50</height>
                       </size>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">DROLabel {
-    background-color: black;
-    font: 20pt &quot;Lato Heavy&quot;;
-    color: #00FF00;
-}
-
-DROLabel[homed=false] {
-    color: red;
-}
-</string>
                      </property>
                      <property name="frameShape">
                       <enum>QFrame::WinPanel</enum>
@@ -9807,6 +9723,18 @@ LINEAR</string>
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>30</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>30</height>
+                      </size>
+                     </property>
                      <property name="toolTip">
                       <string>Adjust linear jog rate</string>
                      </property>
@@ -9995,6 +9923,18 @@ ANGULAR</string>
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>30</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>30</height>
+                      </size>
                      </property>
                      <property name="toolTip">
                       <string>Adjust angular jog rate</string>
@@ -12491,7 +12431,10 @@ INCREMENT</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QProgressBar" name="spindle_rpm">
+                   <widget class="QSlider" name="spindle_rpm">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -12510,17 +12453,14 @@ INCREMENT</string>
                       <height>30</height>
                      </size>
                     </property>
-                    <property name="minimum">
-                     <number>0</number>
+                    <property name="focusPolicy">
+                     <enum>Qt::NoFocus</enum>
                     </property>
                     <property name="maximum">
                      <number>100</number>
                     </property>
-                    <property name="value">
-                     <number>-1</number>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
                     </property>
                    </widget>
                   </item>
@@ -13449,7 +13389,7 @@ RESET</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>03:17:12 PM</string>
+            <string>10:12:16 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -13704,8 +13644,8 @@ RESET</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>599</x>
-     <y>124</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -13720,8 +13660,8 @@ RESET</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>599</x>
-     <y>125</y>
+     <x>594</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -13736,8 +13676,8 @@ RESET</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>599</x>
-     <y>129</y>
+     <x>594</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -13816,8 +13756,8 @@ RESET</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>116</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -13832,8 +13772,8 @@ RESET</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>126</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -13848,8 +13788,8 @@ RESET</string>
    <slot>btn_dimensions_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>603</x>
-     <y>114</y>
+     <x>1307</x>
+     <y>386</y>
     </hint>
     <hint type="destinationlabel">
      <x>454</x>
@@ -13864,8 +13804,8 @@ RESET</string>
    <slot>chk_run_from_line_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>81</y>
+     <x>622</x>
+     <y>504</y>
     </hint>
     <hint type="destinationlabel">
      <x>554</x>
@@ -13880,8 +13820,8 @@ RESET</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>87</y>
+     <x>622</x>
+     <y>612</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -13912,8 +13852,8 @@ RESET</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>83</y>
+     <x>622</x>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -13928,8 +13868,8 @@ RESET</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>73</y>
+     <x>622</x>
+     <y>369</y>
     </hint>
     <hint type="destinationlabel">
      <x>708</x>
@@ -14024,28 +13964,12 @@ RESET</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>125</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1770</x>
      <y>-18</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>gcode_viewer</sender>
-   <signal>percentDone(int)</signal>
-   <receiver>progressBar</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>111</x>
-     <y>59</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>140</x>
-     <y>972</y>
     </hint>
    </hints>
   </connection>
@@ -14088,8 +14012,8 @@ RESET</string>
    <slot>disable_spindle_pause()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>75</y>
+     <x>622</x>
+     <y>396</y>
     </hint>
     <hint type="destinationlabel">
      <x>678</x>
@@ -14136,8 +14060,8 @@ RESET</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>84</y>
+     <x>622</x>
+     <y>558</y>
     </hint>
     <hint type="destinationlabel">
      <x>563</x>
@@ -14168,8 +14092,8 @@ RESET</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>86</y>
+     <x>622</x>
+     <y>585</y>
     </hint>
     <hint type="destinationlabel">
      <x>623</x>
@@ -14257,6 +14181,38 @@ RESET</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>gcode_viewer</sender>
+   <signal>percentDone(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>percent_done_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>117</x>
+     <y>252</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-101</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gcodegraphics</sender>
+   <signal>percentLoaded(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>percent_loaded_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1520</x>
+     <y>145</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1524</x>
+     <y>-54</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <designerdata>
   <property name="gridDeltaX">
@@ -14326,6 +14282,8 @@ RESET</string>
   <slot>cam_zoom_changed()</slot>
   <slot>cam_dia_changed()</slot>
   <slot>cam_rot_changed()</slot>
+  <slot>percent_done_changed()</slot>
+  <slot>percent_loaded_changed()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="page_buttonGroup"/>
