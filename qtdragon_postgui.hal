@@ -1,7 +1,6 @@
 loadrt and2 count=1
 loadrt near
 addf and2.0 servo-thread
-#addf and2.1 servo-thread
 addf near.0 servo-thread
 setp near.0.scale 1.01
 
@@ -16,24 +15,20 @@ net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
 
 net spindle-pause    qtdragon.spindle_inhibit => spindle.0.inhibit
-net spindle-pause    qtdragon.led_inhibit
 net spindle-rpm      spindle.0.speed-out-rps => spindle.0.speed-in
 net spindle-cmd      spindle.0.speed-out-abs near.0.in1
 net spindle-cmd      near.0.in2
 net at_speed         near.0.out => and2.0.in1
-#net at_speed         and2.0.in1
 net forward          spindle.0.forward => and2.0.in0
-#net reverse          spindle.0.reverse => and2.0.in1
-net at_speed_fwd      spindle.0.at-speed <= and2.0.out
-net at_speed_fwd      qtdragon.led_at_speed
-#net at_speed_rev     qtdragon.action_spindle_rev-led <= and2.1.out
+net at_speed_fwd     spindle.0.at-speed <= and2.0.out
+net at_speed_fwd     qtdragon.led_at_speed
 
 # external offset stuff
 net eoffset_enable   qtdragon.eoffset_enable => axis.z.eoffset-enable
 net eoffset_clear    qtdragon.eoffset_clear => axis.z.eoffset-clear
 net eoffset_count    qtdragon.eoffset_count => axis.z.eoffset-counts
 net eoffset          qtdragon.eoffset_value <= axis.z.eoffset
-net limited          qtdragon.led_eoffset_limit <= motion.eoffset-limited
+net limited          qtdragon.btn_pause_spindle-led <= motion.eoffset-limited
 setp axis.z.eoffset-scale 1.0
 
 # basic probe results

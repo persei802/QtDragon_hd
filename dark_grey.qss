@@ -12,13 +12,6 @@ QToolTip
     opacity: 200;
 }
 
-/*QsciScintilla {
-    qproperty-backgroundcolor: #D9DADB;
-    qproperty-marginbackgroundcolor: #D9DADB;
-    backgroundcolor: #D9DADB;
-    marginbackgroundcolor: #D9DADB;
-}*/
-
 /** Pushbuttons **/
 QPushButton,
 ActionButton,
@@ -31,12 +24,8 @@ AxisToolButton {
     color: #e0e0e0;
 }
 
-QPushButton:disabled,
 QPushButton::checked:disabled {
-    background-color: #303030;
-    border: 1px solid #606060;
-    border-radius: 1px;
-    color: #606060;
+    color: #9ad58d;
 }
 
 QPushButton:hover,
@@ -134,8 +123,7 @@ QLabel#label_axis_x,
 QLabel#label_axis_y,
 QLabel#label_axis_z,
 QLabel#label_axis_a {
-    background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
-    border: 1px solid black;
+    border: 1px solid #e0e0e0;
     border-radius: 4px;
     font: 12pt "Lato Heavy";
     color: #e0e0e0;
@@ -143,16 +131,24 @@ QLabel#label_axis_a {
 
 StatusLabel,
 StateLabel {
-    background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
-    border: 1px solid black;
+    background: #404040;
+    border: 1px solid #C0C0C0;
     border-radius: 4px;
     font: 10pt "Lato Heavy";
     color: #9ad58d;
 }
 
+StatusLabel#status_rpm {
+    font: 20pt "Lato Heavy";
+}
+
+StatusLabel#lbl_spindle_set[in_range=false] {
+    color: red;
+}
+
 DROLabel {
-    background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
-    border: 1px solid black;
+    background: #404040;
+    border: 1px solid #C0C0C0;
     border-radius: 4px;
     font: 20pt "Lato Heavy";
     color: #9ad58d;
@@ -205,8 +201,8 @@ QProgressBar::chunk:horizontal {
 
 /** LineEdits **/
 QLineEdit {
-    background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
-    border: 1px solid black;
+    background: #404040;
+    border: 1px solid #C0C0C0;
     border-radius: 4px;
     font: 10pt "Lato Heavy";
     color: #9ad58d;
@@ -288,7 +284,7 @@ QScrollBar:horizontal {
 QScrollBar::handle:horizontal {
     background-color: #808080;
     min-width: 15px;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 QScrollBar::add-line:horizontal {
@@ -317,7 +313,7 @@ QScrollBar:vertical {
 QScrollBar::handle:vertical {
     background-color: #808080;
     min-height: 15px;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 QScrollBar::sub-line:vertical {
@@ -355,18 +351,6 @@ QScrollBar::sub-page:vertical {
     border: 1px solid #e0e0e0;
 }
 
-QFrame#frame_cycle_start,
-QFrame#frame_home_all {
-    border: 1px solid black;
-    border-radius: 4px;
-    font: 10pt "Lato Heavy";
-}
-
-QFrame#frame_cycle_start:hover,
-QFrame#frame_home_all:hover {
-    border: 1px solid #9ad58d;
-}
-
 QWidget:disabled {
     color: #454545;
     background-color: #323232;
@@ -374,12 +358,6 @@ QWidget:disabled {
 
 QTextEdit {
     background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
-    color: #e0e0e0;
-}
-
-QPlainTextEdit {
-    background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));;
-/*    border-radius: 2px;*/
     color: #e0e0e0;
 }
 

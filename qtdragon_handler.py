@@ -1,6 +1,7 @@
 import os
 import hal, hal_glib
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -9,7 +10,7 @@ from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.widgets.file_manager import FileManager as FM
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
-from qtvcp.core import Status, Action, Info
+from qtvcp.core import Status, Action, Info, Path
 from qtvcp import logger
 from shutil import copyfile
 
@@ -18,6 +19,7 @@ KEYBIND = Keylookup()
 STATUS = Status()
 INFO = Info()
 ACTION = Action()
+PATH = Path()
 
 # constants for tab pages
 TAB_MAIN = 0
@@ -25,11 +27,11 @@ TAB_FILE = 1
 TAB_OFFSETS = 2
 TAB_TOOL = 3
 TAB_STATUS = 4
-TAB_PROBE = 5
-TAB_CAMVIEW = 6
-TAB_GCODES = 7
-TAB_SETUP = 8
-TAB_SETTINGS = 9
+#TAB_PROBE = 5
+TAB_CAMVIEW = 5
+TAB_GCODES = 6
+TAB_SETUP = 7
+TAB_SETTINGS = 8
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
@@ -42,6 +44,8 @@ class HandlerClass:
         KEYBIND.add_call('Key_Pause', 'on_keycall_pause')
                 
         # some global variables
+        self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
+        self.start_line = 0
         self.run_time = 0
         self.time_tenths = 0
         self.timer_on = False
@@ -73,7 +77,7 @@ class HandlerClass:
         STATUS.connect('gcode-line-selected', lambda w, line: self.set_start_line(line))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
         STATUS.connect('program-pause-changed', lambda w, state: self.w.btn_pause_spindle.setEnabled(state))
-        STATUS.connect('actual-spindle-speed-changed', lambda w, speed: self.update_rpm_bar(speed))
+        STATUS.connect('actual-spindle-speed-changed', lambda w, speed: self.update_rpm(speed))
         STATUS.connect('user-system-changed', lambda w, data: self.user_system_changed(data))
         STATUS.connect('metric-mode-changed', lambda w, mode: self.metric_mode_changed(mode))
         STATUS.connect('file-loaded', self.file_loaded)
@@ -101,22 +105,23 @@ class HandlerClass:
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.filemanager.onUserClicked()    
         self.w.filemanager_usb.onMediaClicked()
-        self.chk_run_from_line_checked(self.w.chk_run_from_line.isChecked())
+        self.chk_run_from_line_changed(self.w.chk_run_from_line.isChecked())
         self.chk_use_camera_changed(self.w.chk_use_camera.isChecked())
+        self.chk_alpha_mode_changed(self.w.chk_alpha_mode.isChecked())
     # hide widgets for A axis if not present
         if "A" not in INFO.AVAILABLE_AXES:
             for i in self.axis_a_list:
                 self.w[i].hide()
             self.w.lbl_increments_linear.setText("INCREMENTS")
     # signal connections
-        self.w.frame_home_all.mousePressEvent = self.btn_home_all_clicked
     # set validators for lineEdit widgets
         for val in self.lineedit_list:
             self.w['lineEdit_' + val].setValidator(self.valid)
     # check for default setup html file
-        fname = os.path.join(os.path.expanduser('~'), 'linuxcnc/configs/qtdragon/default_setup.html')
-        if os.path.exists(fname):
-            self.w.setup_webView.load(QtCore.QUrl.fromLocalFile(fname))
+        try:
+            self.web_page.mainFrame().load(QtCore.QUrl.fromLocalFile(self.default_setup))
+        except Exception as e:
+            print("No default setup file found - {}".format(e))
 
     #############################
     # SPECIAL FUNCTIONS SECTION #
@@ -217,8 +222,6 @@ class HandlerClass:
         self.w.lbl_max_rapid.setText(str(self.max_linear_velocity))
         self.w.lbl_home_x.setText(INFO.get_error_safe_setting('JOINT_0', 'HOME',"50"))
         self.w.lbl_home_y.setText(INFO.get_error_safe_setting('JOINT_1', 'HOME',"50"))
-        self.w.lbl_min_rpm.setText('MIN\n' + str(self.min_spindle_rpm))
-        self.w.lbl_max_rpm.setText('MAX\n' + str(self.max_spindle_rpm))
         self.w.cmb_gcode_history.addItem("No File Loaded")
         self.w.cmb_gcode_history.wheelEvent = lambda event: None
         self.w.jogincrements_linear.wheelEvent = lambda event: None
@@ -229,6 +232,12 @@ class HandlerClass:
 
         #set up gcode list
         self.gcodes.setup_list()
+        # set up web page viewer
+        self.web_view = QWebView()
+        self.web_page = QWebPage()
+        self.web_page.setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
+        self.web_view.setPage(self.web_page)
+        self.w.layout_setup.addWidget(self.web_view)
 
     def processed_focus_event__(self, receiver, event):
         if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return
@@ -237,8 +246,8 @@ class HandlerClass:
                 self.w.stackedWidget_dro.setCurrentIndex(1)
         elif isinstance(receiver, QtWidgets.QTableView):
             self.w.stackedWidget_dro.setCurrentIndex(1)
-#        elif isinstance(receiver, QtWidgets.QCommonStyle):
-#            return
+        elif isinstance(receiver, QtWidgets.QCommonStyle):
+            return
     
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -281,7 +290,7 @@ class HandlerClass:
                             receiver.keyPressEvent(event)
                             event.accept()
                         return True
-                elif is_pressed:
+                if is_pressed:
                     receiver.keyPressEvent(event)
                     event.accept()
                     return True
@@ -389,14 +398,16 @@ class HandlerClass:
         i = int(joint)
         axis = INFO.GET_NAME_FROM_JOINT.get(i).lower()
         try:
-            self.w["dro_axis_{}".format(axis)].setProperty('homed', True)
-            self.w["dro_axis_{}".format(axis)].setStyle(self.w["dro_axis_{}".format(axis)].style())
+            widget = self.w["dro_axis_{}".format(axis)]
+            widget.setProperty('homed', True)
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
         except:
             pass
 
     def all_homed(self, obj):
         self.home_all = True
-        self.w.lbl_home_all.setText("ALL\nHOMED")
+        self.w.btn_home_all.setText("ALL HOMED")
         if self.first_turnon is True:
             self.first_turnon = False
             if self.w.chk_reload_tool.isChecked():
@@ -412,13 +423,15 @@ class HandlerClass:
 
     def not_all_homed(self, obj, list):
         self.home_all = False
-        self.w.lbl_home_all.setText("HOME\nALL")
+        self.w.btn_home_all.setText("HOME ALL")
         for i in INFO.AVAILABLE_JOINTS:
             if str(i) in list:
                 axis = INFO.GET_NAME_FROM_JOINT.get(i).lower()
                 try:
-                    self.w["dro_axis_{}".format(axis)].setProperty('homed', False)
-                    self.w["dro_axis_{}".format(axis)].setStyle(self.w["dro_axis_{}".format(axis)].style())
+                    widget = self.w["dro_axis_{}".format(axis)]
+                    widget.setProperty('homed', False)
+                    widget.style().unpolish(widget)
+                    widget.style().polish(widget)
                 except:
                     pass
 
@@ -442,6 +455,9 @@ class HandlerClass:
         if index is None: return
         if index == TAB_MAIN:
             self.w.stackedWidget_dro.setCurrentIndex(0)
+        elif index == TAB_FILE and self.w.btn_gcode_edit.isChecked():
+            self.w.btn_gcode_edit.setChecked(False)
+            self.w.btn_gcode_edit_clicked(False)
         if btn == self.w.btn_probe:
             self.w.basicprobe.show()
         else:
@@ -470,15 +486,14 @@ class HandlerClass:
             return
         self.run_time = 0
         self.w.lbl_runtime.setText("00:00:00")
-        start_line = int(self.w.lbl_start_line.text().encode('utf-8'))
-        if start_line <= 1:
-            ACTION.RUN(start_line)
+        if self.start_line <= 1:
+            ACTION.RUN(self.start_line)
         else:
             # instantiate run from line preset dialog
-            info = '<b>Running From Line: {} <\b>'.format(start_line)
-            mess = {'NAME':'RUNFROMLINE', 'TITLE':'Preset Dialog', 'ID':'_RUNFROMLINE', 'MESSAGE':info, 'LINE':start_line}
+            info = '<b>Running From Line: {} <\b>'.format(self.start_line)
+            mess = {'NAME':'RUNFROMLINE', 'TITLE':'Preset Dialog', 'ID':'_RUNFROMLINE', 'MESSAGE':info, 'LINE':self.start_line}
             ACTION.CALL_DIALOG(mess)
-        self.add_status("Started program from line {}".format(start_line))
+        self.add_status("Started program from line {}".format(self.start_line))
         self.timer_on = True
 
     def btn_reload_file_clicked(self):
@@ -692,8 +707,10 @@ class HandlerClass:
         else:
             print("Override limits not set")
 
-    def chk_run_from_line_checked(self, state):
+    def chk_run_from_line_changed(self, state):
         self.w.gcodegraphics.set_inhibit_selection(not state)
+        if not state:
+            self.w.btn_cycle_start.setText('CYCLE START')
 
     def chk_alpha_mode_changed(self, state):
         self.w.gcodegraphics.set_alpha_mode(state)
@@ -724,12 +741,16 @@ class HandlerClass:
             self.add_status("Loaded program file : {}".format(fname))
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
         elif fname.endswith(".html"):
-            self.w.setup_webView.load(QtCore.QUrl.fromLocalFile(fname))
-            self.add_status("Loaded HTML file : {}".format(fname))
-            self.w.main_tab_widget.setCurrentIndex(TAB_SETUP)
-            self.w.btn_setup.setChecked(True)
+            try:
+                self.web_page.mainFrame().load(QtCore.QUrl.fromLocalFile(fname))
+                self.add_status("Loaded HTML file : {}".format(fname))
+                self.w.main_tab_widget.setCurrentIndex(TAB_SETUP)
+                self.w.btn_setup.setChecked(True)
+            except Exception as e:
+                print("Error loading HTML file : {}".format(e))
         else:
             self.add_status("Unknown or invalid filename")
+        self.w.stackedWidget.setCurrentIndex(0)
 
     def disable_spindle_pause(self):
         self.h['eoffset_count'] = 0
@@ -812,9 +833,10 @@ class HandlerClass:
 
     def set_start_line(self, line):
         if self.w.chk_run_from_line.isChecked():
-            self.w.lbl_start_line.setText(str(line))
+            self.start_line = line
+            self.w.btn_cycle_start.setText("CYCLE START\nLINE {}".format(self.start_line))
         else:
-            self.w.lbl_start_line.setText('1')
+            self.start_line = 1
 
     def use_keyboard(self):
         if self.w.chk_use_keyboard.isChecked():
@@ -823,23 +845,19 @@ class HandlerClass:
             self.add_status('Keyboard shortcuts are disabled')
             return False
 
-    def update_rpm_bar(self, speed):
+    def update_rpm(self, speed):
         rpm = int(speed)
-        if rpm < self.min_spindle_rpm:
-            rpm_pc = 0
+        if self.min_spindle_rpm > int(speed) > self.max_spindle_rpm:
             if STATUS.is_spindle_on():
-                self.w.lbl_min_rpm.setStyleSheet("color: red;")
-                self.w.lbl_max_rpm.setStyleSheet("")
-        elif rpm > self.max_spindle_rpm:
-            rpm_pc = 100
-            if STATUS.is_spindle_on():
-                self.w.lbl_min_rpm.setStyleSheet("")
-                self.w.lbl_max_rpm.setStyleSheet("color: red;")
+                widget = self.w.lbl_spindle_set
+                widget.setProperty('in_range', False)
+                widget.style().unpolish(widget)
+                widget.style().polish(widget)
         else:
-            rpm_pc = ((rpm - self.min_spindle_rpm) * 100) / (self.max_spindle_rpm - self.min_spindle_rpm)
-            self.w.lbl_min_rpm.setStyleSheet("")
-            self.w.lbl_max_rpm.setStyleSheet("")
-        self.w.spindle_rpm.setValue(int(rpm_pc))
+            widget = self.w.lbl_spindle_set
+            widget.setProperty('in_range', True)
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
 
     def update_runtimer(self):
         if self.timer_on is False or STATUS.is_auto_paused(): return
@@ -853,6 +871,7 @@ class HandlerClass:
 
     def stop_timer(self):
         self.timer_on = False
+        self.add_status("Run timer stopped at {}".format(self.w.lbl_runtime.text()))
 
     #####################
     # KEY BINDING CALLS #
@@ -895,7 +914,7 @@ class HandlerClass:
             self.kb_jog(state, 1, -1, shift)
 
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
-        if self.use_keyboard()():
+        if self.use_keyboard():
             self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self,event,state,shift,cntrl):
