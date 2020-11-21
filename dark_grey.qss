@@ -42,7 +42,9 @@ QPushButton:checked {
 }
 
 ActionButton#action_machine_on {
-    color: #9ad58d;
+    background: transparent;
+    border: none;
+    color: #FF0000;
 }
 
 ActionButton#action_machine_on:checked {
@@ -142,6 +144,7 @@ StatusLabel#status_rpm {
     font: 20pt "Lato Heavy";
 }
 
+StatusLabel#status_rpm[at_speed=false],
 StatusLabel#lbl_spindle_set[in_range=false] {
     color: red;
 }
@@ -351,6 +354,19 @@ QScrollBar::sub-page:vertical {
     border: 1px solid #e0e0e0;
 }
 
+QGroupBox {
+    background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
+    border: 1px solid #e0e0e0;
+    margin-top: 1ex;
+}
+
+QGroupBox::Title {
+    subcontrol-origin: margin;
+    subcontrol-position: top-center;
+    padding: 0 4px;
+    color: #e0e0e0;
+}
+
 QWidget:disabled {
     color: #454545;
     background-color: #323232;
@@ -380,4 +396,27 @@ QListView::item:selected {
     color: #9ad58d;
 }
 
+QDialog {
+    background-color: gray;
+}
 
+QDialog QPushButton {
+    width: 100px;
+    height: 40px;
+}
+
+QMenu {
+    background-color: gray;
+    border: 1px solid #9ad58d;
+    color: #e0e0e0;
+}
+
+QMenu::item:selected {
+    background-color: #9ad58d;
+    color: black;
+}
+
+QStatusBar {
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0.7, y2:0, stop:0 #202020, stop:1 #606060);
+    color: #e0e0e0;
+}

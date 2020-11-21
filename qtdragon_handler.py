@@ -41,9 +41,10 @@ class HandlerClass:
         self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
         self.styleeditor = SSE(widgets, paths)
         KEYBIND.add_call('Key_F12','on_keycall_F12')
-        KEYBIND.add_call('Key_Pause', 'on_keycall_pause')
-                
+        KEYBIND.add_call('Key_Pause', 'on_keycall_PAUSE')
+        KEYBIND.add_call('Key_Space', 'on_keycall_PAUSE')
         # some global variables
+        self.probe = None
         self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
         self.start_line = 0
         self.run_time = 0
@@ -52,9 +53,8 @@ class HandlerClass:
         self.home_all = False
         self.min_spindle_rpm = INFO.MIN_SPINDLE_SPEED
         self.max_spindle_rpm = INFO.MAX_SPINDLE_SPEED
-        self.max_linear_velocity = INFO.MAX_LINEAR_VELOCITY * 60
+        self.max_linear_velocity = INFO.MAX_TRAJ_VELOCITY
         self.system_list = ["G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3"]
-        self.tab_index_code = (0, 1, 2, 3, 0, 0, 2, 0, 0, 0)
         self.slow_jog_factor = 10
         self.reload_tool = 0
         self.last_loaded_program = ""
@@ -63,7 +63,6 @@ class HandlerClass:
                               "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
         self.onoff_list = ["frame_program", "frame_tool", "frame_dro", "frame_override"]
-        self.auto_list = ["chk_eoffsets", "cmb_gcode_history"]
         self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
                             "action_home_a", "widget_jog_angular", "widget_increments_angular",
                             "a_plus_jogbutton", "a_minus_jogbutton"]
@@ -71,9 +70,6 @@ class HandlerClass:
         STATUS.connect('general', self.dialog_return)
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
         STATUS.connect('state-off', lambda w: self.enable_onoff(False))
-        STATUS.connect('mode-manual', lambda w: self.enable_auto(True))
-        STATUS.connect('mode-mdi', lambda w: self.enable_auto(True))
-        STATUS.connect('mode-auto', lambda w: self.enable_auto(False))
         STATUS.connect('gcode-line-selected', lambda w, line: self.set_start_line(line))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
         STATUS.connect('program-pause-changed', lambda w, state: self.w.btn_pause_spindle.setEnabled(state))
@@ -95,16 +91,21 @@ class HandlerClass:
         self.init_pins()
         self.init_preferences()
         self.init_widgets()
+        self.init_probe()
         self.w.stackedWidget_log.setCurrentIndex(0)
         self.w.stackedWidget.setCurrentIndex(0)
         self.w.stackedWidget_dro.setCurrentIndex(0)
-        self.w.basicprobe.hide()
+        if self.probe:
+            self.probe.hide()
         self.w.btn_pause_spindle.setEnabled(False)
         self.w.btn_dimensions.setChecked(True)
-        self.w.btn_touch_sensor.setEnabled(self.w.chk_use_tool_sensor.isChecked())
+        self.w.btn_tool_sensor.setEnabled(self.w.chk_use_tool_sensor.isChecked())
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.filemanager.onUserClicked()    
         self.w.filemanager_usb.onMediaClicked()
+        self.chk_lock_wph_changed(self.w.chk_lock_wph.isChecked())
+        self.chk_use_sensor_changed(self.w.chk_use_tool_sensor.isChecked())
+        self.chk_use_touchplate_changed(self.w.chk_use_touchplate.isChecked())
         self.chk_run_from_line_changed(self.w.chk_run_from_line.isChecked())
         self.chk_use_camera_changed(self.w.chk_use_camera.isChecked())
         self.chk_alpha_mode_changed(self.w.chk_alpha_mode.isChecked())
@@ -113,7 +114,6 @@ class HandlerClass:
             for i in self.axis_a_list:
                 self.w[i].hide()
             self.w.lbl_increments_linear.setText("INCREMENTS")
-    # signal connections
     # set validators for lineEdit widgets
         for val in self.lineedit_list:
             self.w['lineEdit_' + val].setValidator(self.valid)
@@ -134,6 +134,7 @@ class HandlerClass:
         hal_glib.GPin(pin).connect("value_changed", self.spindle_pwr_changed)
         pin = self.h.newpin("spindle_fault", hal.HAL_U32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self.spindle_fault_changed)
+        self.h.newpin("spindle_at_speed", hal.HAL_BIT, hal.HAL_IN)
         pin = self.h.newpin("modbus-errors", hal.HAL_U32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self.mb_errors_changed)
         self.h.newpin("spindle_inhibit", hal.HAL_BIT, hal.HAL_OUT)
@@ -168,6 +169,7 @@ class HandlerClass:
         self.w.chk_reload_tool.setChecked(self.w.PREFS_.getpref('Reload tool', False, bool,'CUSTOM_FORM_ENTRIES'))
         self.w.chk_use_keyboard.setChecked(self.w.PREFS_.getpref('Use keyboard', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_use_tool_sensor.setChecked(self.w.PREFS_.getpref('Use tool sensor', False, bool, 'CUSTOM_FORM_ENTRIES'))
+        self.w.chk_use_touchplate.setChecked(self.w.PREFS_.getpref('Use tool touchplate', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_use_virtual.setChecked(self.w.PREFS_.getpref('Use virtual keyboard', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_use_camera.setChecked(self.w.PREFS_.getpref('Use camera', False, bool, 'CUSTOM_FORM_ENTRIES'))
@@ -195,15 +197,18 @@ class HandlerClass:
         self.w.PREFS_.putpref('Reload program', self.w.chk_reload_program.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Reload tool', self.w.chk_reload_tool.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use keyboard', self.w.chk_use_keyboard.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
-        self.w.PREFS_.putpref('Use tool_sensor', self.w.chk_use_tool_sensor.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Use tool sensor', self.w.chk_use_tool_sensor.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Use tool touchplate', self.w.chk_use_touchplate.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use virtual keyboard', self.w.chk_use_virtual.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use camera', self.w.chk_use_camera.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use alpha display mode', self.w.chk_alpha_mode.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
+        if self.probe:
+            self.probe.closing_cleanup__()
 
     def init_widgets(self):
         self.w.main_tab_widget.setCurrentIndex(0)
-        self.w.slider_jog_linear.setMaximum(self.max_linear_velocity)
+        self.w.slider_jog_linear.setMaximum(INFO.MAX_LINEAR_JOG_VEL)
         self.w.slider_jog_linear.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
         self.w.slider_jog_angular.setMaximum(INFO.MAX_ANGULAR_JOG_VEL)
         self.w.slider_jog_angular.setValue(INFO.DEFAULT_ANGULAR_JOG_VEL)
@@ -238,6 +243,27 @@ class HandlerClass:
         self.web_page.setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.web_view.setPage(self.web_page)
         self.w.layout_setup.addWidget(self.web_view)
+        
+    def init_probe(self):
+        probe = INFO.get_error_safe_setting('PROBE', 'USE_PROBE', 'none').lower()
+        if probe == 'versaprobe':
+            LOG.info("Using Versa Probe")
+#            from qtvcp.widgets.versa_probe import VersaProbe
+            from versa_probe import VersaProbe
+            self.probe = VersaProbe()
+            self.probe.setObjectName('versaprobe')
+        elif probe == 'basicprobe':
+            LOG.info("Using Basic Probe")
+#            from qtvcp.widgets.basic_probe import BasicProbe
+            from basic_probe import BasicProbe
+            self.probe = BasicProbe()
+            self.probe.setObjectName('basicprobe')
+        else:
+            LOG.info("No valid probe widget specified")
+            self.w.btn_probe.hide()
+            return
+        self.w.probe_layout.addWidget(self.probe)
+        self.probe.hal_init()
 
     def processed_focus_event__(self, receiver, event):
         if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return
@@ -459,11 +485,11 @@ class HandlerClass:
             self.w.btn_gcode_edit.setChecked(False)
             self.w.btn_gcode_edit_clicked(False)
         if btn == self.w.btn_probe:
-            self.w.basicprobe.show()
-        else:
-            self.w.basicprobe.hide()
+            self.probe.show()
+        elif self.probe:
+            self.probe.hide()
         self.w.main_tab_widget.setCurrentIndex(index)
-        self.w.stackedWidget.setCurrentIndex(self.tab_index_code[index])
+        self.w.stackedWidget.setCurrentIndex(index == TAB_FILE)
 
     # gcode frame
     def cmb_gcode_history_clicked(self):
@@ -520,7 +546,7 @@ class HandlerClass:
             mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
             ACTION.CALL_DIALOG(mess)
         
-    # touchoff frame
+    # offsets frame
     def btn_goto_location_clicked(self):
         dest = self.w.sender().property('location')
         if dest == 'home':
@@ -558,7 +584,23 @@ class HandlerClass:
         self.add_status("Camera offsets set")
         command = "G10 L20 P0 X{:3.4f} Y{:3.4f}".format(x, y)
         ACTION.CALL_MDI(command)
-    
+
+    def btn_touchoff_clicked(self):
+        if STATUS.get_current_tool() == 0:
+            self.add_status("Cannot touchoff with no tool loaded")
+            return
+        if not STATUS.is_all_homed():
+            self.add_status("Must be homed to perform tool touchoff")
+            return
+        # instantiate dialog box
+        sensor = self.w.sender().property('sensor')
+        info = "Ensure tooltip is within {} mm of tool sensor and click OK".format(self.w.lineEdit_max_probe.text())
+        mess = {'NAME':'MESSAGE', 'ID':sensor, 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
+        ACTION.CALL_DIALOG(mess)
+        
+    def chk_lock_wph_changed(self, state):
+        self.w.lineEdit_work_height.setReadOnly(not state)
+
     # DRO frame
     def btn_home_all_clicked(self, obj):
         if self.home_all is False:
@@ -660,19 +702,6 @@ class HandlerClass:
         else:
             self.add_status("No tool selected")
 
-    def btn_touchoff_clicked(self):
-        if STATUS.get_current_tool() == 0:
-            self.add_status("Cannot touchoff with no tool loaded")
-            return
-        if not STATUS.is_all_homed():
-            self.add_status("Must be homed to perform tool touchoff")
-            return
-        # instantiate dialog box
-        sensor = self.w.sender().property('sensor')
-        info = "Ensure tooltip is within {} mm of tool sensor and click OK".format(self.w.lineEdit_max_probe.text())
-        mess = {'NAME':'MESSAGE', 'ID':sensor, 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
-        ACTION.CALL_DIALOG(mess)
-        
     # status tab
     def btn_clear_status_clicked(self):
         STATUS.emit('update-machine-log', None, 'DELETE')
@@ -723,7 +752,10 @@ class HandlerClass:
             self.w.btn_camera.hide()
 
     def chk_use_sensor_changed(self, state):
-        self.w.btn_touch_sensor.setEnabled(state)
+        self.w.btn_tool_sensor.setEnabled(state)
+
+    def chk_use_touchplate_changed(self, state):
+        self.w.btn_touchplate.setEnabled(state)
 
     def chk_use_virtual_changed(self, state):
         if not state:
@@ -809,17 +841,8 @@ class HandlerClass:
             ACTION.JOG(joint, 0, 0, 0)
 
     def add_status(self, message):
-        self.w.lineEdit_statusbar.setText(message)
+        self.w.statusbar.showMessage(message)
         STATUS.emit('update-machine-log', message, 'TIME')
-
-    def enable_auto(self, state):
-        for widget in self.auto_list:
-            self.w[widget].setEnabled(state)
-        if state is False:
-            self.w.btn_main.setChecked(True)
-            self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
-            self.w.stackedWidget.setCurrentIndex(0)
-            self.w.stackedWidget_dro.setCurrentIndex(0)
 
     def enable_onoff(self, state):
         if state:
@@ -847,17 +870,20 @@ class HandlerClass:
 
     def update_rpm(self, speed):
         rpm = int(speed)
-        if self.min_spindle_rpm > int(speed) > self.max_spindle_rpm:
-            if STATUS.is_spindle_on():
-                widget = self.w.lbl_spindle_set
-                widget.setProperty('in_range', False)
-                widget.style().unpolish(widget)
-                widget.style().polish(widget)
+        if rpm == 0:
+            in_range = True
+            at_speed = True
         else:
-            widget = self.w.lbl_spindle_set
-            widget.setProperty('in_range', True)
-            widget.style().unpolish(widget)
-            widget.style().polish(widget)
+            in_range = (self.min_spindle_rpm <= int(speed) <= self.max_spindle_rpm)
+            at_speed = self.h['spindle_at_speed']
+        widget = self.w.lbl_spindle_set
+        widget.setProperty('in_range', in_range)
+        widget.style().unpolish(widget)
+        widget.style().polish(widget)
+        widget = self.w.status_rpm
+        widget.setProperty('at_speed', at_speed)
+        widget.style().unpolish(widget)
+        widget.style().polish(widget)
 
     def update_runtimer(self):
         if self.timer_on is False or STATUS.is_auto_paused(): return
@@ -893,7 +919,7 @@ class HandlerClass:
         if state and not STATUS.is_all_homed() and self.use_keyboard():
             ACTION.SET_MACHINE_HOMING(-1)
 
-    def on_keycall_pause(self,event,state,shift,cntrl):
+    def on_keycall_PAUSE(self,event,state,shift,cntrl):
         if state and STATUS.is_auto_mode() and self.use_keyboard():
             ACTION.PAUSE()
 
