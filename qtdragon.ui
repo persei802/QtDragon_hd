@@ -5186,7 +5186,7 @@ OFF</string>
                    <string>HOME X</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   <set>Qt::AlignCenter</set>
                   </property>
                   <property name="margin">
                    <number>2</number>
@@ -5256,7 +5256,7 @@ OFF</string>
                    <string>HOME Y</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   <set>Qt::AlignCenter</set>
                   </property>
                   <property name="margin">
                    <number>2</number>
@@ -5326,7 +5326,7 @@ OFF</string>
                    <string>HOME Z</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   <set>Qt::AlignCenter</set>
                   </property>
                   <property name="margin">
                    <number>2</number>
@@ -5396,7 +5396,7 @@ OFF</string>
                    <string>PROBE</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   <set>Qt::AlignCenter</set>
                   </property>
                   <property name="margin">
                    <number>2</number>
@@ -7589,9 +7589,6 @@ SENSOR</string>
                   </property>
                   <property name="toolTip">
                    <string>Tool touchoff to touchplate</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>TOUCHOFF TO TOOL TOUCHPLATE</string>
                   </property>
                   <property name="text">
                    <string>TOUCH
@@ -12684,7 +12681,7 @@ INCREMENT</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>05:30:05 PM</string>
+                  <string>01:23:50 PM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>

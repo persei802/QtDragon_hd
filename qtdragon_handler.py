@@ -62,7 +62,7 @@ class HandlerClass:
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y",
                               "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
-        self.onoff_list = ["frame_program", "frame_tool", "frame_dro", "frame_override"]
+        self.onoff_list = ["frame_program", "frame_tool", "frame_offsets", "frame_dro", "frame_override"]
         self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
                             "action_home_a", "widget_jog_angular", "widget_increments_angular",
                             "a_plus_jogbutton", "a_minus_jogbutton"]
@@ -70,6 +70,7 @@ class HandlerClass:
         STATUS.connect('general', self.dialog_return)
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
         STATUS.connect('state-off', lambda w: self.enable_onoff(False))
+        STATUS.connect('mode-auto', lambda w: self.enable_auto(True))
         STATUS.connect('gcode-line-selected', lambda w, line: self.set_start_line(line))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
         STATUS.connect('program-pause-changed', lambda w, state: self.w.btn_pause_spindle.setEnabled(state))
@@ -843,6 +844,14 @@ class HandlerClass:
     def add_status(self, message):
         self.w.statusbar.showMessage(message)
         STATUS.emit('update-machine-log', message, 'TIME')
+
+    def enable_auto(self, state):
+        if state is True:
+            self.w.btn_main.setChecked(True)
+            self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
+            self.probe.hide()
+            self.w.stackedWidget.setCurrentIndex(0)
+            self.w.stackedWidget_dro.setCurrentIndex(0)
 
     def enable_onoff(self, state):
         if state:
