@@ -12681,7 +12681,7 @@ INCREMENT</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>01:23:50 PM</string>
+                  <string>11:26:38 AM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>

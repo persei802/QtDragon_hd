@@ -65,6 +65,7 @@ ActionButton#action_estop:checked {
 QCheckBox {
     spacing: 5px;
     outline: none;
+    font: 10pt "Lato Heavy";
     color: #e0e0e0;
     margin-bottom: 2px;
 }
@@ -91,7 +92,9 @@ QComboBox {
     background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
     border: 1px solid black;
     border-radius: 4px;
-    min-width: 120px;
+    min-width: 100px;
+    padding: 1px 0px 1px 8px;
+    font: 10pt "Lato Heavy";
     color: #9ad58d;
 }
 
@@ -285,7 +288,7 @@ QScrollBar:horizontal {
 }
 
 QScrollBar::handle:horizontal {
-    background-color: #808080;
+    background-color: #9ad58d;
     min-width: 15px;
     border-radius: 4px;
 }
@@ -314,7 +317,7 @@ QScrollBar:vertical {
 }
 
 QScrollBar::handle:vertical {
-    background-color: #808080;
+    background-color: #9ad58d;
     min-height: 15px;
     border-radius: 4px;
 }
@@ -345,7 +348,7 @@ QScrollBar::add-page:horizontal,
 QScrollBar::sub-page:horizontal,
 QScrollBar::add-page:vertical,
 QScrollBar::sub-page:vertical {
-    background: none;
+    background: #606060;
 }
 
 /** Miscellaneous **/
@@ -358,6 +361,7 @@ QGroupBox {
     background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
     border: 1px solid #e0e0e0;
     margin-top: 1ex;
+    font: 10pt "Lato Heavy";
 }
 
 QGroupBox::Title {
@@ -381,10 +385,6 @@ QHeaderView::section {
     background-color: #404040;
     color: #9ad58d;
     padding: 5px;
-}
-
-GCodeEditor#gcode_viewer {
-    background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
 }
 
 QStackedWidget {
@@ -419,4 +419,16 @@ QMenu::item:selected {
 QStatusBar {
     background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0.7, y2:0, stop:0 #202020, stop:1 #606060);
     color: #e0e0e0;
+}
+
+/** GCode Display **/
+EditorBase {
+    qproperty-styleColorBackground: #303030;
+    qproperty-styleColor0: #9ad58d; /* digit characters */
+    qproperty-styleColor1: #9ad58d; /* comments */
+    qproperty-styleColor2: #9ad58d; /* alphabetic characters */
+    qproperty-styleColor3: #9ad58d; /* assignment characters */
+    qproperty-styleColor4: #9ad58d; /* value characters */
+    qproperty-styleFont0: "Lato Heavy, 10, -1, 0, 90, 0, 0, 0, 0";
+    qproperty-styleFont2: "Lato Heavy, 10, -1, 0, 94, 0, 0, 0, 0";
 }
