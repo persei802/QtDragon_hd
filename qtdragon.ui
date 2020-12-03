@@ -816,6 +816,40 @@
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="btn_utils">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>80</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>UTILS</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="index" stdset="0">
+                 <number>9</number>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">page_buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
                <spacer name="horizontalSpacer">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -997,7 +1031,7 @@
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>9</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -4954,6 +4988,104 @@ TO FILE</string>
                          </widget>
                         </item>
                        </layout>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                   <widget class="QWidget" name="main_tab_widgetPage10">
+                    <layout class="QHBoxLayout" name="horizontalLayout_65">
+                     <property name="spacing">
+                      <number>4</number>
+                     </property>
+                     <property name="leftMargin">
+                      <number>4</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>4</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QTabWidget" name="tabWidget_utilities">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="currentIndex">
+                        <number>2</number>
+                       </property>
+                       <widget class="QWidget" name="facing">
+                        <attribute name="title">
+                         <string>FACING</string>
+                        </attribute>
+                        <layout class="QVBoxLayout" name="layout_facing">
+                         <property name="spacing">
+                          <number>0</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                        </layout>
+                       </widget>
+                       <widget class="QWidget" name="hole_circle">
+                        <attribute name="title">
+                         <string>HOLE CIRCLE</string>
+                        </attribute>
+                        <layout class="QVBoxLayout" name="layout_hole_circle">
+                         <property name="spacing">
+                          <number>0</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                        </layout>
+                       </widget>
+                       <widget class="QWidget" name="calculator">
+                        <attribute name="title">
+                         <string>CALCULATOR</string>
+                        </attribute>
+                        <layout class="QVBoxLayout" name="layout_calculator">
+                         <property name="spacing">
+                          <number>0</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                        </layout>
+                       </widget>
                       </widget>
                      </item>
                     </layout>
@@ -12283,96 +12415,13 @@ INCREMENT</string>
                 </spacer>
                </item>
                <item>
-                <widget class="QWidget" name="widget_spindle_power" native="true">
-                 <layout class="QHBoxLayout" name="horizontalLayout_11">
-                  <property name="spacing">
-                   <number>4</number>
-                  </property>
-                  <property name="leftMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="rightMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="label_37">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>80</width>
-                      <height>30</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>80</width>
-                      <height>30</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>POWER</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLineEdit" name="lbl_spindle_power">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>60</width>
-                      <height>30</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>60</width>
-                      <height>30</height>
-                     </size>
-                    </property>
-                    <property name="toolTip">
-                     <string>Spindle power</string>
-                    </property>
-                    <property name="text">
-                     <string>000</string>
-                    </property>
-                    <property name="maxLength">
-                     <number>8</number>
-                    </property>
-                    <property name="cursorPosition">
-                     <number>3</number>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                    <property name="readOnly">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item>
                 <widget class="QWidget" name="widget_spindle_amps" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_13">
                   <property name="spacing">
                    <number>4</number>
@@ -12392,7 +12441,7 @@ INCREMENT</string>
                   <item>
                    <widget class="QLabel" name="label_40">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -12400,13 +12449,13 @@ INCREMENT</string>
                     <property name="minimumSize">
                      <size>
                       <width>80</width>
-                      <height>30</height>
+                      <height>0</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
                       <width>80</width>
-                      <height>30</height>
+                      <height>16777215</height>
                      </size>
                     </property>
                     <property name="text">
@@ -12420,7 +12469,7 @@ INCREMENT</string>
                   <item>
                    <widget class="QLineEdit" name="lbl_spindle_amps">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -12428,13 +12477,13 @@ INCREMENT</string>
                     <property name="minimumSize">
                      <size>
                       <width>60</width>
-                      <height>30</height>
+                      <height>0</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
                       <width>60</width>
-                      <height>30</height>
+                      <height>16777215</height>
                      </size>
                     </property>
                     <property name="toolTip">
@@ -12461,7 +12510,191 @@ INCREMENT</string>
                 </widget>
                </item>
                <item>
+                <widget class="QWidget" name="widget_spindle_volts" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_55">
+                  <property name="spacing">
+                   <number>4</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label_19">
+                    <property name="minimumSize">
+                     <size>
+                      <width>80</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>80</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>VOLTS</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="lbl_spindle_volts">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>60</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>60</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>000</string>
+                    </property>
+                    <property name="maxLength">
+                     <number>8</number>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                    <property name="readOnly">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="widget_spindle_power" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_11">
+                  <property name="spacing">
+                   <number>4</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label_37">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>80</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>80</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>POWER</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="lbl_spindle_power">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>60</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>60</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Spindle power</string>
+                    </property>
+                    <property name="text">
+                     <string>000</string>
+                    </property>
+                    <property name="maxLength">
+                     <number>8</number>
+                    </property>
+                    <property name="cursorPosition">
+                     <number>3</number>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                    <property name="readOnly">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
                 <widget class="QWidget" name="widget_spindle_error" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_14">
                   <property name="spacing">
                    <number>4</number>
@@ -12481,7 +12714,7 @@ INCREMENT</string>
                   <item>
                    <widget class="QLabel" name="label_42">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -12489,13 +12722,13 @@ INCREMENT</string>
                     <property name="minimumSize">
                      <size>
                       <width>80</width>
-                      <height>30</height>
+                      <height>0</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
                       <width>80</width>
-                      <height>30</height>
+                      <height>16777215</height>
                      </size>
                     </property>
                     <property name="text">
@@ -12509,7 +12742,7 @@ INCREMENT</string>
                   <item>
                    <widget class="QLineEdit" name="lbl_mb_errors">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -12517,13 +12750,13 @@ INCREMENT</string>
                     <property name="minimumSize">
                      <size>
                       <width>60</width>
-                      <height>30</height>
+                      <height>0</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
                       <width>60</width>
-                      <height>30</height>
+                      <height>16777215</height>
                      </size>
                     </property>
                     <property name="toolTip">
@@ -12545,6 +12778,12 @@ INCREMENT</string>
                </item>
                <item>
                 <widget class="QWidget" name="widget_spindle_fault" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_16">
                   <property name="spacing">
                    <number>4</number>
@@ -12564,7 +12803,7 @@ INCREMENT</string>
                   <item>
                    <widget class="QLabel" name="label_41">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -12572,13 +12811,13 @@ INCREMENT</string>
                     <property name="minimumSize">
                      <size>
                       <width>80</width>
-                      <height>30</height>
+                      <height>0</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
                       <width>80</width>
-                      <height>30</height>
+                      <height>16777215</height>
                      </size>
                     </property>
                     <property name="text">
@@ -12592,7 +12831,7 @@ INCREMENT</string>
                   <item>
                    <widget class="QLineEdit" name="lbl_spindle_fault">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -12600,13 +12839,13 @@ INCREMENT</string>
                     <property name="minimumSize">
                      <size>
                       <width>60</width>
-                      <height>30</height>
+                      <height>0</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
                       <width>60</width>
-                      <height>30</height>
+                      <height>16777215</height>
                      </size>
                     </property>
                     <property name="toolTip">
@@ -12681,7 +12920,7 @@ INCREMENT</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>11:26:38 AM</string>
+                  <string>01:32:02 PM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>

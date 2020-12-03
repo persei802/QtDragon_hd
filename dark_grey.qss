@@ -51,16 +51,6 @@ ActionButton#action_machine_on:checked {
     color: #9ad58d;
 }
 
-ActionButton#action_estop {
-    border-color: #9ad58d;
-    color: #9ad58d;
-}
-
-ActionButton#action_estop:checked {
-    border-color: #FF0000;
-    color: #FF0000;
-}
-
 /** Checkboxes **/
 QCheckBox {
     spacing: 5px;
@@ -141,6 +131,12 @@ StateLabel {
     border-radius: 4px;
     font: 10pt "Lato Heavy";
     color: #9ad58d;
+}
+
+StatusLabel#lbl_clock {
+    border: none;
+    font: 12pt;
+    color: #e0e0e0;
 }
 
 StatusLabel#status_rpm {
@@ -248,6 +244,7 @@ QHeaderView {
     background-color: #404040;
     margin: 0px;
     padding: 0px;
+    font: 14px "Lato Heavy";
     color: #9ad58d;
 }
 
@@ -351,6 +348,22 @@ QScrollBar::sub-page:vertical {
     background: #606060;
 }
 
+/** Tab Widget **/
+QTabBar::tab {
+    background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
+    border: 1px solid black;
+    border-radius: 4px;
+    min-height: 30px;
+    min-width: 100px;
+    font: 10pt "Lato Heavy";
+    color: #e0e0e0;
+}
+
+QTabBar::tab:selected {
+    border-color: #9ad58d;
+    color: #9ad58d;
+}
+
 /** Miscellaneous **/
 .QFrame {
     background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
@@ -423,12 +436,15 @@ QStatusBar {
 
 /** GCode Display **/
 EditorBase {
+    qproperty-styleColorMarginBackground: #303030;
+    qproperty-styleColorMarginText: #9ad58d; /* margin line numbers */
+    qproperty-styleFontMargin: "Lato Heavy, 10 ";
     qproperty-styleColorBackground: #303030;
     qproperty-styleColor0: #9ad58d; /* digit characters */
     qproperty-styleColor1: #9ad58d; /* comments */
     qproperty-styleColor2: #9ad58d; /* alphabetic characters */
     qproperty-styleColor3: #9ad58d; /* assignment characters */
     qproperty-styleColor4: #9ad58d; /* value characters */
-    qproperty-styleFont0: "Lato Heavy, 10, -1, 0, 90, 0, 0, 0, 0";
-    qproperty-styleFont2: "Lato Heavy, 10, -1, 0, 94, 0, 0, 0, 0";
+    qproperty-styleFont0: "Lato Heavy, 10";
+    qproperty-styleFont2: "Lato Heavy, 10";
 }

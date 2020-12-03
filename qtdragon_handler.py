@@ -32,6 +32,7 @@ TAB_CAMVIEW = 5
 TAB_GCODES = 6
 TAB_SETUP = 7
 TAB_SETTINGS = 8
+TAB_UTILS = 9
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
@@ -93,6 +94,7 @@ class HandlerClass:
         self.init_preferences()
         self.init_widgets()
         self.init_probe()
+        self.init_utils()
         self.w.stackedWidget_log.setCurrentIndex(0)
         self.w.stackedWidget.setCurrentIndex(0)
         self.w.stackedWidget_dro.setCurrentIndex(0)
@@ -249,14 +251,12 @@ class HandlerClass:
         probe = INFO.get_error_safe_setting('PROBE', 'USE_PROBE', 'none').lower()
         if probe == 'versaprobe':
             LOG.info("Using Versa Probe")
-#            from qtvcp.widgets.versa_probe import VersaProbe
-            from versa_probe import VersaProbe
+            from qtvcp.widgets.versa_probe import VersaProbe
             self.probe = VersaProbe()
             self.probe.setObjectName('versaprobe')
         elif probe == 'basicprobe':
             LOG.info("Using Basic Probe")
-#            from qtvcp.widgets.basic_probe import BasicProbe
-            from basic_probe import BasicProbe
+            from qtvcp.widgets.basic_probe import BasicProbe
             self.probe = BasicProbe()
             self.probe.setObjectName('basicprobe')
         else:
@@ -265,6 +265,17 @@ class HandlerClass:
             return
         self.w.probe_layout.addWidget(self.probe)
         self.probe.hal_init()
+
+    def init_utils(self):
+        from facing import Facing
+        self.facing = Facing()
+        self.w.layout_facing.addWidget(self.facing)
+        from hole_circle import Hole_Circle
+        self.hole_circle = Hole_Circle()
+        self.w.layout_hole_circle.addWidget(self.hole_circle)
+        from calculator import Calculator
+        self.calculator = Calculator()
+        self.w.layout_calculator.addWidget(self.calculator)
 
     def processed_focus_event__(self, receiver, event):
         if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return
@@ -347,11 +358,14 @@ class HandlerClass:
 
     def spindle_pwr_changed(self, data):
         # this calculation assumes the voltage is line to neutral
+        # that the current reported by the VFD is total current for all 3 phases
         # and that the synchronous motor spindle has a power factor of 0.9
-        power = self.h['spindle_volts'] * self.h['spindle_amps'] * 2.7 # 3 x V x I x PF
+        power = self.h['spindle_volts'] * self.h['spindle_amps'] * 0.9 # V x I x PF
         amps = "{:1.1f}".format(self.h['spindle_amps'])
+        volts = "{:1.1f}".format(self.h['spindle_volts'])
         pwr = "{:1.1f}".format(power)
         self.w.lbl_spindle_amps.setText(amps)
+        self.w.lbl_spindle_volts.setText(volts)
         self.w.lbl_spindle_power.setText(pwr)
 
     def spindle_fault_changed(self, data):
