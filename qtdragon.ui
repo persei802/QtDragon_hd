@@ -1031,7 +1031,7 @@
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>9</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1490,6 +1490,15 @@
                           <property name="checkable">
                            <bool>false</bool>
                           </property>
+                          <property name="autoRepeat">
+                           <bool>true</bool>
+                          </property>
+                          <property name="autoRepeatDelay">
+                           <number>500</number>
+                          </property>
+                          <property name="autoRepeatInterval">
+                           <number>300</number>
+                          </property>
                           <property name="view_change_action" stdset="0">
                            <bool>true</bool>
                           </property>
@@ -1568,6 +1577,15 @@
                           </property>
                           <property name="checkable">
                            <bool>false</bool>
+                          </property>
+                          <property name="autoRepeat">
+                           <bool>true</bool>
+                          </property>
+                          <property name="autoRepeatDelay">
+                           <number>500</number>
+                          </property>
+                          <property name="autoRepeatInterval">
+                           <number>300</number>
                           </property>
                           <property name="view_change_action" stdset="0">
                            <bool>true</bool>
@@ -12920,7 +12938,7 @@ INCREMENT</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>01:32:02 PM</string>
+                  <string>11:19:08 AM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -13007,10 +13025,35 @@ INCREMENT</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>RoundButton</class>
+   <extends>ActionButton</extends>
+   <header>qtvcp.widgets.action_button_round</header>
+  </customwidget>
+  <customwidget>
+   <class>ActionButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>CamView</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.camview_widget</header>
+  </customwidget>
+  <customwidget>
    <class>GCodeGraphics</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>JogIncrements</class>
+   <extends>QComboBox</extends>
+   <header>qtvcp.widgets.jog_increments</header>
+  </customwidget>
+  <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
   </customwidget>
   <customwidget>
    <class>OriginOffsetView</class>
@@ -13040,16 +13083,6 @@ INCREMENT</string>
    <header>qtvcp.widgets.axis_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>LED</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.led_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>JogIncrements</class>
-   <extends>QComboBox</extends>
-   <header>qtvcp.widgets.jog_increments</header>
-  </customwidget>
-  <customwidget>
    <class>ScreenOptions</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.screen_options</header>
@@ -13064,11 +13097,6 @@ INCREMENT</string>
    <class>MachineLog</class>
    <extends>QTextEdit</extends>
    <header>qtvcp.widgets.machine_log</header>
-  </customwidget>
-  <customwidget>
-   <class>CamView</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.camview_widget</header>
   </customwidget>
   <customwidget>
    <class>StatusLabel</class>
@@ -13086,11 +13114,6 @@ INCREMENT</string>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.dro_widget</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>RoundButton</class>
-   <extends>ActionButton</extends>
-   <header>qtvcp.widgets.action_button_round</header>
   </customwidget>
   <customwidget>
    <class>VirtualKeyboard</class>
@@ -13112,11 +13135,6 @@ INCREMENT</string>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.gcode_editor</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ActionButton</class>
-   <extends>QPushButton</extends>
-   <header>qtvcp.widgets.action_button</header>
   </customwidget>
  </customwidgets>
  <resources>
@@ -13852,7 +13870,7 @@ INCREMENT</string>
   <slot>chk_use_touchplate_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
