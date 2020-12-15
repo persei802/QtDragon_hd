@@ -129,6 +129,9 @@
       <property name="originOffsetDialog_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="calculatorDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
       <property name="machineLogDialog_option" stdset="0">
        <bool>true</bool>
       </property>
@@ -211,13 +214,7 @@
              <number>2</number>
             </property>
             <item>
-             <widget class="QStackedWidget" name="stackedWidget">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+             <widget class="QComboBox" name="cmb_gcode_history">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -227,156 +224,72 @@
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Lato Heavy</family>
+                <pointsize>10</pointsize>
+                <weight>50</weight>
+                <italic>false</italic>
+                <bold>false</bold>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string>History of loaded GCODE programs</string>
+              </property>
+              <property name="editable">
+               <bool>false</bool>
+              </property>
+              <property name="currentText">
+               <string/>
+              </property>
+              <property name="maxCount">
+               <number>10</number>
+              </property>
+              <property name="insertPolicy">
+               <enum>QComboBox::InsertAtTop</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="GcodeEditor" name="gcode_viewer">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="frameShape">
-               <enum>QFrame::Box</enum>
+              <property name="font">
+               <font>
+                <family>Lato</family>
+                <pointsize>10</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
               </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+              <property name="auto_show_mdi_status" stdset="0">
+               <bool>true</bool>
               </property>
-              <property name="currentIndex">
-               <number>0</number>
+              <property name="auto_show_manual_status" stdset="0">
+               <bool>false</bool>
               </property>
-              <widget class="QWidget" name="gcode_page">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <layout class="QVBoxLayout" name="verticalLayout_46">
-                <property name="spacing">
-                 <number>2</number>
-                </property>
-                <property name="leftMargin">
-                 <number>2</number>
-                </property>
-                <property name="topMargin">
-                 <number>2</number>
-                </property>
-                <property name="rightMargin">
-                 <number>2</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>2</number>
-                </property>
-                <item>
-                 <widget class="QComboBox" name="cmb_gcode_history">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>30</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>30</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Lato Heavy</family>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="focusPolicy">
-                   <enum>Qt::ClickFocus</enum>
-                  </property>
-                  <property name="toolTip">
-                   <string>History of loaded GCODE programs</string>
-                  </property>
-                  <property name="editable">
-                   <bool>false</bool>
-                  </property>
-                  <property name="currentText">
-                   <string/>
-                  </property>
-                  <property name="maxCount">
-                   <number>10</number>
-                  </property>
-                  <property name="insertPolicy">
-                   <enum>QComboBox::InsertAtTop</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="GcodeEditor" name="gcode_viewer">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Lato</family>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="auto_show_mdi_status" stdset="0">
-                   <bool>true</bool>
-                  </property>
-                  <property name="auto_show_manual_status" stdset="0">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-              <widget class="QWidget" name="file_page">
-               <layout class="QVBoxLayout" name="verticalLayout_2">
-                <property name="spacing">
-                 <number>2</number>
-                </property>
-                <property name="leftMargin">
-                 <number>2</number>
-                </property>
-                <property name="topMargin">
-                 <number>2</number>
-                </property>
-                <property name="rightMargin">
-                 <number>2</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>2</number>
-                </property>
-                <item>
-                 <widget class="FileManager" name="filemanager_usb"/>
-                </item>
-               </layout>
-              </widget>
              </widget>
             </item>
             <item>
@@ -1031,7 +944,7 @@
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>1</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1782,6 +1695,9 @@
                      <property name="bottomMargin">
                       <number>0</number>
                      </property>
+                     <item>
+                      <widget class="FileManager" name="filemanager_usb"/>
+                     </item>
                      <item>
                       <layout class="QVBoxLayout" name="verticalLayout_5">
                        <property name="rightMargin">
@@ -3105,6 +3021,13 @@ TO FILE</string>
                          </widget>
                         </item>
                         <item>
+                         <widget class="QLabel" name="label_27">
+                          <property name="text">
+                           <string>F4 - Calculator</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
                          <widget class="QLabel" name="label_35">
                           <property name="text">
                            <string>F12 - Style Sheet Editor</string>
@@ -3335,6 +3258,7 @@ TO FILE</string>
                        <zorder>chk_use_camera</zorder>
                        <zorder>label_15</zorder>
                        <zorder>chk_use_touchplate</zorder>
+                       <zorder>label_27</zorder>
                       </widget>
                      </item>
                      <item>
@@ -5036,7 +4960,7 @@ TO FILE</string>
                         </sizepolicy>
                        </property>
                        <property name="currentIndex">
-                        <number>2</number>
+                        <number>1</number>
                        </property>
                        <widget class="QWidget" name="facing">
                         <attribute name="title">
@@ -5065,28 +4989,6 @@ TO FILE</string>
                          <string>HOLE CIRCLE</string>
                         </attribute>
                         <layout class="QVBoxLayout" name="layout_hole_circle">
-                         <property name="spacing">
-                          <number>0</number>
-                         </property>
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                        </layout>
-                       </widget>
-                       <widget class="QWidget" name="calculator">
-                        <attribute name="title">
-                         <string>CALCULATOR</string>
-                        </attribute>
-                        <layout class="QVBoxLayout" name="layout_calculator">
                          <property name="spacing">
                           <number>0</number>
                          </property>
@@ -12899,7 +12801,7 @@ INCREMENT</string>
                <item>
                 <widget class="StatusLabel" name="lbl_clock">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -12907,13 +12809,13 @@ INCREMENT</string>
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>30</height>
+                   <height>0</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
-                   <height>30</height>
+                   <height>16777215</height>
                   </size>
                  </property>
                  <property name="font">
@@ -12925,9 +12827,6 @@ INCREMENT</string>
                    <bold>false</bold>
                   </font>
                  </property>
-                 <property name="styleSheet">
-                  <string notr="true">font: 12pt &quot;Lato Heavy&quot;;</string>
-                 </property>
                  <property name="frameShape">
                   <enum>QFrame::NoFrame</enum>
                  </property>
@@ -12938,7 +12837,7 @@ INCREMENT</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>11:19:08 AM</string>
+                  <string>03:51:40 PM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>

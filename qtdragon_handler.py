@@ -20,6 +20,7 @@ STATUS = Status()
 INFO = Info()
 ACTION = Action()
 PATH = Path()
+STYLEEDITOR = SSE()
 
 # constants for tab pages
 TAB_MAIN = 0
@@ -41,6 +42,7 @@ class HandlerClass:
         self.gcodes = GCodes(widgets)
         self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
         self.styleeditor = SSE(widgets, paths)
+        KEYBIND.add_call('Key_F4', 'on_keycall_F4')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_Pause', 'on_keycall_PAUSE')
         KEYBIND.add_call('Key_Space', 'on_keycall_PAUSE')
@@ -96,7 +98,6 @@ class HandlerClass:
         self.init_probe()
         self.init_utils()
         self.w.stackedWidget_log.setCurrentIndex(0)
-        self.w.stackedWidget.setCurrentIndex(0)
         self.w.stackedWidget_dro.setCurrentIndex(0)
         if self.probe:
             self.probe.hide()
@@ -237,7 +238,8 @@ class HandlerClass:
         self.w.gcode_editor.hide()
         self.w.filemanager.list.setAlternatingRowColors(False)
         self.w.filemanager_usb.list.setAlternatingRowColors(False)
-
+        # move clock to statusbar
+        self.w.statusbar.addPermanentWidget(self.w.lbl_clock)
         #set up gcode list
         self.gcodes.setup_list()
         # set up web page viewer
@@ -273,9 +275,6 @@ class HandlerClass:
         from hole_circle import Hole_Circle
         self.hole_circle = Hole_Circle()
         self.w.layout_hole_circle.addWidget(self.hole_circle)
-        from calculator import Calculator
-        self.calculator = Calculator()
-        self.w.layout_calculator.addWidget(self.calculator)
 
     def processed_focus_event__(self, receiver, event):
         if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return
@@ -504,7 +503,6 @@ class HandlerClass:
         elif self.probe:
             self.probe.hide()
         self.w.main_tab_widget.setCurrentIndex(index)
-        self.w.stackedWidget.setCurrentIndex(index == TAB_FILE)
 
     # gcode frame
     def cmb_gcode_history_clicked(self):
@@ -797,7 +795,6 @@ class HandlerClass:
                 print("Error loading HTML file : {}".format(e))
         else:
             self.add_status("Unknown or invalid filename")
-        self.w.stackedWidget.setCurrentIndex(0)
 
     def disable_spindle_pause(self):
         self.h['eoffset_count'] = 0
@@ -864,7 +861,6 @@ class HandlerClass:
             self.w.btn_main.setChecked(True)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
             self.probe.hide()
-            self.w.stackedWidget.setCurrentIndex(0)
             self.w.stackedWidget_dro.setCurrentIndex(0)
 
     def enable_onoff(self, state):
@@ -977,6 +973,11 @@ class HandlerClass:
     def on_keycall_ANEG(self,event,state,shift,cntrl):
         if self.use_keyboard():
             self.kb_jog(state, 3, -1, shift, False)
+
+    def on_keycall_F4(self,event,state,shift,cntrl):
+        if state:
+            mess = {'NAME':'CALCULATOR', 'TITLE':'Calculator', 'ID':'_calculator_'}
+            ACTION.CALL_DIALOG(mess)
 
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:

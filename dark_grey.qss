@@ -17,7 +17,7 @@ QPushButton,
 ActionButton,
 SystemToolButton,
 AxisToolButton {
-    background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
+    background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(30, 30, 30, 255), stop:1 rgba(90, 90, 90, 255));
     border: 1px solid black;
     border-radius: 4px;
     font: 10pt "Lato Heavy";
@@ -42,13 +42,21 @@ QPushButton:checked {
 }
 
 ActionButton#action_machine_on {
-    background: transparent;
-    border: none;
     color: #FF0000;
 }
 
 ActionButton#action_machine_on:checked {
     color: #9ad58d;
+}
+
+ActionButton#action_estop {
+    border-color: #9ad58d;
+    color: #9ad58d;
+}
+
+ActionButton#action_estop:checked {
+    border-color: #FF0000;
+    color: #FF0000;
 }
 
 /** Checkboxes **/
@@ -126,7 +134,7 @@ QLabel#label_axis_a {
 
 StatusLabel,
 StateLabel {
-    background: #404040;
+    background: #202020;
     border: 1px solid #C0C0C0;
     border-radius: 4px;
     font: 10pt "Lato Heavy";
@@ -134,6 +142,7 @@ StateLabel {
 }
 
 StatusLabel#lbl_clock {
+    background: transparent;
     border: none;
     font: 12pt;
     color: #e0e0e0;
@@ -149,7 +158,7 @@ StatusLabel#lbl_spindle_set[in_range=false] {
 }
 
 DROLabel {
-    background: #404040;
+    background: #202020;
     border: 1px solid #C0C0C0;
     border-radius: 4px;
     font: 20pt "Lato Heavy";
@@ -162,33 +171,43 @@ DROLabel[homed=false] {
 
 /** Sliders **/
 QSlider::groove:horizontal {
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:0.5, stop:0 #808080, stop:1 #9ad58d);
-    height: 12px;
-    border-radius: 4px;
+    background-color: #303030;
+    height: 10px;
+    border-bottom: 2px solid #909090;
+    border-right: 2px solid #909090;
 }
 
 QSlider::groove:vertical {
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0.5, y2:0, stop:0 #808080, stop:1 #9ad58d);
-    width: 12px;
-    border-radius: 4px;
+    background-color: #303030;
+    width: 10px;
+    border-bottom: 2px solid #909090;
+    border-right: 2px solid #909090;
+}
+
+QSlider::sub-page:horizontal {
+    background: qlineargradient(spread:pad, x1:0, y1:0, x2:0.5, y2:0, stop:0 #808080, stop:1 #9ad58d);;
+}
+
+QSlider::add-page:vertical {
+    background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:0.5, stop:0 #808080, stop:1 #9ad58d);;
 }
 
 QSlider::handle:horizontal {
-    background-color: #808080;
+    background-color: #A0A0A0;
     border: 1px solid black;
-    width: 14px;
-    margin-top: -4px;
-    margin-bottom: -4px;
-    border-radius: 4px;
+    width: 12px;
+    margin-top: -9px;
+    margin-bottom: -9px;
+    border-radius: 2px;
 }
 
 QSlider::handle:vertical {
-    background-color: #808080;
+    background-color: #A0A0A0;
     border: 1px solid black;
-    height: 14px;
-    margin-left: -4px;
-    margin-right: -4px;
-    border-radius: 4px;
+    height: 12px;
+    margin-left: -9px;
+    margin-right: -9px;
+    border-radius: 2px;
 }
 
 QProgressBar {
@@ -203,7 +222,7 @@ QProgressBar::chunk:horizontal {
 
 /** LineEdits **/
 QLineEdit {
-    background: #404040;
+    background: #202020;
     border: 1px solid #C0C0C0;
     border-radius: 4px;
     font: 10pt "Lato Heavy";
@@ -437,7 +456,7 @@ QStatusBar {
 /** GCode Display **/
 EditorBase {
     qproperty-styleColorMarginBackground: #303030;
-    qproperty-styleColorMarginText: #9ad58d; /* margin line numbers */
+    qproperty-styleColorMarginText: #E0E0E0; /* margin line numbers */
     qproperty-styleFontMargin: "Lato Heavy, 10 ";
     qproperty-styleColorBackground: #303030;
     qproperty-styleColor0: #9ad58d; /* digit characters */
