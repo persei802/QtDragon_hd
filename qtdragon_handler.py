@@ -62,6 +62,7 @@ class HandlerClass:
         self.reload_tool = 0
         self.last_loaded_program = ""
         self.first_turnon = True
+        self.unit_label_list = ["ts_height", "tp_height", "zoffset_units", "max_probe_units"]
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y",
                               "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
@@ -79,7 +80,6 @@ class HandlerClass:
         STATUS.connect('program-pause-changed', lambda w, state: self.w.btn_pause_spindle.setEnabled(state))
         STATUS.connect('actual-spindle-speed-changed', lambda w, speed: self.update_rpm(speed))
         STATUS.connect('user-system-changed', lambda w, data: self.user_system_changed(data))
-        STATUS.connect('metric-mode-changed', lambda w, mode: self.metric_mode_changed(mode))
         STATUS.connect('file-loaded', self.file_loaded)
         STATUS.connect('homed', self.homed)
         STATUS.connect('all-homed', self.all_homed)
@@ -113,6 +113,7 @@ class HandlerClass:
         self.chk_run_from_line_changed(self.w.chk_run_from_line.isChecked())
         self.chk_use_camera_changed(self.w.chk_use_camera.isChecked())
         self.chk_alpha_mode_changed(self.w.chk_alpha_mode.isChecked())
+        self.chk_use_virtual_changed(self.w.chk_use_virtual.isChecked())
     # hide widgets for A axis if not present
         if "A" not in INFO.AVAILABLE_AXES:
             for i in self.axis_a_list:
@@ -126,6 +127,13 @@ class HandlerClass:
             self.web_page.mainFrame().load(QtCore.QUrl.fromLocalFile(self.default_setup))
         except Exception as e:
             print("No default setup file found - {}".format(e))
+    # set unit labels according to machine mode
+        unit = "MM" if INFO.MACHINE_IS_METRIC else "IN"
+        for i in self.unit_label_list:
+            self.w['lbl_' + i].setText(unit)
+        unit = "MM/MIN" if INFO.MACHINE_IS_METRIC else "IN/MIN"
+        for i in ["search_vel_units", "probe_vel_units", "jog_linear"]:
+            self.w['lbl_' + i].setText(unit)
 
     #############################
     # SPECIAL FUNCTIONS SECTION #
@@ -236,8 +244,10 @@ class HandlerClass:
         self.w.jogincrements_linear.wheelEvent = lambda event: None
         self.w.jogincrements_angular.wheelEvent = lambda event: None
         self.w.gcode_editor.hide()
-        self.w.filemanager.list.setAlternatingRowColors(False)
-        self.w.filemanager_usb.list.setAlternatingRowColors(False)
+        self.w.filemanager.table.setShowGrid(False)
+        self.w.filemanager_usb.table.setShowGrid(False)
+        self.w.tooloffsetview.setShowGrid(False)
+        self.w.offset_table.setShowGrid(False)
         # move clock to statusbar
         self.w.statusbar.addPermanentWidget(self.w.lbl_clock)
         #set up gcode list
@@ -248,7 +258,7 @@ class HandlerClass:
         self.web_page.setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.web_view.setPage(self.web_page)
         self.w.layout_setup.addWidget(self.web_view)
-        
+
     def init_probe(self):
         probe = INFO.get_error_safe_setting('PROBE', 'USE_PROBE', 'none').lower()
         if probe == 'versaprobe':
@@ -399,15 +409,6 @@ class HandlerClass:
         sys = self.system_list[int(data) - 1]
         self.w.offset_table.selectRow(int(data) + 3)
         self.w.actionbutton_rel.setText(sys)
-
-    def metric_mode_changed(self, mode):
-        if mode is False:
-            self.w.lbl_jog_linear.setText('JOG RATE\nIN/MIN')
-            maxvel = float(self.max_linear_velocity) / 25.4
-        else:
-            self.w.lbl_jog_linear.setText('JOG RATE\nMM/MIN')
-            maxvel = float(self.max_linear_velocity)
-        self.w.lbl_max_rapid.setText("{:4.0f}".format(maxvel))
 
     def file_loaded(self, obj, filename):
         if filename is not None:
@@ -668,21 +669,21 @@ class HandlerClass:
             return
         if state:
             self.w.filemanager.hide()
-            self.w.widget_file_copy.hide()
             self.w.gcode_editor.show()
             self.w.gcode_editor.editMode()
         else:
             self.w.filemanager.show()
-            self.w.widget_file_copy.show()
             self.w.gcode_editor.hide()
             self.w.gcode_editor.readOnlyMode()
 
     def btn_load_file_clicked(self):
+        if self.w.btn_gcode_edit.isChecked(): return
         fname = self.w.filemanager.getCurrentSelected()
         if fname[1] is True:
             self.load_code(fname[0])
 
     def btn_copy_file_clicked(self):
+        if self.w.btn_gcode_edit.isChecked(): return
         if self.w.sender() == self.w.btn_copy_right:
             source = self.w.filemanager_usb.getCurrentSelected()
             target = self.w.filemanager.getCurrentSelected()
@@ -771,6 +772,9 @@ class HandlerClass:
         self.w.btn_touchplate.setEnabled(state)
 
     def chk_use_virtual_changed(self, state):
+        codestring = "CALCULATOR" if state else "ENTRY"
+        for i in ("x", "y", "z", "a"):
+            self.w["axistoolbutton_" + i].set_dialog_code(codestring)
         if not state:
             self.w.stackedWidget_dro.setCurrentIndex(0)
 
@@ -891,7 +895,7 @@ class HandlerClass:
         rpm = int(speed)
         if rpm == 0:
             in_range = True
-            at_speed = True
+            at_speed = False
         else:
             in_range = (self.min_spindle_rpm <= int(speed) <= self.max_spindle_rpm)
             at_speed = self.h['spindle_at_speed']
@@ -899,10 +903,14 @@ class HandlerClass:
         widget.setProperty('in_range', in_range)
         widget.style().unpolish(widget)
         widget.style().polish(widget)
-        widget = self.w.status_rpm
-        widget.setProperty('at_speed', at_speed)
-        widget.style().unpolish(widget)
-        widget.style().polish(widget)
+        if at_speed is True:
+            self.w.lbl_spindle_atspeed.setText('AT SPEED')
+        else:
+            self.w.lbl_spindle_atspeed.setText('')
+#        widget = self.w.status_rpm
+#        widget.setProperty('at_speed', at_speed)
+#        widget.style().unpolish(widget)
+#        widget.style().polish(widget)
 
     def update_runtimer(self):
         if self.timer_on is False or STATUS.is_auto_paused(): return

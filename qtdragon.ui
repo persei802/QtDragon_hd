@@ -944,7 +944,7 @@
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>1</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1849,48 +1849,48 @@ FILE</string>
                             </property>
                            </spacer>
                           </item>
-                         </layout>
-                        </widget>
-                       </item>
-                       <item alignment="Qt::AlignBottom">
-                        <widget class="PushButton" name="btn_gcode_edit">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="minimumSize">
-                          <size>
-                           <width>80</width>
-                           <height>50</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>80</width>
-                           <height>50</height>
-                          </size>
-                         </property>
-                         <property name="toolTip">
-                          <string>Edit currently loaded gcode file</string>
-                         </property>
-                         <property name="text">
-                          <string>EDIT
+                          <item>
+                           <widget class="PushButton" name="btn_gcode_edit">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>80</width>
+                              <height>50</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>80</width>
+                              <height>50</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Edit currently loaded gcode file</string>
+                            </property>
+                            <property name="text">
+                             <string>EDIT
 GCODE</string>
-                         </property>
-                         <property name="checkable">
-                          <bool>true</bool>
-                         </property>
-                         <property name="python_command_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="true_python_cmd_string" stdset="0">
-                          <string/>
-                         </property>
-                         <property name="false_python_cmd_string" stdset="0">
-                          <string/>
-                         </property>
+                            </property>
+                            <property name="checkable">
+                             <bool>true</bool>
+                            </property>
+                            <property name="python_command_option" stdset="0">
+                             <bool>false</bool>
+                            </property>
+                            <property name="true_python_cmd_string" stdset="0">
+                             <string/>
+                            </property>
+                            <property name="false_python_cmd_string" stdset="0">
+                             <string/>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
                         </widget>
                        </item>
                       </layout>
@@ -2191,7 +2191,7 @@ ROTATION</string>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QWidget" name="widget_tool_table_2" native="true">
+                      <widget class="QWidget" name="widget_tool_table" native="true">
                        <layout class="QVBoxLayout" name="verticalLayout_20">
                         <property name="spacing">
                          <number>4</number>
@@ -4252,7 +4252,7 @@ TO FILE</string>
                             </widget>
                            </item>
                            <item>
-                            <widget class="QLabel" name="label_14">
+                            <widget class="QLabel" name="lbl_zoffset_units">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                                <horstretch>0</horstretch>
@@ -4366,7 +4366,7 @@ TO FILE</string>
                             </widget>
                            </item>
                            <item>
-                            <widget class="QLabel" name="lbl_touchheight_units">
+                            <widget class="QLabel" name="lbl_tp_height">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                                <horstretch>0</horstretch>
@@ -4486,7 +4486,7 @@ TO FILE</string>
                             </widget>
                            </item>
                            <item>
-                            <widget class="QLabel" name="label_36">
+                            <widget class="QLabel" name="lbl_ts_height">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                                <horstretch>0</horstretch>
@@ -7209,7 +7209,7 @@ SPINDLE</string>
                   </property>
                   <property name="text">
                    <string>WORKPIECE
-HEIGHT (MM)</string>
+HEIGHT</string>
                   </property>
                   <property name="checked">
                    <bool>true</bool>
@@ -9410,7 +9410,7 @@ ZERO</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="StatusLabel" name="label_gcodes">
+                 <widget class="StatusLabel" name="lbl_gcodes">
                   <property name="enabled">
                    <bool>true</bool>
                   </property>
@@ -9463,7 +9463,7 @@ ZERO</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="StatusLabel" name="label_mcodes">
+                 <widget class="StatusLabel" name="lbl_mcodes">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -12086,14 +12086,40 @@ INCREMENT</string>
                 </spacer>
                </item>
                <item>
-                <widget class="QLabel" name="label_25">
-                 <property name="text">
-                  <string>RPM</string>
+                <layout class="QHBoxLayout" name="horizontalLayout_66">
+                 <property name="topMargin">
+                  <number>0</number>
                  </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
+                 <item>
+                  <widget class="QLabel" name="label_25">
+                   <property name="text">
+                    <string>RPM</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="lbl_spindle_atspeed">
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>80</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </item>
                <item>
                 <widget class="StatusLabel" name="status_rpm">
@@ -12837,7 +12863,7 @@ INCREMENT</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>03:51:40 PM</string>
+                  <string>03:52:43 PM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -13047,8 +13073,8 @@ INCREMENT</string>
    <slot>btn_load_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>588</x>
-     <y>106</y>
+     <x>990</x>
+     <y>107</y>
     </hint>
     <hint type="destinationlabel">
      <x>1059</x>
@@ -13063,8 +13089,8 @@ INCREMENT</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>106</y>
+     <x>990</x>
+     <y>599</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -13079,8 +13105,8 @@ INCREMENT</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>116</y>
+     <x>990</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -13095,8 +13121,8 @@ INCREMENT</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>116</y>
+     <x>990</x>
+     <y>391</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -13495,8 +13521,8 @@ INCREMENT</string>
    <slot>btn_goto_location_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>981</y>
+     <x>509</x>
+     <y>902</y>
     </hint>
     <hint type="destinationlabel">
      <x>467</x>
@@ -13511,8 +13537,8 @@ INCREMENT</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>505</x>
-     <y>967</y>
+     <x>509</x>
+     <y>846</y>
     </hint>
     <hint type="destinationlabel">
      <x>417</x>
@@ -13527,8 +13553,8 @@ INCREMENT</string>
    <slot>btn_ref_camera_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>525</x>
-     <y>983</y>
+     <x>607</x>
+     <y>902</y>
     </hint>
     <hint type="destinationlabel">
      <x>524</x>
@@ -13543,8 +13569,8 @@ INCREMENT</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>600</x>
-     <y>967</y>
+     <x>607</x>
+     <y>846</y>
     </hint>
     <hint type="destinationlabel">
      <x>530</x>
@@ -13559,8 +13585,8 @@ INCREMENT</string>
    <slot>btn_ref_laser_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>600</x>
-     <y>911</y>
+     <x>607</x>
+     <y>790</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -13575,8 +13601,8 @@ INCREMENT</string>
    <slot>btn_goto_location_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>600</x>
-     <y>855</y>
+     <x>607</x>
+     <y>734</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -13687,12 +13713,28 @@ INCREMENT</string>
    <slot>slider_rapid_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1248</x>
-     <y>827</y>
+     <x>1329</x>
+     <y>857</y>
     </hint>
     <hint type="destinationlabel">
      <x>1247</x>
      <y>1064</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_dimensions</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_dimensions_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1139</x>
+     <y>355</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-165</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
