@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+
+<h1>USING A VFD</h1>
+<p>QtDragon was designed to communicate with a VFD via modbus. A Linuxcnc native HAL component provides the modbus interface 
+between QtDragon and a Huanyang GT Series VFD.
+<p>To implement modbus communication, the following HAL connections must be added to the qtdragon_postgui.hal file:</p>
+
+<div class="code-block">
+    <pre class="hal">loadusr -Wn hy_gt_vfd hy_gt_vfd.py -S 24000 -F 400 -f 120 -d /dev/ttyUSB0 [other options]</pre>
+    <pre class="hal">net spindle-on       hy_gt_vfd.spindle-on <= spindle.0.on</pre>
+    <pre class="hal">net spindle-fb       hy_gt_vfd.speed-fb => spindle.0.speed-in</pre>
+    <pre class="hal">net spindle-cmd      hy_gt_vfd.speed-cmd <= spindle.0.speed-out-abs</pre>
+    <pre class="hal">net spindle-amps     hy_gt_vfd.output-current => qtdragon.spindle-amps</pre>
+    <pre class="hal">net spindle-volts    hy_gt_vfd.output-voltage => qtdragon.spindle-volts</pre>
+    <pre class="hal">net spindle-fault    hy_gt_vfd.fault-info-code => qtdragon.modbus-fault</pre>
+    <pre class="hal">net modbus-errors    hy_gt_vfd.modbus-errors => qtdragon.modbus-errors</pre>
+</div>
+
+<p>Other optional arguments for hy_gt_vfd.py are:</p>
+<table>
+<tr>
+    <td>-b</td><td>--bits</td><td>number of bits in a byte</td>
+</tr>
+<tr>
+    <td>-r</td><td>--rate</td><td>baud rate</td>
+</tr>
+<tr>
+    <td>-p</td><td>--parity</td><td>odd, even or none</td>
+</tr>
+<tr>
+    <td>-s</td><td>--stopbits</td><td>1 or 2</td>
+</tr>
+<tr>
+    <td>-t</td><td>--slave</td><td>modbus slave address (address of VFD)</td>
+</tr>
+
+</table>
+<p>The spindle gauge widget is connected with:</p>
+
+<div class="code-block">
+    <pre class="hal">net spindle-cmd     qtdragon.gauge_spindle_setpoint</pre>
+    <pre class="hal">net spindle-fb      qtdragon.gauge_spindle_value</pre>
+</div>
+
+<h2>Default Parameters</h2>
+If no optional arguments are included when loading the hy_gt_vfd HAL module, the following defaults will be used:
+<ul>
+    <li>parity  - N - none</li>
+    <li>bytes   - 8 bits per byte</li>
+    <li>stop    - 1 bit</li>
+    <li>baud    - 38400 bits/sec</li>
+    <li>slave   - 1</li>
+</ul>
+
+</body>
+</html>

@@ -1,0 +1,304 @@
+
+/* 
+    WARNING! File created programmatically by qtsass.
+    All changes made in this file will be lost!
+*/
+QMainWindow {
+  background-image: url("qtdragon/images/brushed_metal.png");
+}
+
+/* Checkbox */
+QCheckBox {
+  spacing: 10px;
+  margin-bottom: 2px;
+  font: 10pt "Lato Heavy";
+  color: #000000;
+}
+
+QCheckBox::indicator:checked {
+  height: 16px;
+  width: 16px;
+}
+
+QCheckBox::indicator:unchecked {
+  height: 16px;
+  width: 16px;
+}
+
+QCheckBox:disabled {
+  color: #54687A;
+}
+
+/* ComboBox */
+QComboBox {
+  background: transparent;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  min-width: 100px;
+  font: 10pt "Lato Heavy";
+  color: #000000;
+}
+
+QComboBox::drop-down {
+  subcontrol-origin: margin;
+  subcontrol-position: top right;
+  border: none;
+  width: 40px;
+}
+
+QComboBox::item {
+  background-color: transparent;
+  color: #000000;
+}
+
+QComboBox::item:selected {
+  color: #0000FF;
+}
+
+/* Dialog */
+QDialog {
+  background-image: url("qtdragon/images/brushed_metal.png");
+}
+
+ToolDialog QPushButton, AboutDialog QPushButton {
+  width: 100px;
+  height: 40px;
+}
+
+EntryDialog QPushButton, CloseDialog QPushButton {
+  width: 80px;
+  height: 40px;
+}
+
+/* GroupBox */
+QGroupBox {
+  background: transparent;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  margin-top: 16px;
+  font: 10pt "Lato Heavy";
+}
+
+QGroupBox::title {
+  subcontrol-origin: margin;
+  subcontrol-position: top-center;
+  padding: 0 4px;
+  color: #000000;
+}
+
+/* Headers */
+QHeaderView {
+  background-color: #B0B0D0;
+  border: 0px transparent #32414B;
+  padding: 0px;
+  margin: 0px;
+  border-radius: 0px;
+  font: 10pt "Lato Heavy";
+}
+
+QHeaderView::section::vertical::first, QHeaderView::section::vertical::only-one {
+  width: 60px;
+}
+
+/* QLabel */
+QLabel {
+  background: transparent;
+  font: 10pt "Lato Heavy";
+  color: #19232D;
+}
+
+StatusLabel,
+StateLabel {
+  border: 2px solid #000000;
+  border-radius: 4px;
+  font: 10pt "Lato Heavy";
+  color: #19232D;
+}
+
+StatusLabel#lbl_gcodes,
+StatusLabel#lbl_mcodes,
+StatusLabel#lbl_clock {
+  background: transparent;
+  border: none;
+  color: #19232D;
+}
+
+DROLabel {
+  border: 2px solid #000000;
+  border-radius: 4px;
+  font: 20pt "Lato Heavy";
+}
+
+DROLabel[isHomed=false] {
+  color: red;
+}
+
+QStatusBar {
+  background: transparent;
+  color: #000000;
+}
+
+/* LineEdit */
+QLineEdit {
+  background: transparent;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  font: 10pt "Lato Heavy";
+  color: #000000;
+}
+
+/* ProgressBar */
+QProgressBar {
+  background-color: transparent;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  font: 10pt "Lato Heavy";
+}
+
+QProgressBar::chunk {
+  background: #5e5c64;
+}
+
+/** Pushbuttons **/
+QToolButton,
+QPushButton,
+ActionButton,
+SystemToolButton,
+AxisToolButton {
+  border: 2px solid #000000;
+  border-radius: 4px;
+  color: #000000;
+  font: 10pt "Lato Heavy";
+}
+
+QPushButton:checked,
+QPushButton:pressed {
+  border: 2px solid #0000FF;
+  color: #0000FF;
+}
+
+QPushButton:hover,
+SystemToolButton:hover,
+AxisToolButton:hover {
+  border: 2px solid #73C7FF;
+}
+
+QPushButton:disabled,
+QPushButton:checked:disabled {
+  color: #54687A;
+}
+
+#btn_home_all[homed=true] {
+  color: #00ff00;
+}
+
+QPushButton#btn_home_all[homed=false] {
+  color: #ff0000;
+}
+
+#action_machine_on {
+  background: none;
+  background-image: url("qtdragon/images/machine_off.png");
+  border: none;
+}
+
+#action_machine_on:checked {
+  background: none;
+  background-image: url("qtdragon/images/machine_on.png");
+  border: none;
+}
+
+#btn_estop {
+  background: qlineargradient(x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, stop: 0.0 rgba(220, 40, 40, 100%), stop: 1.0 rgba(100, 40, 40, 100%));
+  border: 4px solid red;
+  border-radius: 16px;
+  color: white;
+}
+
+#btn_estop:checked {
+  background: qlineargradient(x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, stop: 0.0 rgba(100, 40, 40, 100%), stop: 1.0 rgba(220, 40, 40, 100%));
+}
+
+/* Slider */
+QSlider::groove:horizontal {
+  background: #9DA9B5;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  height: 8px;
+}
+
+QSlider::handle:horizontal {
+  background: #ACB1B6;
+  border: 1px solid #000000;
+  border-radius: 2px;
+  width: 20px;
+  margin-top: -9px;
+  margin-bottom: -9px;
+}
+
+QSlider::sub-page:horizontal {
+  background-color: #5e5c64;
+  border-radius: 4px;
+  margin: 0px;
+}
+
+QSlider::add-page:horizontal {
+  margin: 4px;
+}
+
+QSlider::groove:vertical {
+  background: #9DA9B5;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  width: 8px;
+}
+
+QSlider::handle:vertical {
+  background: #ACB1B6;
+  border: 1px solid #000000;
+  border-radius: 2px;
+  height: 20px;
+  margin-left: -9px;
+  margin-right: -9px;
+}
+
+QSlider::add-page:vertical {
+  margin: 4px;
+}
+
+QSlider::sub-page:vertical {
+  background-color: #5e5c64;
+  border-radius: 4px;
+  margin: 0px;
+}
+
+/** Tab Widgets **/
+QTabWidget {
+  border: none;
+}
+
+QTabWidget::pane {
+  background: transparent;
+  border: none;
+  top: -1px;
+}
+
+QTabBar::tab {
+  border: 2px solid #000000;
+  border-radius: 4px;
+  min-height: 40px;
+  min-width: 80px;
+  font: 10pt "Lato Heavy";
+  color: #000000;
+}
+
+QTabBar::tab:selected {
+  border: 2px solid #0000FF;
+  color: #0000FF;
+}
+
+/* TextEdit */
+QTextEdit {
+  background: #fafafa;
+  font: 10pt "Lato";
+}

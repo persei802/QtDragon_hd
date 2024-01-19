@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+<h1>STYLESHEETS</h1>
+<p>The appearance of the widgets in the QtDragon UI can be customized through the use of stylesheets. Upon initialization, QTVCP 
+searches for stylesheets in the users HANDLER folder. If none are found, it will apply a default style from the 
+/usr/share/qtvcp directory. To change the current style, press F12 (while the UI has focus) and interact with QTVCP's stylesheet 
+editor dialog. This allows a user to easily modify an existing stylesheet or create a completely new and customized one. 
+Any existing stylesheet could be used as a starting template.</p>
+<h2>Creating Custom Stylesheets</h2>
+Custom style sheets can be created by manually creating and editing a .qss file or with a SASS compiler like qtsass.
+Using qtsass provides quick style changes and easier maintenance by breaking the style definitions into individual 
+widget style definition files. By using variables for the style properties, the stylesheet can be updated by
+redefining the variable definitions in the top level file. 
+<p>See <i>https://pypi.org/project/qtsass/</i> for more information.</p>
+</body>
+</html>
