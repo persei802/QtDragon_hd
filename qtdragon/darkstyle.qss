@@ -245,6 +245,11 @@ QProgressBar::chunk:horizontal {
   margin: 2px;
 }
 
+StatusAdjustmentBar QToolButton {
+  width: 40px;
+  height: 40px;
+}
+
 /** PushButtons **/
 QToolButton,
 QPushButton {
