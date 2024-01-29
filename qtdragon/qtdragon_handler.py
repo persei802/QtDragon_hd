@@ -63,6 +63,7 @@ class HandlerClass:
         self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
         self.styleeditor = SSE(widgets, paths)
         self.settings_checkboxes = []
+        self.touchoff_checkboxes = []
         self.settings_offsets = []
         self.settings_spindle = []
         self.settings_probe = []
@@ -165,6 +166,7 @@ class HandlerClass:
         self.w.filemanager.onUserClicked()
         self.use_mpg_changed(self.w.chk_use_mpg.isChecked())
         self.use_camera_changed(self.w.chk_use_camera.isChecked())
+        self.touchoff_changed(True)
         if self.probe is not None: self.probe_offset_edited()
         # determine if A axis widgets should be visible or not
         if not "A" in self.axis_list:
@@ -247,6 +249,10 @@ class HandlerClass:
         self.settings_checkboxes = self.w.groupBox_operational.findChildren(QtWidgets.QCheckBox)
         for checkbox in self.settings_checkboxes:
             checkbox.setChecked(self.w.PREFS_.getpref(checkbox.objectName(), False, bool, 'CUSTOM_FORM_ENTRIES'))
+        # touchoff checkboxes
+        self.touchoff_checkboxes = self.w.groupBox_touchoff.findChildren(QtWidgets.QCheckBox)
+        for checkbox in self.touchoff_checkboxes:
+            checkbox.setChecked(self.w.PREFS_.getpref(checkbox.objectName(), False, bool, 'CUSTOM_FORM_ENTRIES'))
         # offsets settings
         self.settings_offsets = self.w.frame_locations.findChildren(QtWidgets.QLineEdit)
         for offset in self.settings_offsets:
@@ -268,6 +274,8 @@ class HandlerClass:
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
         for checkbox in self.settings_checkboxes:
+            self.w.PREFS_.putpref(checkbox.objectName(), checkbox.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
+        for checkbox in self.touchoff_checkboxes:
             self.w.PREFS_.putpref(checkbox.objectName(), checkbox.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         for offset in self.settings_offsets:
             self.w.PREFS_.putpref(offset.objectName(), offset.text(), str, 'CUSTOM_FORM_ENTRIES')
@@ -638,9 +646,7 @@ class HandlerClass:
                     ACTION.OPEN_PROGRAM(self.last_loaded_program)
         ACTION.SET_MANUAL_MODE()
         self.w.manual_mode_button.setChecked(True)
-        # enable tool touchoff and camera buttons according to SETTINGS
-#        self.w.btn_tool_sensor.setEnabled(self.w.chk_use_tool_sensor.isChecked())
-#        self.w.btn_touchplate.setEnabled(self.w.chk_use_touchplate.isChecked())
+        # enable camera buttons according to SETTINGS
         self.w.btn_ref_camera.setEnabled(self.w.chk_use_camera.isChecked())
         self.add_status("All axes homed")
 
@@ -832,7 +838,6 @@ class HandlerClass:
 
     # jogging frame
     def jog_xy_pressed(self, btn):
-        # this only works if jograte adjusters are sliders
         if btn == "C":
             text = "FAST" if self.slow_linear_jog is True else "SLOW"
             self.w.jog_xy.setCenterText(text)
@@ -847,7 +852,6 @@ class HandlerClass:
             ACTION.DO_JOG(axis, direction)
 
     def jog_az_pressed(self, btn):
-        # this only works if override adjusters are sliders
         if btn == "C":
             text = "FAST" if self.slow_angular_jog is True else "SLOW"
             self.w.jog_az.setCenterText(text)
@@ -904,8 +908,6 @@ class HandlerClass:
             self.touchoff('manual')
         else:
             self.add_status("Invalid touchoff method specified", WARNING)
-#        sensor = self.w.sender().property('sensor')
-#        self.touchoff(mode)
 
     # DRO frame
     def btn_home_all_clicked(self, obj):
@@ -959,7 +961,7 @@ class HandlerClass:
         ACTION.CALL_MDI(command)
 
     # override frame
-    # this only works if log adjusters are sliders
+    # this only works if jog adjusters are sliders
     def btn_linear_fast_clicked(self, state):
         self.slow_linear_jog = state
         step = 1 if state else 10
@@ -1128,6 +1130,18 @@ class HandlerClass:
         else:
             self.w.group_macro_buttons.hide()
 
+    def touchoff_changed(self, state):
+        if not state: return
+        if self.w.chk_touchplate.isChecked():
+            self.w.btn_touchoff.setText("TOUCHPLATE")
+            self.w.btn_touchoff.setToolTip("Auto probe Z down to touchplate")
+        elif self.w.chk_auto_toolsensor.isChecked():
+            self.w.btn_touchoff.setText("AUTO TOUCHOFF Z")
+            self.w.btn_touchoff.setToolTip("Auto probe Z down to tool sensor")
+        elif self.w.chk_manual_toolsensor.isChecked():
+            self.w.btn_touchoff.setText("MANUAL TOUCHOFF Z")
+            self.w.btn_touchoff.setToolTip("Set workpiece Z0")
+
     #####################
     # GENERAL FUNCTIONS #
     #####################
@@ -1223,7 +1237,7 @@ class HandlerClass:
             self.add_status("Touchoff routine is already running", WARNING)
 
     def touchoff_return(self, data):
-        self.add_status(f"Touchoff routine returned {data}")
+        self.add_status("Touchoff routine returned success")
             
     def touchoff_error(self, data):
         self.add_status(data, WARNING)
@@ -1276,8 +1290,6 @@ class HandlerClass:
         self.w.btn_pause_spindle.setEnabled(not state)
         self.w.btn_enable_comp.setEnabled(not state)
         self.w.btn_goto_sensor.setEnabled(not state)
-#        self.w.btn_tool_sensor.setEnabled(not state and self.w.chk_use_tool_sensor.isChecked())
-#        self.w.btn_touchplate.setEnabled(not state and self.w.chk_use_touchplate.isChecked())
         if state:
             self.w.btn_main.setChecked(True)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)

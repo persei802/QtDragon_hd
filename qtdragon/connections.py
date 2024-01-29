@@ -48,6 +48,9 @@ class Connections():
         self.w.chk_use_mdi_keyboard.stateChanged.connect(lambda state: self.parent.use_mdi_keyboard_changed(state))
         self.w.chk_edit_gcode.stateChanged.connect(lambda state: self.parent.edit_gcode_changed(state))
         self.w.chk_show_macros.stateChanged.connect(lambda state: self.parent.chk_show_macros_changed(state))
+        self.w.chk_touchplate.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
+        self.w.chk_manual_toolsensor.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
+        self.w.chk_auto_toolsensor.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
         # sliders
         self.w.adj_spindle_ovr.valueChanged.connect(lambda value: self.parent.adj_spindle_ovr_changed(value))
         self.w.cam_diameter.valueChanged.connect(lambda value: self.parent.cam_dia_changed(value))

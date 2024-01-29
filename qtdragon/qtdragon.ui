@@ -5005,7 +5005,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>QtDragon CNC Controller        04:38:46 PM</string>
+                       <string>QtDragon CNC Controller        01:15:37 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -5028,7 +5028,7 @@ TO FILE</string>
                   <widget class="QWidget" name="frm_settings2" native="true">
                    <layout class="QVBoxLayout" name="verticalLayout_49">
                     <property name="spacing">
-                     <number>4</number>
+                     <number>8</number>
                     </property>
                     <property name="leftMargin">
                      <number>4</number>
@@ -5360,6 +5360,19 @@ TO FILE</string>
                      </widget>
                     </item>
                     <item>
+                     <spacer name="verticalSpacer">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>40</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
                      <widget class="QGroupBox" name="groupBox_touchoff">
                       <property name="title">
                        <string>TOOL TOUCHOFF</string>
@@ -5418,37 +5431,6 @@ TO FILE</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QCheckBox" name="chk_manual_toolsensor">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>30</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>16777215</width>
-                           <height>30</height>
-                          </size>
-                         </property>
-                         <property name="toolTip">
-                          <string>Manual probe to sensor, trigger on button press</string>
-                         </property>
-                         <property name="text">
-                          <string>MANUAL TOOL SENSOR</string>
-                         </property>
-                         <property name="autoExclusive">
-                          <bool>true</bool>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
                         <widget class="QCheckBox" name="chk_auto_toolsensor">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -5473,6 +5455,37 @@ TO FILE</string>
                          </property>
                          <property name="text">
                           <string>AUTO TOOL SENSOR</string>
+                         </property>
+                         <property name="autoExclusive">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QCheckBox" name="chk_manual_toolsensor">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Manual probe to gauge, set Z0 on button press</string>
+                         </property>
+                         <property name="text">
+                          <string>MANUAL TOOL GAUGE</string>
                          </property>
                          <property name="autoExclusive">
                           <bool>true</bool>
@@ -10566,7 +10579,7 @@ SENSOR</string>
                   <string>Tool touchoff to tool sensor or touchplate</string>
                  </property>
                  <property name="text">
-                  <string>TOOL TOUCHOFF Z</string>
+                  <string>TOUCHOFF</string>
                  </property>
                  <property name="checkable">
                   <bool>false</bool>
@@ -13891,14 +13904,14 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="about_buttonGroup"/>
   <buttongroup name="util_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="about_buttonGroup"/>
  </buttongroups>
 </ui>
