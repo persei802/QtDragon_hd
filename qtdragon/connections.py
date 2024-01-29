@@ -29,8 +29,7 @@ class Connections():
         self.w.btn_mdi_enter.pressed.connect(self.parent.mdi_enter_pressed)
         # tool frame buttons
         self.w.btn_goto_sensor.clicked.connect(self.parent.btn_goto_location_clicked)
-        self.w.btn_tool_sensor.clicked.connect(self.parent.btn_touchoff_pressed)
-        self.w.btn_touchplate.clicked.connect(self.parent.btn_touchoff_pressed)
+        self.w.btn_touchoff.pressed.connect(self.parent.btn_touchoff_pressed)
         # tool table buttons
         self.w.btn_add_tool.pressed.connect(self.parent.btn_add_tool_pressed)
         self.w.btn_delete_tool.pressed.connect(self.parent.btn_delete_tool_pressed)
@@ -47,8 +46,6 @@ class Connections():
         self.w.chk_override_limits.stateChanged.connect(lambda state: self.parent.override_limits_changed(state))
         self.w.chk_use_camera.stateChanged.connect(lambda state: self.parent.use_camera_changed(state))
         self.w.chk_use_mdi_keyboard.stateChanged.connect(lambda state: self.parent.use_mdi_keyboard_changed(state))
-        self.w.chk_use_tool_sensor.stateChanged.connect(lambda state: self.w.btn_tool_sensor.setEnabled(state))
-        self.w.chk_use_touchplate.stateChanged.connect(lambda state: self.w.btn_touchplate.setEnabled(state))
         self.w.chk_edit_gcode.stateChanged.connect(lambda state: self.parent.edit_gcode_changed(state))
         self.w.chk_show_macros.stateChanged.connect(lambda state: self.parent.chk_show_macros_changed(state))
         # sliders

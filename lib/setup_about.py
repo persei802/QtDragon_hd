@@ -55,6 +55,7 @@ class Setup_About():
         self.make_button('vfd', 'USING\nA VFD')
         self.make_button('spindle_pause', 'SPINDLE\nPAUSE')
         self.make_button('mpg', 'USING\n A MPG')
+        self.make_button('touchoff', 'TOOL\nTOUCHOFF')
         self.make_button('runfromline', 'RUN FROM\nLINE')
         self.make_button('stylesheets', 'STYLESHEETS')
         if 'A' in INFO.AVAILABLE_AXES:
@@ -84,7 +85,7 @@ class Setup_About():
         self['btn_' + name].setSizePolicy(self.sizePolicy)
         self['btn_' + name].setMinimumSize(QtCore.QSize(90, 0))
         self['btn_' + name].setCheckable(True)
-        self['btn_' + name].setProperty('html', name)
+        self['btn_' + name].setProperty('index', self.btn_idx)
         self.w.about_buttonGroup.addButton(self['btn_' + name])
         self.w.layout_about_btns.insertWidget(self.btn_idx + 1, self['btn_' + name])
         self.about_btns.append(name)
@@ -105,7 +106,8 @@ class Setup_About():
         elif btn == self.w.btn_about_right:
             self.scroll_right()
         else:
-            html = btn.property('html')
+            index = btn.property('index')
+            html = self.about_btns[index]
             fname = os.path.join(HELP, 'about_' + html + '.html')
             if os.path.dirname(fname):
                 url = QtCore.QUrl("file:///" + fname)

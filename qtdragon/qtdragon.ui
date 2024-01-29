@@ -5005,7 +5005,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>QtDragon CNC Controller        09:38:07 AM</string>
+                       <string>QtDragon CNC Controller        04:38:46 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -5229,56 +5229,6 @@ TO FILE</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QCheckBox" name="chk_use_tool_sensor">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>30</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>16777215</width>
-                           <height>30</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string>USE TOOL SENSOR</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QCheckBox" name="chk_use_touchplate">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>30</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>16777215</width>
-                           <height>30</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string>USE TOUCH PLATE</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
                         <widget class="QCheckBox" name="chk_run_from_line">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -5403,6 +5353,129 @@ TO FILE</string>
                          </property>
                          <property name="text">
                           <string>OVERRIDE LIMITS</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QGroupBox" name="groupBox_touchoff">
+                      <property name="title">
+                       <string>TOOL TOUCHOFF</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                      <layout class="QVBoxLayout" name="verticalLayout_38">
+                       <property name="spacing">
+                        <number>4</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>4</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>12</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>4</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>4</number>
+                       </property>
+                       <item>
+                        <widget class="QCheckBox" name="chk_touchplate">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Auto probe to touchplate, trigger on Probe input</string>
+                         </property>
+                         <property name="text">
+                          <string>TOUCHPLATE</string>
+                         </property>
+                         <property name="checked">
+                          <bool>true</bool>
+                         </property>
+                         <property name="autoExclusive">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QCheckBox" name="chk_manual_toolsensor">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Manual probe to sensor, trigger on button press</string>
+                         </property>
+                         <property name="text">
+                          <string>MANUAL TOOL SENSOR</string>
+                         </property>
+                         <property name="autoExclusive">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QCheckBox" name="chk_auto_toolsensor">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Auto probe to sensor, trigger on Probe input</string>
+                         </property>
+                         <property name="text">
+                          <string>AUTO TOOL SENSOR</string>
+                         </property>
+                         <property name="autoExclusive">
+                          <bool>true</bool>
                          </property>
                         </widget>
                        </item>
@@ -10150,6 +10223,9 @@ SPINDLE</string>
                         <height>30</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Tool diameter from tool table</string>
+                      </property>
                       <property name="frameShape">
                        <enum>QFrame::WinPanel</enum>
                       </property>
@@ -10230,6 +10306,9 @@ SPINDLE</string>
                         <width>60</width>
                         <height>30</height>
                        </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Tool length offset from tool table</string>
                       </property>
                       <property name="frameShape">
                        <enum>QFrame::WinPanel</enum>
@@ -10444,7 +10523,7 @@ SPINDLE</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>16777215</width>
+                   <width>90</width>
                    <height>50</height>
                   </size>
                  </property>
@@ -10464,7 +10543,7 @@ SENSOR</string>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="btn_tool_sensor">
+                <widget class="QPushButton" name="btn_touchoff">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -10484,11 +10563,10 @@ SENSOR</string>
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Tool touchoff to tool sensor</string>
+                  <string>Tool touchoff to tool sensor or touchplate</string>
                  </property>
                  <property name="text">
-                  <string>TOOL
-SENSOR</string>
+                  <string>TOOL TOUCHOFF Z</string>
                  </property>
                  <property name="checkable">
                   <bool>false</bool>
@@ -10501,44 +10579,6 @@ SENSOR</string>
                  </property>
                  <property name="sensor" stdset="0">
                   <string>toolsensor</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="btn_touchplate">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>50</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>50</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Tool touchoff to touchplate</string>
-                 </property>
-                 <property name="text">
-                  <string>TOUCH
-PLATE</string>
-                 </property>
-                 <property name="checkable">
-                  <bool>false</bool>
-                 </property>
-                 <property name="flat">
-                  <bool>false</bool>
-                 </property>
-                 <property name="sensor" stdset="0">
-                  <string>touchplate</string>
                  </property>
                 </widget>
                </item>
@@ -11121,38 +11161,6 @@ RUNTIME</string>
                 <property name="verticalSpacing">
                  <number>6</number>
                 </property>
-                <item row="0" column="0">
-                 <widget class="SystemToolButton" name="systemtoolbutton">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>Select work coordinate system</string>
-                  </property>
-                  <property name="text">
-                   <string>SELECT
-WCS</string>
-                  </property>
-                  <property name="popupMode">
-                   <enum>QToolButton::InstantPopup</enum>
-                  </property>
-                 </widget>
-                </item>
                 <item row="2" column="2" colspan="2">
                  <widget class="DROLabel" name="dro_axis_y">
                   <property name="sizePolicy">
@@ -12407,6 +12415,38 @@ CAMERA</string>
                   </property>
                   <property name="flat">
                    <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="SystemToolButton" name="systemtoolbutton">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>90</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Select work coordinate system</string>
+                  </property>
+                  <property name="text">
+                   <string>SELECT
+WCS</string>
+                  </property>
+                  <property name="popupMode">
+                   <enum>QToolButton::InstantPopup</enum>
                   </property>
                  </widget>
                 </item>
@@ -13851,14 +13891,14 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="util_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="about_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="about_buttonGroup"/>
+  <buttongroup name="util_buttonGroup"/>
  </buttongroups>
 </ui>

@@ -639,8 +639,8 @@ class HandlerClass:
         ACTION.SET_MANUAL_MODE()
         self.w.manual_mode_button.setChecked(True)
         # enable tool touchoff and camera buttons according to SETTINGS
-        self.w.btn_tool_sensor.setEnabled(self.w.chk_use_tool_sensor.isChecked())
-        self.w.btn_touchplate.setEnabled(self.w.chk_use_touchplate.isChecked())
+#        self.w.btn_tool_sensor.setEnabled(self.w.chk_use_tool_sensor.isChecked())
+#        self.w.btn_touchplate.setEnabled(self.w.chk_use_touchplate.isChecked())
         self.w.btn_ref_camera.setEnabled(self.w.chk_use_camera.isChecked())
         self.add_status("All axes homed")
 
@@ -896,8 +896,16 @@ class HandlerClass:
         if not STATUS.is_all_homed():
             self.add_status("Must be homed to perform tool touchoff", WARNING)
             return
-        sensor = self.w.sender().property('sensor')
-        self.touchoff(sensor)
+        if self.w.chk_touchplate.isChecked():
+            self.touchoff('touchplate')
+        elif self.w.chk_auto_toolsensor.isChecked():
+            self.touchoff('toolsensor')
+        elif self.w.chk_manual_toolsensor.isChecked():
+            self.touchoff('manual')
+        else:
+            self.add_status("Invalid touchoff method specified", WARNING)
+#        sensor = self.w.sender().property('sensor')
+#        self.touchoff(mode)
 
     # DRO frame
     def btn_home_all_clicked(self, obj):
@@ -1190,16 +1198,19 @@ class HandlerClass:
         else:
             self.add_status("Unknown or invalid filename", WARNING)
 
-    def touchoff(self, selector):
-        if selector == 'touchplate':
+    def touchoff(self, mode):
+        if mode == 'touchplate':
             z_offset = self.w.lineEdit_touch_height.text()
-        elif selector == 'toolsensor':
+        elif mode == 'toolsensor':
             z_offset = float(self.w.lineEdit_sensor_height.text()) - float(self.w.lineEdit_work_height.text())
             z_offset = str(z_offset)
+        elif mode == "manual":
+            z_offset = float(self.w.lineEdit_sensor_height.text()) - float(self.w.lineEdit_work_height.text())
+            ACTION.CALL_MDI(f"G10 L20 P0 Z{z_offset:.3f}")
+            return            
         else:
-            self.add_status("Unknown touchoff routine specified", WARNING)
             return
-        self.add_status(f"Touchoff to {selector} started")
+        self.add_status(f"Touchoff to {mode} started")
         search_vel = self.w.lineEdit_search_vel.text()
         probe_vel = self.w.lineEdit_probe_vel.text()
         max_probe = self.w.lineEdit_max_probe.text()
@@ -1265,8 +1276,8 @@ class HandlerClass:
         self.w.btn_pause_spindle.setEnabled(not state)
         self.w.btn_enable_comp.setEnabled(not state)
         self.w.btn_goto_sensor.setEnabled(not state)
-        self.w.btn_tool_sensor.setEnabled(not state and self.w.chk_use_tool_sensor.isChecked())
-        self.w.btn_touchplate.setEnabled(not state and self.w.chk_use_touchplate.isChecked())
+#        self.w.btn_tool_sensor.setEnabled(not state and self.w.chk_use_tool_sensor.isChecked())
+#        self.w.btn_touchplate.setEnabled(not state and self.w.chk_use_touchplate.isChecked())
         if state:
             self.w.btn_main.setChecked(True)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+<h1>TOOL TOUCHOFF</h1>
+<p>This section describes how QtDragon is used to set the tool tip to Z0 in user workspace. For machines
+that use premeasured tools and have Tool Length Offsets (TLO) programmed into the LinuxCNC tool table, these
+functions can be used to measure the tool lengths relative to a reference tool or relative to a gage line,
+but the topic of TLOs and G43 compensation is beyond the scope of this document.</p>
+
+<h2>GO TO SENSOR</h2>
+<p>When pressed, the spindle will move to Z0 in absolute coordinates and then make a direct move to
+the X and Y coordinates specifed in the SETTINGS page for TOOL SENSOR LOCATION. The same result could
+be achieved by setting TOOL_CHANGE_QUILL_UP = 1 and TOOL_CHANGE_AT_G30 = 1 in the INI file. This button is
+simply a convenience function.</p>
+
+<h2>TOOL TOUCHOFF Z</h2>
+<div id="wrap">
+<figure class="right">
+    <img src="images/touchplate.jpg" width="200"></img>
+    <figcaption>Typical touchplate for CNC</figcaption>
+</figure>
+<p><b>Touchplate</b> - When the Touchplate checkbox on the SETTINGS -> Tool Touchoff section is checked, this 
+button is used to set the Z0 position of the tool tip by probing down toward the workpiece until the Probe 
+signal is triggered. At this point, the Z axis offset is set to the thickness of the touchplate. If the 
+touchplate was placed on the top surface of the workpiece, then Z0 is the top of the workpiece.</p>
+<p>In this setup, the touchplate is connected to ground and an alligator clip, which is connected to
+the Probe input of the controller, is connected to the tool. When the tool contacts the touchplate,
+the Probe signal is triggered and the Z offset is programmed into the machine controller.</p>
+</div>
+<div class="clearfix"></div>
+
+<div id="wrap">
+<figure class="right">
+    <img src="images/gauge.jpg" width="200"></img>
+    <figcaption>Manual tool setter gauge</figcaption>
+</figure>
+<p><b>Manual Touchoff</b> - Once the tool is at the X and Y coordinates corresponding to the tool sensor
+location specified in the SETTINGS page, jog Z down until the gauge reads 0.000. (It is assumed the gauge
+has been calibrated to read 0 as a reference point.) Then press the TOOL TOUCHOFF Z button. The value
+on the SETTINGS page for TOOL SENSOR HEIGHT minus the WORKPIECE HEIGHT specified on the MAIN page is now 
+the Z offset for that tool. This makes Z0 on the top of the workpiece, assuming that the tool sensor was
+placed on the machine bed and not the workpiece. If the workpiece is held in a vice or some other fixture, the 
+workpiece height is the distance from the machine bed to the top of the workpiece.</p>
+</div>
+<div class="clearfix"></div>
+
+<div id="wrap">
+<figure class="right">
+    <img src="images/tool_probe.png" width="200"></img>
+    <figcaption>Automatic tool setter</figcaption>
+</figure>
+<p><b>Automatic Touchoff</b> - Once the tool is at the X and Y coordinates corresponding to the tool sensor
+location specified in the SETTINGS page, pressing the TOOL TOUCHOFF Z button will start a Z probing routine 
+with parameters as specified in SETTINGS - Touchoff. The Z0 is then set in the same way as Manual operation. 
+The only real difference between Auto and Manual mode is that in Auto, the controller probe input signal is 
+used to set the Z0 offset and in Manual, pressing the button sets the Z0 offset. </p>
+<div class="clearfix"></div>
+
+<div class="admonition">
+<p>Use extreme caution when using AUTO mode touchoff procedures. Ensure that the Probe input
+signal is functional. Failing to trigger a Probe signal while executing a probing routine can
+result in a broken tool, a ruined workpiece or damage to the machine.</p>
+</div>
+
+</body>
+</html>
