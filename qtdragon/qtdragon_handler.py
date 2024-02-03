@@ -1268,17 +1268,15 @@ class HandlerClass:
         ACTION.DO_JOG(axis, direction)
 
     def add_status(self, message, level=DEFAULT):
-        duration = 0
         if level == WARNING:
             self.w.statusbar.setStyleSheet("color: yellow;")
-            duration = 10000
+            self.w.statusbar.showMessage(message, 10000)
         elif level == CRITICAL:
             self.w.statusbar.setStyleSheet("color: red;")
-            durtion = 10000
+            self.w.statusbar.showMessage(message, 10000)
         else:
             self.w.statusbar.setStyleSheet(f"color: {self.statusbar_color};")
-            duration = 0
-        self.w.statusbar.showMessage(message, duration)
+            self.w.statusbar.showMessage(message)
         if not message == "":
             STATUS.emit('update-machine-log', message, 'TIME')
 
