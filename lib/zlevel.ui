@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1101</width>
-    <height>593</height>
+    <width>990</width>
+    <height>610</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>320</width>
+    <width>800</width>
     <height>0</height>
    </size>
   </property>
@@ -59,7 +59,7 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>420</width>
+         <width>16777215</width>
          <height>16777215</height>
         </size>
        </property>
@@ -182,7 +182,7 @@
           <item>
            <widget class="QLabel" name="lbl_dimensions">
             <property name="text">
-             <string>PROBE AREA*</string>
+             <string>PROBE AREA *</string>
             </property>
            </widget>
           </item>
@@ -273,16 +273,6 @@
          </layout>
         </item>
         <item>
-         <widget class="QLabel" name="lbl_explain_area">
-          <property name="text">
-           <string>* Enter X and Y dimensions shown in gcode graphics display on MAIN page.</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <property name="spacing">
            <number>4</number>
@@ -290,7 +280,7 @@
           <item>
            <widget class="QLabel" name="lbl_steps">
             <property name="text">
-             <string>PROBE STEPS</string>
+             <string>PROBE POINTS</string>
             </property>
            </widget>
           </item>
@@ -315,7 +305,7 @@
              </size>
             </property>
             <property name="text">
-             <string>2</string>
+             <string>3</string>
             </property>
             <property name="maxLength">
              <number>3</number>
@@ -346,7 +336,7 @@
              </size>
             </property>
             <property name="text">
-             <string>2</string>
+             <string>3</string>
             </property>
             <property name="maxLength">
              <number>3</number>
@@ -391,7 +381,7 @@
           <item>
            <widget class="QLabel" name="lbl_zero_ref">
             <property name="text">
-             <string>ZERO POINT*</string>
+             <string>ZERO POINT **</string>
             </property>
            </widget>
           </item>
@@ -400,13 +390,13 @@
             <property name="minimumSize">
              <size>
               <width>144</width>
-              <height>40</height>
+              <height>30</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
               <width>144</width>
-              <height>40</height>
+              <height>30</height>
              </size>
             </property>
             <property name="currentIndex">
@@ -443,16 +433,6 @@
            </widget>
           </item>
          </layout>
-        </item>
-        <item>
-         <widget class="QLabel" name="lbl_explain_zero">
-          <property name="text">
-           <string>* Ensure selection matches zero reference point of gcode program</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -808,6 +788,66 @@
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_12">
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="lbl_probe_filename">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>PROBE POINTS FILENAME</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_probe_points">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>220</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>220</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>probe_points.txt</string>
+            </property>
+            <property name="maxLength">
+             <number>40</number>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <property name="spacing">
            <number>4</number>
@@ -829,18 +869,18 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>200</width>
+              <width>220</width>
               <height>30</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>16777215</width>
+              <width>220</width>
               <height>30</height>
              </size>
             </property>
             <property name="text">
-             <string>Z Level Compensation Probe</string>
+             <string>Example surface probe program</string>
             </property>
             <property name="maxLength">
              <number>80</number>
@@ -861,6 +901,26 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_explain_area">
+          <property name="text">
+           <string>*   Array size of gcode to be compensated.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_explain_zero">
+          <property name="text">
+           <string>** Must match zero reference point of gcode program</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -926,9 +986,38 @@ LINUXCNC</string>
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="btn_load_comp">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Load a probed points file to use as compensation map file</string>
+            </property>
+            <property name="text">
+             <string>LOAD 
+MAP</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="btn_help">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -957,13 +1046,19 @@ LINUXCNC</string>
      </item>
      <item>
       <widget class="QGroupBox" name="groupBox_preview">
+       <property name="minimumSize">
+        <size>
+         <width>380</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="title">
         <string>HEIGHT MAP DISPLAY</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0">
         <property name="spacing">
          <number>4</number>
         </property>
@@ -983,6 +1078,28 @@ LINUXCNC</string>
          <widget class="QLabel" name="lbl_height_map">
           <property name="text">
            <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_comp_file">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>COMPENSATION FILE</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -1018,7 +1135,7 @@ LINUXCNC</string>
       <string>Default parameters set</string>
      </property>
      <property name="maxLength">
-      <number>80</number>
+      <number>160</number>
      </property>
      <property name="readOnly">
       <bool>true</bool>

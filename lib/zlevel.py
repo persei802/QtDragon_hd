@@ -52,12 +52,15 @@ class ZLevel(QWidget):
         self.probe_vel = 0
         self.max_probe = 0
         self.start_probe = 0
+        self.probe_filename = None
+        self.comp_file = None
         self.z_safe = 0
         self.help_text = []
         self.unit_text = "metric"
-        self.red_border = "border: 2px solid red;"
-        self.black_border = "border: 2px solid black;"
-        self.parm_list = ["size_x", "size_y", "steps_x", "steps_y", "probe_tool", "probe_vel", "zsafe", "max_probe", "start_probe"]
+        self.red_border = "border: 1px solid red;"
+        self.black_border = "border: 1px solid black;"
+        self.parm_list = ["size_x", "size_y", "steps_x", "steps_y", "probe_tool", "probe_vel",
+                          "zsafe", "max_probe", "start_probe", "probe_points"]
         # list of zero reference locations
         self.reference = ["top-left", "top-right", "center", "bottom-left", "bottom-right"]
         # set valid input formats for lineEdits
@@ -78,6 +81,7 @@ class ZLevel(QWidget):
         # signal connections
         self.btn_save_gcode.pressed.connect(self.save_gcode)
         self.btn_send_gcode.pressed.connect(self.send_gcode)
+        self.btn_load_comp.pressed.connect(self.load_comp_file)
         self.btn_help.pressed.connect(self.show_help)
 
         # display default height map if available
@@ -103,14 +107,12 @@ class ZLevel(QWidget):
 
     def save_gcode(self):
         if not self.validate(): return
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self,"Save to file","","All Files (*);;ngc Files (*.ngc)", options=options)
-        if fileName:
-            self.calculate_toolpath(fileName)
-            self.lineEdit_status.setText(f"Program successfully saved to {fileName}")
-        else:
-            self.lineEdit_status.setText("Program creation aborted")
+        fname = self.lineEdit_probe_points.text()
+        fname = fname.replace(".txt", ".ngc")
+        fileName = os.path.join(INFO.SUB_PATH_LIST[0], fname)
+        fileName = os.path.expanduser(fileName)
+        self.calculate_toolpath(fileName)
+        self.lineEdit_status.setText(f"Program successfully saved to {fileName}")
 
     def send_gcode(self):
         if not self.validate(): return
@@ -153,7 +155,7 @@ class ZLevel(QWidget):
         self.next_line("G17")
         self.next_line(f"M6 T{self.probe_tool}")
         self.next_line("G90")
-        self.next_line("(PROBEOPEN probe_points.txt)")
+        self.next_line(f"(PROBEOPEN {self.probe_filename})")
         # main section
         for y in y_coords:
             for x in x_coords:
@@ -268,6 +270,16 @@ class ZLevel(QWidget):
         except:
             self.lineEdit_start_probe.setStyleSheet(self.red_border)
             valid = False
+        # check probe points filename
+        try:
+            self.probe_filename = self.lineEdit_probe_points.text()
+            if not self.probe_filename.endswith(".txt"):
+                self.lineEdit_probe_points.setStyleSheet(self.red_border)
+                self.lineEdit_status.setText("Probe points filename must end with .txt")
+                valid = False
+        except:
+            self.lineEdit_probe_points.setStyleSheet(self.red_border)
+            valid = False
         return valid
 
     def next_line(self, text):
@@ -279,8 +291,26 @@ class ZLevel(QWidget):
         if os.path.isfile(fname):
             self.lbl_height_map.setPixmap(QtGui.QPixmap(fname))
         else:
-            self.lbl_height_map.setText("Height Level Map\nnot available")
+            self.lbl_height_map.setText("Height Map not available")
         
+    def load_comp_file(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        _filter = "Compensation Files (*.txt)"
+        _dir = INFO.SUB_PATH_LIST[0]
+        _caption = "Load Compensation File"
+        fname, _ =  QFileDialog.getOpenFileName(None, _caption, _dir, _filter, options=options)
+        if fname:
+            self.comp_file = fname
+            self.lbl_height_map.setText("Waiting for height map generation")
+            self.lbl_comp_file.setText(os.path.basename(fname))
+            self.lineEdit_status.setText(f"Loaded compensation file {fname}")
+            dst = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
+            shutil.copy(fname, dst)
+
+    def get_map(self):
+        return self.comp_file
+
     def show_help(self):
         fname = os.path.join(HELP, self.helpfile)
         self.parent.show_help_page(fname)

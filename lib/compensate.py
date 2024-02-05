@@ -25,8 +25,6 @@ from PyQt5 import QtGui, QtWidgets
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from matplotlib.figure import Figure
-from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import griddata
 from enum import Enum, unique
 
@@ -121,7 +119,6 @@ class Compensation():
         self.h = hal.component("compensate")
         self.h.newpin("enable-in", hal.HAL_BIT, hal.HAL_IN)
         self.h.newpin("map-ready", hal.HAL_BIT, hal.HAL_OUT)
-        self.h.newpin("scale", hal.HAL_FLOAT, hal.HAL_OUT)
         self.h.newpin("counts", hal.HAL_S32, hal.HAL_OUT)
         self.h.newpin("clear", hal.HAL_BIT, hal.HAL_IN)
         self.h.newpin("x-pos", hal.HAL_FLOAT, hal.HAL_IN)
@@ -201,7 +198,6 @@ class Compensation():
                             # when compensation is enabled
                             compensation = self.compensate()
                             self.h["counts"] = compensation * compScale
-                            self.h["scale"] = self.scale
                         else:
                             self.h["counts"] = 0
                     else:

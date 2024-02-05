@@ -817,9 +817,14 @@ class HandlerClass:
 
     def btn_enable_comp_clicked(self, state):
         if state:
-            fname = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
+#            fname = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
+            fname = self.zlevel.get_map()
+            if fname is None:
+                self.add_status("No map file loaded - go to UTILS -> ZLEVEL and load a map file", WARNING)
+                self.w.btn_enable_comp.setChecked(False)
+                return
             if not os.path.isfile(fname):
-                self.add_status(fname + " not found", WARNING)
+                self.add_status(f"No such file - {fname}", WARNING)
                 self.w.btn_enable_comp.setChecked(False)
                 return
             if not QHAL.hal.component_exists("compensate"):
@@ -828,13 +833,13 @@ class HandlerClass:
                 return
             self.h['comp-on'] = True
             self.h['eoffset-count'] = self.h['comp-count']
+            self.add_status(f"Z level compensation ON using {fname}")
         else:
             self.h['comp-on'] = False
             self.h['eoffset-count'] = 0
+            self.add_status("Z level compensation OFF")
             if not self.w.btn_pause_spindle.isChecked():
                 self.w.lineEdit_eoffset.setText("DISABLED")
-        text = "ON" if state else "OFF"
-        self.add_status("Z level compensation " + text)
 
     # jogging frame
     def jog_xy_pressed(self, btn):
