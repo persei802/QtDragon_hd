@@ -16,10 +16,8 @@ import tempfile
 import atexit
 import shutil
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import QObject, QFile, Qt
-from PyQt5.QtWidgets import QWidget, QFileDialog, QDialog, QVBoxLayout, QDialogButtonBox
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5 import QtGui, QtWidgets, uic
+from PyQt5.QtWidgets import QWidget, QFileDialog
 from qtvcp.core import Status, Action, Info, Path
 
 INFO = Info()
@@ -29,14 +27,14 @@ PATH = Path()
 HERE = os.path.dirname(os.path.abspath(__file__))
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 
-
 class ZLevel(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, widget=None, parent=None):
         super(ZLevel, self).__init__()
+        self.w = widget
         self.parent = parent
+        self.helpfile = 'zlevel_help.html'
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'zlevel.ui')
-        self.helpfile = 'zlevel_help.html'
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
@@ -50,17 +48,14 @@ class ZLevel(QWidget):
         self.y_steps = 0
         self.probe_tool = 0
         self.probe_vel = 0
+        self.z_safe = 0
         self.max_probe = 0
-        self.start_probe = 0
+        self.probe_start = 0
         self.probe_filename = None
         self.comp_file = None
-        self.z_safe = 0
+        self.normal_color = ""
+        self.error_color = "color: #ff0000;"
         self.help_text = []
-        self.unit_text = "metric"
-        self.red_border = "border: 1px solid red;"
-        self.black_border = "border: 1px solid black;"
-        self.parm_list = ["size_x", "size_y", "steps_x", "steps_y", "probe_tool", "probe_vel",
-                          "zsafe", "max_probe", "start_probe", "probe_points"]
         # list of zero reference locations
         self.reference = ["top-left", "top-right", "center", "bottom-left", "bottom-right"]
         # set valid input formats for lineEdits
@@ -68,11 +63,8 @@ class ZLevel(QWidget):
         self.lineEdit_size_y.setValidator(QtGui.QDoubleValidator(0, 999, 3))
         self.lineEdit_steps_x.setValidator(QtGui.QIntValidator(0, 100))
         self.lineEdit_steps_y.setValidator(QtGui.QIntValidator(0, 100))
-        self.lineEdit_probe_tool.setValidator(QtGui.QIntValidator(0, 999))
-        self.lineEdit_probe_vel.setValidator(QtGui.QIntValidator(0, 9999))
-        self.lineEdit_zsafe.setValidator(QtGui.QDoubleValidator(0, 99, 1))
-        self.lineEdit_max_probe.setValidator(QtGui.QDoubleValidator(0, 99, 1))
-        self.lineEdit_start_probe.setValidator(QtGui.QDoubleValidator(0, 99, 1))
+        units = "MM" if INFO.MACHINE_IS_METRIC else "IN"
+        self.lbl_probe_area_unit.setText(units)
 
         # populate combobox
         self.cmb_zero_ref.addItems(self.reference)
@@ -90,20 +82,10 @@ class ZLevel(QWidget):
     def _hal_init(self):
         def homed_on_status():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
-        STATUS.connect('metric-mode-changed', lambda w, mode: self.units_changed(mode))
         STATUS.connect('state_off', lambda w: self.setEnabled(False))
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
-
-    def units_changed(self, mode):
-        text = "MM" if mode else "IN"
-        self.unit_text = "Metric" if mode else "Imperial"
-        self.lbl_probe_area_unit.setText(text)
-        self.lbl_max_probe_unit.setText(text)
-        self.lbl_zsafe_unit.setText(text)
-        self.lbl_probe_vel_unit.setText(text + "/MIN")
-        self.lbl_start_probe_unit.setText(text)
 
     def save_gcode(self):
         if not self.validate(): return
@@ -111,174 +93,182 @@ class ZLevel(QWidget):
         fname = fname.replace(".txt", ".ngc")
         fileName = os.path.join(INFO.SUB_PATH_LIST[0], fname)
         fileName = os.path.expanduser(fileName)
-        self.calculate_toolpath(fileName)
+        self.calculate_gcode(fileName)
         self.lineEdit_status.setText(f"Program successfully saved to {fileName}")
 
     def send_gcode(self):
         if not self.validate(): return
         filename = self.make_temp()[1]
-        self.calculate_toolpath(filename)
+        self.calculate_gcode(filename)
         ACTION.OPEN_PROGRAM(filename)
         self.lineEdit_status.setText("Program successfully sent to Linuxcnc")
 
-    def calculate_toolpath(self, fname):
-        # precalculate all X and Y coordinates
-        x_coords = []
-        y_coords = []
+    def calculate_gcode(self, fname):
+        # get start point
         zref = self.cmb_zero_ref.currentIndex()
         if zref == 2:
-            xoff = -self.size_x / 2
-            yoff = -self.size_y / 2
+            x_start = -self.size_x / 2
+            y_start = -self.size_y / 2
         else:
-            xoff = 0 if zref == 0 or zref == 3 else -self.size_x
-            yoff = 0 if zref == 3 or zref == 4 else -self.size_y
-        inc = self.x_steps - 1
-        for i in range(self.x_steps):
-            next_x = ((i * self.size_x) / inc) + xoff
-            x_coords.append(next_x)
-        inc = self.y_steps - 1
-        for i in range(self.y_steps):
-            next_y = ((i * self.size_y) / inc) + yoff
-            y_coords.append(next_y)
+            x_start = 0 if zref == 0 or zref == 3 else -self.size_x
+            y_start = 0 if zref == 3 or zref == 4 else -self.size_y
+        # calculate increments
+        x_inc = self.size_x / (self.x_steps - 1)
+        y_inc = self.size_y / (self.y_steps - 1)
         # opening preamble
-        comment = self.lineEdit_comment.text()
         self.line_num = 5
         self.file = open(fname, 'w')
         self.file.write("%\n")
-        self.file.write(f"({comment})\n")
-        self.file.write(f"(Units are {self.unit_text})\n")
+        self.file.write(f"({self.lineEdit_comment.text()})\n")
         self.file.write(f"(Area: X {self.size_x} by Y {self.size_y})\n")
         self.file.write(f"(Steps: X {self.x_steps} by Y {self.y_steps})\n")
         self.file.write(f"(Safe Z travel height {self.z_safe})\n")
         self.file.write(f"(XY Zero point is {self.reference[zref]})\n")
-        self.next_line("G40 G49 G64 P0.03")
-        self.next_line("G17")
+        self.next_line("G17 G40 G49 G64 G90 P0.03")
+        self.next_line("G92.1")
         self.next_line(f"M6 T{self.probe_tool}")
-        self.next_line("G90")
-        self.next_line(f"(PROBEOPEN {self.probe_filename})")
-        # main section
-        for y in y_coords:
-            for x in x_coords:
-                self.next_line(f"G0 Z{self.z_safe}")
-                self.next_line(f"G0 X{x:8.3f} Y{y:8.3f}")
-                self.next_line(f"G0 Z{self.start_probe}")
-                self.next_line(f"G38.2 Z-{self.max_probe} F{self.probe_vel}")
-        # closing section
-        self.next_line("(PROBECLOSE)")
         self.next_line(f"G0 Z{self.z_safe}")
+        # main section
+        self.next_line(f"(PROBEOPEN {self.probe_filename})")
+        self.next_line("#100 = 0")
+        self.next_line(f"O100 while [#100 LT {self.y_steps}]")
+        self.next_line(f"  G0 Y[{y_start} + {y_inc} * #100]")
+        self.next_line("  #200 = 0")
+        self.next_line(f"  O200 while [#200 LT {self.x_steps}]")
+        self.next_line(f"    G0 X[{x_start} + {x_inc} * #200]")
+        self.next_line(f"    G0 Z{self.probe_start}")
+        self.next_line(f"    G38.2 Z-{self.max_probe} F{self.probe_vel}")
+        self.next_line(f"    G0 Z{self.z_safe}")
+        self.next_line("    #200 = [#200 + 1]")
+        self.next_line("  O200 endwhile")
+        self.next_line("  #100 = [#100 + 1]")
+        self.next_line("O100 endwhile")
+        self.next_line("(PROBECLOSE)")
+        # closing section
         self.next_line("M2")
         self.file.write("%\n")
         self.file.close()
 
     def validate(self):
         valid = True
-        for item in self.parm_list:
-            self['lineEdit_' + item].setStyleSheet(self.black_border)
+        # create lineEdit colors to indicate error state
+        # placed here because changing stylesheets could change colors
+        default_color = self.w.lineEdit_probe_tool.palette().color(self.w.lineEdit_probe_tool.foregroundRole())
+        self.normal_color = f"color: {default_color.name()};"
+        # restore normal text colors
+        for item in ["size_x", "size_y", "steps_x", "steps_y", "probe_points"]:
+            widget = self['lineEdit_' + item]
+            color = widget.palette().color(widget.foregroundRole())
+            if color.name() == "#ff0000":
+                widget.setStyleSheet(self.normal_color)
+        for item in ["probe_tool", "zsafe", "probe_vel", "max_probe", "probe_start"]:
+            widget = self.w['lineEdit_' + item]
+            color = widget.palette().color(widget.foregroundRole())
+            if color.name() == "#ff0000":
+                widget.setStyleSheet(self.normal_color)
         # check array size parameter
         try:
             self.size_x = float(self.lineEdit_size_x.text())
             if self.size_x <= 0:
-                self.lineEdit_size_x.setStyleSheet(self.red_border)
+                self.lineEdit_size_x.setStyleSheet(self.error_color)
                 self.lineEdit_status.setText("Size X must be > 0")
                 valid = False
         except:
-            self.lineEdit_size_x.setStyleSheet(self.red_border)
+            self.lineEdit_size_x.setStyleSheet(self.error_color)
             valid = False
         try:
             self.size_y = float(self.lineEdit_size_y.text())
             if self.size_y <= 0:
-                self.lineEdit_size_y.setStyleSheet(self.red_border)
+                self.lineEdit_size_y.setStyleSheet(self.error_color)
                 self.lineEdit_status.setText("Size Y must be > 0")
                 valid = False
         except:
-            self.lineEdit_size_y.setStyleSheet(self.red_border)
+            self.lineEdit_size_y.setStyleSheet(self.error_color)
             valid = False
         # check array steps parameter
         try:
             self.x_steps = int(self.lineEdit_steps_x.text())
-            if self.x_steps <= 0:
-                self.lineEdit_steps_x.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Steps X must be > 0")
+            if self.x_steps < 2:
+                self.lineEdit_steps_x.setStyleSheet(self.error_color)
+                self.lineEdit_status.setText("Steps X must be >= 2")
                 valid = False
         except:
-            self.lineEdit_steps_x.setStyleSheet(self.red_border)
+            self.lineEdit_steps_x.setStyleSheet(self.error_color)
             valid = False
         try:
             self.y_steps = int(self.lineEdit_steps_y.text())
-            if self.y_steps <= 0:
-                self.lineEdit_steps_y.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Steps Y must be > 0")
+            if self.y_steps < 2:
+                self.lineEdit_steps_y.setStyleSheet(self.error_color)
+                self.lineEdit_status.setText("Steps Y must be >= 2")
                 valid = False
         except:
-            self.lineEdit_steps_y.setStyleSheet(self.red_border)
+            self.lineEdit_steps_y.setStyleSheet(self.error_color)
             valid = False
         # check probe tool number
         try:
-            self.probe_tool = int(self.lineEdit_probe_tool.text())
+            self.probe_tool = int(self.w.lineEdit_probe_tool.text())
             if self.probe_tool <= 0:
-                self.lineEdit_probe_tool.setStyleSheet(self.red_border)
+                self.w.lineEdit_probe_tool.setStyleSheet(self.error_color)
                 self.lineEdit_status.setText("Probe tool number must be > 0")
                 valid = False
         except:
-            self.lineEdit_probe_tool.setStyleSheet(self.red_border)
+            self.w.lineEdit_probe_tool.setStyleSheet(self.error_color)
             valid = False
         # check z safe parameter
         try:
-            self.z_safe = float(self.lineEdit_zsafe.text())
+            self.z_safe = float(self.w.lineEdit_zsafe.text())
             if self.z_safe <= 0.0:
-                self.lineEdit_zsafe.setStyleSheet(self.red_border)
+                self.w.lineEdit_zsafe.setStyleSheet(self.error_color)
                 self.lineEdit_status.setText("Z safe height must be > 0")
                 valid = False
         except:
-            self.lineEdit_zsafe.setStyleSheet(self.red_border)
+            self.w.lineEdit_zsafe.setStyleSheet(self.error_color)
             valid = False
         # check probe velocity
         try:
-            self.probe_vel = float(self.lineEdit_probe_vel.text())
+            self.probe_vel = float(self.w.lineEdit_probe_vel.text())
             if self.probe_vel <= 0.0:
-                self.lineEdit_probe_vel.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Probe velocity must be > 0")
-                valid = False
+                self.lineEdit_status.setText("Slow probing sequence will be skipped")
         except:
-            self.lineEdit_probe_vel.setStyleSheet(self.red_border)
+            self.w.lineEdit_probe_vel.setStyleSheet(self.error_color)
             valid = False
         # check max probe distance
         try:
-            self.max_probe = float(self.lineEdit_max_probe.text())
+            self.max_probe = float(self.w.lineEdit_max_probe.text())
             if self.max_probe <= 0.0:
-                self.lineEdit_max_probe.setStyleSheet(self.red_border)
+                self.w.lineEdit_max_probe.setStyleSheet(self.error_color)
                 self.lineEdit_status.setText("Max probe distance must be > 0")
                 valid = False
         except:
-            self.lineEdit_max_probe.setStyleSheet(self.red_border)
+            self.w.lineEdit_max_probe.setStyleSheet(self.error_color)
             valid = False
         # check probe start height
         try:
-            self.start_probe = float(self.lineEdit_start_probe.text())
-            if self.start_probe <= 0.0:
-                self.lineEdit_start_probe.setStyleSheet(self.red_border)
+            self.probe_start = float(self.w.lineEdit_probe_start.text())
+            if self.probe_start <= 0.0:
+                self.w.lineEdit_probe_start.setStyleSheet(self.error_color)
                 self.lineEdit_status.setText("Start probe height must be > 0")
                 valid = False
-            elif self.start_probe > self.z_safe:
-                self.lineEdit_start_probe.setStyleSheet(self.red_border)
+            elif self.probe_start > self.z_safe:
+                self.w.lineEdit_probe_start.setStyleSheet(self.error_color)
                 self.lineEdit_status.setText("Start probe height must be < Z Safe height")
                 valid = False
-            elif self.start_probe > self.max_probe:
-                self.lineEdit_start_probe.setStyleSheet(self.red_border)
+            elif self.probe_start > self.max_probe:
+                self.w.lineEdit_probe_start.setStyleSheet(self.error_color)
                 self.lineEdit_status.setText("Start probe height must be < Max Probe distance")
                 valid = False
         except:
-            self.lineEdit_start_probe.setStyleSheet(self.red_border)
+            self.w.lineEdit_probe_start.setStyleSheet(self.error_color)
             valid = False
         # check probe points filename
         try:
             self.probe_filename = self.lineEdit_probe_points.text()
             if not self.probe_filename.endswith(".txt"):
-                self.lineEdit_probe_points.setStyleSheet(self.red_border)
+                self.lineEdit_probe_points.setStyleSheet(self.error_color)
                 self.lineEdit_status.setText("Probe points filename must end with .txt")
                 valid = False
         except:
-            self.lineEdit_probe_points.setStyleSheet(self.red_border)
+            self.lineEdit_probe_points.setStyleSheet(self.error_color)
             valid = False
         return valid
 

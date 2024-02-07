@@ -32,15 +32,26 @@ and the compensation map is recalculated.</p>
     <pre class="hal">setp compensate.fade-height 0.0</pre>
     <pre class="hal">setp axis.z.eoffset-enable True</pre>
 </div>
-<h2>Workflow</h2>
+<h2>Creating a Map File</h2>
 <ul>
-    <li>from the FILE page, open the gcode program which needs to be level compensated</li>
+    <li>from the FILE page, load the gcode program which needs to be level compensated</li>
     <li>enter the X and Y dimensions shown in the preview frame into the X and Y size fields</li>
-    <li>enter the number of probe points and other probe parameters</li>
+    <li>enter the number of desired probe points</li>
     <li>ensure that the selected zero reference point is the same as that of the gcode program</li>
+    <li>all probe parameters are set according to the values in SETTINGS -> PROBE</li>
+    <li>any errors detected during validation will be shown as red text in SETTINGS -> PROBE</li>
+    <li>enter a filename for the probe results file</li>
     <li>press SAVE AS PROGRAM or SEND TO LINUXCNC - this checks the validity of the input parameters and creates the gcode 
     probing routine</li>
+    <li>running the created gcode program will produce a file with the specified filename</li>
+    <li>if the specified filename is <i>probe_points.txt</i>, it can immediately be used as the compensation map</li>
+    <li>otherwise, it must be selected with the LOAD MAP button</li>
 </ul>
+<h2>Load Map</h2>
+<p>A previously saved probe results file can be retrieved and used as the compensation map. The source file is chosen
+from a popup file dialog and then copied to the CONFIG folder with the name <i>probe_points.txt</i>. In order not to
+accumulate probe results files in the CONFIG folder, it is recommended to move them elsewhere, such as the nc_files folder.
+</p>
 <h2>Interpolation Method</h2>
 <p>The following diagrams show the effect of the different interpolation methods when an L shaped piece of 6 mm metal was probed.</p>
 <center>

@@ -6,7 +6,7 @@
   <title>Auto Height Measure</title>
 </head>
 <body>
-<h1>HEIGHT MEASURE</h1>
+<h1>AUTO HEIGHT MEASURE</h1>
 <p>This program probes 2 user specified locations in the Z axis and calculates the difference in heights.</p>
 <h2>Enable Probe Position Set Buttons</h2>
 <ul>
@@ -17,31 +17,34 @@
 <ul>
     <li>when checked, the calculated height is automatically transferred to the Workpice Height field in the main screen.</li>
 </ul>
-<h2>Workpiece Probe At</h2>
+<h2>Workpiece Probe</h2>
 <ul>
     <li>the X, Y and Z coordinates specify where the first probing routine should start, in current WCS</li>
-    <li>if the first point is higher than the second, the calculated height will be a positive number.</li>
 </ul>
-<h2>Machine Probe At</h2>
+<h2>Machine Probe</h2>
 <ul>
     <li>the X, Y and Z coordinates specify where the second probing routine should start, in current WCS</li>
-    <li>if the first point is lower than the second, the calculated height will be a negative number.</li>
 </ul>
-<h2>Z Safe Travel Height</h2>
+<h2>Parameter Validation</h2>
 <ul>
-    <li>the machine is raised to the Z safe travel height before jogging to the X and Y coordinates</li>
-    <li>the spindle then lowers to the specified Z coordinate</li>
-    <li>it should be selected so that the tool clears all obstructions while jogging</li>
+    <li>before running the probe routines, probe parameters are checked to make sure no problems will occur</li>
+    <li>search velocity must be greater than 0.0</li>
+    <li>probe velocity must be greater than 0.0</li>
+    <li>maximum probe distance must be greater than 0.0</li>
+    <li>retract distance must be greater than 0.0 and less than maximum probe distance</li>
+    <li>Z safe height must be greater than P1 Z height</li>
+    <li>P1 Z height must be greater than P2 Z height</li>
 </ul>
-<h2>START button</h2>
+<h2>START PROBE</h2>
 <ul>
-    <li>input parameter fields are checked for validity</li>
-    <li>the machine will jog to the first location and then probe down</li>
-    <li>the machine then jogs to the second location and probes down again</li>
+    <li>probe parameters are read from SETTINGS -> PROBE and checked for validity</li>
+    <li>if any errors are detected while checking validity, the probe routine will not run</li>
+    <li>any errors detected will be highlighted with red text in SETTINGS -> PROBE</li>
+    <li>the machine will jog to the first location and then probe down and record the Z1 position</li>
+    <li>the machine then jogs to the second location and probes down and records the Z2 position</li>
     <li>the difference in probed values is reported as Calculated Workpiece Height</li>
-    <li>the parameters for search velocity, probe velocity, maximum probe distance and return distance are read from the main GUI Settings page.</li>
 </ul>
-<h2>ABORT button</h2>
+<h2>ABORT PROBE</h2>
 <ul>
     <li>causes all jog and probe routines currently executing to stop</li>
 </ul>
