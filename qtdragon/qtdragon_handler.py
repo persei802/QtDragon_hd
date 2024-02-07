@@ -115,14 +115,14 @@ class HandlerClass:
 
         self.adj_list = ['maxvel_ovr', 'rapid_ovr', 'feed_ovr', 'spindle_ovr']
 
-        self.unit_label_list = ["zoffset_units", "max_probe_units", "retract_dist_units", "z_safe_travel_units",
-                                "toolsensor_units", "touchplate_units", "rotary_units", "mpg_units"]
+        self.unit_label_list = ["zoffset_units", "max_probe_units", "retract_units", "zsafe_units", "probe_start_units",
+                                "touch_units", "sensor_units", "gauge_units", "rotary_units", "mpg_units"]
 
         self.unit_speed_list = ["search_vel_units", "probe_vel_units"]
 
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y", "camera_x",
-                              "camera_y", "search_vel", "probe_vel", "retract_distance", "max_probe", "eoffset",
-                              "eoffset_count", "sensor_x", "sensor_y", "z_safe_travel", "rotary_height"]
+                              "camera_y", "search_vel", "probe_vel", "retract", "max_probe", "eoffset",
+                              "eoffset_count", "sensor_x", "sensor_y", "zsafe", "rotary_height"]
 
         self.axis_a_list = ["action_zero_a", "dro_axis_a", "axistoolbutton_a", "btn_goto_zero_a", "lbl_max_angular",
                             "lbl_max_angular_vel", "angular_increment", "widget_angular_jog", "lbl_rotary_setting",
@@ -1146,6 +1146,9 @@ class HandlerClass:
         elif self.w.chk_manual_toolsensor.isChecked():
             self.w.btn_touchoff.setText("MANUAL TOUCHOFF Z")
             self.w.btn_touchoff.setToolTip("Set workpiece Z0")
+        self.w.touch_height.setVisible(self.w.chk_touchplate.isChecked())
+        self.w.sensor_height.setVisible(self.w.chk_auto_toolsensor.isChecked())
+        self.w.gauge_height.setVisible(self.w.chk_manual_toolsensor.isChecked())
 
     #####################
     # GENERAL FUNCTIONS #
@@ -1233,8 +1236,8 @@ class HandlerClass:
         search_vel = self.w.lineEdit_search_vel.text()
         probe_vel = self.w.lineEdit_probe_vel.text()
         max_probe = self.w.lineEdit_max_probe.text()
-        retract = self.w.lineEdit_retract_distance.text()
-        safe_z = self.w.lineEdit_z_safe_travel.text()
+        retract = self.w.lineEdit_retract.text()
+        safe_z = self.w.lineEdit_zsafe.text()
         rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, z_offset, retract, safe_z, \
                                          self.touchoff_return, \
                                          self.touchoff_error)

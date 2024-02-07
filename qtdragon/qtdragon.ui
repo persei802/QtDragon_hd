@@ -4777,17 +4777,26 @@ TO FILE</string>
                         </widget>
                        </item>
                        <item>
-                        <spacer name="verticalSpacer_2">
-                         <property name="orientation">
-                          <enum>Qt::Vertical</enum>
+                        <widget class="QLabel" name="silver_dragon">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
                          </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>20</width>
-                           <height>40</height>
-                          </size>
+                         <property name="text">
+                          <string/>
                          </property>
-                        </spacer>
+                         <property name="pixmap">
+                          <pixmap resource="qtdragon.qrc">:/images/images/silver_dragon.png</pixmap>
+                         </property>
+                         <property name="scaledContents">
+                          <bool>false</bool>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                         </property>
+                        </widget>
                        </item>
                        <item>
                         <layout class="QHBoxLayout" name="horizontalLayout_19">
@@ -5005,7 +5014,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>QtDragon CNC Controller        01:15:37 PM</string>
+                       <string>QtDragon CNC Controller        10:33:25 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -5500,7 +5509,7 @@ TO FILE</string>
                  </item>
                  <item>
                   <widget class="QFrame" name="frm_settings3">
-                   <layout class="QVBoxLayout" name="verticalLayout_13" stretch="0,0,0">
+                   <layout class="QVBoxLayout" name="verticalLayout_13" stretch="1,0">
                     <property name="spacing">
                      <number>4</number>
                     </property>
@@ -5550,21 +5559,6 @@ TO FILE</string>
                         <item>
                          <widget class="QFrame" name="frame_locations">
                           <layout class="QVBoxLayout" name="verticalLayout_11">
-                           <property name="spacing">
-                            <number>4</number>
-                           </property>
-                           <property name="leftMargin">
-                            <number>4</number>
-                           </property>
-                           <property name="topMargin">
-                            <number>4</number>
-                           </property>
-                           <property name="rightMargin">
-                            <number>4</number>
-                           </property>
-                           <property name="bottomMargin">
-                            <number>4</number>
-                           </property>
                            <item>
                             <layout class="QHBoxLayout" name="horizontalLayout_14">
                              <property name="spacing">
@@ -5709,6 +5703,9 @@ TO FILE</string>
                                  <height>30</height>
                                 </size>
                                </property>
+                               <property name="text">
+                                <string>0</string>
+                               </property>
                                <property name="maxLength">
                                 <number>8</number>
                                </property>
@@ -5739,6 +5736,9 @@ TO FILE</string>
                                  <width>70</width>
                                  <height>30</height>
                                 </size>
+                               </property>
+                               <property name="text">
+                                <string>0</string>
                                </property>
                                <property name="maxLength">
                                 <number>8</number>
@@ -5806,6 +5806,9 @@ TO FILE</string>
                                  <height>30</height>
                                 </size>
                                </property>
+                               <property name="text">
+                                <string>0</string>
+                               </property>
                                <property name="maxLength">
                                 <number>8</number>
                                </property>
@@ -5833,6 +5836,9 @@ TO FILE</string>
                                  <width>70</width>
                                  <height>30</height>
                                 </size>
+                               </property>
+                               <property name="text">
+                                <string>0</string>
                                </property>
                                <property name="maxLength">
                                 <number>8</number>
@@ -5919,6 +5925,9 @@ TO FILE</string>
                                  <height>30</height>
                                 </size>
                                </property>
+                               <property name="text">
+                                <string>0</string>
+                               </property>
                                <property name="maxLength">
                                 <number>8</number>
                                </property>
@@ -5949,6 +5958,9 @@ TO FILE</string>
                                  <width>70</width>
                                  <height>30</height>
                                 </size>
+                               </property>
+                               <property name="text">
+                                <string>0</string>
                                </property>
                                <property name="maxLength">
                                 <number>8</number>
@@ -6019,6 +6031,9 @@ TO FILE</string>
                                  <height>30</height>
                                 </size>
                                </property>
+                               <property name="text">
+                                <string>0</string>
+                               </property>
                                <property name="maxLength">
                                 <number>8</number>
                                </property>
@@ -6046,6 +6061,9 @@ TO FILE</string>
                                  <width>70</width>
                                  <height>30</height>
                                 </size>
+                               </property>
+                               <property name="text">
+                                <string>0</string>
                                </property>
                                <property name="maxLength">
                                 <number>8</number>
@@ -6104,6 +6122,12 @@ TO FILE</string>
                                  <height>30</height>
                                 </size>
                                </property>
+                               <property name="text">
+                                <string>0</string>
+                               </property>
+                               <property name="maxLength">
+                                <number>8</number>
+                               </property>
                                <property name="alignment">
                                 <set>Qt::AlignCenter</set>
                                </property>
@@ -6129,12 +6153,459 @@ TO FILE</string>
                                  <height>30</height>
                                 </size>
                                </property>
+                               <property name="text">
+                                <string>0</string>
+                               </property>
+                               <property name="maxLength">
+                                <number>8</number>
+                               </property>
                                <property name="alignment">
                                 <set>Qt::AlignCenter</set>
                                </property>
                               </widget>
                              </item>
                             </layout>
+                           </item>
+                           <item>
+                            <widget class="QLabel" name="spacer_2">
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>16777215</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                             <property name="text">
+                              <string/>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <layout class="QHBoxLayout" name="horizontalLayout_56">
+                             <property name="spacing">
+                              <number>4</number>
+                             </property>
+                             <property name="topMargin">
+                              <number>0</number>
+                             </property>
+                             <item>
+                              <widget class="QLabel" name="lbl_rotary_height">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>0</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>16777215</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="toolTip">
+                                <string/>
+                               </property>
+                               <property name="text">
+                                <string>ROTARY AXIS HEIGHT</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_rotary_height">
+                               <property name="sizePolicy">
+                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                 <horstretch>0</horstretch>
+                                 <verstretch>0</verstretch>
+                                </sizepolicy>
+                               </property>
+                               <property name="minimumSize">
+                                <size>
+                                 <width>70</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>70</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="toolTip">
+                                <string>Distance from machine base to center of rotary (A) axis.</string>
+                               </property>
+                               <property name="text">
+                                <string>10</string>
+                               </property>
+                               <property name="maxLength">
+                                <number>10</number>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="lbl_rotary_units">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>70</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>70</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="text">
+                                <string>MM</string>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
+                           </item>
+                           <item>
+                            <widget class="QWidget" name="touch_height" native="true">
+                             <layout class="QHBoxLayout" name="horizontalLayout_49">
+                              <property name="spacing">
+                               <number>4</number>
+                              </property>
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QLabel" name="lbl_touch_height">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>16777215</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="text">
+                                 <string>TOUCH PLATE HEIGHT</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLineEdit" name="lineEdit_touch_height">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>70</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>70</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>Thickness of tool touchplate.</string>
+                                </property>
+                                <property name="text">
+                                 <string>10</string>
+                                </property>
+                                <property name="maxLength">
+                                 <number>8</number>
+                                </property>
+                                <property name="frame">
+                                 <bool>true</bool>
+                                </property>
+                                <property name="alignment">
+                                 <set>Qt::AlignCenter</set>
+                                </property>
+                                <property name="readOnly">
+                                 <bool>false</bool>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="lbl_touch_units">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>70</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>70</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="text">
+                                 <string>MM</string>
+                                </property>
+                                <property name="alignment">
+                                 <set>Qt::AlignCenter</set>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QWidget" name="sensor_height" native="true">
+                             <layout class="QHBoxLayout" name="horizontalLayout_48">
+                              <property name="spacing">
+                               <number>4</number>
+                              </property>
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QLabel" name="lbl_sensor_height">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>16777215</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="text">
+                                 <string>TOOL SENSOR HEIGHT</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLineEdit" name="lineEdit_sensor_height">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>70</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>70</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>Distance from machine base to top of tool sensor trigger point.</string>
+                                </property>
+                                <property name="text">
+                                 <string>10</string>
+                                </property>
+                                <property name="maxLength">
+                                 <number>8</number>
+                                </property>
+                                <property name="alignment">
+                                 <set>Qt::AlignCenter</set>
+                                </property>
+                                <property name="readOnly">
+                                 <bool>false</bool>
+                                </property>
+                                <property name="clearButtonEnabled">
+                                 <bool>false</bool>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="lbl_sensor_units">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>70</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>70</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="text">
+                                 <string>MM</string>
+                                </property>
+                                <property name="alignment">
+                                 <set>Qt::AlignCenter</set>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QWidget" name="gauge_height" native="true">
+                             <layout class="QHBoxLayout" name="horizontalLayout_35">
+                              <property name="spacing">
+                               <number>4</number>
+                              </property>
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QLabel" name="lbl_gauge_height">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>16777215</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="text">
+                                 <string>TOOL GAUGE HEIGHT</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLineEdit" name="lineEdit_gauge_height">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>70</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>70</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="text">
+                                 <string>10</string>
+                                </property>
+                                <property name="maxLength">
+                                 <number>8</number>
+                                </property>
+                                <property name="alignment">
+                                 <set>Qt::AlignCenter</set>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="lbl_gauge_units">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>70</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>70</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="text">
+                                 <string>MM</string>
+                                </property>
+                                <property name="alignment">
+                                 <set>Qt::AlignCenter</set>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                           </item>
+                           <item>
+                            <spacer name="verticalSpacer_2">
+                             <property name="orientation">
+                              <enum>Qt::Vertical</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>20</width>
+                               <height>40</height>
+                              </size>
+                             </property>
+                            </spacer>
                            </item>
                           </layout>
                          </widget>
@@ -6634,14 +7105,27 @@ TO FILE</string>
                              </item>
                             </layout>
                            </item>
+                           <item>
+                            <spacer name="verticalSpacer_4">
+                             <property name="orientation">
+                              <enum>Qt::Vertical</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>20</width>
+                               <height>40</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
                           </layout>
                          </widget>
                         </item>
                        </layout>
                       </widget>
-                      <widget class="QWidget" name="settings_touchoff">
+                      <widget class="QWidget" name="settings_probe">
                        <attribute name="title">
-                        <string>TOUCHOFF</string>
+                        <string>PROBE</string>
                        </attribute>
                        <layout class="QVBoxLayout" name="verticalLayout_6">
                         <property name="spacing">
@@ -6677,6 +7161,73 @@ TO FILE</string>
                            <property name="bottomMargin">
                             <number>4</number>
                            </property>
+                           <item>
+                            <layout class="QHBoxLayout" name="horizontalLayout_29">
+                             <property name="spacing">
+                              <number>4</number>
+                             </property>
+                             <property name="topMargin">
+                              <number>0</number>
+                             </property>
+                             <item>
+                              <widget class="QLabel" name="lbl_probe_tool">
+                               <property name="text">
+                                <string>PROBE TOOL</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_probe_tool">
+                               <property name="sizePolicy">
+                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                 <horstretch>0</horstretch>
+                                 <verstretch>0</verstretch>
+                                </sizepolicy>
+                               </property>
+                               <property name="minimumSize">
+                                <size>
+                                 <width>80</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>80</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="text">
+                                <string>99</string>
+                               </property>
+                               <property name="maxLength">
+                                <number>4</number>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_53">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>60</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>60</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="text">
+                                <string/>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
+                           </item>
                            <item>
                             <layout class="QHBoxLayout" name="horizontalLayout_43">
                              <property name="spacing">
@@ -6726,18 +7277,21 @@ TO FILE</string>
                                </property>
                                <property name="minimumSize">
                                 <size>
-                                 <width>70</width>
+                                 <width>80</width>
                                  <height>30</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
                                 <size>
-                                 <width>70</width>
+                                 <width>80</width>
                                  <height>30</height>
                                 </size>
                                </property>
                                <property name="toolTip">
                                 <string>Probe down search velocity</string>
+                               </property>
+                               <property name="text">
+                                <string>200</string>
                                </property>
                                <property name="maxLength">
                                 <number>8</number>
@@ -6835,18 +7389,21 @@ TO FILE</string>
                                </property>
                                <property name="minimumSize">
                                 <size>
-                                 <width>70</width>
+                                 <width>80</width>
                                  <height>30</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
                                 <size>
-                                 <width>70</width>
+                                 <width>80</width>
                                  <height>30</height>
                                 </size>
                                </property>
                                <property name="toolTip">
                                 <string>Probe down final velocity</string>
+                               </property>
+                               <property name="text">
+                                <string>100</string>
                                </property>
                                <property name="maxLength">
                                 <number>8</number>
@@ -6944,18 +7501,21 @@ TO FILE</string>
                                </property>
                                <property name="minimumSize">
                                 <size>
-                                 <width>70</width>
+                                 <width>80</width>
                                  <height>30</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
                                 <size>
-                                 <width>70</width>
+                                 <width>80</width>
                                  <height>30</height>
                                 </size>
                                </property>
                                <property name="toolTip">
                                 <string>Maximum distance to travel while searching for probe trigger.</string>
+                               </property>
+                               <property name="text">
+                                <string>10</string>
                                </property>
                                <property name="maxLength">
                                 <number>8</number>
@@ -7041,7 +7601,7 @@ TO FILE</string>
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_retract_distance">
+                              <widget class="QLineEdit" name="lineEdit_retract">
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                                  <horstretch>0</horstretch>
@@ -7050,18 +7610,21 @@ TO FILE</string>
                                </property>
                                <property name="minimumSize">
                                 <size>
-                                 <width>70</width>
+                                 <width>80</width>
                                  <height>30</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
                                 <size>
-                                 <width>70</width>
+                                 <width>80</width>
                                  <height>30</height>
                                 </size>
                                </property>
                                <property name="toolTip">
                                 <string>Distance to retract after G38.2 command</string>
+                               </property>
+                               <property name="text">
+                                <string>4</string>
                                </property>
                                <property name="maxLength">
                                 <number>8</number>
@@ -7072,7 +7635,7 @@ TO FILE</string>
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLabel" name="lbl_retract_dist_units">
+                              <widget class="QLabel" name="lbl_retract_units">
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                                  <horstretch>0</horstretch>
@@ -7138,7 +7701,7 @@ TO FILE</string>
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_z_safe_travel">
+                              <widget class="QLineEdit" name="lineEdit_zsafe">
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                                  <horstretch>0</horstretch>
@@ -7147,19 +7710,22 @@ TO FILE</string>
                                </property>
                                <property name="minimumSize">
                                 <size>
-                                 <width>70</width>
+                                 <width>80</width>
                                  <height>30</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
                                 <size>
-                                 <width>70</width>
+                                 <width>80</width>
                                  <height>30</height>
                                 </size>
                                </property>
                                <property name="toolTip">
                                 <string>Z safe travel height during rapid moves</string>
                                </property>
+                               <property name="text">
+                                <string>10</string>
+                               </property>
                                <property name="maxLength">
                                 <number>8</number>
                                </property>
@@ -7169,7 +7735,7 @@ TO FILE</string>
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLabel" name="lbl_z_safe_travel_units">
+                              <widget class="QLabel" name="lbl_zsafe_units">
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                                  <horstretch>0</horstretch>
@@ -7199,7 +7765,7 @@ TO FILE</string>
                             </layout>
                            </item>
                            <item>
-                            <layout class="QHBoxLayout" name="horizontalLayout_49">
+                            <layout class="QHBoxLayout" name="horizontalLayout_33">
                              <property name="spacing">
                               <number>4</number>
                              </property>
@@ -7207,32 +7773,14 @@ TO FILE</string>
                               <number>0</number>
                              </property>
                              <item>
-                              <widget class="QLabel" name="label_24">
-                               <property name="sizePolicy">
-                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                                 <horstretch>0</horstretch>
-                                 <verstretch>0</verstretch>
-                                </sizepolicy>
-                               </property>
-                               <property name="minimumSize">
-                                <size>
-                                 <width>0</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>16777215</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
+                              <widget class="QLabel" name="lbl_probe_start">
                                <property name="text">
-                                <string>TOUCH PLATE HEIGHT</string>
+                                <string>START HEIGHT</string>
                                </property>
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_touch_height">
+                              <widget class="QLineEdit" name="lineEdit_probe_start">
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                                  <horstretch>0</horstretch>
@@ -7241,118 +7789,21 @@ TO FILE</string>
                                </property>
                                <property name="minimumSize">
                                 <size>
-                                 <width>70</width>
+                                 <width>80</width>
                                  <height>30</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
                                 <size>
-                                 <width>70</width>
+                                 <width>80</width>
                                  <height>30</height>
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>Thickness of tool touchplate.</string>
-                               </property>
-                               <property name="maxLength">
-                                <number>8</number>
-                               </property>
-                               <property name="frame">
-                                <bool>true</bool>
-                               </property>
-                               <property name="alignment">
-                                <set>Qt::AlignCenter</set>
-                               </property>
-                               <property name="readOnly">
-                                <bool>false</bool>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLabel" name="lbl_touchplate_units">
-                               <property name="sizePolicy">
-                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                                 <horstretch>0</horstretch>
-                                 <verstretch>0</verstretch>
-                                </sizepolicy>
-                               </property>
-                               <property name="minimumSize">
-                                <size>
-                                 <width>60</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>60</width>
-                                 <height>30</height>
-                                </size>
+                                <string>Height above Z0 plane to start probing</string>
                                </property>
                                <property name="text">
-                                <string>MM</string>
-                               </property>
-                               <property name="alignment">
-                                <set>Qt::AlignCenter</set>
-                               </property>
-                              </widget>
-                             </item>
-                            </layout>
-                           </item>
-                           <item>
-                            <layout class="QHBoxLayout" name="horizontalLayout_48">
-                             <property name="spacing">
-                              <number>4</number>
-                             </property>
-                             <property name="topMargin">
-                              <number>0</number>
-                             </property>
-                             <item>
-                              <widget class="QLabel" name="label_23">
-                               <property name="sizePolicy">
-                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                                 <horstretch>0</horstretch>
-                                 <verstretch>0</verstretch>
-                                </sizepolicy>
-                               </property>
-                               <property name="minimumSize">
-                                <size>
-                                 <width>0</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>16777215</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="text">
-                                <string>TOOL SENSOR HEIGHT</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLineEdit" name="lineEdit_sensor_height">
-                               <property name="sizePolicy">
-                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                                 <horstretch>0</horstretch>
-                                 <verstretch>0</verstretch>
-                                </sizepolicy>
-                               </property>
-                               <property name="minimumSize">
-                                <size>
-                                 <width>70</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>70</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="toolTip">
-                                <string>Distance from machine base to top of tool sensor trigger point.</string>
+                                <string>2</string>
                                </property>
                                <property name="maxLength">
                                 <number>8</number>
@@ -7360,22 +7811,10 @@ TO FILE</string>
                                <property name="alignment">
                                 <set>Qt::AlignCenter</set>
                                </property>
-                               <property name="readOnly">
-                                <bool>false</bool>
-                               </property>
-                               <property name="clearButtonEnabled">
-                                <bool>false</bool>
-                               </property>
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLabel" name="lbl_toolsensor_units">
-                               <property name="sizePolicy">
-                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                                 <horstretch>0</horstretch>
-                                 <verstretch>0</verstretch>
-                                </sizepolicy>
-                               </property>
+                              <widget class="QLabel" name="lbl_probe_start_units">
                                <property name="minimumSize">
                                 <size>
                                  <width>60</width>
@@ -7399,92 +7838,7 @@ TO FILE</string>
                             </layout>
                            </item>
                            <item>
-                            <layout class="QHBoxLayout" name="horizontalLayout_56">
-                             <property name="spacing">
-                              <number>4</number>
-                             </property>
-                             <property name="topMargin">
-                              <number>0</number>
-                             </property>
-                             <item>
-                              <widget class="QLabel" name="lbl_rotary_setting">
-                               <property name="minimumSize">
-                                <size>
-                                 <width>0</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>16777215</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="toolTip">
-                                <string/>
-                               </property>
-                               <property name="text">
-                                <string>ROTARY AXIS HEIGHT</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLineEdit" name="lineEdit_rotary_height">
-                               <property name="sizePolicy">
-                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                                 <horstretch>0</horstretch>
-                                 <verstretch>0</verstretch>
-                                </sizepolicy>
-                               </property>
-                               <property name="minimumSize">
-                                <size>
-                                 <width>70</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>70</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="toolTip">
-                                <string>Distance from machine base to center of rotary (A) axis.</string>
-                               </property>
-                               <property name="maxLength">
-                                <number>10</number>
-                               </property>
-                               <property name="alignment">
-                                <set>Qt::AlignCenter</set>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLabel" name="lbl_rotary_units">
-                               <property name="minimumSize">
-                                <size>
-                                 <width>60</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>60</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="text">
-                                <string>MM</string>
-                               </property>
-                               <property name="alignment">
-                                <set>Qt::AlignCenter</set>
-                               </property>
-                              </widget>
-                             </item>
-                            </layout>
-                           </item>
-                           <item>
-                            <spacer name="verticalSpacer_4">
+                            <spacer name="verticalSpacer_5">
                              <property name="orientation">
                               <enum>Qt::Vertical</enum>
                              </property>
@@ -7501,28 +7855,6 @@ TO FILE</string>
                         </item>
                        </layout>
                       </widget>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLabel" name="silver_dragon">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="pixmap">
-                       <pixmap resource="qtdragon.qrc">:/images/images/silver_dragon.png</pixmap>
-                      </property>
-                      <property name="scaledContents">
-                       <bool>false</bool>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
                      </widget>
                     </item>
                     <item>
@@ -13904,7 +14236,6 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
@@ -13912,6 +14243,7 @@ SPEED</string>
   </buttongroup>
   <buttongroup name="util_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="about_buttonGroup"/>
  </buttongroups>
 </ui>
