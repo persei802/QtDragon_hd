@@ -105,7 +105,7 @@ class Setup_Utils():
         self.ngcgui._hal_init()
         # set up Zlevel probing
         from lib.zlevel import ZLevel
-        self.zlevel = ZLevel(self)
+        self.zlevel = ZLevel(self.w, self)
         self.parent.zlevel = self.zlevel
         self.stackedWidget_utils.addWidget(self.zlevel)
         self.make_button('zlevel', 'Z LEVEL\nCOMP')
