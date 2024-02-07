@@ -19,7 +19,7 @@ net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
 
 # method parameter must be one of nearest, linear, cubic
-loadusr -Wn compensate python3 lib/compensate.py nearest
+loadusr -Wn compensate python3 lib/compensate.py linear
 
 # spindle pause
 net eoffset-clear    axis.z.eoffset-clear  <= compensate.clear
