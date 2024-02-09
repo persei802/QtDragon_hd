@@ -54,7 +54,7 @@
          <height>16777215</height>
         </size>
        </property>
-       <layout class="QVBoxLayout" name="layout_left" stretch="0,0,0,0,0,0,0">
+       <layout class="QVBoxLayout" name="layout_left" stretch="0,0,0,0,0,0,0,0">
         <property name="spacing">
          <number>4</number>
         </property>
@@ -76,13 +76,13 @@
            <number>4</number>
           </property>
           <property name="leftMargin">
-           <number>2</number>
+           <number>0</number>
           </property>
           <property name="topMargin">
            <number>0</number>
           </property>
           <property name="rightMargin">
-           <number>2</number>
+           <number>0</number>
           </property>
           <item>
            <widget class="QCheckBox" name="chk_expand">
@@ -94,13 +94,13 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>0</width>
+              <width>170</width>
               <height>30</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>16777215</width>
+              <width>170</width>
               <height>30</height>
              </size>
             </property>
@@ -108,35 +108,7 @@
              <string>Expand subroutines when created</string>
             </property>
             <property name="text">
-             <string>EXPAND</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="chk_autosend">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Send gcode to linuxcnc</string>
-            </property>
-            <property name="text">
-             <string>SEND</string>
+             <string>EXPAND SUBROUTINE</string>
             </property>
            </widget>
           </item>
@@ -161,10 +133,48 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Append M2 to end of gcode files</string>
+             <string>Append M2 to end of gcode file</string>
             </property>
             <property name="text">
              <string>ADD M2</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QCheckBox" name="chk_autosend">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>170</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>170</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Send gcode to linuxcnc</string>
+            </property>
+            <property name="text">
+             <string>SEND TO LINUXCNC</string>
             </property>
            </widget>
           </item>
@@ -189,10 +199,10 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Wrte finalized gcode to disk</string>
+             <string>SAVE finalized gcode to FILE</string>
             </property>
             <property name="text">
-             <string>SAVE</string>
+             <string>SAVE TO FILE</string>
             </property>
            </widget>
           </item>
@@ -204,13 +214,13 @@
            <number>4</number>
           </property>
           <property name="leftMargin">
-           <number>2</number>
+           <number>0</number>
           </property>
           <property name="topMargin">
            <number>0</number>
           </property>
           <property name="rightMargin">
-           <number>2</number>
+           <number>0</number>
           </property>
           <item>
            <widget class="QLabel" name="lbl_preamble">
@@ -292,13 +302,13 @@
            <number>4</number>
           </property>
           <property name="leftMargin">
-           <number>2</number>
+           <number>0</number>
           </property>
           <property name="topMargin">
            <number>0</number>
           </property>
           <property name="rightMargin">
-           <number>2</number>
+           <number>0</number>
           </property>
           <item>
            <widget class="QLabel" name="lbl_sub">
@@ -355,13 +365,13 @@
            <number>4</number>
           </property>
           <property name="leftMargin">
-           <number>2</number>
+           <number>0</number>
           </property>
           <property name="topMargin">
            <number>0</number>
           </property>
           <property name="rightMargin">
-           <number>2</number>
+           <number>0</number>
           </property>
           <item>
            <widget class="QLabel" name="lbl_post">
@@ -443,13 +453,13 @@
            <number>4</number>
           </property>
           <property name="leftMargin">
-           <number>2</number>
+           <number>0</number>
           </property>
           <property name="topMargin">
            <number>0</number>
           </property>
           <property name="rightMargin">
-           <number>2</number>
+           <number>0</number>
           </property>
           <item>
            <widget class="QLabel" name="features">
@@ -552,7 +562,7 @@ FEATURES</string>
         <item>
          <widget class="QLabel" name="lbl_image">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -583,7 +593,7 @@ FEATURES</string>
         <item>
          <widget class="QTextEdit" name="textEdit_status">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -591,13 +601,13 @@ FEATURES</string>
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>60</height>
+            <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>100</height>
+            <height>16777215</height>
            </size>
           </property>
           <property name="horizontalScrollBarPolicy">
@@ -788,35 +798,6 @@ SUBFILE</string>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="btn_create">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>Create gcode features</string>
-             </property>
-             <property name="text">
-              <string>CREATE
-FEATURE</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QPushButton" name="btn_restart">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -842,6 +823,35 @@ FEATURE</string>
              <property name="text">
               <string>RESTART
 FEATURES</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_create">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Create gcode features</string>
+             </property>
+             <property name="text">
+              <string>CREATE
+FEATURE</string>
              </property>
             </widget>
            </item>

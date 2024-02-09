@@ -212,11 +212,9 @@ class SubFile():
         self.mtime = os.path.getmtime(self.sub_file)
         self.md5 = md5sum(self.sub_file)
         if os.path.splitext(self.sub_file)[-1] in ['.ngc','.NGC','.nc','.NC']:
-            img_file = find_image(fname)
-            if img_file is None:
-                img_file = os.path.join(os.path.dirname(PATH.HANDLER), 'images/silver_dragon.png')
-                self.flag_error("No image found - using default")
-            self.image = img_file
+            self.image = find_image(fname)
+            if self.image is None:
+                self.flag_error("No image found")
             self.read_ngc()
         elif os.path.splitext(self.sub_file)[-1] in ['.gcmc','.GCMC']:
             self.read_gcmc()
@@ -663,8 +661,10 @@ class NgcGui(QtWidgets.QWidget):
             try:
                 img = QtGui.QPixmap(page.fset.sub_data.image)
                 self.lbl_image.setPixmap(img)
+                self.lbl_image.show()
             except:
                 self.lbl_image.clear()
+                self.lbl_image.hide()
             self.textEdit_status.append("Updated subroutine file")
         elif ftype == 'pst':
             self.pst_file = fname
@@ -711,8 +711,10 @@ class NgcGui(QtWidgets.QWidget):
         try:
             img = QtGui.QPixmap(page.fset.sub_data.image)
             self.lbl_image.setPixmap(img)
+            self.lbl_image.show()
         except:
             self.lbl_image.clear()
+            self.lbl_image.hide()
         self.lbl_features.setText(str(page.feature_ct))
         self.lineEdit_preamble.setText(os.path.basename(page.pre_file))
         self.lineEdit_subfile.setText(os.path.basename(page.sub_file))
