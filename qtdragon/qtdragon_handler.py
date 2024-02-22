@@ -1355,7 +1355,7 @@ class HandlerClass:
 
     def on_keycall_POWER(self,event,state,shift,cntrl):
         if state:
-            ACTION.SET_MACHINE_STATE(False)
+            ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
 
     def on_keycall_ABORT(self,event,state,shift,cntrl):
         if state:

@@ -4677,7 +4677,7 @@ TO FILE</string>
                           </size>
                          </property>
                          <property name="text">
-                          <string>F2 - Machine OFF</string>
+                          <string>F2 - Toggle Machine ON/OFF</string>
                          </property>
                         </widget>
                        </item>
@@ -5014,7 +5014,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>QtDragon CNC Controller        10:33:25 AM</string>
+                       <string>QtDragon CNC Controller        07:46:27 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -14236,14 +14236,14 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="about_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
   <buttongroup name="util_buttonGroup"/>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="about_buttonGroup"/>
  </buttongroups>
 </ui>
