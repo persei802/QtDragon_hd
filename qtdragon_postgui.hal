@@ -3,11 +3,13 @@ loadrt and2
 addf time.0 servo-thread
 addf and2.0 servo-thread
 
-# the unlink pin commands are only used, because they are connected 
-# in core_sim.hal and we use this file to simulate
+# the unlink pin commands are only used because they are connected 
+# in core_sim.hal and gantrysim.hal and this file is only for simulation
 unlinkp iocontrol.0.tool-change
 unlinkp iocontrol.0.tool-changed
 unlinkp iocontrol.0.tool-prep-number
+unlinkp iocontrol.0.user-enable-out
+unlinkp iocontrol.0.emc-enable-in
 
 # estop
 net estop qtdragon.btn_estop => iocontrol.0.emc-enable-in
