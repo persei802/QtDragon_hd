@@ -125,7 +125,7 @@ class HandlerClass:
                               "eoffset_count", "sensor_x", "sensor_y", "zsafe", "rotary_height"]
 
         self.axis_a_list = ["action_zero_a", "dro_axis_a", "axistoolbutton_a", "btn_goto_zero_a", "lbl_max_angular",
-                            "lbl_max_angular_vel", "angular_increment", "widget_angular_jog", "lbl_rotary_setting",
+                            "lbl_max_angular_vel", "angular_increment", "widget_angular_jog", "lbl_rotary_height",
                             "lineEdit_rotary_height", "lbl_rotary_units"]
 
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
