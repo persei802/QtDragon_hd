@@ -1,4 +1,6 @@
 ## QtDragon_hd
+### Requires linuxcnc version 2.10 (master)
+
 ### Extra libraries are required in addition to those for the installation of QTVCP for additional functionality
 
 #### For viewing job setup sheets and help pages formatted in HTML
