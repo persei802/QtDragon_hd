@@ -359,7 +359,20 @@ class HandlerClass:
         # initialize spindle gauge
         self.w.gauge_spindle._value_font_size = 12
         self.w.gauge_spindle.set_threshold(self.max_spindle_rpm)
+        # util page scroll buttons
+        pixmap = QtGui.QPixmap('qtdragon/images/Right_arrow.png')
+        self.w.btn_util_right.setIcon(QtGui.QIcon(pixmap))
+        pixmap = QtGui.QPixmap('qtdragon/images/Left_arrow.png')
+        self.w.btn_util_left.setIcon(QtGui.QIcon(pixmap))
         # initialize jog joypads
+        self.w.jog_xy.set_icon('L', 'image', 'qtdragon/images/x_minus_jog_button.png')
+        self.w.jog_xy.set_icon('R', 'image', 'qtdragon/images/x_plus_jog_button.png')
+        self.w.jog_xy.set_icon('T', 'image', 'qtdragon/images/y_plus_jog_button.png')
+        self.w.jog_xy.set_icon('B', 'image', 'qtdragon/images/y_minus_jog_button.png')
+        self.w.jog_az.set_icon('L', 'image', 'qtdragon/images/a_minus_jog_button.png')
+        self.w.jog_az.set_icon('R', 'image', 'qtdragon/images/a_plus_jog_button.png')
+        self.w.jog_az.set_icon('T', 'image', 'qtdragon/images/z_plus_jog_button.png')
+        self.w.jog_az.set_icon('B', 'image', 'qtdragon/images/z_minus_jog_button.png')
         # only if override adjusters are sliders
         self.w.jog_xy.setFont(QtGui.QFont('Lato Heavy', 9))
         self.w.jog_az.setFont(QtGui.QFont('Lato Heavy', 9))
@@ -426,7 +439,7 @@ class HandlerClass:
 
     def init_macros(self):
         # macro buttons defined in INI under [MDI_COMMAND_LIST]
-        for i in range(10):
+        for i in range(20):
             button = self.w[f'btn_macro{i}']
             key = button.property('ini_mdi_key')
             if key == '' or INFO.get_ini_mdi_command(key) is None:
@@ -439,13 +452,10 @@ class HandlerClass:
             except:
                 button.setText('')
                 button.setEnabled(False)
-        # if no macros defined, hide the macros button group
-        if self.macros_defined == 0:
-            self.w.chk_show_macros.setEnabled(False)
-            self.w.group_macro_buttons.hide()
-        else:
-            state = self.w.chk_show_macros.isChecked()
-            self.chk_show_macros_changed(state)
+        self.w.group1_macro_buttons.hide()
+        self.w.group2_macro_buttons.hide()
+        state = self.w.chk_show_macros.isChecked()
+        self.chk_show_macros_changed(state)
 
     def init_adjustments(self):
         # modify the status adjustment bars to have custom icons
@@ -1127,13 +1137,19 @@ class HandlerClass:
             self.start_line = 1
 
     def chk_show_macros_changed(self, state):
+        if self.macros_defined == 0: return
         if state:
-            self.w.group_macro_buttons.show()
-            # this is necessary because action buttons are enabled by qtvcp according to machine status
-            for i in range(self.macros_defined, 10):
-                self.w[f'btn_macro{i}'].setEnabled(False)
+            self.w.group1_macro_buttons.show()
+            if self.macros_defined > 10:
+                self.w.group2_macro_buttons.show()
+                for i in range(self.macros_defined, 20):
+                    self.w[f'btn_macro{i}'].setEnabled(False)
+            else:
+                for i in range(self.macros_defined, 10):
+                    self.w[f'btn_macro{i}'].setEnabled(False)
         else:
-            self.w.group_macro_buttons.hide()
+            self.w.group1_macro_buttons.hide()
+            self.w.group2_macro_buttons.hide()
 
     def touchoff_changed(self, state):
         if not state: return

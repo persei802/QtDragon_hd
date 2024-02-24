@@ -1023,7 +1023,7 @@
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="currentIndex">
-                <number>8</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="main_tab_widget_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -1098,7 +1098,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QFrame" name="group_macro_buttons">
+                    <widget class="QFrame" name="group1_macro_buttons">
                      <property name="minimumSize">
                       <size>
                        <width>88</width>
@@ -1467,6 +1467,256 @@
                         </property>
                         <property name="ini_mdi_key" stdset="0">
                          <string>MACRO9</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QFrame" name="group2_macro_buttons">
+                     <property name="minimumSize">
+                      <size>
+                       <width>88</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>88</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_45">
+                      <property name="leftMargin">
+                       <number>4</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>8</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>4</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>4</number>
+                      </property>
+                      <item>
+                       <widget class="ActionButton" name="btn_macro10">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>MACRO 10</string>
+                        </property>
+                        <property name="ini_mdi_command_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>10</number>
+                        </property>
+                        <property name="ini_mdi_key" stdset="0">
+                         <string>MACRO10</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="ActionButton" name="btn_macro11">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>MACRO 11</string>
+                        </property>
+                        <property name="ini_mdi_command_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>11</number>
+                        </property>
+                        <property name="ini_mdi_key" stdset="0">
+                         <string>MACRO11</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="ActionButton" name="btn_macro12">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>MACRO 12</string>
+                        </property>
+                        <property name="ini_mdi_command_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>12</number>
+                        </property>
+                        <property name="ini_mdi_key" stdset="0">
+                         <string>MACRO12</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="ActionButton" name="btn_macro13">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>MACRO 13</string>
+                        </property>
+                        <property name="ini_mdi_command_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>13</number>
+                        </property>
+                        <property name="ini_mdi_key" stdset="0">
+                         <string>MACRO13</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="ActionButton" name="btn_macro14">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>MACRO 14</string>
+                        </property>
+                        <property name="ini_mdi_command_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>14</number>
+                        </property>
+                        <property name="ini_mdi_key" stdset="0">
+                         <string>MACRO14</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="ActionButton" name="btn_macro15">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>MACRO 15</string>
+                        </property>
+                        <property name="ini_mdi_command_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>15</number>
+                        </property>
+                        <property name="ini_mdi_key" stdset="0">
+                         <string>MACRO15</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="ActionButton" name="btn_macro16">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>MACRO 16</string>
+                        </property>
+                        <property name="ini_mdi_command_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>16</number>
+                        </property>
+                        <property name="ini_mdi_key" stdset="0">
+                         <string>MACRO16</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="ActionButton" name="btn_macro17">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>MACRO 17</string>
+                        </property>
+                        <property name="ini_mdi_command_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>17</number>
+                        </property>
+                        <property name="ini_mdi_key" stdset="0">
+                         <string>MACRO17</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="ActionButton" name="btn_macro18">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>MACRO 18</string>
+                        </property>
+                        <property name="ini_mdi_command_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>18</number>
+                        </property>
+                        <property name="ini_mdi_key" stdset="0">
+                         <string>MACRO18</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="ActionButton" name="btn_macro19">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>MACRO 19</string>
+                        </property>
+                        <property name="ini_mdi_command_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>19</number>
+                        </property>
+                        <property name="ini_mdi_key" stdset="0">
+                         <string>MACRO19</string>
                         </property>
                        </widget>
                       </item>
@@ -5014,7 +5264,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>QtDragon CNC Controller        07:46:27 AM</string>
+                       <string>QtDragon CNC Controller        06:22:47 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -14236,6 +14486,8 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="util_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="about_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
@@ -14243,7 +14495,5 @@ SPEED</string>
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="util_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
