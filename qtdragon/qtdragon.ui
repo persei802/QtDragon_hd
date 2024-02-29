@@ -5264,7 +5264,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>QtDragon CNC Controller        06:22:47 PM</string>
+                       <string>QtDragon CNC Controller        01:29:06 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -10913,6 +10913,12 @@ SPINDLE</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="textTemplate" stdset="0">
+                       <string>%.3f</string>
+                      </property>
+                      <property name="alt_textTemplate" stdset="0">
+                       <string>%.3f</string>
                       </property>
                       <property name="index_number" stdset="0">
                        <number>2</number>
