@@ -61,7 +61,7 @@ class HandlerClass:
         self.h = halcomp
         self.w = widgets
         self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
-        self.styleeditor = SSE(widgets, paths)
+        self.styleeditor = SSE(widgets, paths, addBuiltinStyles=False)
         self.settings_checkboxes = []
         self.touchoff_checkboxes = []
         self.settings_offsets = []
