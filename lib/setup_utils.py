@@ -12,6 +12,7 @@
 # GNU General Public License for more details.
 import sys
 import os
+import xml.etree.ElementTree as ET
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QPushButton, QStackedWidget, QDialog, QDialogButtonBox, QVBoxLayout, QHBoxLayout, QSizePolicy
@@ -19,14 +20,15 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
 from qtvcp.core import Info, Path
+from qtvcp.widgets.screen_options import ScreenOptions
 from qtvcp.lib.qt_pdf import PDFViewer
 from qtvcp import logger
-from qtvcp.widgets.gcode_editor import GcodeEditor
 
 LOG = logger.getLogger(__name__)
 LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 INFO = Info()
 PATH = Path()
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 # status message alert levels
 DEFAULT =  0
@@ -72,70 +74,28 @@ class Setup_Utils():
         self.stackedWidget_utils = QStackedWidget()
         self.stackedWidget_utils.setSizePolicy(self.sizePolicy)
         self.w.layout_utils.addWidget(self.stackedWidget_utils)
+        # setup XML parser
+        xml_filename = os.path.join(HERE, 'utils.xml')
+        self.tree = ET.parse(xml_filename)
+        self.root = self.tree.getroot()
+        self.machine = self.root.get('type')
+
         # setup help file viewer
         self.dialog = QDialog()
         self.help_page = ShowHelp(self.dialog)
         self.dialog.hide()
 
     def init_utils(self):
-        # facing
-        from lib.facing import Facing
-        self.facing = Facing(self.tool_db, self)
-        self.stackedWidget_utils.addWidget(self.facing)
-        self.make_button('facing', 'FACING')
-        self.facing._hal_init()
-        # hole_circle
-        from lib.hole_circle import Hole_Circle
-        self.hole_circle = Hole_Circle(self)
-        self.stackedWidget_utils.addWidget(self.hole_circle)
-        self.make_button('hole_circle', 'HOLE\nCIRCLE')
-        self.hole_circle._hal_init()
-        # workpiece height measurement
-        from lib.auto_height import Auto_Measure
-        self.auto_measure = Auto_Measure(self.w, self)
-        self.stackedWidget_utils.addWidget(self.auto_measure)
-        self.make_button('auto_measure', 'WORKPIECE\nHEIGHT')
-        self.auto_measure._hal_init()
-        # set up NGCGUI
-        LOG.info("Using NGCGUI utility")
-        from lib.ngcgui import NgcGui
-        self.ngcgui = NgcGui()
-        self.stackedWidget_utils.addWidget(self.ngcgui)
-        self.make_button('ngcgui', 'NGCGUI')
-        self.ngcgui._hal_init()
-        # set up Zlevel probing
-        from lib.zlevel import ZLevel
-        self.zlevel = ZLevel(self.w, self)
-        self.parent.zlevel = self.zlevel
-        self.stackedWidget_utils.addWidget(self.zlevel)
-        self.make_button('zlevel', 'Z LEVEL\nCOMP')
-        self.zlevel._hal_init()
-        # spindle warmup
-        from lib.spindle_warmup import Spindle_Warmup
-        self.warmup = Spindle_Warmup()
-        self.stackedWidget_utils.addWidget(self.warmup)
-        self.make_button('warmup', 'SPINDLE\nWARMUP')
-        self.warmup._hal_init()
-        # hole enlarge
-        from lib.hole_enlarge import Hole_Enlarge
-        self.enlarge = Hole_Enlarge(self.tool_db, self)
-        self.stackedWidget_utils.addWidget(self.enlarge)
-        self.make_button('enlarge', 'HOLE\nENLARGE')
-        self.enlarge._hal_init()
-        # gcodes
-        from lib.gcodes import GCodes
-        self.gcodes = GCodes(self)
-        self.stackedWidget_utils.addWidget(self.gcodes)
-        self.make_button('gcodes', 'GCODES')
-        self.gcodes.setup_list()
-        # rapid rotary conversion
-        if 'A' in INFO.AVAILABLE_AXES:
-            from lib.rapid_rotary import Rapid_Rotary
-            self.rapid_rotary = Rapid_Rotary(self)
-            self.stackedWidget_utils.addWidget(self.rapid_rotary)
-            self.make_button('rotary', 'RAPID\nROTARY')
-            self.rapid_rotary._hal_init()
-# ->    add new utils here
+        xml = self.root.find('Utils')
+        for child in xml:
+            install = child.get('install')
+            if install == 'yes':
+                cmd = 'install_' + child.tag
+                if cmd in dir(self):
+                    self[cmd]()
+                    LOG.debug(f"Installed {child.tag} utility")
+                else:
+                    LOG.debug(f"No such utility as {child.tag}")
         # html setup page viewer
         self.web_view_setup = QWebEngineView()
         self.web_page_setup = WebPage()
@@ -159,6 +119,72 @@ class Setup_Utils():
             self.slide_scroll_window()
         self.w.util_buttonGroup.buttonClicked.connect(self.utils_tab_changed)
         self.show_defaults()
+
+    def install_facing(self):
+        from lib.facing import Facing
+        self.facing = Facing(self.tool_db, self)
+        self.stackedWidget_utils.addWidget(self.facing)
+        self.make_button('facing', 'FACING')
+        self.facing._hal_init()
+
+    def install_hole_circle(self):
+        from lib.hole_circle import Hole_Circle
+        self.hole_circle = Hole_Circle(self)
+        self.stackedWidget_utils.addWidget(self.hole_circle)
+        self.make_button('hole_circle', 'HOLE\nCIRCLE')
+        self.hole_circle._hal_init()
+
+    def install_auto_measure(self):
+        from lib.auto_height import Auto_Measure
+        self.auto_measure = Auto_Measure(self.w, self)
+        self.stackedWidget_utils.addWidget(self.auto_measure)
+        self.make_button('auto_measure', 'WORKPIECE\nHEIGHT')
+        self.auto_measure._hal_init()
+
+    def install_zlevel(self):
+        from lib.zlevel import ZLevel
+        self.zlevel = ZLevel(self.w, self)
+        self.parent.zlevel = self.zlevel
+        self.stackedWidget_utils.addWidget(self.zlevel)
+        self.make_button('zlevel', 'Z LEVEL\nCOMP')
+        self.zlevel._hal_init()
+
+    def install_spindle_warmup(self):
+        from lib.spindle_warmup import Spindle_Warmup
+        self.warmup = Spindle_Warmup()
+        self.stackedWidget_utils.addWidget(self.warmup)
+        self.make_button('warmup', 'SPINDLE\nWARMUP')
+        self.warmup._hal_init()
+
+    def install_hole_enlarge(self):
+        from lib.hole_enlarge import Hole_Enlarge
+        self.enlarge = Hole_Enlarge(self.tool_db, self)
+        self.stackedWidget_utils.addWidget(self.enlarge)
+        self.make_button('enlarge', 'HOLE\nENLARGE')
+        self.enlarge._hal_init()
+
+    def install_ngcgui(self):
+        LOG.info("Using NGCGUI utility")
+        from lib.ngcgui import NgcGui
+        self.ngcgui = NgcGui()
+        self.stackedWidget_utils.addWidget(self.ngcgui)
+        self.make_button('ngcgui', 'NGCGUI')
+        self.ngcgui._hal_init()
+
+    def install_gcodes(self):
+        from lib.gcodes import GCodes
+        self.gcodes = GCodes(self)
+        self.stackedWidget_utils.addWidget(self.gcodes)
+        self.make_button('gcodes', 'GCODES')
+        self.gcodes.setup_list()
+
+    def install_rapid_rotary(self):
+        if 'A' in INFO.AVAILABLE_AXES:
+            from lib.rapid_rotary import Rapid_Rotary
+            self.rapid_rotary = Rapid_Rotary(self)
+            self.stackedWidget_utils.addWidget(self.rapid_rotary)
+            self.make_button('rotary', 'RAPID\nROTARY')
+            self.rapid_rotary._hal_init()
 
     def make_button(self, name, title):
         self['btn_' + name] = QPushButton(title)
