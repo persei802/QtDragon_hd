@@ -121,8 +121,8 @@ class HandlerClass:
         self.unit_speed_list = ["search_vel_units", "probe_vel_units"]
 
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y", "camera_x",
-                              "camera_y", "search_vel", "probe_vel", "retract", "max_probe", "eoffset",
-                              "eoffset_count", "sensor_x", "sensor_y", "zsafe", "rotary_height"]
+                              "camera_y", "search_vel", "probe_vel", "retract", "max_probe", "eoffset", "eoffset_count",
+                              "sensor_x", "sensor_y", "zsafe", "probe_x", "probe_y", "rotary_height", "gauge_height"]
 
         self.axis_a_list = ["action_zero_a", "dro_axis_a", "axistoolbutton_a", "btn_goto_zero_a", "lbl_max_angular",
                             "lbl_max_angular_vel", "angular_increment", "widget_angular_jog", "lbl_rotary_height",
@@ -728,6 +728,8 @@ class HandlerClass:
         self.w.cmb_mdi_texts.setCurrentIndex(0)
 
     def mdi_enter_pressed(self):
+        if self.w.mdihistory.MDILine.text() == "CLEAR HISTORY":
+            self.add_status("MDI history cleared")
         self.w.mdihistory.run_command()
         self.w.mdihistory.MDILine.clear()
 
@@ -827,7 +829,6 @@ class HandlerClass:
 
     def btn_enable_comp_clicked(self, state):
         if state:
-#            fname = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
             fname = self.zlevel.get_map()
             if fname is None:
                 self.add_status("No map file loaded - go to UTILS -> ZLEVEL and load a map file", WARNING)
@@ -1312,6 +1313,8 @@ class HandlerClass:
         self.w.btn_pause_spindle.setEnabled(not state)
         self.w.btn_enable_comp.setEnabled(not state)
         self.w.btn_goto_sensor.setEnabled(not state)
+        if self.w.chk_show_macros.isChecked():
+            self.chk_show_macros_changed(not state)
         if state:
             self.w.btn_main.setChecked(True)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
