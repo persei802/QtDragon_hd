@@ -702,7 +702,7 @@ class HandlerClass:
             self.w.groupBox_preview.setTitle(self.w.btn_main.text())
             return
         if index == TAB_PROBE:
-            spindle_inhibit = True
+            spindle_inhibit = self.w.chk_inhibit_spindle.isChecked()
         self.w.mdihistory.MDILine.spindle_inhibit(spindle_inhibit)
         self.h['spindle-inhibit'] = spindle_inhibit
         self.w.main_tab_widget.setCurrentIndex(index)
@@ -1139,7 +1139,7 @@ class HandlerClass:
 
     def chk_show_macros_changed(self, state):
         if self.macros_defined == 0: return
-        if state:
+        if state and not STATUS.is_auto_mode():
             self.w.group1_macro_buttons.show()
             if self.macros_defined > 10:
                 self.w.group2_macro_buttons.show()
