@@ -17,6 +17,11 @@ centerline of the rotary axis, assuming the rotary axis is mounted on the machin
 <p>As it is not convenient to touch off a tool to a cyclindrical object, tool touchoff is accomplished by touching off to the tool sensor
 while placed on the machine table and setting the workpiece height to the rotary height. This sets the tool endpoint to be Z0 at the rotary
 axis height.</p>
+<p>When Linuxcnc is first started, all axes are homed. This causes the A0 location to be wherever the rotary axis was positioned when
+it was homed. To change the A0 point, jog the rotary axis to the desired A0 point and then rehome axis A. Sometimes a rotary job may
+cause the the A axis to rotate in the same direction for hundreds, even thousands of times. Rewinding to A0 would be very time 
+consuming and inconvenient. To address this, QtDragon has a REWIND TO ZERO button for the rotary axis. When this button is pressed,
+the A axis rotates to the A0 position and rehomes. </p>
 <center><img src="images/rotary_axis.png" alt="rotary_axis" width="500"></img></center>
 </body>
 </html>

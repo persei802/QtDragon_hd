@@ -23,7 +23,7 @@ class Connections():
         self.w.btn_ref_laser.clicked.connect(self.parent.btn_ref_laser_clicked)
         self.w.btn_ref_camera.clicked.connect(self.parent.btn_ref_camera_clicked)
         self.w.btn_goto_zero.clicked.connect(self.parent.btn_goto_location_clicked)
-        self.w.btn_goto_zero_a.clicked.connect(self.parent.btn_goto_location_clicked)
+        self.w.btn_rewind_a.clicked.connect(self.parent.btn_rewind_clicked)
         self.w.btn_go_home.clicked.connect(self.parent.btn_goto_location_clicked)
         self.w.btn_mdi_clear.pressed.connect(lambda: self.w.mdihistory.MDILine.clear())
         self.w.btn_mdi_enter.pressed.connect(self.parent.mdi_enter_pressed)

@@ -124,9 +124,9 @@ class HandlerClass:
                               "camera_y", "search_vel", "probe_vel", "retract", "max_probe", "eoffset", "eoffset_count",
                               "sensor_x", "sensor_y", "zsafe", "probe_x", "probe_y", "rotary_height", "gauge_height"]
 
-        self.axis_a_list = ["action_zero_a", "dro_axis_a", "axistoolbutton_a", "btn_goto_zero_a", "lbl_max_angular",
-                            "lbl_max_angular_vel", "angular_increment", "widget_angular_jog", "lbl_rotary_height",
-                            "lineEdit_rotary_height", "lbl_rotary_units"]
+        self.axis_a_list = ["dro_axis_a", "lbl_max_angular", "lbl_max_angular_vel", "angular_increment",
+                            "action_zero_a", "btn_rewind_a", "action_home_a", "widget_angular_jog",
+                            "lbl_rotary_height", "lineEdit_rotary_height", "lbl_rotary_units"]
 
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
         STATUS.connect('state-off', lambda w: self.enable_onoff(False))
@@ -328,7 +328,7 @@ class HandlerClass:
         self.w.cmb_mdi_texts.addItem("PREFERENCE")
         self.w.cmb_mdi_texts.addItem("CLEAR HISTORY")
         # set calculator mode for menu buttons
-        for i in ("x", "y", "z", "a"):
+        for i in ("x", "y", "z"):
             self.w["axistoolbutton_" + i].set_dialog_code('CALCULATOR')
         # disable mouse wheel events on comboboxes
         self.w.cmb_gcode_history.wheelEvent = lambda event: None
@@ -354,8 +354,9 @@ class HandlerClass:
         self.w.axistoolbutton_y.set_joint(self.jog_from_name['Y'])
         self.w.axistoolbutton_z.set_joint(self.jog_from_name['Z'])
         if 'A' in self.axis_list:
-            self.w.action_zero_a.set_joint(self.jog_from_name['A'])
-            self.w.axistoolbutton_a.set_joint(self.jog_from_name['A'])
+#            self.w.action_zero_a.set_joint(self.jog_from_name['A'])
+            self.w.action_home_a.set_joint(self.jog_from_name['A'])
+#            self.w.axistoolbutton_a.set_joint(self.jog_from_name['A'])
         # initialize spindle gauge
         self.w.gauge_spindle._value_font_size = 12
         self.w.gauge_spindle.set_threshold(self.max_spindle_rpm)
@@ -939,6 +940,20 @@ class HandlerClass:
             if retval == QMessageBox.Ok:
                 ACTION.SET_MACHINE_UNHOMED(-1)
 
+    def btn_rewind_clicked(self):
+        stat = linuxcnc.stat()
+        stat.poll()
+        pos = stat.actual_position[3]
+        joint = self.jog_from_name['A']
+        frac = (pos + 180) % 360
+        frac -= 180
+        cmd = f"""G91
+        G0 A-{frac}
+        G90"""
+        ACTION.CALL_MDI_WAIT(cmd, 10)
+        ACTION.SET_MACHINE_HOMING(joint)
+        self.add_status("Rotary axis rewound to 0")
+
     def btn_goto_location_clicked(self):
         dest = self.w.sender().property('location')
         ACTION.CALL_MDI("G90")
@@ -953,8 +968,6 @@ class HandlerClass:
             ACTION.CALL_MDI_WAIT("G53 G0 Z0", 30)
             cmd = f"G53 G0 X{self.w.lineEdit_sensor_x.text()} Y{self.w.lineEdit_sensor_y.text()}"
             ACTION.CALL_MDI_WAIT(cmd, 30)
-        elif dest == 'zero_a':
-            ACTION.CALL_MDI_WAIT("G0 A0", 30)
 
     def btn_ref_laser_clicked(self):
         x = float(self.w.lineEdit_laser_x.text())

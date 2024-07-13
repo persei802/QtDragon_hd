@@ -5264,7 +5264,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>QtDragon CNC Controller        07:38:42 AM</string>
+                       <string>QtDragon CNC Controller        09:30:10 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -12008,46 +12008,6 @@ ALL</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="4">
-                 <widget class="AxisToolButton" name="axistoolbutton_a">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>REFA</string>
-                  </property>
-                  <property name="popupMode">
-                   <enum>QToolButton::InstantPopup</enum>
-                  </property>
-                  <property name="arrowType">
-                   <enum>Qt::NoArrow</enum>
-                  </property>
-                  <property name="joint_number" stdset="0">
-                   <number>3</number>
-                  </property>
-                  <property name="axis_letter" stdset="0">
-                   <string>A</string>
-                  </property>
-                  <property name="halpin_option" stdset="0">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="0">
                  <widget class="ActionButton" name="action_zero_x">
                   <property name="sizePolicy">
@@ -12157,94 +12117,6 @@ ALL</string>
                   </property>
                   <property name="alt_textTemplate" stdset="0">
                    <string>%1.2f mm</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="5">
-                 <widget class="QPushButton" name="btn_goto_zero_a">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>Go to A axis 0 position</string>
-                  </property>
-                  <property name="text">
-                   <string> A</string>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>images/home.png</normaloff>images/home.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>30</width>
-                    <height>30</height>
-                   </size>
-                  </property>
-                  <property name="location" stdset="0">
-                   <string>zero_a</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
-                 <widget class="ActionButton" name="action_zero_a">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>  A</string>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>images/zero.png</normaloff>images/zero.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>30</width>
-                    <height>30</height>
-                   </size>
-                  </property>
-                  <property name="joint_number_status" stdset="0">
-                   <number>3</number>
-                  </property>
-                  <property name="zero_axis_action" stdset="0">
-                   <bool>true</bool>
-                  </property>
-                  <property name="joint_number" stdset="0">
-                   <number>3</number>
-                  </property>
-                  <property name="axis_letter" stdset="0">
-                   <string>A</string>
                   </property>
                  </widget>
                 </item>
@@ -12506,6 +12378,9 @@ ALL</string>
                   </property>
                   <property name="home_action" stdset="0">
                    <bool>true</bool>
+                  </property>
+                  <property name="joint_number" stdset="0">
+                   <number>0</number>
                   </property>
                   <property name="axis_letter" stdset="0">
                    <string>X</string>
@@ -13076,6 +12951,123 @@ WCS</string>
                   </property>
                   <property name="popupMode">
                    <enum>QToolButton::InstantPopup</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="5">
+                 <widget class="ActionButton" name="action_home_a">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>90</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Home axis A</string>
+                  </property>
+                  <property name="text">
+                   <string>  A</string>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>images/home.png</normaloff>images/home.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>30</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="home_action" stdset="0">
+                   <bool>true</bool>
+                  </property>
+                  <property name="joint_number" stdset="0">
+                   <number>3</number>
+                  </property>
+                  <property name="axis_letter" stdset="0">
+                   <string>A</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="4">
+                 <widget class="QPushButton" name="btn_rewind_a">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>90</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Rewind A axis to original HOME position</string>
+                  </property>
+                  <property name="text">
+                   <string>REWIND
+TO ZERO</string>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>30</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QPushButton" name="action_zero_a">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>90</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>  A</string>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>images/zero.png</normaloff>images/zero.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>30</width>
+                    <height>30</height>
+                   </size>
                   </property>
                  </widget>
                 </item>
@@ -14520,13 +14512,13 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="about_buttonGroup"/>
+  <buttongroup name="util_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="about_buttonGroup"/>
-  <buttongroup name="util_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
