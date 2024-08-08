@@ -5038,7 +5038,7 @@ TO FILE</string>
                           <string/>
                          </property>
                          <property name="pixmap">
-                          <pixmap resource="qtdragon.qrc">:/images/images/silver_dragon.png</pixmap>
+                          <pixmap>:/images/images/silver_dragon.png</pixmap>
                          </property>
                          <property name="scaledContents">
                           <bool>false</bool>
@@ -5264,7 +5264,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>QtDragon CNC Controller        09:30:10 AM</string>
+                       <string>QtDragon CNC Controller        10:11:03 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -8874,7 +8874,7 @@ ACTIVE</string>
                  <bool>false</bool>
                 </property>
                 <property name="checked_state_text_option" stdset="0">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="true_state_string" stdset="0">
                  <string>ESTOP
@@ -13056,6 +13056,9 @@ TO ZERO</string>
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>No function</string>
+                  </property>
                   <property name="text">
                    <string>  A</string>
                   </property>
@@ -14512,14 +14515,14 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="about_buttonGroup"/>
   <buttongroup name="util_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="about_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>

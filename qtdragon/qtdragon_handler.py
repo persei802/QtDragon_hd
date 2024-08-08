@@ -128,6 +128,8 @@ class HandlerClass:
                             "action_zero_a", "btn_rewind_a", "action_home_a", "widget_angular_jog",
                             "lbl_rotary_height", "lineEdit_rotary_height", "lbl_rotary_units"]
 
+        STATUS.connect('state-estop', lambda w: self.w.btn_estop.setText("ESTOP\nACTIVE"))
+        STATUS.connect('state-estop-reset', lambda w: self.w.btn_estop.setText("ESTOP\nRESET"))
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
         STATUS.connect('state-off', lambda w: self.enable_onoff(False))
         STATUS.connect('mode-manual', lambda w: self.enable_auto(False))
@@ -1326,6 +1328,7 @@ class HandlerClass:
         self.w.btn_pause_spindle.setEnabled(not state)
         self.w.btn_enable_comp.setEnabled(not state)
         self.w.btn_goto_sensor.setEnabled(not state)
+        self.w.groupBox_jog_pads.setEnabled(not state)
         if self.w.chk_show_macros.isChecked():
             self.chk_show_macros_changed(not state)
         if state:
