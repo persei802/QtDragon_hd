@@ -958,6 +958,7 @@ class HandlerClass:
 
     def btn_goto_location_clicked(self):
         dest = self.w.sender().property('location')
+        man_mode = True if STATUS.is_man_mode() else False
         ACTION.CALL_MDI("G90")
         if dest == 'zero':
             ACTION.CALL_MDI_WAIT("G53 G0 Z0", 30)
@@ -970,6 +971,8 @@ class HandlerClass:
             ACTION.CALL_MDI_WAIT("G53 G0 Z0", 30)
             cmd = f"G53 G0 X{self.w.lineEdit_sensor_x.text()} Y{self.w.lineEdit_sensor_y.text()}"
             ACTION.CALL_MDI_WAIT(cmd, 30)
+        if man_mode:
+            ACTION.SET_MANUAL_MODE()
 
     def btn_ref_laser_clicked(self):
         x = float(self.w.lineEdit_laser_x.text())
