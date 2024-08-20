@@ -287,6 +287,9 @@ class Tool_Database(QWidget):
         if saveName != '':
             with open(saveName, 'w') as file:
                 file.write(html)
+            self.parent.add_status(f"Exported tool table to {saveName}")
+        else:
+            self.parent.add_status("Invalid filename specified")
 
     def get_file_save(self, caption):
         dialog = QFileDialog()
@@ -295,6 +298,12 @@ class Tool_Database(QWidget):
         _filter = "HTML Files (*.html)"
         _dir = INFO.SUB_PATH
         fname, _ =  dialog.getSaveFileName(None, caption, _dir, _filter, options=options)
+        if fname != '':
+            fn, xn = os.path.splitext(fname)
+            if os.path.basename(fn).startswith('.'):
+                fname = ''
+            elif xn != ".html":
+                fname += ".html"
         return fname
 
     def update_tool_time(self, tno, time):
