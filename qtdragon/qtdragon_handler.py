@@ -356,9 +356,7 @@ class HandlerClass:
         self.w.axistoolbutton_y.set_joint(self.jog_from_name['Y'])
         self.w.axistoolbutton_z.set_joint(self.jog_from_name['Z'])
         if 'A' in self.axis_list:
-#            self.w.action_zero_a.set_joint(self.jog_from_name['A'])
             self.w.action_home_a.set_joint(self.jog_from_name['A'])
-#            self.w.axistoolbutton_a.set_joint(self.jog_from_name['A'])
         # initialize spindle gauge
         self.w.gauge_spindle._value_font_size = 12
         self.w.gauge_spindle.set_threshold(self.max_spindle_rpm)
@@ -390,7 +388,7 @@ class HandlerClass:
             self.w[key].setIcon(icon)
         # populate tool icon combobox
         path = os.path.join(PATH.CONFIGPATH, "tool_icons")
-        self.w.cmb_icon_select.addItem('SELECT TOOL ICON')
+        self.w.cmb_icon_select.addItem('SELECT ICON')
         if os.path.isdir(path):
             icons = os.listdir(path)
             icons.sort()
@@ -1079,11 +1077,8 @@ class HandlerClass:
         if not state and self.w.btn_enable_edit.isChecked():
             self.w.btn_enable_edit.setChecked(False)
         self.w.stackedWidget_tools.setCurrentIndex(state)
-        self.w.cmb_icon_select.setVisible(state)
-        for item in ["add_tool", "delete_tool", "load_tool", "unload_tool"]:
-            self.w['btn_' + item].setVisible(not state)
-        for item in ["enable_edit", "export_data", "db_help"]:
-            self.w['btn_' + item].setVisible(state)
+        self.w.widget_tooltable_btns.setVisible(not state)
+        self.w.widget_database_btns.setVisible(state)
 
     def show_db_help_page(self):
         self.setup_utils.show_help_page(self.db_helpfile)

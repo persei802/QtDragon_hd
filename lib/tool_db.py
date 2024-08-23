@@ -16,18 +16,19 @@ import os
 from PyQt5 import QtCore, QtWidgets, QtSql, QtGui
 from PyQt5.QtWidgets import (QWidget, QFileDialog, QInputDialog)
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QTextDocument
+from PyQt5.QtGui import QColor
 
 from qtvcp import logger
-from qtvcp.core import Status, Info, Path
+from qtvcp.core import Status, Info, Path, Tool
 
 STATUS = Status()
 INFO = Info()
 PATH = Path()
+TOOL = Tool()
 LOG = logger.getLogger(__name__)
 LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-VERSION = '1.2'
+VERSION = '1.3'
 
 
 class StyleDelegate(QtWidgets.QStyledItemDelegate):
@@ -89,7 +90,8 @@ class Tool_Database(QWidget):
 
         # signal connections
         self.w.btn_enable_edit.clicked.connect(lambda state: self.w.cmb_icon_select.setEnabled(state))
-        self.w.btn_export_data.pressed.connect(self.export_data)
+        self.w.btn_export_table.pressed.connect(self.export_table)
+        self.w.btn_export_database.pressed.connect(self.export_database)
 
     def hal_init(self):
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
@@ -253,21 +255,68 @@ class Tool_Database(QWidget):
                 rtn = self.tool_model.record(row).value(data)
         return rtn
 
-    def export_data(self):
-        doc = QTextDocument()
+    def export_table(self):
+        tool_table = TOOL.GET_TOOL_ARRAY()
+        headers = ["Tool", "Pocket"]
+        for i in INFO.AVAILABLE_AXES:
+            headers.append(i)
+        headers.append("Diameter")
+        headers.append("Comment")
         html = '''<html>
         <head>
-        <title>QtDragon Tool Database</title>\n
+        <title>QtDragon Tool Table</title>
         <style>
         table, th, td {
             border: 1px solid black;
         }
         </style>
-        </head>'''
-        html += '<table><thead>'
+        </head>
+        <table>
+        <caption>QtDragon Tool Table</caption>
+        <thead>\n'''
+        html += '<tr>'
+        for hdr in headers:
+            html += f'<td><center>{hdr}</center></td>'
+        html += '</tr></thead>'
+        html += '<tbody>\n'
+        for row in tool_table:
+            html += '<tr>'
+            html += f'<td>{row[0]}</td>'
+            html += f'<td>{row[1]}</td>'
+            html += f'<td>{row[2]:.3f}</td>'
+            html += f'<td>{row[3]:.3f}</td>'
+            html += f'<td>{row[4]:.3f}</td>'
+            if "A" in headers:
+                html += f'<td>{row[5]:.3f}</td>'
+            html += f'<td>{row[11]:.3f}</td>'
+            html += f'<td>{row[15]}</td></tr>\n'
+        html += '</tbody></table>\n'
+        html += '</html>\n'
+
+        saveName = self.get_file_save("Select Save Filename")
+        if saveName != '':
+            with open(saveName, 'w') as file:
+                file.write(html)
+            self.parent.add_status(f"Exported tool table to {saveName}")
+        else:
+            self.parent.add_status("Invalid filename specified")
+        
+    def export_database(self):
+        html = '''<html>
+        <head>
+        <title>QtDragon Tool Database</title>
+        <style>
+        table, th, td {
+            border: 1px solid black;
+        }
+        </style>
+        </head>
+        <table>
+        <caption>QtDragon Tool Database</caption>
+        <thead>\n'''
         html += '<tr>'
         for hdr in self.headers:
-            html += f'<th>{hdr}'
+            html += f'<td><center>{hdr}</center></td>'
         html += '</tr></thead>'
         html += '<tbody>\n'
         rows = self.tool_model.rowCount()
@@ -278,16 +327,15 @@ class Tool_Database(QWidget):
                 idx = self.tool_model.index(row, col)
                 data = str(self.tool_model.data(idx))
                 html += f'<td>{data}</td>'
-            html += '</tr>'
-        html += '</tbody></table>'
-        html += '</html>'
-        doc.setHtml(html)
+            html += '</tr>\n'
+        html += '</tbody></table>\n'
+        html += '</html>\n'
 
         saveName = self.get_file_save("Select Save Filename")
         if saveName != '':
             with open(saveName, 'w') as file:
                 file.write(html)
-            self.parent.add_status(f"Exported tool table to {saveName}")
+            self.parent.add_status(f"Exported tool database to {saveName}")
         else:
             self.parent.add_status("Invalid filename specified")
 
