@@ -15,6 +15,8 @@ import datetime
 import linuxcnc
 from connections import Connections
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
+from PyQt5.QtCore import QRegExp
+from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor
 from PyQt5.QtWidgets import QMessageBox
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
@@ -54,6 +56,33 @@ TAB_ABOUT = 9
 DEFAULT =  0
 WARNING =  1
 CRITICAL = 2
+WARNING_COLOR = "yellow"
+ERROR_COLOR = "red"
+
+
+class Highlighter(QSyntaxHighlighter):
+    def __init__(self, parent=None):
+        super(Highlighter, self).__init__(parent)
+        self.highlightingRules = []
+
+        warningLineFormat = QTextCharFormat()
+        errorLineFormat = QTextCharFormat()
+        warningLineFormat.setForeground(QColor(WARNING_COLOR))
+        errorLineFormat.setForeground(QColor(ERROR_COLOR))
+
+        warningLinePattern = QRegExp(".*WARNING.*")
+        errorLinePattern = QRegExp(".*ERROR.*")
+        self.highlightingRules.append((warningLinePattern, warningLineFormat))
+        self.highlightingRules.append((errorLinePattern, errorLineFormat))
+
+    def highlightBlock(self, text):
+        for pattern, format in self.highlightingRules:
+            expression = QRegExp(pattern)
+            index = expression.indexIn(text)
+            while index >= 0:
+                length = expression.matchedLength()
+                self.setFormat(index, length, format)
+                index = expression.indexIn(text, index + length)
 
 
 class HandlerClass:
@@ -86,6 +115,8 @@ class HandlerClass:
         self.runtime_color = None
         self.feedrate_color = None
         self.statusbar_color = '#F0F0F0'
+        self.stat_warnings = 0
+        self.stat_errors = 0
         self.max_spindle_power = 100
         self.machine_units = "MM" if INFO.MACHINE_IS_METRIC else "IN"
         self.min_spindle_rpm = int(INFO.MIN_SPINDLE_SPEED)
@@ -702,7 +733,9 @@ class HandlerClass:
             self.w.btn_main.setChecked(True)
             self.w.groupBox_preview.setTitle(self.w.btn_main.text())
             return
-        if index == TAB_PROBE:
+        if index == TAB_STATUS:
+            highlighter = Highlighter(self.w.machine_log)
+        elif index == TAB_PROBE:
             spindle_inhibit = self.w.chk_inhibit_spindle.isChecked()
         self.w.mdihistory.MDILine.spindle_inhibit(spindle_inhibit)
         self.h['spindle-inhibit'] = spindle_inhibit
@@ -1092,7 +1125,7 @@ class HandlerClass:
             text = self.w.integrator_log.toPlainText()
             target = "system"
         else:
-            text = self.w.machinelog.toPlainText()
+            text = self.w.machine_log.toPlainText()
             target = "machine"
         current_datetime = datetime.datetime.now()
         timestamp = current_datetime.strftime("%Y%m%d_%H%M%S")
@@ -1307,11 +1340,17 @@ class HandlerClass:
 
     def add_status(self, message, level=DEFAULT):
         if level == WARNING:
-            self.w.statusbar.setStyleSheet("color: yellow;")
+            self.w.statusbar.setStyleSheet(f"color: {WARNING_COLOR};")
+            message = 'WARNING: ' + message
             self.w.statusbar.showMessage(message, 10000)
+            self.stat_warnings += 1
+            self.w.lbl_stat_warnings.setText(f'{self.stat_warnings}')
         elif level == CRITICAL:
-            self.w.statusbar.setStyleSheet("color: red;")
+            self.w.statusbar.setStyleSheet(f"color: {ERROR_COLOR};")
+            message = 'ERROR: ' + message
             self.w.statusbar.showMessage(message, 10000)
+            self.stat_errors += 1
+            self.w.lbl_stat_errors.setText(f'{self.stat_errors}')
         else:
             self.w.statusbar.setStyleSheet(f"color: {self.statusbar_color};")
             self.w.statusbar.showMessage(message)
