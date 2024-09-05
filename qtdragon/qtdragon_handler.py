@@ -12,6 +12,7 @@
 
 import os
 import datetime
+import requests
 import linuxcnc
 from connections import Connections
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
@@ -39,6 +40,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
+VERSION = '1.0.0'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -55,7 +57,7 @@ TAB_ABOUT = 9
 # status message alert levels
 DEFAULT =  0
 WARNING =  1
-CRITICAL = 2
+ERROR = 2
 WARNING_COLOR = "yellow"
 ERROR_COLOR = "red"
 
@@ -275,7 +277,7 @@ class HandlerClass:
 
     def init_preferences(self):
         if not self.w.PREFS_:
-            self.add_status("No preference file found, enable preferences in screenoptions widget", CRITICAL)
+            self.add_status("No preference file found, enable preferences in screenoptions widget", ERROR)
             return
         # using this method allows adding or removing objects in the UI without modifying the handler
         # operational checkboxes
@@ -705,7 +707,7 @@ class HandlerClass:
         self.w.lineEdit_runtime.setText(f"{hours:02d}:{minutes:02d}:{seconds:02d}")
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
-        self.add_status("Hard limits tripped", CRITICAL)
+        self.add_status("Hard limits tripped", ERROR)
         self.w.chk_override_limits.setEnabled(tripped)
         if not tripped:
             self.w.chk_override_limits.setChecked(False)
@@ -873,7 +875,7 @@ class HandlerClass:
                 self.w.btn_enable_comp.setChecked(False)
                 return
             if not QHAL.hal.component_exists("compensate"):
-                self.add_status("Z level compensation HAL component not loaded", CRITICAL)
+                self.add_status("Z level compensation HAL component not loaded", ERROR)
                 self.w.btn_enable_comp.setChecked(False)
                 return
             self.h['comp-on'] = True
@@ -1099,7 +1101,7 @@ class HandlerClass:
     def btn_load_tool_pressed(self):
         tool = self.get_checked_tools()
         if len(tool) > 1:
-            self.add_status("Select only 1 tool to load", CRITICAL)
+            self.add_status("Select only 1 tool to load", ERROR)
         elif tool:
             ACTION.CALL_MDI(f"M61 Q{tool[0]} G43")
             self.add_status(f"Tool {tool[0]} loaded")
@@ -1345,7 +1347,7 @@ class HandlerClass:
             self.w.statusbar.showMessage(message, 10000)
             self.stat_warnings += 1
             self.w.lbl_stat_warnings.setText(f'{self.stat_warnings}')
-        elif level == CRITICAL:
+        elif level == ERROR:
             self.w.statusbar.setStyleSheet(f"color: {ERROR_COLOR};")
             message = 'ERROR: ' + message
             self.w.statusbar.showMessage(message, 10000)
@@ -1481,6 +1483,52 @@ class HandlerClass:
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             self.styleeditor.load_dialog()
+
+    #################################
+    # check for updates from Github #
+    #################################
+    def check_for_updates(self):
+        if not self.connection_available(): return
+        owner = "persei802"
+        repo = "Qtdragon_hd"
+        remote_version = self.get_remote_version(owner, repo)
+        if remote_version is None:
+            self.add_status("Remote request returned invalid response", WARNING)
+            return
+        if remote_version == VERSION:
+            self.add_status(f"This is the latest version ({VERSION}) of Qtdragon_hd")
+        else:
+            self.add_status(f"There is a new version ({remote_version}) available")
+
+    def get_remote_version(self, owner, repo):
+        url = f"https://raw.githubusercontent.com/{owner}/{repo}/master/qtdragon/qtdragon_handler.py"
+        response = requests.get(url)
+        version = None
+        if response.status_code == 200:
+            data = response.text
+            lines = data.split('\n')
+            for line in lines:
+                if 'VERSION' in line:
+                    version = line.split('=')[1]
+                    version = version.strip(' ')
+                    version = version.strip("'")
+                    break
+        return version
+
+    def connection_available(self, url="https://www.github.com", timeout=3):
+        try:
+            response = requests.get(url, timeout=timeout)
+            if response.status_code == 200:
+                return True
+            else:
+                self.add_status("Received response but not OK status", WARNING)
+                return False
+        except requests.ConnectionError:
+            self.add_status("No internet connection", ERROR)
+            return False
+        except requests.Timeout:
+            self.add_status("Connection timed out", ERROR)
+            return False
 
     ##############################
     # required class boiler code #
