@@ -193,6 +193,7 @@ class HandlerClass:
         self.init_utils()
         self.init_macros()
         self.init_adjustments()
+        self.check_for_updates()
         self.w.stackedWidget_gcode.setCurrentIndex(0)
         self.w.stackedWidget_log.setCurrentIndex(0)
         self.w.btn_dimensions.setChecked(True)
@@ -1485,10 +1486,12 @@ class HandlerClass:
             self.styleeditor.load_dialog()
 
     #################################
-    # check for updates from Github #
+    # Check for updates from Github #
     #################################
     def check_for_updates(self):
+        if not self.w.chk_for_update.isChecked(): return
         if not self.connection_available(): return
+        self.add_status("Checking github for updated QtDragon")
         owner = "persei802"
         repo = "Qtdragon_hd"
         remote_version = self.get_remote_version(owner, repo)

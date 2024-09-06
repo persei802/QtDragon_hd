@@ -36,8 +36,6 @@ class Connections():
         self.w.btn_load_tool.pressed.connect(self.parent.btn_load_tool_pressed)
         self.w.btn_tool_db.clicked.connect(lambda state: self.parent.btn_tool_db_clicked(state))
         self.w.btn_db_help.pressed.connect(self.parent.show_db_help_page)
-        # check for updates
-        self.w.btn_check_for_update.pressed.connect(self.parent.check_for_updates)
         # graphic display buttons
         self.w.btn_alpha_mode.clicked.connect(lambda state: self.w.gcodegraphics.set_alpha_mode(state))
         self.w.btn_dimensions.clicked.connect(lambda state: self.parent.btn_dimensions_changed(state))

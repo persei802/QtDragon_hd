@@ -5461,7 +5461,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>QtDragon CNC Controller        10:51:23 AM</string>
+                       <string>QtDragon CNC Controller        01:29:11 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -5816,6 +5816,34 @@ TO FILE</string>
                         </widget>
                        </item>
                        <item>
+                        <widget class="QCheckBox" name="chk_for_update">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Check github for updated qtdragon if internet is available</string>
+                         </property>
+                         <property name="text">
+                          <string>CHECK FOR UPDATE ON STARTUP</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
                         <widget class="QCheckBox" name="chk_override_limits">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -5984,7 +6012,7 @@ TO FILE</string>
                  </item>
                  <item>
                   <widget class="QFrame" name="frm_settings3">
-                   <layout class="QVBoxLayout" name="verticalLayout_13" stretch="1,0,0">
+                   <layout class="QVBoxLayout" name="verticalLayout_13" stretch="1,0">
                     <property name="spacing">
                      <number>4</number>
                     </property>
@@ -8428,34 +8456,6 @@ SCOPE</string>
                        </widget>
                       </item>
                      </layout>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="btn_check_for_update">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>30</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>If an internet connection is available, check for program updates from Github.</string>
-                      </property>
-                      <property name="text">
-                       <string>CHECK FOR UPDATE</string>
-                      </property>
-                     </widget>
                     </item>
                    </layout>
                   </widget>
@@ -14737,14 +14737,14 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="util_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="about_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="util_buttonGroup"/>
  </buttongroups>
 </ui>
