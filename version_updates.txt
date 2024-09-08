@@ -1,0 +1,3 @@
+Sep.09/24 - created standalone version of check_updates.py
+          - created this file to track version updates
+          - every new commit from this point should increment the version number in the handler file
