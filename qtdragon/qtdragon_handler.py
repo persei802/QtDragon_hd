@@ -40,7 +40,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '1.0.0'
+VERSION = '1.0.2'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -98,6 +98,7 @@ class HandlerClass:
         self.settings_offsets = []
         self.settings_spindle = []
         self.settings_probe = []
+        self.settings_touchoff = []
         KEYBIND.add_call('Key_F4', 'on_keycall_F4')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_Pause', 'on_keycall_PAUSE')
@@ -286,7 +287,7 @@ class HandlerClass:
         for checkbox in self.settings_checkboxes:
             checkbox.setChecked(self.w.PREFS_.getpref(checkbox.objectName(), False, bool, 'CUSTOM_FORM_ENTRIES'))
         # touchoff checkboxes
-        self.touchoff_checkboxes = self.w.groupBox_touchoff.findChildren(QtWidgets.QCheckBox)
+        self.touchoff_checkboxes = self.w.frame_touchoff.findChildren(QtWidgets.QCheckBox)
         for checkbox in self.touchoff_checkboxes:
             checkbox.setChecked(self.w.PREFS_.getpref(checkbox.objectName(), False, bool, 'CUSTOM_FORM_ENTRIES'))
         # offsets settings
@@ -298,10 +299,14 @@ class HandlerClass:
         for spindle in self.settings_spindle:
             spindle.setText(self.w.PREFS_.getpref(spindle.objectName(), '10', str, 'CUSTOM_FORM_ENTRIES'))
         self.max_spindle_power = float(self.w.lineEdit_max_power.text())
-        # mainscreen probe settings
+        # probe settings
         self.settings_probe = self.w.frame_probe_parameters.findChildren(QtWidgets.QLineEdit)
         for probe in self.settings_probe:
             probe.setText(self.w.PREFS_.getpref(probe.objectName(), '10', str, 'CUSTOM_FORM_ENTRIES'))
+        # touchoff settings
+        self.settings_touchoff = self.w.frame_touchoff.findChildren(QtWidgets.QLineEdit)
+        for touchoff in self.settings_touchoff:
+            touchoff.setText(self.w.PREFS_.getpref(touchoff.objectName(), '10', str, 'CUSTOM_FORM_ENTRIES'))
         # all remaining fields
         self.last_loaded_program = self.w.PREFS_.getpref('last_loaded_file', None, str,'BOOK_KEEPING')
         self.reload_tool = self.w.PREFS_.getpref('Tool to load', 0, int,'CUSTOM_FORM_ENTRIES')
@@ -319,6 +324,8 @@ class HandlerClass:
             self.w.PREFS_.putpref(spindle.objectName(), spindle.text(), str, 'CUSTOM_FORM_ENTRIES')
         for probe in self.settings_probe:
             self.w.PREFS_.putpref(probe.objectName(), probe.text(), str, 'CUSTOM_FORM_ENTRIES')
+        for touchoff in self.settings_touchoff:
+            self.w.PREFS_.putpref(touchoff.objectName(), touchoff.text(), str, 'CUSTOM_FORM_ENTRIES')
         if self.last_loaded_program is not None:
             self.w.PREFS_.putpref('last_loaded_directory', os.path.dirname(self.last_loaded_program), str, 'BOOK_KEEPING')
             self.w.PREFS_.putpref('last_loaded_file', self.last_loaded_program, str, 'BOOK_KEEPING')
@@ -376,6 +383,8 @@ class HandlerClass:
         self.w.offset_table.setShowGrid(False)
         self.w.tooloffsetview.setShowGrid(False)
         # move clock to statusbar
+        self.w.lbl_qtdragon.setText(f"QtDragon CNC Controller Version {VERSION}")
+        self.w.statusbar.addPermanentWidget(self.w.lbl_qtdragon)
         self.w.statusbar.addPermanentWidget(self.w.lbl_clock)
         # set homing buttons to correct joints
         self.w.action_home_x.set_joint(self.jog_from_name['X'])
@@ -1203,18 +1212,25 @@ class HandlerClass:
 
     def touchoff_changed(self, state):
         if not state: return
+        image = ''
         if self.w.chk_touchplate.isChecked():
             self.w.btn_touchoff.setText("TOUCHPLATE")
             self.w.btn_touchoff.setToolTip("Auto probe Z down to touchplate")
+            image = 'touch_plate.png'
         elif self.w.chk_auto_toolsensor.isChecked():
             self.w.btn_touchoff.setText("AUTO TOUCHOFF Z")
             self.w.btn_touchoff.setToolTip("Auto probe Z down to tool sensor")
+            image = 'tool_sensor.png'
         elif self.w.chk_manual_toolsensor.isChecked():
             self.w.btn_touchoff.setText("MANUAL TOUCHOFF Z")
             self.w.btn_touchoff.setToolTip("Set workpiece Z0")
-        self.w.touch_height.setVisible(self.w.chk_touchplate.isChecked())
-        self.w.sensor_height.setVisible(self.w.chk_auto_toolsensor.isChecked())
-        self.w.gauge_height.setVisible(self.w.chk_manual_toolsensor.isChecked())
+            image = 'tool_gauge.png'
+        if image:
+            image_file = os.path.join(PATH.CONFIGPATH, 'tool_icons/' + image)
+            self.w.lbl_touchoff_image.setPixmap(QtGui.QPixmap(image_file))
+        self.w.lineEdit_touch_height.setReadOnly(not self.w.chk_touchplate.isChecked())
+        self.w.lineEdit_sensor_height.setReadOnly(not self.w.chk_auto_toolsensor.isChecked())
+        self.w.lineEdit_gauge_height.setReadOnly(not self.w.chk_manual_toolsensor.isChecked())
 
     #####################
     # GENERAL FUNCTIONS #

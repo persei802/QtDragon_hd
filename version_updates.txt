@@ -1,3 +1,9 @@
-Sep.09/24 - created standalone version of check_updates.py
-          - created this file to track version updates
-          - every new commit from this point should increment the version number in the handler file
+Sep. 09/24 v 1.0.1
+    - created standalone version of check_updates.py
+    - created this file to track version updates
+    - added version number to statusbar
+    - every new commit from this point should increment the version number in the handler file
+
+Sep. 11/24 v 1.0.2
+    - added images for tool touchoff options
+    - fixed some preferences not being saved
