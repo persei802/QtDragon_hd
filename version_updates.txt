@@ -7,3 +7,8 @@ Sep. 09/24 v 1.0.1
 Sep. 11/24 v 1.0.2
     - added images for tool touchoff options
     - fixed some preferences not being saved
+
+Sep. 15/24 v 2.0.3
+    - start version from 2.x.x to differentiate from linuxcnc version
+    - removed version label and integrated it into clock label
+    - add gcode edit button to gcode frame

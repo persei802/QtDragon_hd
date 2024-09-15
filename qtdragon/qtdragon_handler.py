@@ -40,7 +40,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '1.0.2'
+VERSION = '2.0.3'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -60,6 +60,10 @@ WARNING =  1
 ERROR = 2
 WARNING_COLOR = "yellow"
 ERROR_COLOR = "red"
+
+RUN_COLOR = 'green'
+PAUSE_COLOR = 'yellow'
+STOP_COLOR = 'red'
 
 
 class Highlighter(QSyntaxHighlighter):
@@ -182,7 +186,7 @@ class HandlerClass:
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
 
     def class_patch__(self):
-        self.old_fman = FM.load
+#        self.old_fman = FM.load
         FM.load = self.load_code
 
     def initialized__(self):
@@ -347,7 +351,7 @@ class HandlerClass:
         self.w.lbl_max_angular.setText(f"{self.max_angular_velocity}")
         self.w.lineEdit_min_rpm.setText(f"{self.min_spindle_rpm}")
         self.w.lineEdit_max_rpm.setText(f"{self.max_spindle_rpm}")
-        self.w.lbl_pgm_color.setStyleSheet('Background-color: red;')
+        self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {STOP_COLOR};')
         # gcode file history
         self.w.cmb_gcode_history.addItem("No File Loaded")
         self.w.cmb_gcode_history.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
@@ -383,8 +387,7 @@ class HandlerClass:
         self.w.offset_table.setShowGrid(False)
         self.w.tooloffsetview.setShowGrid(False)
         # move clock to statusbar
-        self.w.lbl_qtdragon.setText(f"QtDragon CNC Controller Version {VERSION}")
-        self.w.statusbar.addPermanentWidget(self.w.lbl_qtdragon)
+        self.w.lbl_clock.set_textTemplate(f'QtDragon {VERSION}  <>  %I:%M:%S %p')
         self.w.statusbar.addPermanentWidget(self.w.lbl_clock)
         # set homing buttons to correct joints
         self.w.action_home_x.set_joint(self.jog_from_name['X'])
@@ -781,18 +784,13 @@ class HandlerClass:
 
     # program frame
     def btn_run_pressed(self):
-        if self.w.main_tab_widget.currentIndex() != 0:
-            return
-        if not STATUS.is_auto_mode():
-            self.add_status("Must be in AUTO mode to run a program", WARNING)
-            return
         if STATUS.is_auto_running():
             self.add_status("Program is already running", WARNING)
             return
         if self.current_loaded_program is None:
             self.add_status("No program has been loaded", WARNING)
             return
-        self.w.lbl_pgm_color.setStyleSheet('Background-color: green;')
+        self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {RUN_COLOR};')
         self.feedrate_color = self.w.lbl_feedrate.palette().color(self.w.lbl_feedrate.foregroundRole())
         self.w.lbl_feedrate.setStyleSheet('color: "#00FF00";')
         if self.start_line <= 1:
@@ -824,12 +822,12 @@ class HandlerClass:
                 self.add_status("Wait for spindle at speed before resuming", WARNING)
                 return
             self.w.btn_pause.setText("  PAUSE")
-            self.w.lbl_pgm_color.setStyleSheet('Background-color: green;')
+            self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {RUN_COLOR};')
             self.h['runtime-pause'] = False
             ACTION.PAUSE()
         else:
             self.w.btn_pause.setText("  RESUME")
-            self.w.lbl_pgm_color.setStyleSheet('Background-color: yellow;')
+            self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {PAUSE_COLOR};')
             self.h['runtime-pause'] = True
             ACTION.PAUSE()
             if self.w.btn_pause_spindle.isChecked():
@@ -841,7 +839,7 @@ class HandlerClass:
             return
         if self.last_loaded_program:
             self.w.progressBar.reset()
-            self.add_status(f"Loaded program file {self.last_loaded_program}")
+            self.add_status(f"Reloaded file {self.last_loaded_program}")
             ACTION.OPEN_PROGRAM(self.last_loaded_program)
 
     def pause_spindle(self):
@@ -1180,10 +1178,6 @@ class HandlerClass:
         self.w.widget_mdi_controls.setVisible(not state)
         self.w.mdihistory.set_soft_keyboard(state)
 
-    def use_joypad_changed(self, state):
-        index = 1 if state else 0
-        self.w.stackedWidget_pgm_control.setCurrentIndex(index)
-
     def edit_gcode_changed(self, state):
         if state:
             self.w.gcode_viewer.editMode()
@@ -1282,11 +1276,14 @@ class HandlerClass:
 
     # class patched function from file_manager widget
     def load_code(self, fname):
+        if fname is None: return
+        if self.w.PREFS_:
+            self.w.PREFS_.putpref('last_loaded_directory', os.path.dirname(fname), str, 'BOOK_KEEPING')
+            self.w.PREFS_.putpref('RecentPath_0', fname, str, 'BOOK_KEEPING')
         if fname.endswith(".ngc") or fname.endswith(".py"):
             self.w.cmb_gcode_history.addItem(fname)
             self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
             ACTION.OPEN_PROGRAM(fname)
-            self.add_status(f"Loaded program file : {fname}")
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
             self.w.btn_main.setChecked(True)
         elif fname.endswith(".html"):
@@ -1381,23 +1378,34 @@ class HandlerClass:
             self.w.statusbar.setStyleSheet(f"color: {self.statusbar_color};")
 
     def enable_auto(self, state):
+        if not STATUS.machine_is_on(): return
         self.w.btn_pause_spindle.setEnabled(not state)
         self.w.btn_enable_comp.setEnabled(not state)
         self.w.btn_goto_sensor.setEnabled(not state)
         self.w.groupBox_jog_pads.setEnabled(not state)
+        self.w.btn_cycle_start.setEnabled(state)
         if self.w.chk_show_macros.isChecked():
             self.chk_show_macros_changed(not state)
         if state:
             self.w.btn_main.setChecked(True)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
+            self.w.widget_gcode_history.hide()
+            self.w.btn_edit_gcode.setChecked(False)
+            self.w.gcode_viewer.readOnlyMode()
+        else:
+            self.w.widget_gcode_history.show()
+        if STATUS.is_mdi_mode():
+            self.w.stackedWidget_gcode.setCurrentIndex(1)
+        else:
+            self.w.stackedWidget_gcode.setCurrentIndex(0)
 
     def enable_onoff(self, state):
         text = "ON" if state else "OFF"
         self.add_status("Machine " + text)
         self.h['eoffset-count'] = 0
-        self.w.jog_xy.setEnabled(state)
-        self.w.jog_az.setEnabled(state)
-        self.w.btn_cycle_start.setEnabled(state)
+        if not state:
+            self.w.groupBox_jog_pads.setEnabled(False)
+            self.w.btn_cycle_start.setEnabled(False)
 
     def set_start_line(self, line):
         if self.w.chk_run_from_line.isChecked():
@@ -1414,7 +1422,7 @@ class HandlerClass:
             return False
 
     def stop_timer(self):
-        self.w.lbl_pgm_color.setStyleSheet('Background-color: red;')
+        self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {STOP_COLOR};')
         if not self.feedrate_color is None:
             self.w.lbl_feedrate.setStyleSheet(f"color: {self.feedrate_color.name()};")
         if self.h['runtime-start'] is True:

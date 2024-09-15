@@ -5,7 +5,7 @@ class Connections():
         self.w = widget
         self.parent = parent
         # jog buttons
-        self.w.jog_xy.joy_btn_pressed.connect( self.parent.jog_xy_pressed)
+        self.w.jog_xy.joy_btn_pressed.connect(self.parent.jog_xy_pressed)
         self.w.jog_xy.joy_btn_released.connect(self.parent.jog_xy_released)
         self.w.jog_az.joy_btn_pressed.connect(self.parent.jog_az_pressed)
         self.w.jog_az.joy_btn_released.connect(self.parent.jog_az_released)
@@ -36,6 +36,8 @@ class Connections():
         self.w.btn_load_tool.pressed.connect(self.parent.btn_load_tool_pressed)
         self.w.btn_tool_db.clicked.connect(lambda state: self.parent.btn_tool_db_clicked(state))
         self.w.btn_db_help.pressed.connect(self.parent.show_db_help_page)
+        # gcode viewer
+        self.w.btn_edit_gcode.clicked.connect(lambda state: self.parent.edit_gcode_changed(state))
         # graphic display buttons
         self.w.btn_alpha_mode.clicked.connect(lambda state: self.w.gcodegraphics.set_alpha_mode(state))
         self.w.btn_dimensions.clicked.connect(lambda state: self.parent.btn_dimensions_changed(state))
@@ -46,7 +48,6 @@ class Connections():
         self.w.chk_override_limits.stateChanged.connect(lambda state: self.parent.override_limits_changed(state))
         self.w.chk_use_camera.stateChanged.connect(lambda state: self.parent.use_camera_changed(state))
         self.w.chk_use_mdi_keyboard.stateChanged.connect(lambda state: self.parent.use_mdi_keyboard_changed(state))
-        self.w.chk_edit_gcode.stateChanged.connect(lambda state: self.parent.edit_gcode_changed(state))
         self.w.chk_show_macros.stateChanged.connect(lambda state: self.parent.chk_show_macros_changed(state))
         self.w.chk_touchplate.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
         self.w.chk_manual_toolsensor.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
