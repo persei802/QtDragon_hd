@@ -18,8 +18,7 @@ If none is specified or if an invalid word is specified, the default will set to
     <li>a 3d height map image is created and the HAL map-ready pin is set True</li>
     <li>the height map image is shown in the UTILS page -> Z Level Comp tab</li>
 </ul>
-<p>The <i>probe_points.txt</i> file can be updated at any time while compensation is disabled. When next enabled, the file will be reread
-and the compensation map is recalculated.</p>
+
 <p>The necessary HAL connections are as follows:</p>
 <div class="code-block">
     <pre class="hal">net xpos-cmd         compensate.x-pos <= axis.x.pos-cmd</pre>
@@ -36,22 +35,23 @@ and the compensation map is recalculated.</p>
 <ul>
     <li>from the FILE page, load the gcode program which needs to be level compensated</li>
     <li>enter the X and Y dimensions shown in the preview frame into the X and Y size fields</li>
-    <li>enter the number of desired probe points</li>
+    <li>enter the number of desired probe points for each axis</li>
     <li>ensure that the selected zero reference point is the same as that of the gcode program</li>
     <li>all probe parameters are set according to the values in SETTINGS -> PROBE</li>
     <li>any errors detected during validation will be shown as red text in SETTINGS -> PROBE</li>
-    <li>enter a filename for the probe results file</li>
-    <li>press SAVE AS PROGRAM or SEND TO LINUXCNC - this checks the validity of the input parameters and creates the gcode 
-    probing routine</li>
-    <li>running the created gcode program will produce a file with the specified filename</li>
-    <li>if the specified filename is <i>probe_points.txt</i>, it can immediately be used as the compensation map</li>
-    <li>otherwise, it must be selected with the LOAD MAP button</li>
 </ul>
+<h2>Save As Program</h2>
+<p>The input data parameters are checked and if found valid, a dialog box prompts for a save filename. The probe program is calculated
+and saved to the specified filename. If this file is loaded and run, it will produce a file with the same name but ending with
+<i>.txt</i>. This is the compensation data file.</p>
+<h2>Send to Linuxcnc</h2>
+<p>The input parameters are checked and if found valid, a temporary file is created and loaded to Linuxcnc. If this file is run,
+it will produce a file in the users CONFIG directory called <i>probe_points.txt</i></p>
 <h2>Load Map</h2>
-<p>A previously saved probe results file can be retrieved and used as the compensation map. The source file is chosen
-from a popup file dialog and then copied to the CONFIG folder with the name <i>probe_points.txt</i>. In order not to
-accumulate probe results files in the CONFIG folder, it is recommended to move them elsewhere, such as the nc_files folder.
-</p>
+<p>A popup file dialog prompts for a compensation filename <i>(somefile.txt)</i> and then copies it to the CONFIG folder with the
+name <i>probe_points.txt</i>. It is recommended that probe compensation files be kept in the nc_files folder or a subfolder thereof.</p>
+<p>Each time that the ZCOMP ENABLE button on the main page is enabled, the Compensation HAL component will read the <i>probe_points.txt</i>
+file and generate a new compensation map, which is displayed on the right side of the ZLEVEL utility.</p>
 <h2>Interpolation Method</h2>
 <p>The following diagrams show the effect of the different interpolation methods when an L shaped piece of 6 mm metal was probed.</p>
 <center>

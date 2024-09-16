@@ -26,11 +26,14 @@ ACTION = Action()
 PATH = Path()
 HERE = os.path.dirname(os.path.abspath(__file__))
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
+WARNING = 1
+
 
 class ZLevel(QWidget):
-    def __init__(self, widget=None, parent=None):
+    def __init__(self, widget, handler, parent=None):
         super(ZLevel, self).__init__()
         self.w = widget
+        self.h = handler
         self.parent = parent
         self.helpfile = 'zlevel_help.html'
         # Load the widgets UI file:
@@ -51,8 +54,8 @@ class ZLevel(QWidget):
         self.z_safe = 0
         self.max_probe = 0
         self.probe_start = 0
-        self.probe_filename = None
-        self.comp_file = None
+        self.probe_filename = ""
+        self.comp_file = ""
         self.normal_color = ""
         self.error_color = "color: #ff0000;"
         self.help_text = []
@@ -89,19 +92,26 @@ class ZLevel(QWidget):
 
     def save_gcode(self):
         if not self.validate(): return
-        fname = self.lineEdit_probe_points.text()
-        fname = fname.replace(".txt", ".ngc")
-        fileName = os.path.join(INFO.SUB_PATH_LIST[0], fname)
-        fileName = os.path.expanduser(fileName)
-        self.calculate_gcode(fileName)
-        self.lineEdit_status.setText(f"Program successfully saved to {fileName}")
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        _filter = "Compensation Probe Files (*.ngc)"
+        _dir = INFO.SUB_PATH_LIST[0]
+        _caption = "Save Probe File"
+        fname, _ =  QFileDialog.getSaveFileName(None, _caption, _dir, _filter, options=options)
+        if fname.endswith('.ngc'):
+            self.probe_filename = fname.replace(".ngc", ".txt")
+            self.calculate_gcode(fname)
+            self.h.add_status(f"Program successfully saved to {fname}")
+        else:
+            self.h.add_status("Invalid filename specified", WARNING)
 
     def send_gcode(self):
         if not self.validate(): return
-        filename = self.make_temp()[1]
-        self.calculate_gcode(filename)
-        ACTION.OPEN_PROGRAM(filename)
-        self.lineEdit_status.setText("Program successfully sent to Linuxcnc")
+        fname = self.make_temp()[1]
+        self.probe_filename = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
+        self.calculate_gcode(fname)
+        ACTION.OPEN_PROGRAM(fname)
+        self.h.add_status("Program successfully sent to Linuxcnc")
 
     def calculate_gcode(self, fname):
         # get start point
@@ -132,10 +142,10 @@ class ZLevel(QWidget):
         self.next_line(f"(PROBEOPEN {self.probe_filename})")
         self.next_line("#100 = 0")
         self.next_line(f"O100 while [#100 LT {self.y_steps}]")
-        self.next_line(f"  G0 Y[{y_start} + {y_inc} * #100]")
+        self.next_line(f"  G0 Y[{y_start} + {y_inc:.3f} * #100]")
         self.next_line("  #200 = 0")
         self.next_line(f"  O200 while [#200 LT {self.x_steps}]")
-        self.next_line(f"    G0 X[{x_start} + {x_inc} * #200]")
+        self.next_line(f"    G0 X[{x_start} + {x_inc:.3f} * #200]")
         self.next_line(f"    G0 Z{self.probe_start}")
         self.next_line(f"    G38.2 Z-{self.max_probe} F{self.probe_vel}")
         self.next_line(f"    G0 Z{self.z_safe}")
@@ -156,7 +166,7 @@ class ZLevel(QWidget):
         default_color = self.w.lineEdit_probe_tool.palette().color(self.w.lineEdit_probe_tool.foregroundRole())
         self.normal_color = f"color: {default_color.name()};"
         # restore normal text colors
-        for item in ["size_x", "size_y", "steps_x", "steps_y", "probe_points"]:
+        for item in ["size_x", "size_y", "steps_x", "steps_y"]:
             widget = self['lineEdit_' + item]
             color = widget.palette().color(widget.foregroundRole())
             if color.name() == "#ff0000":
@@ -171,7 +181,7 @@ class ZLevel(QWidget):
             self.size_x = float(self.lineEdit_size_x.text())
             if self.size_x <= 0:
                 self.lineEdit_size_x.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Size X must be > 0")
+                self.h.add_status("Size X must be > 0", WARNING)
                 valid = False
         except:
             self.lineEdit_size_x.setStyleSheet(self.error_color)
@@ -180,7 +190,7 @@ class ZLevel(QWidget):
             self.size_y = float(self.lineEdit_size_y.text())
             if self.size_y <= 0:
                 self.lineEdit_size_y.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Size Y must be > 0")
+                self.h.add_status("Size Y must be > 0", WARNING)
                 valid = False
         except:
             self.lineEdit_size_y.setStyleSheet(self.error_color)
@@ -190,7 +200,7 @@ class ZLevel(QWidget):
             self.x_steps = int(self.lineEdit_steps_x.text())
             if self.x_steps < 2:
                 self.lineEdit_steps_x.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Steps X must be >= 2")
+                self.h.add_status("Steps X must be >= 2", WARNING)
                 valid = False
         except:
             self.lineEdit_steps_x.setStyleSheet(self.error_color)
@@ -199,7 +209,7 @@ class ZLevel(QWidget):
             self.y_steps = int(self.lineEdit_steps_y.text())
             if self.y_steps < 2:
                 self.lineEdit_steps_y.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Steps Y must be >= 2")
+                self.h.add_status("Steps Y must be >= 2", WARNING)
                 valid = False
         except:
             self.lineEdit_steps_y.setStyleSheet(self.error_color)
@@ -209,7 +219,7 @@ class ZLevel(QWidget):
             self.probe_tool = int(self.w.lineEdit_probe_tool.text())
             if self.probe_tool <= 0:
                 self.w.lineEdit_probe_tool.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Probe tool number must be > 0")
+                self.h.add_status("Probe tool number must be > 0", WARNING)
                 valid = False
         except:
             self.w.lineEdit_probe_tool.setStyleSheet(self.error_color)
@@ -219,7 +229,7 @@ class ZLevel(QWidget):
             self.z_safe = float(self.w.lineEdit_zsafe.text())
             if self.z_safe <= 0.0:
                 self.w.lineEdit_zsafe.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Z safe height must be > 0")
+                self.h.add_status("Z safe height must be > 0", WARNING)
                 valid = False
         except:
             self.w.lineEdit_zsafe.setStyleSheet(self.error_color)
@@ -228,7 +238,7 @@ class ZLevel(QWidget):
         try:
             self.probe_vel = float(self.w.lineEdit_probe_vel.text())
             if self.probe_vel <= 0.0:
-                self.lineEdit_status.setText("Slow probing sequence will be skipped")
+                self.h.add_status("Slow probing sequence will be skipped", WARNING)
         except:
             self.w.lineEdit_probe_vel.setStyleSheet(self.error_color)
             valid = False
@@ -237,7 +247,7 @@ class ZLevel(QWidget):
             self.max_probe = float(self.w.lineEdit_max_probe.text())
             if self.max_probe <= 0.0:
                 self.w.lineEdit_max_probe.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Max probe distance must be > 0")
+                self.h.add_status("Max probe distance must be > 0", WARNING)
                 valid = False
         except:
             self.w.lineEdit_max_probe.setStyleSheet(self.error_color)
@@ -247,28 +257,18 @@ class ZLevel(QWidget):
             self.probe_start = float(self.w.lineEdit_probe_start.text())
             if self.probe_start <= 0.0:
                 self.w.lineEdit_probe_start.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Start probe height must be > 0")
+                self.h.add_status("Start probe height must be > 0", WARNING)
                 valid = False
             elif self.probe_start > self.z_safe:
                 self.w.lineEdit_probe_start.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Start probe height must be < Z Safe height")
+                self.h.add_status("Start probe height must be < Z Safe height", WARNING)
                 valid = False
             elif self.probe_start > self.max_probe:
                 self.w.lineEdit_probe_start.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Start probe height must be < Max Probe distance")
+                self.h.add_status("Start probe height must be < Max Probe distance", WARNING)
                 valid = False
         except:
             self.w.lineEdit_probe_start.setStyleSheet(self.error_color)
-            valid = False
-        # check probe points filename
-        try:
-            self.probe_filename = self.lineEdit_probe_points.text()
-            if not self.probe_filename.endswith(".txt"):
-                self.lineEdit_probe_points.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Probe points filename must end with .txt")
-                valid = False
-        except:
-            self.lineEdit_probe_points.setStyleSheet(self.error_color)
             valid = False
         return valid
 
@@ -292,11 +292,14 @@ class ZLevel(QWidget):
         fname, _ =  QFileDialog.getOpenFileName(None, _caption, _dir, _filter, options=options)
         if fname:
             self.comp_file = fname
-            self.lbl_height_map.setText("Waiting for height map generation")
+            self.lbl_height_map.setText("Toggle ZCOMP ENABLE to ON to generate new height map")
             self.lbl_comp_file.setText(os.path.basename(fname))
-            self.lineEdit_status.setText(f"Loaded compensation file {fname}")
             dst = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
-            shutil.copy(fname, dst)
+            try:
+                shutil.copy(fname, dst)
+                self.h.add_status(f"Loaded compensation file {fname}")
+            except Exception as e:
+                self.h.add_status(e, WARNING)
 
     def get_map(self):
         return self.comp_file

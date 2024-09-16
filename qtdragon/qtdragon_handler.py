@@ -40,7 +40,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.0.3'
+VERSION = '2.0.4'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -481,6 +481,8 @@ class HandlerClass:
         from lib.setup_utils import Setup_Utils
         self.setup_utils = Setup_Utils(self.w, self)
         self.setup_utils.init_utils()
+        if self.zlevel is None:
+            self.w.btn_enable_comp.setEnabled(False)
         self.get_next_available()
         self.tool_db.update_tools(self.tool_list)
 
@@ -607,7 +609,7 @@ class HandlerClass:
             try:
                 self.zlevel.map_ready()
             except Exception as e:
-                self.add_status(f"Error - {e}")
+                self.add_status(f"Error - {e}", WARNING)
             
     def command_stopped(self, obj):
         if self.w.btn_pause_spindle.isChecked():
@@ -1379,8 +1381,9 @@ class HandlerClass:
 
     def enable_auto(self, state):
         if not STATUS.machine_is_on(): return
+        if self.zlevel is not None:
+            self.w.btn_enable_comp.setEnabled(not state)
         self.w.btn_pause_spindle.setEnabled(not state)
-        self.w.btn_enable_comp.setEnabled(not state)
         self.w.btn_goto_sensor.setEnabled(not state)
         self.w.groupBox_jog_pads.setEnabled(not state)
         self.w.btn_cycle_start.setEnabled(state)

@@ -28,10 +28,14 @@ LOG = logger.getLogger(__name__)
 HERE = os.path.dirname(os.path.abspath(__file__))
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 
+WARNING = 1
+
+
 class Auto_Measure(QtWidgets.QWidget):
-    def __init__(self, widget, parent=None):
+    def __init__(self, widget, handler, parent=None):
         super(Auto_Measure, self).__init__()
         self.w = widget
+        self.h = handler
         self.parent = parent
         self.helpfile = 'height_measure_help.html'
         self.stat = linuxcnc.stat()
@@ -86,16 +90,16 @@ class Auto_Measure(QtWidgets.QWidget):
             self.lineEdit_pos_x1.setText(f"{xyz[0]:.3f}")
             self.lineEdit_pos_y1.setText(f"{xyz[1]:.3f}")
             self.lineEdit_pos_z1.setText(f"{xyz[2]:.3f}")
-            self.lineEdit_status.setText("Workpiece Probe position 1 set")
+            self.h.add_status("Workpiece Probe position 1 set")
         elif btn == "mp":
             self.lineEdit_pos_x2.setText(f"{xyz[0]:.3f}")
             self.lineEdit_pos_y2.setText(f"{xyz[1]:.3f}")
             self.lineEdit_pos_z2.setText(f"{xyz[2]:.3f}")
-            self.lineEdit_status.setText("Machine Probe position 2 set")
+            self.h.add_status("Machine Probe position 2 set")
 
     def start(self):
         if not self.validate(): return
-        self.lineEdit_status.setText("Auto height measurement started")
+        self.h.add_status("Auto height measurement started")
         self.send_dict['search_vel'] = self.w.lineEdit_search_vel.text()
         self.send_dict['probe_vel'] = self.w.lineEdit_probe_vel.text()
         self.send_dict['max_probe'] = self.w.lineEdit_max_probe.text()
@@ -111,7 +115,7 @@ class Auto_Measure(QtWidgets.QWidget):
         print("String to send ", string_to_send)
         rtn = ACTION.AUTO_HEIGHT(string_to_send, self.autoheight_return, self.autoheight_error)
         if rtn == 0:
-            self.lineEdit_status.setText("Autoheight routine is already running")
+            self.h.add_status("Autoheight routine is already running", WARNING)
 
     def validate(self):
         valid = True
@@ -129,7 +133,7 @@ class Auto_Measure(QtWidgets.QWidget):
         try:
             if float(self.w.lineEdit_search_vel.text()) <= 0.0:
                 self.w.lineEdit_search_vel.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Search velocity must be greater than 0.0")
+                self.h.add_status("Search velocity must be greater than 0.0", WARNING)
                 valid = False
         except:
             self.w.lineEdit_search_vel.setStyleSheet(self.error_color)
@@ -138,7 +142,7 @@ class Auto_Measure(QtWidgets.QWidget):
         try:
             if float(self.w.lineEdit_probe_vel.text()) <= 0.0:
                 self.w.lineEdit_probe_vel.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Probe velocity must be greater than 0.0")
+                self.h.add_status("Probe velocity must be greater than 0.0", WARNING)
                 valid = False
         except:
             self.w.lineEdit_probe_vel.setStyleSheet(self.error_color)
@@ -147,7 +151,7 @@ class Auto_Measure(QtWidgets.QWidget):
         try:
             if float(self.w.lineEdit_max_probe.text()) <= 0.0:
                 self.w.lineEdit_max_probe.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Max probe must be greater than 0.0")
+                self.h.add_status("Max probe must be greater than 0.0", WARNING)
                 valid = False
         except:
             self.w.lineEdit_max_probe.setStyleSheet(self.error_color)
@@ -156,11 +160,11 @@ class Auto_Measure(QtWidgets.QWidget):
         try:
             if float(self.w.lineEdit_retract.text()) <= 0.0:
                 self.w.lineEdit_retract.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Retract distance must be greater than 0.0")
+                self.h.add_status("Retract distance must be greater than 0.0", WARNING)
                 valid = False
             elif float(self.w.lineEdit_retract.text()) > float(self.w.lineEdit_max_probe.text()):
                 self.w.lineEdit_retract.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText("Retract distance must be less than max_probe")
+                self.h.add_status("Retract distance must be less than max_probe", WARNING)
                 valid = False
         except:
             self.w.lineEdit_retract_distance.setStyleSheet(self.error_color)
@@ -176,7 +180,7 @@ class Auto_Measure(QtWidgets.QWidget):
                 else:
                     error = "P1 Z height must be >= P2 Z height"
                 self.w.lineEdit_zsafe.setStyleSheet(self.error_color)
-                self.lineEdit_status.setText(error)
+                self.h.add_status(error, WARNING)
                 valid = False
         except:
             self.w.lineEdit_zsafe.setStyleSheet(self.error_color)
@@ -193,10 +197,10 @@ class Auto_Measure(QtWidgets.QWidget):
         self.lineEdit_height.setText(f"{diff:.3f}")
         if self.chk_autofill.isChecked():
             self.w.lineEdit_work_height.setText(f"{diff:.3f}")
-        self.lineEdit_status.setText("Height measurement successfully completed")
+        self.h.add_status("Height measurement successfully completed")
 
     def autoheight_error(self, data):
-        self.lineEdit_status.setText(data)
+        self.h.add_status(data)
 
 # required code for subscriptable iteration
     def __getitem__(self, item):

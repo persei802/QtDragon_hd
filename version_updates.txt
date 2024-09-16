@@ -12,3 +12,9 @@ Sep. 15/24 v 2.0.3
     - start version from 2.x.x to differentiate from linuxcnc version
     - removed version label and integrated it into clock label
     - add gcode edit button to gcode frame
+
+Sep. 16/24 v 2.0.4
+    - changed all utility files to use main screen statusbar for status messages
+    - changed zlevel utility to request save filename via dialog
+    - changed hole_circle report widget to use qtableview
+    

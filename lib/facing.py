@@ -30,13 +30,15 @@ TOOL = Tool()
 HERE = os.path.dirname(os.path.abspath(__file__))
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.CONFIGPATH, 'qtdragon/images')
+WARNING = 1
 
 
 class Facing(QtWidgets.QWidget):
-    def __init__(self, tooldb=None, parent=None):
+    def __init__(self, tooldb, handler, parent=None):
         super(Facing, self).__init__()
         self.tool_db = tooldb
         self.parent = parent
+        self.h = handler
         self.helpfile = 'facing_help.html'
         
         # Load the widgets UI file:
@@ -44,7 +46,7 @@ class Facing(QtWidgets.QWidget):
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
-            self.lineEdit_status.setText("Error: ", e)
+            self.h.add_status(e, WARNING)
 
         # Initial values
         self._tmp = None
@@ -119,7 +121,6 @@ class Facing(QtWidgets.QWidget):
 
     def validate(self):
         valid = True
-        self.lineEdit_status.clear()
         blank = "Input field cannot be blank"
         for item in self.parm_list:
             self['lineEdit_' + item].setStyleSheet(self.black_border)
@@ -128,15 +129,15 @@ class Facing(QtWidgets.QWidget):
             self.size_x = float(self.lineEdit_size_x.text())
             self.size_y = float(self.lineEdit_size_y.text())
             if self.size_x > (self.max_x - self.min_x):
-                self.lineEdit_status.setText("X size greater than limits")
+                self.h.add_status("X size greater than limits", WARNING)
                 self.lineEdit_size_x.setStyleSheet(self.red_border)
                 valid = False
             if self.size_y > (self.max_y - self.min_y):
-                self.lineEdit_status.setText("Y size greater than limits")
+                self.h.add_status("Y size greater than limits", WARNING)
                 self.lineEdit_size_y.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_size_x.setStyleSheet(self.red_border)
             self.lineEdit_size_y.setStyleSheet(self.red_border)
             valid = False
@@ -144,44 +145,44 @@ class Facing(QtWidgets.QWidget):
         try:
             self.rpm = int(self.lineEdit_spindle.text())
             if self.rpm < self.min_rpm or self.rpm > self.max_rpm:
-                self.lineEdit_status.setText(f"Spindle RPM must be between {self.min_rpm} and {self.max_rpm}")
+                self.h.add_status(f"Spindle RPM must be between {self.min_rpm} and {self.max_rpm}", WARNING)
                 self.lineEdit_spindle.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_spindle.setStyleSheet(self.red_border)
             valid = False
         # check for valid feedrate
         try:
             self.feedrate = float(self.lineEdit_feedrate.text())
             if self.feedrate <= 0 or self.feedrate > self.max_feed:
-                self.lineEdit_status.setText(f"Feedrate must be > 0 and < {self.max_feed}")
+                self.h.add_status(f"Feedrate must be > 0 and < {self.max_feed}", WARNING)
                 self.lineEdit_feedrate.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_feedrate.setStyleSheet(self.red_border)
             valid = False
         # check for valid safe_z level
         try:
             self.safe_z = float(self.lineEdit_safe_z.text())
             if self.safe_z <= 0.0:
-                self.lineEdit_status.setText("Safe Z height should be > 0")
+                self.h.add_status("Safe Z height should be > 0", WARNING)
                 self.lineEdit_safe_z.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_safe_z.setStyleSheet(self.red_border)
             valid = False
         # check for valid tool diameter
         try:
             self.tool_dia = float(self.lineEdit_tool_diameter.text())
             if self.tool_dia <= 0.0:
-                self.lineEdit_status.setText("Tool diameter must be > 0")
+                self.h.add_status("Tool diameter must be > 0", WARNING)
                 self.lineEdit_tool_diameter.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_tool_diameter.setStyleSheet(self.red_border)
             valid = False
         # check for valid stepover
@@ -190,11 +191,11 @@ class Facing(QtWidgets.QWidget):
             if self.stepover == 0 \
             or self.stepover > self.tool_dia \
             or (self.stepover * 2) > min(self.size_x, self.size_y):
-                self.lineEdit_status.setText("Stepover should be > 0 and < tool diameter")
+                self.h.add_status("Stepover should be > 0 and < tool diameter", WARNING)
                 self.lineEdit_stepover.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_stepover.setStyleSheet(self.red_border)
             valid = False
         return valid
@@ -217,7 +218,7 @@ class Facing(QtWidgets.QWidget):
             self.lineEdit_tool_num.setStyleSheet(self.black_border)
             ACTION.CALL_MDI(f"M61 Q{self.tool_no}")
         else:
-            self.lineEdit_status.setText("Invalid tool number specified")
+            self.h.add_status("Invalid tool number specified", WARNING)
             self.lineEdit_tool_num.setStyleSheet(self.red_border)
         self.validate()
 
@@ -228,16 +229,16 @@ class Facing(QtWidgets.QWidget):
         fileName, _ = QFileDialog.getSaveFileName(self,"Save to file","","All Files (*);;ngc Files (*.ngc)", options=options)
         if fileName:
             self.calculate_toolpath(fileName)
-            self.lineEdit_status.setText(f"Program successfully saved to {fileName}")
+            self.h.add_status(f"Program successfully saved to {fileName}")
         else:
-            self.lineEdit_status.setText("Program creation aborted")
+            self.h.add_status("Program creation aborted")
 
     def send_program(self):
         if not self.validate(): return
         filename = self.make_temp()[1]
         self.calculate_toolpath(filename)
         ACTION.OPEN_PROGRAM(filename)
-        self.lineEdit_status.setText("Program successfully sent to Linuxcnc")
+        self.h.add_status("Program successfully sent to Linuxcnc")
 
     def calculate_toolpath(self, fname):
         comment = self.lineEdit_comment.text()
@@ -265,7 +266,7 @@ class Facing(QtWidgets.QWidget):
         elif self.rbtn_raster_90.isChecked():
             self.raster_90()
         else:
-            self.lineEdit_status.setText("Fatal error occurred - exiting")
+            self.h.add_status("Fatal error occurred - exiting", WARNING)
             sys.exit()
         # closing section
         self.next_line(f"G0 Z{self.safe_z}")
@@ -339,7 +340,7 @@ class Facing(QtWidgets.QWidget):
                 else:
                     self.next_line(f"Y{self.size_y}")
             else:
-                self.lineEdit_status.setText("FATAL ERROR in Raster_45")
+                self.h.add_status("FATAL ERROR in Raster_45", WARNING)
                 return
             i += 1
             if i == len(array1 + 1): break
@@ -360,7 +361,7 @@ class Facing(QtWidgets.QWidget):
                 else:
                     self.next_line(f"X{self.size_x}")
             else:
-                self.lineEdit_status.setText("FATAL ERROR")
+                self.h.add_status("FATAL ERROR", WARNING)
                 return
             i += 1
             if i == len(array1): break

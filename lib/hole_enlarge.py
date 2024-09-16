@@ -27,13 +27,15 @@ TOOL = Tool()
 PATH = Path()
 HERE = os.path.dirname(os.path.abspath(__file__))
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
+WARNING = 1
 
 
 class Hole_Enlarge(QtWidgets.QWidget):
-    def __init__(self, tooldb, parent=None):
+    def __init__(self, tooldb, handler, parent=None):
         super(Hole_Enlarge, self).__init__()
         self.tool_db = tooldb
         self.parent = parent
+        self.h = handler
         self.helpfile = 'hole_enlarge_help.html'
         self.units_text = ""
         self.angle_inc = 4
@@ -100,9 +102,9 @@ class Hole_Enlarge(QtWidgets.QWidget):
         fileName, _ = QFileDialog.getSaveFileName(self,"Save to file",_dir,"All Files (*);;ngc Files (*.ngc)", options=options)
         if fileName:
             self.calculate_program(fileName)
-            self.lineEdit_status.setText(f"{fileName} successfully created")
+            self.h.add_status(f"{fileName} successfully created")
         else:
-            self.lineEdit_status.setText("Program creation aborted")
+            self.h.add_status("Program creation aborted")
 
     def send_program(self):
         if not self.validate(): return
@@ -110,7 +112,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
         filename = self.make_temp()[1]
         self.calculate_program(filename)
         ACTION.OPEN_PROGRAM(filename)
-        self.lineEdit_status.setText("Hole enlarge program sent to Linuxcnc")
+        self.h.add_status("Hole enlarge program sent to Linuxcnc")
 
     def preview_program(self):
         if not self.validate(): return
@@ -128,7 +130,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
             self.tool = int(self.lineEdit_tool.text())
             if self.tool <= 0:
                 self.lineEdit_tool.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Error - Tool Number must be > 0")
+                self.h.add_status("Error - Tool Number must be > 0", WARNING)
                 valid = False
         except:
             self.lineEdit_tool.setStyleSheet(self.red_border)
@@ -138,7 +140,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
             self.tool_dia = float(self.lineEdit_tool_dia.text())
             if self.tool_dia <= 0.0:
                 self.lineEdit_tool_dia.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Error - Tool diameter must be > 0.0")
+                self.h.add_status("Error - Tool diameter must be > 0.0", WARNING)
                 valid = False
         except:
             self.lineEdit_tool_dia.setStyleSheet(self.red_border)
@@ -147,11 +149,11 @@ class Hole_Enlarge(QtWidgets.QWidget):
         try:
             self.spindle = int(self.lineEdit_spindle.text())
             if self.spindle < self.minimum_speed:
-                self.lineEdit_status.setText("Warning - Spindle RPM adjusted to minimum spindle speed")
+                self.h.add_status("Spindle RPM adjusted to minimum spindle speed")
                 self.lineEdit_spindle.setText(str(self.minimum_speed))
                 self.spindle = self.minimum_speed
             elif self.spindle > self.maximum_speed:
-                self.lineEdit_status.setText("Warning - Spindle RPM adjusted to maximum spindle speed")
+                self.h.add_status("Spindle RPM adjusted to maximum spindle speed")
                 self.lineEdit_spindle.setText(str(self.maximum_speed))
                 self.spindle = self.maximum_speed
         except:
@@ -162,7 +164,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
             self.start_dia = float(self.lineEdit_start_dia.text())
             if self.start_dia <= 0.0:
                 self.lineEdit_start_dia.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Warning - Start diameter must be > 0.0")
+                self.h.add_status("Start diameter must be > 0.0", WARNING)
                 valid = False
         except:
             self.lineEdit_start_dia.setStyleSheet(self.red_border)
@@ -172,7 +174,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
             self.final_dia = float(self.lineEdit_final_dia.text())
             if self.final_dia <= self.start_dia:
                 self.lineEdit_final_dia.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Warning - Final diameter must be > start diameter")
+                self.h.add_status("Final diameter must be > start diameter", WARNING)
                 valid = False
         except:
             self.lineEdit_final_dia.setStyleSheet(self.red_border)
@@ -182,7 +184,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
             self.loops = int(self.lineEdit_loops.text())
             if self.loops <= 0:
                 self.lineEdit_loops.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Warning - Number of loops must be > 0")
+                self.h.add_status("Number of loops must be > 0", WARNING)
                 valid = False
         except:
             self.lineEdit_loops.setStyleSheet(self.red_border)
@@ -192,10 +194,10 @@ class Hole_Enlarge(QtWidgets.QWidget):
             self.cut_depth = float(self.lineEdit_cut_depth.text())
             if self.cut_depth < 0.0:
                 self.lineEdit_cut_depth.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Warning - Cut depth cannot be negative")
+                self.h.add_status("Cut depth cannot be negative", WARNING)
                 valid = False
             elif self.cut_depth == 0.0:
-                self.lineEdit_status.setText("Warning - Cut depth set to 0.0")
+                self.h.add_status("Cut depth set to 0.0", WARNING)
         except:
             self.lineEdit_cut_depth.setStyleSheet(self.red_border)
             valid = False
@@ -204,7 +206,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
             self.z_safe = float(self.lineEdit_z_safe.text())
             if self.z_safe <= 0.0:
                 self.lineEdit_z_safe.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Warning - Z Safe distance must be > 0.0")
+                self.h.add_status("Z Safe distance must be > 0.0", WARNING)
                 valid = False
         except:
             self.lineEdit_z_safe.setStyleSheet(self.red_border)
@@ -214,7 +216,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
             self.feed = int(self.lineEdit_feed.text())
             if self.feed <= 0:
                 self.lineEdit_feed.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Warning - Feed rate must be > 0")
+                self.h.add_status("Feed rate must be > 0", WARNING)
                 valid = False
         except:
             self.lineEdit_feed.setStyleSheet(self.red_border)
@@ -228,7 +230,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
         fileName, _ = QFileDialog.getSaveFileName(self,"Save to file","","All Files (*);;ngc Files (*.ngc)", options=options)
         if fileName:
             self.calculate_program(fileName)
-            self.lineEdit_status.setText(f"{fileName} successfully created")
+            self.h.add_status(f"{fileName} successfully created")
         else:
             print("Program creation aborted")
 
@@ -341,7 +343,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
         self.parent.show_help_page(fname)
 
     def make_temp(self):
-        _tmp = tempfile.mkstemp(prefix='spindle_warmup', suffix='.ngc')
+        _tmp = tempfile.mkstemp(prefix='hole_enlarge', suffix='.ngc')
         atexit.register(lambda: os.remove(_tmp[1]))
         return _tmp
 

@@ -13,13 +13,12 @@
 import sys
 import os
 import math
-
 import tempfile
 import atexit
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QPoint, QPointF, QLine, QRect, QFile, Qt, QEvent
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QHeaderView
 from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 
 from qtvcp.core import Info, Status, Action, Path
@@ -32,6 +31,8 @@ PATH = Path()
 HERE = os.path.dirname(os.path.abspath(__file__))
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.CONFIGPATH, 'qtdragon/images')
+WARNING = 1
+
 
 class Preview(QtWidgets.QWidget):
     def __init__(self):
@@ -103,8 +104,9 @@ class Preview(QtWidgets.QWidget):
         self.first_angle = angle
 
 class Hole_Circle(QtWidgets.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, handler=None, parent=None):
         super(Hole_Circle, self).__init__()
+        self.h = handler
         self.parent = parent
         self.helpfile = 'hole_circle_help.html'
         # Load the widgets UI file:
@@ -141,7 +143,12 @@ class Hole_Circle(QtWidgets.QWidget):
         self.lineEdit_start_height.setValidator(QtGui.QDoubleValidator(0, 99, 2))
         self.lineEdit_depth.setValidator(QtGui.QDoubleValidator(0, 99, 2))
         self.lineEdit_drill_feed.setValidator(QtGui.QDoubleValidator(0, 999, 2))
-
+        # setup report table headers
+        self.model = QtGui.QStandardItemModel(4, 4)
+        self.model.setHorizontalHeaderLabels(['', 'Angle', 'X', 'Y'])
+        header = self.report.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Stretch)
+        self.report.setModel(self.model)
         # signal connections
         self.btn_create.clicked.connect(self.create_program)
         self.btn_send.clicked.connect(self.send_program)
@@ -168,95 +175,94 @@ class Hole_Circle(QtWidgets.QWidget):
 
     def validate(self):
         valid = True
-        self.lineEdit_status.clear()
         blank = "Input field cannot be blank"
         for item in self.parm_list:
             self['lineEdit_' + item].setStyleSheet(self.black_border)
         try:
             self.rpm = int(self.lineEdit_spindle.text())
             if self.rpm < self.min_rpm or self.rpm > self.max_rpm:
-                self.lineEdit_status.setText(f"Spindle RPM must be between {self.min_rpm} and {self.max_rpm}")
+                self.h.add_status(f"Spindle RPM must be between {self.min_rpm} and {self.max_rpm}", WARNING)
                 self.lineEdit_spindle.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_spindle.setStyleSheet(self.red_border)
             valid = False
 
         try:
             self.num_holes = int(self.lineEdit_num_holes.text())
             if self.num_holes <= 0:
-                self.lineEdit_status.setText("Number of holes must be > 0")
+                self.h.add_status("Number of holes must be > 0", WARNING)
                 self.lineEdit_num_holes.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_num_holes.setStyleSheet(self.red_border)
             valid = False
 
         try:
             self.radius = float(self.lineEdit_radius.text())
             if self.radius <= 0.0:
-                self.lineEdit_status.setText("Circle radius must be > 0")
+                self.h.add_status("Circle radius must be > 0", WARNING)
                 self.lineEdit_radius.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_radius.setStyleSheet(self.red_border)
             valid = False
 
         try:
             self.first = float(self.lineEdit_first.text())
             if self.first >= 360.0:
-                self.lineEdit_status.setText("Angle of first hole must be < 360")
+                self.h.add_status("Angle of first hole must be < 360", WARNING)
                 self.lineEdit_first.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_first.setStyleSheet(self.red_border)
             valid = False
 
         try:
             self.safe_z = float(self.lineEdit_safe_z.text())
             if self.safe_z <= 0.0:
-                self.lineEdit_status.setText("Safe Z height should be > 0")
+                self.h.add_status("Safe Z height should be > 0", WARNING)
                 self.lineEdit_safe_z.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_safe_z.setStyleSheet(self.red_border)
             valid = False
 
         try:
             self.start = float(self.lineEdit_start_height.text())
             if self.start < 0.0 or self.start > self.safe_z:
-                self.lineEdit_status.setText(f"Start height must be between 0 and {self.safe_z}")
+                self.h.add_status(f"Start height must be between 0 and {self.safe_z}", WARNING)
                 self.lineEdit_start_height.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_start_height.setStyleSheet(self.red_border)
             valid = False
 
         try:
             self.depth = float(self.lineEdit_depth.text())
             if self.depth <= 0.0:
-                self.lineEdit_status.setText("Drill depth must be > 0")
+                self.h.add_status("Drill depth must be > 0", WARNING)
                 self.lineEdit_depth.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_depth.setStyleSheet(self.red_border)
             valid = False
 
         try:
             self.drill_feed = float(self.lineEdit_drill_feed.text())
             if self.drill_feed <= 0.0:
-                self.lineEdit_status.setText("Drill feedrate must be > 0")
+                self.h.add_status("Drill feedrate must be > 0", WARNING)
                 self.lineEdit_drill_feed.setStyleSheet(self.red_border)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_drill_feed.setStyleSheet(self.red_border)
             valid = False
         return valid
@@ -264,24 +270,24 @@ class Hole_Circle(QtWidgets.QWidget):
     def create_program(self):
         if not self.validate(): return
         self.show_preview()
-        self.report.clear()
+        self.clear_model()
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getSaveFileName(self,"Save to file","","All Files (*);;ngc Files (*.ngc)", options=options)
         if fileName:
             self.calculate_toolpath(fileName)
-            self.lineEdit_status.setText(f"Program successfully saved to {fileName}")
+            self.h.add_status(f"Program successfully saved to {fileName}")
         else:
-            self.lineEdit_status.setText("Program creation aborted")
+            self.h.add_status("Program creation aborted")
 
     def send_program(self):
         if not self.validate(): return
         self.show_preview()
-        self.report.clear()
+        self.clear_model()
         filename = self.make_temp()[1]
         self.calculate_toolpath(filename)
         ACTION.OPEN_PROGRAM(filename)
-        self.lineEdit_status.setText("Program successfully sent to Linuxcnc")
+        self.h.add_status("Program successfully sent to Linuxcnc")
 
     def calculate_toolpath(self, fname):
         comment = self.lineEdit_comment.text()
@@ -301,12 +307,25 @@ class Hole_Circle(QtWidgets.QWidget):
         self.next_line("G0 X0.0 Y0.0")
         self.next_line(f"S{self.rpm} M3")
         # main section
+        row = 0
         for i in range(self.num_holes):
+            col = 0
             next_angle = ((360.0/self.num_holes) * i) + self.first
             next_angle = round(next_angle, 3)
             next_x = self.radius * math.cos(math.radians(next_angle))
             next_y = self.radius * math.sin(math.radians(next_angle))
-            self.report.appendPlainText(f"Hole_{i}  {next_angle:8.3f}  {next_x:8.3f}  {next_y:8.3f}")
+            item = QtGui.QStandardItem(f'Hole_{i}')
+            self.model.setItem(row, col, item)
+            col += 1
+            item = QtGui.QStandardItem(f'{next_angle:8.3f}')
+            self.model.setItem(row, col, item)
+            col += 1
+            item = QtGui.QStandardItem(f'{next_x:8.3f}')
+            self.model.setItem(row, col, item)
+            col += 1
+            item = QtGui.QStandardItem(f'{next_y:8.3f}')
+            self.model.setItem(row, col, item)
+            row += 1
             self.next_line(f"G0 @{self.radius} ^{next_angle}")
             self.next_line(f"Z{self.start}")
             self.next_line(f"G1 Z-{self.depth} F{self.drill_feed}")
@@ -334,6 +353,10 @@ class Hole_Circle(QtWidgets.QWidget):
     def next_line(self, text):
         self.file.write(f"N{self.line_num} " + text + "\n")
         self.line_num += 5
+
+    def clear_model(self):
+        self.model.removeRows(0, self.model.rowCount())
+        self.model.setRowCount(self.num_holes)
 
     # required code for subscriptable objects
     def __getitem__(self, item):

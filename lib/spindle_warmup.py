@@ -44,8 +44,9 @@ class Graph(pg.PlotWidget):
         self.plot(x, y, pen=self.pen)
 
 class Spindle_Warmup(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(Spindle_Warmup, self).__init__(parent)
+    def __init__(self, handler, parent=None):
+        super(Spindle_Warmup, self).__init__()
+        self.h = handler
         self.line_num = 0
         self.rpm = []
         self.steps = []
@@ -93,9 +94,9 @@ class Spindle_Warmup(QtWidgets.QWidget):
         fileName, _ = QFileDialog.getSaveFileName(self,"Save to file",_dir,"All Files (*);;ngc Files (*.ngc)", options=options)
         if fileName:
             self.calculate_program(fileName)
-            self.lineEdit_status.setText(f"{fileName} successfully created")
+            self.h.add_status(f"{fileName} successfully created")
         else:
-            self.lineEdit_status.setText("Program creation aborted")
+            self.h.add_status("Program creation aborted")
 
     def send_program(self):
         if not self.validate(): return
@@ -103,11 +104,10 @@ class Spindle_Warmup(QtWidgets.QWidget):
         filename = self.make_temp()[1]
         self.calculate_program(filename)
         ACTION.OPEN_PROGRAM(filename)
-        self.lineEdit_status.setText("Spindle warmup program sent to Linuxcnc")
+        self.h.add_status("Spindle warmup program sent to Linuxcnc")
 
     def validate(self):
         valid = True
-        self.lineEdit_status.clear()
         blank = "Input field cannot be blank"
         for item in ["steps", "duration", "start", "final"]:
             self['lineEdit_' + item].setStyleSheet(self.black_border)
@@ -115,10 +115,10 @@ class Spindle_Warmup(QtWidgets.QWidget):
             self.steps = int(self.lineEdit_steps.text())
             if self.steps < 2:
                 self.lineEdit_steps.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Error - Number of steps must be >= 2")
+                self.h.add_status("Error - Number of steps must be >= 2", WARNING)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_steps.setStyleSheet(self.red_border)
             valid = False
 
@@ -126,39 +126,34 @@ class Spindle_Warmup(QtWidgets.QWidget):
             self.duration = float(self.lineEdit_duration.text())
             if self.duration < 1:
                 self.lineEdit_duration.setStyleSheet(self.red_border)
-                self.lineEdit_status.setText("Error - Warmup duration must be >= 1")
+                self.h.add_status("Warmup duration must be >= 1", WARNING)
                 valid = False
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_duration.setStyleSheet(self.red_border)
             valid = False
 
         try:
             self.start_rpm = int(self.lineEdit_start.text())
             if self.start_rpm < self.minimum_speed:
-                self.lineEdit_status.setText("Warning - Start RPM adjusted to minimum spindle speed")
+                self.h.add_status("Start RPM adjusted to minimum spindle speed", WARNING)
                 self.lineEdit_start.setText(str(self.minimum_speed))
                 self.start_rpm = self.minimum_speed
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_start.setStyleSheet(self.red_border)
             valid = False
 
         try:
             self.final_rpm = int(self.lineEdit_final.text())
             if self.final_rpm > self.maximum_speed:
-                self.lineEdit_status.setText("Warning - Final RPM adjusted to maximum spindle speed")
+                self.h.add_status("Final RPM adjusted to maximum spindle speed", WARNING)
                 self.lineEdit_final.setText(str(self.maximum_speed))
                 self.final_rpm = self.maximum_speed
         except:
-            self.lineEdit_status.setText(blank)
+            self.h.add_status(blank, WARNING)
             self.lineEdit_final.setStyleSheet(self.red_border)
             valid = False
-
-#        if self.final_rpm < self.start_rpm:
-#            self.lineEdit_final.setStyleSheet(self.red_border)
-#            self.lineEdit_status.setText("Error - Final RPM must be greater than Start RPM")
-#            valid = False
         return valid
 
     def create_points(self):
@@ -185,7 +180,7 @@ class Spindle_Warmup(QtWidgets.QWidget):
         fileName, _ = QFileDialog.getSaveFileName(self,"Save to file","","All Files (*);;ngc Files (*.ngc)", options=options)
         if fileName:
             self.calculate_program(fileName)
-            self.lineEdit_status.setText(f"{fileName} successfully created")
+            self.h.add_status(f"{fileName} successfully created")
         else:
             print("Program creation aborted")
 

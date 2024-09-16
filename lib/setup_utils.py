@@ -122,28 +122,28 @@ class Setup_Utils():
 
     def install_facing(self):
         from lib.facing import Facing
-        self.facing = Facing(self.tool_db, self)
+        self.facing = Facing(self.tool_db, self.parent, self)
         self.stackedWidget_utils.addWidget(self.facing)
         self.make_button('facing', 'FACING')
         self.facing._hal_init()
 
     def install_hole_circle(self):
         from lib.hole_circle import Hole_Circle
-        self.hole_circle = Hole_Circle(self)
+        self.hole_circle = Hole_Circle(self.parent, self)
         self.stackedWidget_utils.addWidget(self.hole_circle)
         self.make_button('hole_circle', 'HOLE\nCIRCLE')
         self.hole_circle._hal_init()
 
     def install_auto_measure(self):
         from lib.auto_height import Auto_Measure
-        self.auto_measure = Auto_Measure(self.w, self)
+        self.auto_measure = Auto_Measure(self.w, self.parent, self)
         self.stackedWidget_utils.addWidget(self.auto_measure)
         self.make_button('auto_measure', 'WORKPIECE\nHEIGHT')
         self.auto_measure._hal_init()
 
     def install_zlevel(self):
         from lib.zlevel import ZLevel
-        self.zlevel = ZLevel(self.w, self)
+        self.zlevel = ZLevel(self.w, self.parent, self)
         self.parent.zlevel = self.zlevel
         self.stackedWidget_utils.addWidget(self.zlevel)
         self.make_button('zlevel', 'Z LEVEL\nCOMP')
@@ -151,14 +151,14 @@ class Setup_Utils():
 
     def install_spindle_warmup(self):
         from lib.spindle_warmup import Spindle_Warmup
-        self.warmup = Spindle_Warmup()
+        self.warmup = Spindle_Warmup(self.parent)
         self.stackedWidget_utils.addWidget(self.warmup)
         self.make_button('warmup', 'SPINDLE\nWARMUP')
         self.warmup._hal_init()
 
     def install_hole_enlarge(self):
         from lib.hole_enlarge import Hole_Enlarge
-        self.enlarge = Hole_Enlarge(self.tool_db, self)
+        self.enlarge = Hole_Enlarge(self.tool_db, self.parent, self)
         self.stackedWidget_utils.addWidget(self.enlarge)
         self.make_button('enlarge', 'HOLE\nENLARGE')
         self.enlarge._hal_init()
