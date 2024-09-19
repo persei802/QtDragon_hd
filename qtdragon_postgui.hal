@@ -1,7 +1,9 @@
 loadrt time
 loadrt and2
+loadrt scaled_s32_sums
 addf time.0 servo-thread
 addf and2.0 servo-thread
+addf scaled-s32-sums.0 servo-thread
 
 # the unlink pin commands are only used because they are connected 
 # in core_sim.hal and gantrysim.hal and this file is only for simulation
@@ -25,7 +27,7 @@ loadusr -Wn compensate python3 lib/compensate.py linear
 
 # spindle pause
 net eoffset-clear    axis.z.eoffset-clear  <= compensate.clear
-net eoffset-count    axis.z.eoffset-counts <= qtdragon.eoffset-count
+#net eoffset-count    axis.z.eoffset-counts <= qtdragon.eoffset-count
 net eoffset          qtdragon.eoffset-value <= axis.z.eoffset
 net limited          qtdragon.hal_led_limit <= motion.eoffset-limited
 setp axis.z.eoffset-scale 0.001
@@ -52,9 +54,17 @@ net xpos-cmd         compensate.x-pos <= axis.x.pos-cmd
 net ypos-cmd         compensate.y-pos <= axis.y.pos-cmd
 net zpos-cmd         compensate.z-pos <= axis.z.pos-cmd
 net compensate-on    compensate.enable-in <= qtdragon.comp-on
-net comp-count       compensate.counts => qtdragon.comp-count
+#net comp-count       compensate.counts => qtdragon.comp-count
 net map-ready        compensate.map-ready => qtdragon.map-ready
 setp compensate.fade-height 0.0
+
+# eoffset summing
+net eoffset-count    scaled-s32-sums.0.in0   <= qtdragon.eoffset-count
+net comp-count       scaled-s32-sums.0.in1   <= compensate.counts
+net zaxis-eoffset    scaled-s32-sums.0.out-s => axis.z.eoffset-counts
+setp scaled-s32-sums.0.in2 0
+setp scaled-s32-sums.0.in3 0
+setp scaled-s32-sums.0.scale0 1000
 
 # mux4 selects for MPG scales
 #net scale_0          qtdragon.scale-sel0 => mux4.0.sel0

@@ -1073,7 +1073,7 @@ GCODE</string>
                 <enum>QFrame::Raised</enum>
                </property>
                <property name="currentIndex">
-                <number>8</number>
+                <number>4</number>
                </property>
                <widget class="QWidget" name="main_tab_widget_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -4430,7 +4430,7 @@ DATABASE</string>
                     <number>0</number>
                    </property>
                    <item>
-                    <widget class="PushButton" name="btn_select_log">
+                    <widget class="QPushButton" name="btn_select_log">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -4449,44 +4449,12 @@ DATABASE</string>
                        <height>50</height>
                       </size>
                      </property>
-                     <property name="checkable">
-                      <bool>true</bool>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                     <property name="flat">
-                      <bool>false</bool>
-                     </property>
-                     <property name="indicator_option" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="checked_state_text_option" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="python_command_option" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="on_color" stdset="0">
-                      <color>
-                       <red>0</red>
-                       <green>255</green>
-                       <blue>0</blue>
-                      </color>
-                     </property>
-                     <property name="true_state_string" stdset="0">
-                      <string>SYSTEM
-LOG</string>
-                     </property>
-                     <property name="false_state_string" stdset="0">
+                     <property name="text">
                       <string>MACHINE
 LOG</string>
                      </property>
-                     <property name="true_python_cmd_string" stdset="0">
-                      <string>INSTANCE.stackedWidget_log.setCurrentIndex(1)</string>
-                     </property>
-                     <property name="false_python_cmd_string" stdset="0">
-                      <string>INSTANCE.stackedWidget_log.setCurrentIndex(0)</string>
+                     <property name="checkable">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
@@ -4565,91 +4533,109 @@ TO FILE</string>
                     </spacer>
                    </item>
                    <item>
-                    <widget class="QLabel" name="lbl_stat_warnings">
-                     <property name="minimumSize">
-                      <size>
-                       <width>40</width>
-                       <height>30</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>40</width>
-                       <height>30</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>0</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="label_24">
-                     <property name="minimumSize">
-                      <size>
-                       <width>80</width>
-                       <height>30</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>80</width>
-                       <height>30</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>WARNINGS</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="lbl_stat_errors">
-                     <property name="minimumSize">
-                      <size>
-                       <width>40</width>
-                       <height>30</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>40</width>
-                       <height>30</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>0</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="label_58">
-                     <property name="minimumSize">
-                      <size>
-                       <width>80</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>80</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>ERRORS</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                     </property>
+                    <widget class="QWidget" name="widget_status_errors" native="true">
+                     <layout class="QHBoxLayout" name="horizontalLayout_48">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QLabel" name="lbl_stat_warnings">
+                        <property name="minimumSize">
+                         <size>
+                          <width>40</width>
+                          <height>30</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>40</width>
+                          <height>30</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>0</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_24">
+                        <property name="minimumSize">
+                         <size>
+                          <width>80</width>
+                          <height>30</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>80</width>
+                          <height>30</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>WARNINGS</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="lbl_stat_errors">
+                        <property name="minimumSize">
+                         <size>
+                          <width>40</width>
+                          <height>30</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>40</width>
+                          <height>30</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>0</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_58">
+                        <property name="minimumSize">
+                         <size>
+                          <width>80</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>80</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>ERRORS</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
                   </layout>
@@ -5511,7 +5497,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>06:36:11 AM</string>
+                       <string>10:06:44 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -13988,16 +13974,16 @@ TO ZERO</string>
                  </property>
                  <property name="zone1_color" stdset="0">
                   <color>
-                   <red>255</red>
-                   <green>0</green>
-                   <blue>0</blue>
+                   <red>0</red>
+                   <green>170</green>
+                   <blue>255</blue>
                   </color>
                  </property>
                  <property name="zone2_color" stdset="0">
                   <color>
-                   <red>0</red>
-                   <green>170</green>
-                   <blue>255</blue>
+                   <red>255</red>
+                   <green>0</green>
+                   <blue>0</blue>
                   </color>
                  </property>
                  <property name="bezel_color" stdset="0">
@@ -14779,14 +14765,14 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="about_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="util_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="about_buttonGroup"/>
  </buttongroups>
 </ui>

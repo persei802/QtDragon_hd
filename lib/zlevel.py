@@ -12,6 +12,7 @@
 # GNU General Public License for more details.
 import sys
 import os
+import re
 import tempfile
 import atexit
 import shutil
@@ -27,6 +28,30 @@ PATH = Path()
 HERE = os.path.dirname(os.path.abspath(__file__))
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 WARNING = 1
+
+
+class Read_Gcode:
+    def __init__(self):
+        pass
+
+    def read_gcode_file(self, file_path):
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+        return lines
+
+    def parse_gcode_lines(self, lines):
+        min_values = {'x': 9999.0, 'y': 9999.0}
+        max_values = {'x': -9999.0, 'y': -9999.0}
+        axis_pattern = re.compile(r'[XYZ]([+-]?\d*\.?\d+)')
+        for line in lines:
+            matches = axis_pattern.findall(line)
+            for axis, value in zip('xy', matches):
+                value = float(value)
+                if value < min_values[axis]:
+                    min_values[axis] = value
+                if value > max_values[axis]:
+                    max_values[axis] = value
+        return min_values, max_values
 
 
 class ZLevel(QWidget):
@@ -59,11 +84,12 @@ class ZLevel(QWidget):
         self.normal_color = ""
         self.error_color = "color: #ff0000;"
         self.help_text = []
+        self.read_gc = Read_Gcode()
         # list of zero reference locations
         self.reference = ["top-left", "top-right", "center", "bottom-left", "bottom-right"]
         # set valid input formats for lineEdits
-        self.lineEdit_size_x.setValidator(QtGui.QDoubleValidator(0, 999, 3))
-        self.lineEdit_size_y.setValidator(QtGui.QDoubleValidator(0, 999, 3))
+        self.lineEdit_size_x.setValidator(QtGui.QIntValidator(0, 9999))
+        self.lineEdit_size_y.setValidator(QtGui.QIntValidator(0, 9999))
         self.lineEdit_steps_x.setValidator(QtGui.QIntValidator(0, 100))
         self.lineEdit_steps_y.setValidator(QtGui.QIntValidator(0, 100))
         units = "MM" if INFO.MACHINE_IS_METRIC else "IN"
@@ -74,9 +100,11 @@ class ZLevel(QWidget):
         self.cmb_zero_ref.setCurrentIndex(2)
 
         # signal connections
+        self.btn_read_gcode.pressed.connect(self.read_gcode)
         self.btn_save_gcode.pressed.connect(self.save_gcode)
         self.btn_send_gcode.pressed.connect(self.send_gcode)
         self.btn_load_comp.pressed.connect(self.load_comp_file)
+        self.btn_get_maxz.pressed.connect(self.get_maxz)
         self.btn_help.pressed.connect(self.show_help)
 
         # display default height map if available
@@ -89,15 +117,35 @@ class ZLevel(QWidget):
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        STATUS.connect('file-loaded', lambda w, fname: self.lineEdit_gcode_program.setText(fname))
 
+    def read_gcode(self):
+        fname = self.lineEdit_gcode_program.text()
+        if os.path.exists(fname):
+            lines = self.read_gc.read_gcode_file(fname)
+            min_vals, max_vals = self.read_gc.parse_gcode_lines(lines)
+            self.size_x = int(max_vals['x'] - min_vals['x'])
+            self.size_y = int(max_vals['y'] - min_vals['y'])
+            self.lineEdit_size_x.setText(f'{self.size_x}')
+            self.lineEdit_size_y.setText(f'{self.size_y}')
+        else:
+            self.h.add_status(f"{fname} does not exist - load a gcode file or enter manually", WARNING)
+            return
+        
     def save_gcode(self):
         if not self.validate(): return
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        _filter = "Compensation Probe Files (*.ngc)"
-        _dir = INFO.SUB_PATH_LIST[0]
-        _caption = "Save Probe File"
-        fname, _ =  QFileDialog.getSaveFileName(None, _caption, _dir, _filter, options=options)
+        fname = self.lineEdit_gcode_program.text()
+        if os.path.exists(fname):
+            dname = os.path.dirname(fname)
+            pname = os.path.basename(fname)
+            fname = os.path.join(dname, 'probe_' + pname)
+        else:
+            options = QFileDialog.Options()
+            options |= QFileDialog.DontUseNativeDialog
+            _filter = "Compensation Probe Files (*.ngc)"
+            _dir = INFO.SUB_PATH_LIST[0]
+            _caption = "Save Probe File"
+            fname, _ =  QFileDialog.getSaveFileName(None, _caption, _dir, _filter, options=options)
         if fname.endswith('.ngc'):
             self.probe_filename = fname.replace(".ngc", ".txt")
             self.calculate_gcode(fname)
@@ -300,6 +348,23 @@ class ZLevel(QWidget):
                 self.h.add_status(f"Loaded compensation file {fname}")
             except Exception as e:
                 self.h.add_status(e, WARNING)
+
+    def get_maxz(self):
+        fname = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
+        if os.path.isfile(fname):
+            zmax = -999.0
+            high = (0, 0, zmax)
+            with open(fname, 'r') as file:
+                lines = file.readlines()
+            for line in lines:
+                axis = line.split(" ")
+                if float(axis[2]) > zmax:
+                    zmax = float(axis[2])
+                    high = (float(axis[0]), float(axis[1]), float(axis[2]))
+            self.lbl_highest.setText(f"Highest point is at X: {high[0]:.1f}  Y: {high[1]:.1f} Z: {high[2]:.1f}")
+        else:
+            self.lbl_highest.setText("Highest point undefined")
+            self.h.add_status("No probe_points.txt file in CONFIG directory", WARNING)
 
     def get_map(self):
         return self.comp_file

@@ -18,3 +18,7 @@ Sep. 16/24 v 2.0.4
     - changed zlevel utility to request save filename via dialog
     - changed hole_circle report widget to use qtableview
     
+Sep. 19/24 v 2.0.5
+    - Zlevel routine can read ngc file to extract working area for probe function
+    - added S32_Sum component to combine eoffset values from spindle pause and compensation
+    

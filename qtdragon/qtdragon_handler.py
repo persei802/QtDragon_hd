@@ -40,7 +40,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.0.4'
+VERSION = '2.0.5'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -132,7 +132,6 @@ class HandlerClass:
         self.default_linear_jog_vel = int(INFO.DEFAULT_LINEAR_JOG_VEL)
         self.max_angular_velocity = int(INFO.MAX_ANGULAR_JOG_VEL)
         self.default_angular_jog_vel = int(INFO.DEFAULT_ANGULAR_JOG_VEL)
-        self.spindle_is_paused = False
         self.progress = 0
         self.axis_list = INFO.AVAILABLE_AXES
         self.jog_from_name = INFO.GET_JOG_FROM_NAME
@@ -199,6 +198,7 @@ class HandlerClass:
         self.init_macros()
         self.init_adjustments()
         self.check_for_updates()
+        self.runtime_color = self.w.lineEdit_runtime.palette().color(self.w.lineEdit_runtime.foregroundRole())
         self.w.stackedWidget_gcode.setCurrentIndex(0)
         self.w.stackedWidget_log.setCurrentIndex(0)
         self.w.btn_dimensions.setChecked(True)
@@ -251,8 +251,6 @@ class HandlerClass:
         QHAL.newpin("eoffset-count", Qhal.HAL_S32, Qhal.HAL_OUT)
         pin = QHAL.newpin("eoffset-value", Qhal.HAL_FLOAT, Qhal.HAL_IN)
         pin.value_changed.connect(self.eoffset_value_changed)
-        pin = QHAL.newpin("comp-count", Qhal.HAL_S32, Qhal.HAL_IN)
-        pin.value_changed.connect(self.comp_count_changed)
         pin = QHAL.newpin("map-ready", Qhal.HAL_BIT, Qhal.HAL_IN)
         pin.value_changed.connect(self.map_ready_changed)
         QHAL.newpin("comp-on", Qhal.HAL_BIT, Qhal.HAL_OUT)
@@ -405,7 +403,7 @@ class HandlerClass:
             self.w.action_home_a.set_joint(self.jog_from_name['A'])
         # initialize spindle gauge
         self.w.gauge_spindle._value_font_size = 12
-        self.w.gauge_spindle.set_threshold(self.max_spindle_rpm)
+        self.w.gauge_spindle.set_threshold(self.min_spindle_rpm)
         # util page scroll buttons
         pixmap = QtGui.QPixmap('qtdragon/images/Right_arrow.png')
         self.w.btn_util_right.setIcon(QtGui.QIcon(pixmap))
@@ -598,11 +596,6 @@ class HandlerClass:
             self.w.lineEdit_eoffset.setText("DISABLED")
         else:
             self.w.lineEdit_eoffset.setText(f"{data:.3f}")
-
-    def comp_count_changed(self, data):
-        if self.spindle_is_paused is True: return
-        if self.w.btn_enable_comp.isChecked():
-            self.h['eoffset-count'] = data
 
     def map_ready_changed(self, state):
         if state:
@@ -813,6 +806,12 @@ class HandlerClass:
     def btn_stop_pressed(self):
         if STATUS.is_auto_paused():
             self.w.btn_pause.setText("  PAUSE")
+            self.pause_timer.stop()
+            self.pause_delay = 0
+            self.h['runtime-start'] = False
+            self.h['runtime-pause'] = False
+            self.w.lineEdit_runtime.setStyleSheet(f"color; {self.runtime_color.name()};")
+            self.update_runtime()
         ACTION.ABORT()
         ACTION.SET_MANUAL_MODE()
         self.add_status("Program manually aborted")
@@ -845,14 +844,11 @@ class HandlerClass:
             ACTION.OPEN_PROGRAM(self.last_loaded_program)
 
     def pause_spindle(self):
-        self.spindle_is_paused = True
-        fval = float(self.w.lineEdit_eoffset_count.text())
-        self.h['eoffset-count'] = (fval * 1000) + self.h['comp-count']
+        self.h['eoffset-count'] = int(self.w.lineEdit_eoffset_count.text())
         self.h['spindle-inhibit'] = True
         self.add_status(f"Spindle paused at {self.w.lineEdit_runtime.text()}")
         # modify runtime text
         self.runtime_save = self.w.lineEdit_runtime.text()
-        self.runtime_color = self.w.lineEdit_runtime.palette().color(self.w.lineEdit_runtime.foregroundRole())
         self.pause_delay = int(self.w.lineEdit_spindle_delay.text())
         self.w.lineEdit_runtime.setText(f"WAIT {self.pause_delay}")
         self.w.lineEdit_runtime.setStyleSheet("color: red;")
@@ -889,7 +885,6 @@ class HandlerClass:
                 self.w.btn_enable_comp.setChecked(False)
                 return
             self.h['comp-on'] = True
-            self.h['eoffset-count'] = self.h['comp-count']
             self.add_status(f"Z level compensation ON using {fname}")
         else:
             self.h['comp-on'] = False
@@ -1132,7 +1127,14 @@ class HandlerClass:
     def btn_clear_status_clicked(self):
         STATUS.emit('update-machine-log', None, 'DELETE')
 
-    def btn_save_log_clicked(self):
+    def btn_select_log_pressed(self, state):
+        if state:
+            self.w.stackedWidget_log.setCurrentIndex(1)
+        else:
+            self.w.stackedWidget_log.setCurrentIndex(0)
+        self.w.widget_status_errors.setVisible(not state)
+
+    def btn_save_log_pressed(self):
         if self.w.btn_select_log.isChecked():
             text = self.w.integrator_log.toPlainText()
             target = "system"
@@ -1340,8 +1342,7 @@ class HandlerClass:
     def spindle_pause_timer(self):
         self.pause_delay -= 1
         if self.pause_delay <= 0:
-            self.spindle_is_paused = False
-            self.h['eoffset-count'] = self.h['comp-count']
+            self.h['eoffset-count'] = 0.0
             self.add_status("Program resumed")
             self.w.lineEdit_runtime.setText(self.runtime_save)
             self.w.lineEdit_runtime.setStyleSheet(f"color; {self.runtime_color.name()};")
@@ -1387,6 +1388,7 @@ class HandlerClass:
         self.w.btn_goto_sensor.setEnabled(not state)
         self.w.groupBox_jog_pads.setEnabled(not state)
         self.w.btn_cycle_start.setEnabled(state)
+        self.w.lineEdit_eoffset_count.setReadOnly(state)
         if self.w.chk_show_macros.isChecked():
             self.chk_show_macros_changed(not state)
         if state:

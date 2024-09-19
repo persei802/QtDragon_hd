@@ -17,7 +17,8 @@ class Connections():
         self.w.btn_pause_spindle.clicked.connect(self.parent.btn_pause_spindle_clicked)
         self.w.btn_enable_comp.clicked.connect(self.parent.btn_enable_comp_clicked)
         # menu buttons
-        self.w.btn_save_log.clicked.connect(self.parent.btn_save_log_clicked)
+        self.w.btn_select_log.clicked.connect(lambda state: self.parent.btn_select_log_pressed(state))
+        self.w.btn_save_log.pressed.connect(self.parent.btn_save_log_pressed)
         self.w.btn_clear_status.clicked.connect(self.parent.btn_clear_status_clicked)
         self.w.btn_home_all.clicked.connect(self.parent.btn_home_all_clicked)
         self.w.btn_ref_laser.clicked.connect(self.parent.btn_ref_laser_clicked)
