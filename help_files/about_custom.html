@@ -7,17 +7,21 @@
   <link href="help.css" rel="stylesheet">
 </head>
 <body>
-<h1>ADDING CUSTOM PANELS</h1>
+<h2>ADDING CUSTOM PANELS</h2>
 <p>Custom panels can be added to the UTILS tab by modifying the setup_utils.py module in the lib directory. Utilities are typically
 custom widgets that can be created progammatically with python or graphically with QtDesigner. In either case, some python support 
 software will be required.</p>
+<h3>Adding Code to setup_utils.py</h3>
 <p>Example code to insert a custom widget (panel) is:</p>
 <div class='code-block'>
 <ul class='no-bullets'>
-    <li>from lib.module_name import module_class</li>
-    <li>self.module_name = module_class()</li>
-    <li>self.stackedWidget_utils.addWidget(self.module_name)</li>
-    <li>self.make_button('module_name', 'DESIRED BUTTON TEXT')</li>
+    <li>def install_modulename(self):</li>
+	<ul class='no-bullets'>
+        <li>from lib.module_name import module_class</li>
+        <li>self.module_name = module_class()</li>
+        <li>self.stackedWidget_utils.addWidget(self.module_name)</li>
+        <li>self.make_button('module_name', 'DESIRED BUTTON TEXT')</li>
+    </ul>
 </ul>
 </div>
 <p>If the module is required to be known to the main handler file, then a reference to the module object needs to be passed to
@@ -34,4 +38,16 @@ the handler. This is done with:</p>
 </ul>
 </div>
 <p>The self.module_name object will be updated when the handler executes the setup_utils module.</p>
-<p>The setup_utils.py module provides several instances of utilities added to QtDragon that can be used as a guide.</p>
+<p>The setup_utils.py module provides several instances of utilities added to QtDragon that can be used as a guide.
+It is also responsible for displaying the utility module help file, if there is one. The utillity module would
+call the show_help_page function of the setup_utils.py program and pass it a path to the help file.</p>
+<h3>Adding Entry to utils.xml</h3>
+<p>There is a file in the lib directory of the CONFIG folder called utils.xml. When the handler calls setup_utils,
+it reads this file and determines which utilities to install. For example, if a machine does not have a rotary
+axis, it does not need the rapid_rotary utility.</p>
+<p>Example entry in utils.xml to install a custom module.</p>
+<div class='code-block'>
+    <pre class='hal'>custom_module install='yes'</pre>
+</div>
+</body>
+</html>

@@ -8,16 +8,21 @@
 </head>
 <body>
 
-<h1>RUN FROM LINE</h1>
+<h2>RUN FROM LINE</h2>
 <p>A gcode program can be started at any line by clicking on the desired line in the gcode display if the ENABLE
 RUN FROM LINE checkbox on the SETTINGS page is checked. It is the operator’s responsibility to ensure the machine 
-is in the desired operational mode. The start line will be displayed on the CYCLE START button.
-When the CYCLE START button is pressed, a dialog will be shown allowing the spindle direction and speed to be preset.
+is in the desired operational mode. The start line will be displayed on the <button>CYCLE START</button> button.
+When the <button>CYCLE START</button> button is pressed, a dialog will be shown allowing the spindle direction 
+and speed to be preset.
 </p>
 
-<div class="admonition">
-<p>Linuxcnc’s run-from-line is not very user friendly. eg. It does not start the spindle or confirm the proper tool.
-It does not handle subroutines well. If used, it is best to start on a rapid move.</p>
+<div class=admonition>
+    <table>
+	    <td class='icon'><div class="title">Note</div></td>
+		<td class='content'>LinuxCNC’s run-from-line is not very user friendly. E.g., it does not start the 
+		spindle or confirm the proper tool. Also, it does not handle subroutines well. If used, it is best to 
+		start on a rapid move.</td>
+	</table>
 </div>
 
 </body>

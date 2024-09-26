@@ -4,18 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hole Enlarge Help</title>
+  <link href="help.css" rel="stylesheet">
 </head>
 <body>
-<h1>SPIRAL HOLE ENLARGEMENT</h1>
-<p>This program creates a gcode file that can be loaded into linuxnc to run a spiral hole enlargement program.
-It is for cases where a hole that has already been made needs to be slightly enlarged for whatever reason.
-</p>
+<h2>HOLE ENLARGE UTILITY</h2>
+<p>This program creates a gcode file that can be loaded into Linuxnc to run a spiral hole enlargement program.
+It is for cases where a hole that has already been made needs to be slightly enlarged for whatever reason.</p>
 <p>The machine should be X and Y zeroed at the center of the hole to be enlarged. This can be done manually or by
 using the probe utility.</p>
 <p>Machining will begin at the current radius of the hole and will then proceed to spiral outward to the desired
 final radius.</p>
 <p>The parameter units are set to whatever mode the machine is currently in, either metric or imperial.</p>
-<h2>Validation of Inputs</h2>
+<h3>Validation of Inputs</h3>
 <ul>
     <li>checks that the tool number is > 0</li>
     <li>checks that the tool diameter is > 0</li>
@@ -27,26 +27,27 @@ final radius.</p>
     <li>checks that the Z safe travel height > 0</li>
     <li>checks that the feed rate > 0</li>
 </ul>
-<h2>PREVIEW PROGRAM</h2>
+<p>If the parameters contain invalid fields, that field is shown with a red border.</p>
+<button>PREVIEW PROGRAM</button>
 <ul>
     <li>checks for valid input fields</li>
     <li>creates a gcode program according to the parameter setting and the checkboxes</li>
     <li>displays the calculated toolpath in the preview pane</li>
 </ul>
 
-<h2>SAVE AS PROGRAM</h2>
+<button>SAVE AS PROGRAM</button>
 <ul>
     <li>checks for valid input fields</li>
     <li>creates a gcode program according to the parameter setting and the checkboxes</li>
-    <li>opens a dialog window to get a filename to save the program</li>
+    <li>opens a dialog window to get a save filename</li>
+	<li>the program can be koaded from the FILE page on the main screen</li>
 </ul>
-<h2>SEND TO LINUXCNC</h2>
+<button>SEND TO LINUXCNC</button>
 <ul>
     <li>checks for valid input fields</li>
     <li>creates a gcode program according to the parameter setting and the checkboxes</li>
-    <li>creates a temporary file and loads it to linuxcnc</li>
-    <li>the temporary file is automatically deleted when linuxcnc exits</li>
+    <li>creates a temporary file and loads it to Linuxcnc</li>
+    <li>the temporary file is automatically deleted when Linuxcnc exits</li>
 </ul>
-<p>If the parameters contain invalid fields, that field is shown with a red border.</p>
 </body>
 </html>

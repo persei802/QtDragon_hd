@@ -7,21 +7,37 @@
   <link href="help.css" rel="stylesheet">
 </head>
 <body>
-<h1>SPINDLE PAUSE</h1>
-<p>When a running program is paused while SPINDLE PAUSE button is enabled, the spindle will stop and move up by a distance 
-determined by the SPINDLE PAUSE OFFSET value on the SETTINGS page. This allows the operator to clear chips or whatever without 
-having the spindle running. A message box will pop up warning the user to wait for the AT_SPEED LED before pressing the RESUME 
-button. Pressing the OK button on the message box will turn the spindle on and wait SPINDLE PAUSE DELAY before lowering 
-it to the position it was at before the pause. This allows the spindle to resume it's operating speed before making 
-contact with the workpiece. A countdown is displayed in the PROGRAM RUNTIME label to indicate when the program can be resumed.</p>
+<h2>SPINDLE PAUSE</h2>
+<p>QtDragon can be set up to automatically raise the Z axis and stop the spindle when the program is paused.
+On program RESUME, the spindle is restarted and lowered after a set time delay. The amount of lift and time 
+delay are entered in fields in the SETTINGS -> SPINDLE page. To enable spindle pause, press the SPINDLE PAUSE 
+button before going into AUTO mode to run a program. Once AUTO mode is enabled, this button is inactive.
+</p>
+<p>When a running program is paused while <button>SPINDLE PAUSE</button> button is enabled, the spindle will 
+stop and move up by a distance determined by the SPINDLE PAUSE OFFSET value on the SETTINGS page. This allows 
+the operator to clear chips or whatever without having the spindle running. A message box will pop up warning 
+the user to wait for the AT_SPEED LED before pressing the RESUME button. Pressing the OK button on the message 
+box will turn the spindle on and wait SPINDLE PAUSE DELAY seconds before lowering it to the position it was at 
+before the pause. This allows the spindle to resume it's operating speed before making contact with the 
+workpiece. A countdown is displayed in the PROGRAM RUNTIME label to indicate when the program can be resumed.</p>
 <p>If the LIMIT LED lights up, the Z axis didn’t move the full distance due to axis travel limitations. However, it 
 will still return to the proper Z level when the program is resumed.</p>
+<p>This optional behaviour requires additions to the INI and the QtDragon_postgui HAL file.</p>
+<div class="code-block">
+    <pre class="hal">[AXIS_Z]</pre>
+    <pre class="hal">OFFSET_AV_RATIO = 0.2</pre>
+</div>
+<p>This reserves 20% of max velocity and max acceleration for the external offsets.
+This will limit max velocity of the machine by 20%.</p>
 <p>The spindle pause function requires the following HAL connections:</p>
 
 <div class="code-block">
-    <pre class="hal">net spindle-pause    qtdragon.spindle_inhibit => spindle.0.inhibit</pre>
-    <pre class="hal">net eoffset-clr1     qtdragon.eoffset-clear => or2_1.in0</pre>
-    <pre class="hal">net eoffset          qtdragon.eoffset-value <= axis.z.eoffset</pre>
+    <pre class="hal">## external offsets for spindle pause function</pre>
+    <pre class="hal">net eoffset-clear   axis.z.eoffset-clear   <= compensate.clear</pre>
+    <pre class="hal">net eoffset-count   axis.z.eoffset-counts  <= qtdragon.eoffset-count</pre>
+    <pre class="hal">net eoffset         qtdragon.eoffset-value <= axis.z.eoffset</pre>
+    <pre class="hal">setp axis.z.eoffset-scale 0.001</pre>
+    <pre class="hal">setp axis.z.eoffset-enable True</pre>
 </div>
 
 </body>

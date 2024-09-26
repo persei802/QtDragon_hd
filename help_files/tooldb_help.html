@@ -4,26 +4,60 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tool Database Help</title>
+  <link href="help.css" rel="stylesheet">
 </head>
 <body>
-<h1>TOOL DATABASE</h1>
+<h2>TOOL DATABASE</h2>
 <p>The tool database utility enables the user to store additional information about the tools listed in the linuxcnc tool.tbl file.
 This extra information is kept in a SQLITE database. On startup, the program checks if the database exists and creates one if needed.
 If the database exists, it is updated with any new information in the tool.tbl file. If the tool.tbl contains tools not in the database,
 they are added. If the database contains tools not in the tool.tbl, they are deleted.</p>
 
-<h2>Usage</h2>
+<h3>Usage</h3>
     <ul>
-    <li>At startup, a list of available tool icons is generated from any .png files found in the <i>tool_icons</i> folder.</li>
+    <li>At LinuxCNC startup, a list of available tool icons is generated from any .png files found in the <i>tool_icons</i> folder.</li>
     <li>The <i>tool_icons</i> must be .png images. This enables them to have transparent backgrounds.</li>
     <li>The preferred icon size is 160 x 270 pixels.</li>
-    <li>If ENABLE EDIT is checked, clicking on a table cell brings up a dialog box to enter new data.</li>
-    <li>If a cell under the ICON header is selected, a combobox appears to select the desired icon.</li>
-    <li>EXPORT TABLE creates an HTML file of TOOL table. The filename is selected via a file chooser dialog.</li>
-    <li>Adding or deleting a tool in the linuxcnc tool table is reflected in the database table.</li>
+    <li>Adding or deleting a tool in the Linuxcnc tool table is reflected in the database table.</li>
     </ul>
+<h3>Tool Table Buttons</h3>
+<p><button>ADD TOOL</button> Inserts a new tool table entry to the top of the list with the tool number
+preset to the value in the NEXT AVAILABLE field. The entered data is copied to the database file.</p>
+<p><button>DELETE TOOL</button> Removes the checked tool from the tool table and updates the database. The 
+NEXT AVAILABLE field is updated and the tool table is reloaded into LinuxCNC.</p>
+<p><button>LOAD TOOL</button> The checked tool is virtually loaded into the spindle by a M61Qn command and
+the labels in the TOOL panel of the main page are updated. If the tool has an associated icon, it is also 
+displayed in the TOOL panel.</p>
+<p><button>UNLOAD TOOL</button> The tool currently in the spindle is virtually removed by a M61Q0 command.</p>
+<p><button>EXPORT TABLE</button> Creates an HTML file of the current tool table.</p>
+<p><button>TOOL DATABASE</button> Displays the Tool Database table instead of the LinuxCNC tool table.</p>
 
-<p>The tool database file in the config directory is called <i>tool_database.db</i>. It is advised to maintain regular backups of this
-file. If it becomes lost or corrupted, all information the user has entered may be lost and will have to be re-entered in a new database.</p>
+<h3>Tool Database Buttons</h3>
+<p><button>ENABLE EDIT</button> Allows the table cells to be edited, except for Tool Number. This can only be 
+edited in the Tool Offset view.</p>
+<p><button>EXPORT DATABASE</button> Creates an HTML file containing the data from the database. This is useful 
+for printing a reference sheet, for example.</p>
+<p><button>SELECT ICON</button> Activates a combo box to select a tool icon to be shown in the TOOL frame of 
+the main page whenever that tool is loaded in the spindle.</p>
+
+<h3>Tool Database Data</h3>
+<p>A number of fields are displayed in the table which are editable by the user but not otherwise used in the 
+QtDragon GUI, except for the TIME field. This is a record of how many minutes the tool has been loaded in the 
+spindle while it was running. When a tool is loaded in the spindle, the TIME IN SPINDLE label is set to the 
+value in the database. When a gcode program is run, the TIME IN SPINDLE is updated as long as the spindle is 
+running. When the tool is unloaded, the total accumulated time is written to the database. If a particular 
+tool is broken or worn or replaced for whatever reason, it's TIME data can be reset by editing the TIME field
+in the database table.
+</p>
+
+<div class=admonition>
+    <table>
+	    <td class='icon'><div class="title">Note</div></td>
+		<td class='content'>The tool database file in the CONFIG directory is called <i>tool_database.db</i>. 
+		It is advised to maintain regular backups of this file. If it becomes lost or corrupted, all 
+		information the user has entered may be lost and will have to be re-entered in a new database.</td>
+	</table>
+</div>
+
 </body>
 </html>

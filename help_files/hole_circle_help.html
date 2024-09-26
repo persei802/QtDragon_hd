@@ -4,15 +4,16 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hole Circle Help</title>
+  <link href="help.css" rel="stylesheet">
 </head>
 <body>
-<h1>HOLE CIRCLE UTILITY</h1>
+<h2>HOLE CIRCLE UTILITY</h2>
 <p>This program creates a gcode file that can be loaded into linuxnc to run a hole circle operation.</p>
 <p>The machine should be X and Y zeroed at the center of the desired circle.</p>
 <p>The Z zero should be set to the top of the workpiece.
 <p>The parameter units are set to whatever mode the machine is currently in, either metric or imperial.</p>
 </p>
-<h2>Validation of Inputs</h2>
+<h3>Validation of Inputs</h3>
 <ul>
     <li>checks that there are no blank entries</li>
     <li>checks that the spindle RPM is between min and max rated speed</li>
@@ -24,20 +25,20 @@
     <li>checks that drill depth is > 0</li>
     <li>checks that drill feedrate is > 0</li>
 </ul>
-<h2>SAVE AS PROGRAM</h2>
+<button>SAVE AS PROGRAM</button>
 <ul>
     <li>checks for valid input fields</li>
     <li>creates a gcode program according to the drill pattern in the preview</li>
-    <li>opens a dialog window to get a file to save to</li>
+    <li>opens a dialog window to get a file to save name</li>
     <li>invalid parameters are shown with a red border and the program will not be created</li>
 </ul>
-<h2>SEND TO LINUXCNC</h2>
+<button>SEND TO LINUXCNC</button>
 <ul>
     <li>checks for valid input fields</li>
     <li>creates a gcode program according to the pattern in the preview</li>
-    <li>creates a temporary file and loads it to linuxcnc</li>
+    <li>creates a temporary file and loads it to Linuxcnc</li>
     <li>invalid parameters are shown with a red border and the program will not be created</li>
-    <li>the temporary file is automatically deleted when linuxcnc exits</li>
+    <li>the temporary file is automatically deleted when Linuxcnc exits</li>
 </ul>
 <p>Whenever a new toolpath is created, a list of hole angles and XY coordinates is displayed in the report box. This could
 be used, for example, to manually jog to a specific hole location.</p>

@@ -8,8 +8,8 @@
 </head>
 <body>
 
-<h1>USING A VFD</h1>
-<p>QtDragon was designed to communicate with a VFD via modbus. A Linuxcnc native HAL component provides the modbus interface 
+<h2>USING A VFD</h2>
+<p>QtDragon was designed to communicate with a VFD via modbus. A custom HAL component provides the modbus interface 
 between QtDragon and a Huanyang GT Series VFD.
 <p>To implement modbus communication, the following HAL connections must be added to the qtdragon_postgui.hal file:</p>
 
@@ -26,22 +26,11 @@ between QtDragon and a Huanyang GT Series VFD.
 
 <p>Other optional arguments for hy_gt_vfd.py are:</p>
 <table>
-<tr>
-    <td>-b</td><td>--bits</td><td>number of bits in a byte</td>
-</tr>
-<tr>
-    <td>-r</td><td>--rate</td><td>baud rate</td>
-</tr>
-<tr>
-    <td>-p</td><td>--parity</td><td>odd, even or none</td>
-</tr>
-<tr>
-    <td>-s</td><td>--stopbits</td><td>1 or 2</td>
-</tr>
-<tr>
-    <td>-t</td><td>--slave</td><td>modbus slave address (address of VFD)</td>
-</tr>
-
+    <tr><td>-b</td><td>--bits</td><td>number of bits in a byte</td></tr>
+    <tr><td>-r</td><td>--rate</td><td>baud rate</td></tr>
+    <tr><td>-p</td><td>--parity</td><td>odd, even or none</td></tr>
+    <tr><td>-s</td><td>--stopbits</td><td>1 or 2</td></tr>
+    <tr><td>-t</td><td>--slave</td><td>modbus slave address (address of VFD)</td></tr>
 </table>
 <p>The spindle gauge widget is connected with:</p>
 
@@ -50,7 +39,7 @@ between QtDragon and a Huanyang GT Series VFD.
     <pre class="hal">net spindle-fb      qtdragon.gauge_spindle_value</pre>
 </div>
 
-<h2>Default Parameters</h2>
+<h3>Default Parameters</h3>
 If no optional arguments are included when loading the hy_gt_vfd HAL module, the following defaults will be used:
 <ul>
     <li>parity  - N - none</li>

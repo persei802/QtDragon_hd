@@ -4,30 +4,33 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Auto Height Measure</title>
+  <link href="help.css" rel="stylesheet">
 </head>
 <body>
-<h1>AUTO HEIGHT MEASURE</h1>
+<h2>WORKPIECE HEIGHT UTILITY</h2>
 <p>This program probes 2 user specified locations in the Z axis and calculates the difference in heights.</p>
-<h2>Enable Probe Position Set Buttons</h2>
+<button>Enable Probe Position Set Buttons</button>
 <ul>
     <li>when checked, the SET buttons are enabled</li>
     <li>this allows the user to automatically fill in the X, Y and Z parameters with the current position as displayed on the DROs.</li>
 </ul>
-<h2>Autofill Workpiece Height on Main Screen</h2>
+<button>Autofill Workpiece Height on Main Screen</button>
 <ul>
-    <li>when checked, the calculated height is automatically transferred to the Workpice Height field in the main screen.</li>
+    <li>when checked, the calculated height is automatically transferred to the Workpiece Height field in the main screen.</li>
 </ul>
-<h2>Workpiece Probe</h2>
+<button>Workpiece Probe P1</button>
 <ul>
     <li>the X, Y and Z coordinates specify where the first probing routine should start, in current WCS</li>
 </ul>
-<h2>Machine Probe</h2>
+<button>Machine Probe P2</button>
 <ul>
     <li>the X, Y and Z coordinates specify where the second probing routine should start, in current WCS</li>
 </ul>
-<h2>Parameter Validation</h2>
+<h3>Parameter Validation</h3>
+<p>Before running the probe routines, probe parameters are checked to make sure no problems will occur.
+Any 2 points within the machine operating volume can be specified.</p>
+<p>The units are set to whatever the machine units are defined as in the INI file.</p>
 <ul>
-    <li>before running the probe routines, probe parameters are checked to make sure no problems will occur</li>
     <li>search velocity must be greater than 0.0</li>
     <li>probe velocity must be greater than 0.0</li>
     <li>maximum probe distance must be greater than 0.0</li>
@@ -35,7 +38,7 @@
     <li>Z safe height must be greater than P1 Z height</li>
     <li>P1 Z height must be greater than P2 Z height</li>
 </ul>
-<h2>START PROBE</h2>
+<button>START PROBING</button>
 <ul>
     <li>probe parameters are read from SETTINGS -> PROBE and checked for validity</li>
     <li>if any errors are detected while checking validity, the probe routine will not run</li>
@@ -44,10 +47,17 @@
     <li>the machine then jogs to the second location and probes down and records the Z2 position</li>
     <li>the difference in probed values is reported as Calculated Workpiece Height</li>
 </ul>
-<h2>ABORT PROBE</h2>
+<div class=admonition>
+    <table>
+	    <td class='icon'><div class="title">Warning</div></td>
+		<td class='content'>Setting incorrect values can lead to crashes into fixtures on the machine work surface. 
+                            Initial testing with no tool and safe heights is recommended.</td>
+	</table>
+</div>
+<p></p>
+<button>ABORT PROBING</button>
 <ul>
     <li>causes all jog and probe routines currently executing to stop</li>
 </ul>
-
 </body>
 </html>

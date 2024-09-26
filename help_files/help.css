@@ -2,6 +2,13 @@ body {
     font-family: "Lato", sans-serif;
 }
 
+h2, h3 {
+/*    background: #c0c0f0;*/
+    background: #add8e6;
+    border-bottom: 1px solid #8080c0;
+    color: black;
+}
+
 ul.no-bullets {
     list-style-type: none;
     margin-left: 30px;
@@ -18,10 +25,18 @@ pre.hal {
     font-size: 14px;
 }
 
-div.admonition {
-    border: 1px solid grey;
-    background: #E0E0E0;
-    padding: 8px;
+div.admonition .icon {
+    vertical-align: top;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-decoration: underline;
+    color: #527bbd;
+    padding-right: 0.5em;
+}
+
+div.admonition td.content {
+    padding-left: 0.5em;
+    border-left: 3px solid #dddddd;
 }
 
 div.code-block {
@@ -46,6 +61,6 @@ th, td {
     clear: both;
 }
 p {
-    margin-bottom: 2em;
+    margin-bottom: 1em;
     overflow: hidden;
 }

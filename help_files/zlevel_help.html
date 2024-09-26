@@ -7,52 +7,74 @@
   <link href="help.css" rel="stylesheet">
 </head>
 <body>
-<h1>Z LEVEL COMPENSATION</h1>
+<h2>Z LEVEL COMP UTILITY</h2>
+<p>QtDragon can compensate for Z level height changes using it's own gcode generation code for probing. 
+An external program like G-code Ripper is not required, but can be used if so desired.</p>
 <p>Z level compensation is a bed levelling/distortion correction function typically used in 3D printing or engraving.
-It uses a HAL user space component which utilizes the external offsets feature of LinuxCNC. The <i>loadusr</i> command
+It uses a HAL non-realtime component which utilizes the external offsets feature of LinuxCNC. The <i>loadusr</i> command
 in the handler_postgui file specifies an interpolation type, which must be one of <i>nearest, linear</i> or <i>cubic</i>.
-If none is specified or if an invalid word is specified, the default will set to <i>nearest</i>.</p>
+If none is specified or if an invalid word is specified, the default will set to <i>linear</i>.</p>
 <p>When Z LEVEL COMP is enabled:</p>
 <ul>
-    <li>the compensation component reads a probe data file, which must be called <i>probe_points.txt</i></li>
+    <li>the compensation component reads a probe data file, called <i>probe_points.txt</i></li>
     <li>a 3d height map image is created and the HAL map-ready pin is set True</li>
     <li>the height map image is shown in the UTILS page -> Z Level Comp tab</li>
 </ul>
 
-<p>The necessary HAL connections are as follows:</p>
-<div class="code-block">
-    <pre class="hal">net xpos-cmd         compensate.x-pos <= axis.x.pos-cmd</pre>
-    <pre class="hal">net ypos-cmd         compensate.x-pos <= axis.y.pos-cmd</pre>
-    <pre class="hal">net zpos-cmd         compensate.x-pos <= halui.axis.z.pos-relative</pre>
-    <pre class="hal">net compensate-on    compensate.enable-in <= qtdragon.comp-on<</pre>
-    <pre class="hal">net eoffset-clr2     compensate.clear  => or2_1.in1</pre>
-    <pre class="hal">net comp-count       compensate.counts => qtdragon.comp-count</pre>
-    <pre class="hal">net map-ready        compensate.map-ready => qtdragon.map-ready</pre>
-    <pre class="hal">setp compensate.fade-height 0.0</pre>
-    <pre class="hal">setp axis.z.eoffset-enable True</pre>
-</div>
-<h2>Creating a Map File</h2>
+<h3>Creating a Map File</h3>
 <ul>
     <li>from the FILE page, load the gcode program which needs to be level compensated</li>
     <li>enter the X and Y dimensions shown in the preview frame into the X and Y size fields</li>
     <li>enter the number of desired probe points for each axis</li>
     <li>ensure that the selected zero reference point is the same as that of the gcode program</li>
     <li>all probe parameters are set according to the values in SETTINGS -> PROBE</li>
-    <li>any errors detected during validation will be shown as red text in SETTINGS -> PROBE</li>
+    <li>any errors detected during validation will be shown with a red border in SETTINGS -> PROBE</li>
 </ul>
-<h2>Save As Program</h2>
+<button>READ GCODE</button>
+<p>The GCode program currently loaded in LinuxCNC is read and parsed to find the maximum travel points
+of the X and Y axes. These values are then entered in the <button>PROBE AREA</button> fields. These fields
+can overwritten by manually entering data.</p>
+<button>SAVE AS PROGRAM</button>
 <p>The input data parameters are checked and if found valid, a dialog box prompts for a save filename. The probe program is calculated
 and saved to the specified filename. If this file is loaded and run, it will produce a file with the same name but ending with
 <i>.txt</i>. This is the compensation data file.</p>
-<h2>Send to Linuxcnc</h2>
+<button>SEND TO LINUXCNC</button>
 <p>The input parameters are checked and if found valid, a temporary file is created and loaded to Linuxcnc. If this file is run,
 it will produce a file in the users CONFIG directory called <i>probe_points.txt</i></p>
-<h2>Load Map</h2>
+<button>LOAD MAP</button>
 <p>A popup file dialog prompts for a compensation filename <i>(somefile.txt)</i> and then copies it to the CONFIG folder with the
 name <i>probe_points.txt</i>. It is recommended that probe compensation files be kept in the nc_files folder or a subfolder thereof.</p>
 <p>Each time that the ZCOMP ENABLE button on the main page is enabled, the Compensation HAL component will read the <i>probe_points.txt</i>
 file and generate a new compensation map, which is displayed on the right side of the ZLEVEL utility.</p>
-<h2>Interpolation Method</h2>
+<button>GET MAXZ</button>
+<p>The compensation file that was created is parsed to find the maximum Z level. The XY coordinates and the
+Z level of this point are written to the Highest Point label. This is useful for determining where to set
+Z0 before starting the gcode program to be compensated.</p>
+<h3>Sample postgui HAL file for combined spindle raise and Z Level compensation</h3>
+<div class="code-block">
+    <pre class="hal"># load a summing component for adding spindle lift and Z compensation</pre>
+    <pre class="hal">loadrt scaled_s32_sums</pre>
+    <pre class="hal">addf scaled-s32-sums.0 servo-thread</pre>
+    <pre class="hal"> </pre>
+    <pre class="hal">loadusr -Wn compensate python3 lib/compensate.py linear</pre>
+    <pre class="hal"># method parameter must be one of nearest, linear, cubic </pre>
+    <pre class="hal">setp compensate.fade-height 0.0</pre>
+    <pre class="hal"> </pre>
+    <pre class="hal"># Z level compensation</pre>
+    <pre class="hal">net xpos-cmd         compensate.x-pos <= axis.x.pos-cmd</pre>
+    <pre class="hal">net ypos-cmd         compensate.x-pos <= axis.y.pos-cmd</pre>
+    <pre class="hal">net zpos-cmd         compensate.x-pos <= halui.axis.z.pos-relative</pre>
+    <pre class="hal">net compensate-on    compensate.enable-in <= qtdragon.comp-on<</pre>
+    <pre class="hal">net map-ready        compensate.map-ready => qtdragon.map-ready</pre>
+    <pre class="hal"> </pre>
+    <pre class="hal"># add Z level and scaled spindle raise level values together</pre>
+    <pre class="hal">net eoffset-count    scaled-s32-sums.0.in0   <= qtdragon.eoffset-count</pre>
+    <pre class="hal">net comp-count       scaled-s32-sums.0.in1   => compensate.counts</pre>
+    <pre class="hal">net zaxis-eoffset    scaled-s32-sums.0.out-s => axis.z.eoffset-counts</pre>
+    <pre class="hal">setp scaled-s32-sums.0.scale0 1000</pre>
+    <pre class="hal">setp axis.z.eoffset-enable True</pre>
+</div>
+<h3>Interpolation Method</h3>
 <p>The following diagrams show the effect of the different interpolation methods when an L shaped piece of 6 mm metal was probed.</p>
 <center>
     <figure>

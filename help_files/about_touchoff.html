@@ -7,19 +7,19 @@
   <link href="help.css" rel="stylesheet">
 </head>
 <body>
-<h1>TOOL TOUCHOFF</h1>
+<h2>TOOL TOUCHOFF</h2>
 <p>This section describes how QtDragon is used to set the tool tip to Z0 in user workspace. For machines
 that use premeasured tools and have Tool Length Offsets (TLO) programmed into the LinuxCNC tool table, these
 functions can be used to measure the tool lengths relative to a reference tool or relative to a gage line,
 but the topic of TLOs and G43 compensation is beyond the scope of this document.</p>
 
-<h2>GO TO SENSOR</h2>
+<button>GO TO SENSOR</button>
 <p>When pressed, the spindle will move to Z0 in absolute coordinates and then make a direct move to
 the X and Y coordinates specifed in the SETTINGS page for TOOL SENSOR LOCATION. The same result could
 be achieved by setting TOOL_CHANGE_QUILL_UP = 1 and TOOL_CHANGE_AT_G30 = 1 in the INI file. This button is
 simply a convenience function.</p>
 
-<h2>TOOL TOUCHOFF Z</h2>
+<h3>TOOL TOUCHOFF Z</h3>
 <div id="wrap">
 <figure class="right">
     <img src="images/touchplate.jpg" width="200"></img>
@@ -63,9 +63,12 @@ used to set the Z0 offset and in Manual, pressing the button sets the Z0 offset.
 <div class="clearfix"></div>
 
 <div class="admonition">
-<p>Use extreme caution when using AUTO mode touchoff procedures. Ensure that the Probe input
+    <table>
+	    <td class='icon'><div class='title'>Warning</div></td>
+		<td class='content'>Use extreme caution when using AUTO mode touchoff procedures. Ensure that the Probe input
 signal is functional. Failing to trigger a Probe signal while executing a probing routine can
-result in a broken tool, a ruined workpiece or damage to the machine.</p>
+result in a broken tool, a ruined workpiece or damage to the machine.</td>
+	</table>
 </div>
 
 </body>
