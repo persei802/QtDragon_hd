@@ -47,6 +47,7 @@ class ShowHelp(QtCore.QObject):
         super(ShowHelp, self).__init__()
         layout = QVBoxLayout(dialog)
         dialog.setWindowTitle('Utility Help')
+        dialog.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         self.webview = QWebEngineView()
         bbox = QDialogButtonBox()
         bbox.addButton(QDialogButtonBox.Ok)
