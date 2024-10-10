@@ -176,6 +176,18 @@
          </property>
          <item>
           <widget class="QWidget" name="widget_main_menu" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <layout class="QVBoxLayout" name="verticalLayout_27">
             <property name="spacing">
              <number>4</number>
@@ -195,20 +207,20 @@
             <item>
              <widget class="QPushButton" name="btn_main">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>0</width>
                 <height>40</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -235,20 +247,20 @@
             <item>
              <widget class="QPushButton" name="btn_file">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>0</width>
                 <height>40</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -272,20 +284,20 @@
             <item>
              <widget class="QPushButton" name="btn_offsets">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>0</width>
                 <height>40</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -309,20 +321,20 @@
             <item>
              <widget class="QPushButton" name="btn_tool">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>0</width>
                 <height>40</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -346,20 +358,20 @@
             <item>
              <widget class="QPushButton" name="btn_status">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>0</width>
                 <height>40</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -383,20 +395,20 @@
             <item>
              <widget class="QPushButton" name="btn_probe">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>0</width>
                 <height>40</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -420,20 +432,20 @@
             <item>
              <widget class="QPushButton" name="btn_camera">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>0</width>
                 <height>40</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -457,20 +469,20 @@
             <item>
              <widget class="QPushButton" name="btn_utils">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>0</width>
                 <height>40</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -494,20 +506,20 @@
             <item>
              <widget class="QPushButton" name="btn_settings">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>0</width>
                 <height>40</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -531,20 +543,20 @@
             <item>
              <widget class="QPushButton" name="btn_about">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>0</width>
                 <height>40</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -568,20 +580,20 @@
             <item>
              <widget class="ActionButton" name="action_exit">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>0</width>
                 <height>40</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -703,7 +715,7 @@
               <number>4</number>
              </property>
              <property name="topMargin">
-              <number>8</number>
+              <number>12</number>
              </property>
              <property name="rightMargin">
               <number>4</number>
@@ -713,6 +725,9 @@
              </property>
              <item>
               <widget class="QStackedWidget" name="stackedWidget_gcode">
+               <property name="lineWidth">
+                <number>0</number>
+               </property>
                <property name="currentIndex">
                 <number>0</number>
                </property>
@@ -805,6 +820,9 @@ GCODE</string>
                       </property>
                       <property name="currentText">
                        <string/>
+                      </property>
+                      <property name="maxCount">
+                       <number>30</number>
                       </property>
                       <property name="insertPolicy">
                        <enum>QComboBox::InsertAtTop</enum>
@@ -1038,7 +1056,7 @@ GCODE</string>
               <number>4</number>
              </property>
              <property name="topMargin">
-              <number>8</number>
+              <number>12</number>
              </property>
              <property name="rightMargin">
               <number>4</number>
@@ -1070,7 +1088,10 @@ GCODE</string>
                 <enum>QFrame::NoFrame</enum>
                </property>
                <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
+                <enum>QFrame::Plain</enum>
+               </property>
+               <property name="lineWidth">
+                <number>0</number>
                </property>
                <property name="currentIndex">
                 <number>4</number>
@@ -5497,7 +5518,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>10:06:44 PM</string>
+                       <string>07:08:24 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -8627,7 +8648,7 @@ SCOPE</string>
                <number>4</number>
               </property>
               <property name="topMargin">
-               <number>8</number>
+               <number>12</number>
               </property>
               <property name="rightMargin">
                <number>4</number>
@@ -8748,7 +8769,7 @@ SCOPE</string>
                <number>4</number>
               </property>
               <property name="topMargin">
-               <number>8</number>
+               <number>12</number>
               </property>
               <property name="rightMargin">
                <number>4</number>
@@ -8815,6 +8836,9 @@ SCOPE</string>
                    </property>
                    <property name="focusPolicy">
                     <enum>Qt::ClickFocus</enum>
+                   </property>
+                   <property name="maxCount">
+                    <number>30</number>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -8886,6 +8910,9 @@ SCOPE</string>
                    </property>
                    <property name="focusPolicy">
                     <enum>Qt::ClickFocus</enum>
+                   </property>
+                   <property name="maxCount">
+                    <number>30</number>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -9035,7 +9062,7 @@ SCOPE</string>
                <number>4</number>
               </property>
               <property name="topMargin">
-               <number>8</number>
+               <number>12</number>
               </property>
               <property name="rightMargin">
                <number>4</number>
@@ -9204,7 +9231,7 @@ ACTIVE</string>
                <number>4</number>
               </property>
               <property name="topMargin">
-               <number>8</number>
+               <number>12</number>
               </property>
               <property name="rightMargin">
                <number>4</number>
@@ -9768,7 +9795,7 @@ ACTIVE</string>
                <number>4</number>
               </property>
               <property name="topMargin">
-               <number>8</number>
+               <number>12</number>
               </property>
               <property name="rightMargin">
                <number>4</number>
@@ -10342,7 +10369,7 @@ ACTIVE</string>
               <number>4</number>
              </property>
              <property name="topMargin">
-              <number>8</number>
+              <number>12</number>
              </property>
              <property name="rightMargin">
               <number>4</number>
@@ -10884,7 +10911,7 @@ OFF</string>
               <number>4</number>
              </property>
              <property name="topMargin">
-              <number>8</number>
+              <number>12</number>
              </property>
              <property name="rightMargin">
               <number>4</number>
@@ -11491,7 +11518,7 @@ SENSOR</string>
               <number>4</number>
              </property>
              <property name="topMargin">
-              <number>8</number>
+              <number>12</number>
              </property>
              <property name="rightMargin">
               <number>4</number>
@@ -11555,6 +11582,9 @@ HEIGHT</string>
                    <width>80</width>
                    <height>30</height>
                   </size>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::ClickFocus</enum>
                  </property>
                  <property name="maxLength">
                   <number>8</number>
@@ -12008,7 +12038,7 @@ RUNTIME</string>
               <number>4</number>
              </property>
              <property name="topMargin">
-              <number>8</number>
+              <number>12</number>
              </property>
              <property name="rightMargin">
               <number>4</number>
@@ -13369,7 +13399,7 @@ TO ZERO</string>
                 <number>4</number>
                </property>
                <property name="topMargin">
-                <number>8</number>
+                <number>12</number>
                </property>
                <property name="rightMargin">
                 <number>4</number>
@@ -13929,7 +13959,7 @@ TO ZERO</string>
                 <number>4</number>
                </property>
                <property name="topMargin">
-                <number>8</number>
+                <number>12</number>
                </property>
                <property name="rightMargin">
                 <number>4</number>
@@ -14766,13 +14796,13 @@ SPEED</string>
  </slots>
  <buttongroups>
   <buttongroup name="util_buttonGroup"/>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="about_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="about_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>

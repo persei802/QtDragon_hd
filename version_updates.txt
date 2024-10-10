@@ -22,3 +22,6 @@ Sep. 19/24 v 2.0.5
     - Zlevel routine can read ngc file to extract working area for probe function
     - added S32_Sum component to combine eoffset values from spindle pause and compensation
     
+Oct. 10/24 v 2.0.6
+    - add method to intercept calls to style the main window so that certain widgets
+      and the statusbar can have their text colors altered for visual emphasis

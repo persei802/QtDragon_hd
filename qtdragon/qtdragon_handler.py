@@ -28,6 +28,7 @@ from qtvcp.widgets.file_manager import FileManager as FM
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.core import Status, Action, Info, Path, Tool, Qhal
 from qtvcp import logger
+from qtvcp.qt_makegui import VCPWindow
 
 LOG = logger.getLogger(__name__)
 LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -40,7 +41,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.0.5'
+VERSION = '2.0.6'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -118,10 +119,10 @@ class HandlerClass:
         self.pause_dialog = None
         self.about_html = os.path.join(PATH.CONFIGPATH, "help_files/about.html")
         self.start_line = 0
-        self.runtime_save = ""
-        self.runtime_color = None
-        self.feedrate_color = None
-        self.statusbar_color = '#F0F0F0'
+        self.runtime_save = ''
+        self.runtime_style = ''
+        self.feedrate_style = ''
+        self.statusbar_style = ''
         self.stat_warnings = 0
         self.stat_errors = 0
         self.max_spindle_power = 100
@@ -198,7 +199,6 @@ class HandlerClass:
         self.init_macros()
         self.init_adjustments()
         self.check_for_updates()
-        self.runtime_color = self.w.lineEdit_runtime.palette().color(self.w.lineEdit_runtime.foregroundRole())
         self.w.stackedWidget_gcode.setCurrentIndex(0)
         self.w.stackedWidget_log.setCurrentIndex(0)
         self.w.btn_dimensions.setChecked(True)
@@ -786,8 +786,8 @@ class HandlerClass:
             self.add_status("No program has been loaded", WARNING)
             return
         self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {RUN_COLOR};')
-        self.feedrate_color = self.w.lbl_feedrate.palette().color(self.w.lbl_feedrate.foregroundRole())
-        self.w.lbl_feedrate.setStyleSheet('color: "#00FF00";')
+        if self.feedrate_style:
+            self.w.lbl_feedrate.setStyleSheet("color: #00FF00;")
         if self.start_line <= 1:
             ACTION.RUN(0)
         else:
@@ -810,7 +810,8 @@ class HandlerClass:
             self.pause_delay = 0
             self.h['runtime-start'] = False
             self.h['runtime-pause'] = False
-            self.w.lineEdit_runtime.setStyleSheet(f"color; {self.runtime_color.name()};")
+            if self.runtime_style:
+                self.w.lineEdit_runtime.setStyleSheet(self.runtime_style)
             self.update_runtime()
         ACTION.ABORT()
         ACTION.SET_MANUAL_MODE()
@@ -851,7 +852,8 @@ class HandlerClass:
         self.runtime_save = self.w.lineEdit_runtime.text()
         self.pause_delay = int(self.w.lineEdit_spindle_delay.text())
         self.w.lineEdit_runtime.setText(f"WAIT {self.pause_delay}")
-        self.w.lineEdit_runtime.setStyleSheet("color: red;")
+        if self.runtime_style:
+            self.w.lineEdit_runtime.setStyleSheet("color: #FF0000;")
         # instantiate warning box
         icon = QMessageBox.Warning
         title = "SPINDLE PAUSED"
@@ -1345,7 +1347,8 @@ class HandlerClass:
             self.h['eoffset-count'] = 0.0
             self.add_status("Program resumed")
             self.w.lineEdit_runtime.setText(self.runtime_save)
-            self.w.lineEdit_runtime.setStyleSheet(f"color; {self.runtime_color.name()};")
+            if self.runtime_style:
+                self.w.lineEdit_runtime.setStyleSheet(self.runtime_style)
         else:
             self.w.lineEdit_runtime.setText(f"WAIT {self.pause_delay}")
             self.pause_timer.start(1000)
@@ -1359,26 +1362,27 @@ class HandlerClass:
 
     def add_status(self, message, level=DEFAULT):
         if level == WARNING:
-            self.w.statusbar.setStyleSheet(f"color: {WARNING_COLOR};")
+            if self.statusbar_style:
+                self.w.statusbar.setStyleSheet(f"color: {WARNING_COLOR};")
             message = 'WARNING: ' + message
             self.w.statusbar.showMessage(message, 10000)
             self.stat_warnings += 1
             self.w.lbl_stat_warnings.setText(f'{self.stat_warnings}')
         elif level == ERROR:
-            self.w.statusbar.setStyleSheet(f"color: {ERROR_COLOR};")
+            if self.statusbar_style:
+                self.w.statusbar.setStyleSheet(f"color: {ERROR_COLOR};")
             message = 'ERROR: ' + message
             self.w.statusbar.showMessage(message, 10000)
             self.stat_errors += 1
             self.w.lbl_stat_errors.setText(f'{self.stat_errors}')
         else:
-            self.w.statusbar.setStyleSheet(f"color: {self.statusbar_color};")
             self.w.statusbar.showMessage(message)
         if not message == "":
             STATUS.emit('update-machine-log', message, 'TIME')
 
     def statusbar_changed(self, message):
-        if message == "":
-            self.w.statusbar.setStyleSheet(f"color: {self.statusbar_color};")
+        if message == "" and self.statusbar_style:
+            self.w.statusbar.setStyleSheet(self.statusbar_style)
 
     def enable_auto(self, state):
         if not STATUS.machine_is_on(): return
@@ -1428,8 +1432,8 @@ class HandlerClass:
 
     def stop_timer(self):
         self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {STOP_COLOR};')
-        if not self.feedrate_color is None:
-            self.w.lbl_feedrate.setStyleSheet(f"color: {self.feedrate_color.name()};")
+        if self.feedrate_style:
+            self.w.lbl_feedrate.setStyleSheet(self.feedrate_style)
         if self.h['runtime-start'] is True:
             self.h['runtime-start'] = False
             self.add_status(f"Run timer stopped at {self.w.lineEdit_runtime.text()}")
@@ -1561,6 +1565,34 @@ class HandlerClass:
         except requests.Timeout:
             self.add_status("Connection timed out", ERROR)
             return False
+
+    # Intercept calls to style the main window so that certain widgets
+    # can have their text colors altered for visual emphasis
+    def setStyleSheet(self, style):
+        super(VCPWindow, self.w).setStyleSheet(style)
+        if "StatusLabel" in style:
+            start_index = style.index("StatusLabel")
+            end_index = style.find("}", start_index) + 1
+            self.feedrate_style = style[start_index:end_index]
+            self.w.lbl_feedrate.setStyleSheet(self.feedrate_style)
+        else:
+            self.feedrate_style = ''
+
+        if "QLineEdit" in style:
+            start_index = style.index("QLineEdit")
+            end_index = style.find("}", start_index) + 1
+            self.runtime_style = style[start_index:end_index]
+            self.w.lineEdit_runtime.setStyleSheet(self.runtime_style)
+        else:
+            self.runtime_style = ''
+
+        if "QStatusBar" in style:
+            start_index = style.index("QStatusBar")
+            end_index = style.find("}", start_index) + 1
+            self.statusbar_style = style[start_index:end_index]
+            self.w.statusbar.setStyleSheet(self.statusbar_style)
+        else:
+            self.statusbar_style = ''
 
     ##############################
     # required class boiler code #
