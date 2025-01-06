@@ -25,3 +25,8 @@ Sep. 19/24 v 2.0.5
 Oct. 10/24 v 2.0.6
     - add method to intercept calls to style the main window so that certain widgets
       and the statusbar can have their text colors altered for visual emphasis
+
+Jan. 5/25 v 2.0.7
+    - fixed keybindings for F1 and Pause, spacebar only works when Key_Any is assigned
+    - fixed statusbar not returning to default style after a WARNING or ERROR status message
+    - changed btn_estop HAL pin type to BIT

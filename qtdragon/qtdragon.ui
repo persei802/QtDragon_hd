@@ -5518,7 +5518,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>07:08:24 PM</string>
+                       <string>05:07:35 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -9101,7 +9101,7 @@ ACTIVE</string>
                  <bool>false</bool>
                 </property>
                 <property name="checked_state_text_option" stdset="0">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="true_state_string" stdset="0">
                  <string>ESTOP
@@ -9110,6 +9110,9 @@ RESET</string>
                 <property name="false_state_string" stdset="0">
                  <string>ESTOP
 ACTIVE</string>
+                </property>
+                <property name="pin_type" stdset="0">
+                 <enum>PushButton::BIT</enum>
                 </property>
                </widget>
               </item>
@@ -12478,6 +12481,9 @@ ALL</string>
                   <property name="halpin_option" stdset="0">
                    <bool>false</bool>
                   </property>
+                  <property name="showZeroOrigin" stdset="0">
+                   <bool>false</bool>
+                  </property>
                  </widget>
                 </item>
                 <item row="0" column="4">
@@ -12866,6 +12872,9 @@ ALL</string>
                   <property name="halpin_option" stdset="0">
                    <bool>false</bool>
                   </property>
+                  <property name="showZeroOrigin" stdset="0">
+                   <bool>false</bool>
+                  </property>
                  </widget>
                 </item>
                 <item row="0" column="2">
@@ -12999,6 +13008,12 @@ ALL</string>
                    <string>X</string>
                   </property>
                   <property name="halpin_option" stdset="0">
+                   <bool>false</bool>
+                  </property>
+                  <property name="showSetOrigin" stdset="0">
+                   <bool>true</bool>
+                  </property>
+                  <property name="showZeroOrigin" stdset="0">
                    <bool>false</bool>
                   </property>
                  </widget>
@@ -14639,7 +14654,7 @@ SPEED</string>
   </customwidget>
   <customwidget>
    <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
+   <extends>QOpenGLWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
@@ -14795,14 +14810,14 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="util_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="about_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="about_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="util_buttonGroup"/>
  </buttongroups>
 </ui>

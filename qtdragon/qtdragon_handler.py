@@ -41,7 +41,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.0.6'
+VERSION = '2.0.7'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -108,6 +108,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_Pause', 'on_keycall_PAUSE')
         KEYBIND.add_call('Key_Any', 'on_keycall_PAUSE')
+        KEYBIND.add_call('Key_Space', 'on_keycall_PAUSE')
         # references to utility objects to be initialized
         self.probe = None
         self.tool_db = None
@@ -166,8 +167,8 @@ class HandlerClass:
                             "action_zero_a", "btn_rewind_a", "action_home_a", "widget_angular_jog",
                             "lbl_rotary_height", "lineEdit_rotary_height", "lbl_rotary_units"]
 
-        STATUS.connect('state-estop', lambda w: self.w.btn_estop.setText("ESTOP\nACTIVE"))
-        STATUS.connect('state-estop-reset', lambda w: self.w.btn_estop.setText("ESTOP\nRESET"))
+        STATUS.connect('state-estop', lambda w: self.add_status("ESTOP activated", ERROR))
+        STATUS.connect('state-estop-reset', lambda w: self.add_status("ESTOP reset"))
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
         STATUS.connect('state-off', lambda w: self.enable_onoff(False))
         STATUS.connect('mode-manual', lambda w: self.enable_auto(False))
@@ -1362,26 +1363,25 @@ class HandlerClass:
 
     def add_status(self, message, level=DEFAULT):
         if level == WARNING:
-            if self.statusbar_style:
-                self.w.statusbar.setStyleSheet(f"color: {WARNING_COLOR};")
+            self.w.statusbar.setStyleSheet(f"color: {WARNING_COLOR};")
             message = 'WARNING: ' + message
             self.w.statusbar.showMessage(message, 10000)
             self.stat_warnings += 1
             self.w.lbl_stat_warnings.setText(f'{self.stat_warnings}')
         elif level == ERROR:
-            if self.statusbar_style:
-                self.w.statusbar.setStyleSheet(f"color: {ERROR_COLOR};")
+            self.w.statusbar.setStyleSheet(f"color: {ERROR_COLOR};")
             message = 'ERROR: ' + message
             self.w.statusbar.showMessage(message, 10000)
             self.stat_errors += 1
             self.w.lbl_stat_errors.setText(f'{self.stat_errors}')
         else:
             self.w.statusbar.showMessage(message)
+            self.w.statusbar.setStyleSheet(self.statusbar_style)
         if not message == "":
             STATUS.emit('update-machine-log', message, 'TIME')
 
     def statusbar_changed(self, message):
-        if message == "" and self.statusbar_style:
+        if message == "":
             self.w.statusbar.setStyleSheet(self.statusbar_style)
 
     def enable_auto(self, state):
@@ -1459,7 +1459,8 @@ class HandlerClass:
 
     def on_keycall_ESTOP(self,event,state,shift,cntrl):
         if state:
-            ACTION.SET_ESTOP_STATE(True)
+#            ACTION.SET_ESTOP_STATE(True)
+            self.w.btn_estop.setChecked(False)
 
     def on_keycall_POWER(self,event,state,shift,cntrl):
         if state:
@@ -1474,8 +1475,8 @@ class HandlerClass:
             ACTION.SET_MACHINE_HOMING(-1)
 
     def on_keycall_PAUSE(self,event,state,shift,cntrl):
-        if state and STATUS.is_auto_mode() and self.use_keyboard():
-            self.pause_program()
+        if state and self.use_keyboard():
+            self.btn_pause_pressed()
 
     def on_keycall_XPOS(self,event,state,shift,cntrl):
         if self.use_keyboard():
