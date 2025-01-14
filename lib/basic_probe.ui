@@ -534,6 +534,9 @@ DEPTH</string>
                        <height>30</height>
                       </size>
                      </property>
+                     <property name="toolTip">
+                      <string>Additional Z depth to clear chamfers or roundovers</string>
+                     </property>
                      <property name="maxLength">
                       <number>10</number>
                      </property>
@@ -583,8 +586,8 @@ DEPTH</string>
                       </size>
                      </property>
                      <property name="text">
-                      <string>XY
-RETRACT</string>
+                      <string>LATCH
+RETURN</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
@@ -775,8 +778,8 @@ DISTANCE</string>
                       </size>
                      </property>
                      <property name="text">
-                      <string>STEP
-OFF</string>
+                      <string>XY
+CLEARANCE</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
@@ -2198,7 +2201,7 @@ HELP</string>
                       </widget>
                      </item>
                      <item row="1" column="3">
-                      <widget class="QPushButton" name="probe_z_minus_wco_inside">
+                      <widget class="QPushButton" name="probe_xy_hole">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                          <horstretch>0</horstretch>
@@ -2218,7 +2221,7 @@ HELP</string>
                         </size>
                        </property>
                        <property name="toolTip">
-                        <string>Probe all 4 inside edges, finish in center</string>
+                        <string>Use probe_rectangular_pocket for this function</string>
                        </property>
                        <property name="text">
                         <string/>
@@ -2680,7 +2683,7 @@ HELP</string>
                         </size>
                        </property>
                        <property name="probe" stdset="0">
-                        <string>probe_angle_front</string>
+                        <string>probe_angle_yp</string>
                        </property>
                        <attribute name="buttonGroup">
                         <string notr="true">skew_buttonGroup</string>
@@ -2725,7 +2728,7 @@ HELP</string>
                         </size>
                        </property>
                        <property name="probe" stdset="0">
-                        <string>probe_angle_right</string>
+                        <string>probe_angle_xm</string>
                        </property>
                        <attribute name="buttonGroup">
                         <string notr="true">skew_buttonGroup</string>
@@ -2770,7 +2773,7 @@ HELP</string>
                         </size>
                        </property>
                        <property name="probe" stdset="0">
-                        <string>probe_angle_left</string>
+                        <string>probe_angle_xp</string>
                        </property>
                        <attribute name="buttonGroup">
                         <string notr="true">skew_buttonGroup</string>
@@ -2815,7 +2818,7 @@ HELP</string>
                         </size>
                        </property>
                        <property name="probe" stdset="0">
-                        <string>probe_angle_back</string>
+                        <string>probe_angle_ym</string>
                        </property>
                        <attribute name="buttonGroup">
                         <string notr="true">skew_buttonGroup</string>
@@ -4681,39 +4684,6 @@ HELP</string>
              </widget>
             </widget>
            </item>
-           <item>
-            <widget class="QWidget" name="widget_cal_offset" native="true">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>60</height>
-              </size>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
-              <property name="spacing">
-               <number>6</number>
-              </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>4</number>
-              </property>
-              <property name="rightMargin">
-               <number>4</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-             </layout>
-            </widget>
-           </item>
           </layout>
          </item>
         </layout>
@@ -5713,13 +5683,8 @@ HELP</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>IndicatedPushButton</class>
-   <extends>QPushButton</extends>
-   <header>qtvcp.widgets.simple_widgets</header>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
-   <extends>IndicatedPushButton</extends>
+   <extends>QPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
@@ -5728,15 +5693,17 @@ HELP</string>
    <header>qtvcp.widgets.status_label</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="basic_probe.qrc"/>
+ </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="inside_buttonGroup"/>
-  <buttongroup name="boss_pocket_buttonGroup"/>
   <buttongroup name="cal_buttonGroup"/>
-  <buttongroup name="skew_buttonGroup"/>
-  <buttongroup name="ridge_valley_buttonGroup"/>
-  <buttongroup name="outside_buttonGroup"/>
   <buttongroup name="clear_buttonGroup"/>
+  <buttongroup name="outside_buttonGroup"/>
+  <buttongroup name="inside_buttonGroup"/>
+  <buttongroup name="skew_buttonGroup"/>
+  <buttongroup name="boss_pocket_buttonGroup"/>
+  <buttongroup name="ridge_valley_buttonGroup"/>
  </buttongroups>
 </ui>

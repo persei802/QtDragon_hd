@@ -19,10 +19,11 @@
 import sys
 import os
 import json
-from PyQt5.QtCore import QProcess, QRegExp, QFile
+from PyQt5.QtCore import QProcess, QEvent, QRegExp, QFile, Qt, pyqtSignal
 from PyQt5 import QtGui, QtWidgets, uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info, Path, Tool
+from qtvcp.widgets.calculator import Calculator
 from qtvcp import logger
 
 ACTION = Action()
@@ -42,14 +43,24 @@ HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 # StatusBar message alert levels
 DEFAULT =  0
 WARNING =  1
-CRITICAL = 2
+ERROR = 2
 
 class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(BasicProbe, self).__init__()
         self.parent = parent
-        self.tool_db = self.parent.tool_db
+        try:
+            self.tool_db = self.parent.tool_db
+        except Exception as e:
+            print(e)
+            self.tool_db = None
         self.proc = None
+        self.calc = CalcInput()
+        self.use_calc = False
+        self._nextIndex = 0
+        self.test_mode = False
+        self.help = HelpPage()
+        self.hilightStyle = "border: 1px solid cyan;"
         self.probe_settings = []
         if INFO.MACHINE_IS_METRIC:
             self.valid = QtGui.QRegExpValidator(QRegExp('^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
@@ -57,24 +68,13 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.valid = QtGui.QRegExpValidator(QRegExp('^[+-]?((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
         self.setMinimumSize(600, 420)
         # load the widgets ui file
-#        self.filename = PATH.find_widget_path('basic_probe.ui')
         self.filename = os.path.join(HERE, 'basic_probe.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
             LOG.critical(e)
-        # load the probe help file
-#        self.filename = PATH.find_widget_path('basic_probe_help.ui')
-        self.filename = os.path.join(HERE, 'basic_probe_help.ui')
-        try:
-            self.dialog = uic.loadUi(self.filename)
-        except AttributeError as e:
-            LOG.critical(e)
 
-        self.helpPages = ['basic_help.html','basic_help1.html','basic_help2.html',
-                          'basic_help3.html','basic_help4.html','basic_help5.html',
-                          'basic_help6.html']
-        self.currentHelpPage = 0
+        self._oldStyle = self.lineEdit_probe_diam.styleSheet()
 
         self.probe_page_list = ['OUTSIDE MEASUREMENTS',
                                 'INSIDE MEASUREMENTS',
@@ -95,6 +95,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         # these parameters are sent to the subprogram
         self.parm_list = ['probe_diam',
                           'max_travel',
+                          'max_z',
                           'xy_clearance',
                           'adj_x',
                           'adj_y',
@@ -117,9 +118,13 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                           'cal_y_width',
                           'cal_offset']
 
+        self.line_list = self.parm_list[:]
+        self.line_list[self.parm_list.index('cal_offset')] = 'probe_tool'
+
         # signal connections
         self.cmb_probe_select.activated.connect(lambda index: self.stackedWidget_probe_buttons.setCurrentIndex(index))
         self.lineEdit_extra_depth.editingFinished.connect(self.get_probe_max_depth)
+        self.lineEdit_max_z.editingFinished.connect(self.get_probe_max_depth)
         self.outside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.inside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.skew_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
@@ -128,16 +133,68 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.cal_buttonGroup.buttonClicked.connect(self.cal_btn_clicked)
         self.clear_buttonGroup.buttonClicked.connect(self.clear_results_clicked)
         self.btn_load_probe.pressed.connect(self.load_probe_pressed)
-        self.btn_probe_help.clicked.connect(self.probe_help_clicked)
-        self.dialog.probe_help_close.clicked.connect(self.help_close_clicked)
-        self.dialog.probe_help_prev.clicked.connect(self.help_prev_clicked)
-        self.dialog.probe_help_next.clicked.connect(self.help_next_clicked)
+        self.btn_probe_help.pressed.connect(self.probe_help_pressed)
+        self.calc.apply_action.connect(lambda: self.calc_data(apply=True))
+        self.calc.next_action.connect(lambda: self.calc_data(next=True))
+        self.calc.back_action.connect(lambda: self.calc_data(back=True))
+        self.calc.accepted.connect(lambda: self.calc_data(accept=True))
+        self.calc.rejected.connect(self.calc_data)
 
         self.stackedWidget_probe_buttons.setCurrentIndex(0)
         # define validators for all lineEdit widgets
         self.lineEdit_probe_tool.setValidator(QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}')))
         for i in self.parm_list:
             self['lineEdit_' + i].setValidator(self.valid)
+
+        for line in self.line_list:
+            self[f'lineEdit_{line}'].installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.FocusIn:
+            if isinstance(obj, QtWidgets.QLineEdit) and self.use_calc:
+                # only if mouse selected
+                if event.reason() == 0:
+                    self._nextIndex = self.line_list.index(obj.objectName().replace('lineEdit_',''))
+                    self.popEntry(obj)
+                    obj.clearFocus()
+                    event.accept()
+                    return True
+        return super(BasicProbe, self).eventFilter(obj, event)
+
+    def popEntry(self, obj, next=False):
+        obj.setStyleSheet(self.hilightStyle)
+        self.calc.setWindowTitle(f"Enter data for {obj.objectName().replace('lineEdit_','')}")
+        if not next:
+            self.calc.show()
+
+    def calc_data(self, next=False, back=False, apply=False, accept=False):
+        line = self.line_list[self._nextIndex]
+        self[f'lineEdit_{line}'].setStyleSheet(self._oldStyle)
+        if next or back:
+            if next:
+                self._nextIndex += 1
+                if self._nextIndex == len(self.line_list):
+                    self._nextIndex = 0
+            elif back:
+                self._nextIndex -= 1
+                if self._nextIndex < 0:
+                    self._nextIndex = len(self.line_list) - 1
+        elif apply or accept:
+            text = self.calc.display.text()
+            self.calc.clearAll()
+            if line == 'probe_tool':
+                value = float(text)
+                value = int(value)
+                self.lineEdit_probe_tool.setText(str(value))
+            else:
+                self[f'lineEdit_{line}'].setText(text)
+            if apply:
+                self._nextIndex += 1
+                if self._nextIndex == len(self.line_list):
+                    self._nextIndex = 0
+        if next or back or apply:
+            newobj = self[f'lineEdit_{self.line_list[self._nextIndex]}']
+            self.popEntry(newobj, True)
 
     def _hal_init(self):
         def homed_on_status():
@@ -162,6 +219,12 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                 self.PREFS_.putpref(probe.objectName(), probe.text(), str, 'PROBE OPTIONS')
         if self.proc is not None: self.proc.terminate()
 
+    def set_calc_mode(self, mode):
+        self.use_calc = mode
+
+    def set_test_mode(self):
+        self.test_mode = True
+
 #################
 # process control
 #################
@@ -172,9 +235,13 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
-        self.proc.start('python3 {}'.format(SUBPROGRAM))
+        self.proc.start(f'python3 {SUBPROGRAM}')
 
     def start_probe(self, cmd):
+        if self.test_mode:
+            string_to_send = cmd + '$' + json.dumps(self.send_dict) + '\n'
+            print(string_to_send)
+            return
         if self.proc is not None:
             self.parent.add_status("Probe Routine processor is busy", WARNING)
             return
@@ -188,7 +255,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.writeData(bytes(string_to_send, 'utf-8'))
 
     def process_started(self):
-        self.parent.add_status("Basic_Probe subprogram started with PID {}\n".format(self.proc.processId()))
+        self.parent.add_status(f"Basic_Probe subprogram started with PID {self.proc.processId()}")
 
     def read_stdout(self):
         qba = self.proc.readAllStandardOutput()
@@ -201,29 +268,41 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.parse_input(line)
 
     def process_finished(self, exitCode, exitStatus):
-        LOG.info(("Probe Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus)))
+        LOG.debug(f"Probe Process finished - exitCode {exitCode} exitStatus {exitCode}")
         self.proc = None
         STATUS.unblock_error_polling()
 
     def parse_input(self, line):
         line = line.decode("utf-8")
-        if "INFO" in line:
-            print(line)
+        if "ERROR INFO" in line:
+            text = line.replace("ERROR INFO", "")
+            self.parent.add_status(text, WARNING)
         elif "ERROR" in line:
-            self.parent.add_status(line, WARNING)
+            text = line.replace("ERROR", "")
+            #print(line)
             STATUS.unblock_error_polling()
-        elif "DEBUG" in line:
-            print(line)
+            self.parent.add_status(text, WARNING)
+        elif "INFO" in line:
+            pass
+        elif "PROBE_ROUTINES" in line:
+            text = line.replace("PROBE_ROUTINES", "")
+            self.parent.add_status(text)
+            if LOG.getEffectiveLevel() < logger.INFO:
+                print(line)
         elif "COMPLETE" in line:
             STATUS.unblock_error_polling()
-            self.parent.add_status("Basic Probing routine completed without errors")
             return_data = line.rstrip().split('$')
             data = json.loads(return_data[1])
             self.show_results(data)
+            self.parent.add_status("Basic Probing routine completed without errors")
         elif "HISTORY" in line:
-            temp = line.strip('HISTORY$')
-            STATUS.emit('update-machine-log', temp, 'TIME')
-            self.parent.add_status("Probe history updated to machine log")
+            if 'finish' in line:
+                text = line.replace("HISTORY", "")
+                self.parent.add_status(text, WARNING)
+            else:
+                self.parent.add_status("Probe history updated to machine log")
+        elif "DEBUG" in line:
+            pass
         else:
             self.parent.add_status(f"Error parsing return data from sub_processor. Line={line}", WARNING)
 
@@ -241,78 +320,58 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         else:
             self.parent.add_status("Invalid probe tool specified", WARNING)
 
-    def probe_help_clicked(self):
-        self.dialog.show()
-        self.update_help_page()
+    def probe_help_pressed(self):
+        self.help.show()
        
-    def help_close_clicked(self):
-        self.dialog.hide()
-
-    def help_prev_clicked(self):
-        self.currentHelpPage -=1
-        if self.currentHelpPage < 0:
-            self.currentHelpPage = 0
-        self.update_help_page()
-
-    def help_next_clicked(self):
-        self.currentHelpPage +=1
-        if self.currentHelpPage > len(self.helpPages)-1:
-            self.currentHelpPage = len(self.helpPages)-1
-        self.update_help_page()
-
-    def update_help_page(self):
-        try:
-            pagePath = os.path.join(HELP, self.helpPages[self.currentHelpPage])
-            if not os.path.exists(pagePath): raise Exception("Missing File: {}".format(pagePath)) 
-            file = QFile(pagePath)
-            file.open(QFile.ReadOnly)
-            html = file.readAll()
-            html = str(html, encoding='utf8')
-            html = html.replace("../images/widgets/","{}/widgets/".format(INFO.IMAGE_PATH))
-            self.dialog.html_textEdit.setHtml(html)
-        except Exception as e:
-            print(e)
-            self.dialog.html_textEdit.setHtml('''
-<h1 style=" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-size:xx-large; font-weight:600;">Basic Probe Help not available</span> </h1>
-{}
-'''.format(e))
-
-    def probe_help_prev_clicked(self):
-        i = self.probe_help_widget.currentIndex()
-        if i > 0:
-            self.probe_help_widget.setCurrentIndex(i - 1)
-
-    def probe_help_next_clicked(self):
-        i = self.probe_help_widget.currentIndex()
-        if i < 5:
-            self.probe_help_widget.setCurrentIndex(i + 1)
-
     def probe_btn_clicked(self, button):
         cmd = button.property('probe')
         if cmd == 'probe_xy_hole':
-            self.parent.add_status("Use Rectangular Pocket for this probe function")
-        else:
-            self.get_parms()
-            self.start_probe(cmd)
+            self.parent.add_status("Use the probe_rectangular_pocket function")
+            return
+        self.get_parms()
+        self.start_probe(cmd)
 
     def boss_pocket_clicked(self, button):
-        for i in ['x_hint_bp', 'y_hint_bp', 'diameter_hint']:
-            if self['lineEdit_' + i].text() is None: return
         cmd = button.property('probe')
+        if 'round' in cmd:
+            if self.lineEdit_diameter_hint.text() == "":
+                self.parent.add_status('Parameter diameter_hint missing', WARNING)
+                return
+        elif 'rectangular' in cmd:
+            for i in ['x_hint_bp', 'y_hint_bp']:
+                if self['lineEdit_' + i].text() == "":
+                    self.parent.add_status(f'Parameter {i} missing', WARNING)
+                    return
+        else: return
         self.get_parms()
         self.start_probe(cmd)
 
     def ridge_valley_clicked(self, button):
-        for i in ['x_hint_rv', 'y_hint_rv']:
-            if self['lineEdit_' + i].text() is None: return
         cmd = button.property('probe')
+        if 'x' in cmd:
+            if self.lineEdit_x_hint_rv.text() == "":
+                self.parent.add_status(f'Parameter x_hint_rv missing', WARNING)
+                return
+        elif 'y' in cmd:
+            if self.lineEdit_y_hint_rv.text() == "":
+                self.parent.add_status(f'Parameter y_hint_rv missing', WARNING)
+                return
+        else: return
         self.get_parms()
         self.start_probe(cmd)
 
     def cal_btn_clicked(self, button):
-        for i in ['cal_diameter', 'cal_x_width', 'cal_y_width']:
-            if self['lineEdit_' + i].text() is None: return
         cmd = button.property('probe')
+        if 'round' in cmd:
+            if self.lineEdit_cal_diameter.text() == "":
+                self.parent.add_status('Parameter cal_diameter missing', WARNING)
+                return
+        elif 'square' in cmd:
+            for i in ['cal_x_width', 'cal_y_width']:
+                if self['lineEdit_' + i].text() == "":
+                    self.parent.add_status(f'Parameter {i} missing', WARNING)
+                    return
+        else: return
         self.get_parms()
         self.start_probe(cmd)
 
@@ -342,12 +401,14 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
 # Helper functions
     def get_probe_max_depth(self):
-        probe_tool = int(self.lineEdit_probe_tool.text())
-        extra_depth = float(self.lineEdit_extra_depth.text())
-        maxz  = float(self.tool_db.get_tool_data(probe_tool, "LENGTH"))
-        depth = maxz + extra_depth
-        if depth > maxz:
-            self.parent.add_status("Warning - probing depth will exceed probe tool length", CRITICAL)
+        if not self.tool_db is None:
+            probe_tool = int(self.lineEdit_probe_tool.text())
+            extra_depth = float(self.lineEdit_extra_depth.text())
+            tool  = float(self.tool_db.get_tool_data(probe_tool, "LENGTH"))
+            maxz = float(self.lineEdit_max_z.text())
+            depth = maxz + extra_depth
+            if depth > tool:
+                self.parent.add_status(f"Probing depth {depth} could exceed probe tool length {tool}", WARNING)
 
     def get_parms(self):
         self.send_dict = {key: self['lineEdit_' + key].text() for key in (self.parm_list)}
@@ -360,9 +421,88 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self['status_' + key].setText(line[key])
         self.lineEdit_cal_offset.setText(line['offset'])
 
-    def set_offsets(self, x, y):
-        self.lineEdit_adj_x.setText(x)
-        self.lineEdit_adj_y.setText(y)
+
+class HelpPage(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(HelpPage, self).__init__()
+        self.setMinimumWidth(600)
+        self.setMinimumHeight(600)
+        self.setWindowTitle("BasicProbe Help")
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+
+        self.helpPages = ['basic_help.html','basic_help1.html','basic_help2.html',
+                          'basic_help3.html','basic_help4.html','basic_help5.html',
+                          'basic_help6.html', 'basic_help7.html','basic_help8.html']
+        self.currentHelpPage = 0
+        self.build_widget()
+        self.update_help_page()
+        # signal connections
+        self.btn_close.pressed.connect(self.help_close_pressed)
+        self.btn_prev.pressed.connect(self.help_prev_pressed)
+        self.btn_next.pressed.connect(self.help_next_pressed)
+
+    def build_widget(self):
+        main_layout = QtWidgets.QVBoxLayout()
+        btn_box = QtWidgets.QHBoxLayout()
+        self.btn_prev = QtWidgets.QPushButton('PREV')
+        self.btn_next = QtWidgets.QPushButton('NEXT')
+        self.btn_close = QtWidgets.QPushButton('CLOSE')
+        btn_box.addWidget(self.btn_prev)
+        btn_box.addWidget(self.btn_next)
+        btn_box.addWidget(self.btn_close)
+        self.text_edit = QtWidgets.QTextEdit('Basic Probe Help')
+        main_layout.addWidget(self.text_edit)
+        main_layout.addLayout(btn_box)
+        self.setLayout(main_layout)
+
+    def help_close_pressed(self):
+        self.hide()
+
+    def help_prev_pressed(self):
+        if self.currentHelpPage == 0: return
+        self.currentHelpPage -= 1
+        self.update_help_page()
+
+    def help_next_pressed(self):
+        if self.currentHelpPage == len(self.helpPages) - 1: return
+        self.currentHelpPage += 1
+        self.update_help_page()
+
+    def update_help_page(self):
+        try:
+            pagePath = os.path.join(HELP, self.helpPages[self.currentHelpPage])
+            if not os.path.exists(pagePath): raise Exception(f"Missing File: {pagePath}") 
+            file = QFile(pagePath)
+            file.open(QFile.ReadOnly)
+            html = file.readAll()
+            html = str(html, encoding='utf8')
+#            html = html.replace("../images/widgets/","{}/widgets/".format(INFO.IMAGE_PATH))
+            self.text_edit.setHtml(html)
+        except Exception as e:
+            self.text_edit.setHtml(f'''
+<h1 style=" margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">
+<span style=" font-size:xx-large; font-weight:600;">Basic Probe Help not available</span> </h1>
+{e}''')
+
+
+# sub-classed Calculator so button actions can be redefined
+class CalcInput(Calculator):
+    apply_action = pyqtSignal(str)
+    next_action = pyqtSignal()
+    back_action = pyqtSignal()
+
+    def __init__(self):
+        super(CalcInput, self).__init__()
+        
+    def applyAction(self):
+        data = self.display.text()
+        self.apply_action.emit(data)
+
+    def nextAction(self):
+        self.next_action.emit()
+
+    def backAction(self):
+        self.back_action.emit()
 
     ##############################
     # required class boiler code #
@@ -376,12 +516,24 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     #############################
     # Testing                   #
     #############################
+class Testing(object):
+    def __init__(self, parent=None):
+        super(Testing, self).__init__()
+
+    def add_status(self, msg, level=0):
+        print(msg)
+
 if __name__ == "__main__":
+# This is just for seeing what the ui looks like
+# Nothing will work if linuxcnc isn't running
     from PyQt5.QtWidgets import *
     from PyQt5.QtCore import *
     from PyQt5.QtGui import *
     app = QtWidgets.QApplication(sys.argv)
-    w = BasicProbe()
+    p = Testing()
+    w = BasicProbe(p)
+    w.set_calc_mode(True)
+    w.set_test_mode()
     w.show()
     sys.exit( app.exec_() )
 
