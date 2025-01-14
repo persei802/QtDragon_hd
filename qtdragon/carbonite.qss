@@ -434,7 +434,8 @@ QPushButton:checked:disabled {
 }
 
 QPushButton:pressed,
-QPushButton:checked {
+QPushButton:checked,
+QToolButton:checked {
   background: #555a5f;
   color: #eff0f1;
 }
@@ -561,6 +562,10 @@ QStatusBar {
   border: 1px solid #626568;
   background: #31363b;
   color: #f0f0f0;
+}
+
+QStatusBar::item {
+  border: none;
 }
 
 /** Tool Tips **/
