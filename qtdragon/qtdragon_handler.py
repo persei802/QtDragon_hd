@@ -41,7 +41,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.0.7'
+VERSION = '2.0.8'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -100,10 +100,9 @@ class HandlerClass:
         self.styleeditor = SSE(widgets, paths, addBuiltinStyles=False)
         self.settings_checkboxes = []
         self.touchoff_checkboxes = []
+        self.settings_touchoff = []
         self.settings_offsets = []
         self.settings_spindle = []
-        self.settings_probe = []
-        self.settings_touchoff = []
         KEYBIND.add_call('Key_F4', 'on_keycall_F4')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_Pause', 'on_keycall_PAUSE')
@@ -120,8 +119,6 @@ class HandlerClass:
         self.pause_dialog = None
         self.about_html = os.path.join(PATH.CONFIGPATH, "help_files/about.html")
         self.start_line = 0
-        self.runtime_save = ''
-        self.runtime_style = ''
         self.feedrate_style = ''
         self.statusbar_style = ''
         self.stat_warnings = 0
@@ -148,14 +145,13 @@ class HandlerClass:
         self.macros_defined = 0
         self.source_file = ""
         self.destination_file = ""
-        self.pause_delay = 0
         self.pause_timer = QtCore.QTimer()
         self.icon_btns = {'action_exit': 'SP_BrowserStop'}
 
         self.adj_list = ['maxvel_ovr', 'rapid_ovr', 'feed_ovr', 'spindle_ovr']
 
-        self.unit_label_list = ["zoffset_units", "max_probe_units", "retract_units", "zsafe_units", "probe_start_units",
-                                "touch_units", "sensor_units", "gauge_units", "rotary_units", "mpg_units"]
+        self.unit_label_list = ["zoffset_units", "retract_units", "zsafe_units", "touch_units", "max_probe_units",
+                                "sensor_units", "gauge_units", "rotary_units", "mpg_units"]
 
         self.unit_speed_list = ["search_vel_units", "probe_vel_units"]
 
@@ -208,8 +204,8 @@ class HandlerClass:
         self.w.filemanager.onUserClicked()
         self.use_mpg_changed(self.w.chk_use_mpg.isChecked())
         self.use_camera_changed(self.w.chk_use_camera.isChecked())
+        self.chk_use_calc_changed(self.w.chk_use_calculator.isChecked())
         self.touchoff_changed(True)
-        if self.probe is not None: self.probe_offset_edited()
         # determine if A axis widgets should be visible or not
         if not "A" in self.axis_list:
             for item in self.axis_a_list:
@@ -218,7 +214,6 @@ class HandlerClass:
         for val in self.lineedit_list:
             self.w['lineEdit_' + val].setValidator(self.valid)
         self.w.lineEdit_max_power.setValidator(QtGui.QIntValidator(0, 9999))
-        self.w.lineEdit_spindle_delay.setValidator(QtGui.QIntValidator(0, 99))
         # set unit labels according to machine mode
         self.w.lbl_machine_units.setText("METRIC" if INFO.MACHINE_IS_METRIC else "IMPERIAL")
         for i in self.unit_label_list:
@@ -293,6 +288,10 @@ class HandlerClass:
         self.touchoff_checkboxes = self.w.frame_touchoff.findChildren(QtWidgets.QCheckBox)
         for checkbox in self.touchoff_checkboxes:
             checkbox.setChecked(self.w.PREFS_.getpref(checkbox.objectName(), False, bool, 'CUSTOM_FORM_ENTRIES'))
+        # touchoff settings
+        self.settings_touchoff = self.w.frame_touchoff.findChildren(QtWidgets.QLineEdit)
+        for touchoff in self.settings_touchoff:
+            touchoff.setText(self.w.PREFS_.getpref(touchoff.objectName(), '10', str, 'CUSTOM_FORM_ENTRIES'))
         # offsets settings
         self.settings_offsets = self.w.frame_locations.findChildren(QtWidgets.QLineEdit)
         for offset in self.settings_offsets:
@@ -302,14 +301,6 @@ class HandlerClass:
         for spindle in self.settings_spindle:
             spindle.setText(self.w.PREFS_.getpref(spindle.objectName(), '10', str, 'CUSTOM_FORM_ENTRIES'))
         self.max_spindle_power = float(self.w.lineEdit_max_power.text())
-        # probe settings
-        self.settings_probe = self.w.frame_probe_parameters.findChildren(QtWidgets.QLineEdit)
-        for probe in self.settings_probe:
-            probe.setText(self.w.PREFS_.getpref(probe.objectName(), '10', str, 'CUSTOM_FORM_ENTRIES'))
-        # touchoff settings
-        self.settings_touchoff = self.w.frame_touchoff.findChildren(QtWidgets.QLineEdit)
-        for touchoff in self.settings_touchoff:
-            touchoff.setText(self.w.PREFS_.getpref(touchoff.objectName(), '10', str, 'CUSTOM_FORM_ENTRIES'))
         # all remaining fields
         self.last_loaded_program = self.w.PREFS_.getpref('last_loaded_file', None, str,'BOOK_KEEPING')
         self.reload_tool = self.w.PREFS_.getpref('Tool to load', 0, int,'CUSTOM_FORM_ENTRIES')
@@ -321,14 +312,12 @@ class HandlerClass:
             self.w.PREFS_.putpref(checkbox.objectName(), checkbox.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         for checkbox in self.touchoff_checkboxes:
             self.w.PREFS_.putpref(checkbox.objectName(), checkbox.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
+        for touchoff in self.settings_touchoff:
+            self.w.PREFS_.putpref(touchoff.objectName(), touchoff.text(), str, 'CUSTOM_FORM_ENTRIES')
         for offset in self.settings_offsets:
             self.w.PREFS_.putpref(offset.objectName(), offset.text(), str, 'CUSTOM_FORM_ENTRIES')
         for spindle in self.settings_spindle:
             self.w.PREFS_.putpref(spindle.objectName(), spindle.text(), str, 'CUSTOM_FORM_ENTRIES')
-        for probe in self.settings_probe:
-            self.w.PREFS_.putpref(probe.objectName(), probe.text(), str, 'CUSTOM_FORM_ENTRIES')
-        for touchoff in self.settings_touchoff:
-            self.w.PREFS_.putpref(touchoff.objectName(), touchoff.text(), str, 'CUSTOM_FORM_ENTRIES')
         if self.last_loaded_program is not None:
             self.w.PREFS_.putpref('last_loaded_directory', os.path.dirname(self.last_loaded_program), str, 'BOOK_KEEPING')
             self.w.PREFS_.putpref('last_loaded_file', self.last_loaded_program, str, 'BOOK_KEEPING')
@@ -458,8 +447,8 @@ class HandlerClass:
         probe = INFO.get_error_safe_setting('PROBE', 'USE_PROBE', 'none').lower()
         if probe == 'versaprobe':
             LOG.info("Using Versa Probe")
-#            from qtvcp.widgets.versa_probe import VersaProbe
-            from lib.versa_probe import VersaProbe
+            from qtvcp.widgets.versa_probe import VersaProbe
+#            from lib.versa_probe import VersaProbe
             self.probe = VersaProbe()
             self.probe.setObjectName('versaprobe')
         elif probe == 'basicprobe':
@@ -470,11 +459,9 @@ class HandlerClass:
         else:
             LOG.info("No valid probe widget specified")
             self.w.btn_probe.hide()
-        if self.probe is not None:
-            self.w.probe_layout.addWidget(self.probe)
-            self.probe.hal_init()
-            self.w.lineEdit_probe_x.editingFinished.connect(self.probe_offset_edited)
-            self.w.lineEdit_probe_y.editingFinished.connect(self.probe_offset_edited)
+            return
+        self.w.probe_layout.addWidget(self.probe)
+        self.probe.hal_init()
 
     def init_utils(self):
         from lib.setup_utils import Setup_Utils
@@ -502,8 +489,9 @@ class HandlerClass:
                 button.setEnabled(False)
         self.w.group1_macro_buttons.hide()
         self.w.group2_macro_buttons.hide()
-        state = self.w.chk_show_macros.isChecked()
-        self.chk_show_macros_changed(state)
+#        state = self.w.chk_show_macros.isChecked()
+#        self.chk_show_macros_changed(state)
+        self.show_macros_clicked(self.w.btn_show_macros.isChecked())
 
     def init_adjustments(self):
         # modify the status adjustment bars to have custom icons
@@ -612,9 +600,10 @@ class HandlerClass:
 
     def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
-        self.w.actionbutton_rel.setText(sys)
+        self.w.systemtoolbutton.setText(sys)
         txt = sys.replace('.', '_')
         self.w["action_" + txt.lower()].setChecked(True)
+        self.add_status(f"User system changed to {sys}")
 
     def metric_mode_changed(self, mode):
         if mode:
@@ -808,11 +797,8 @@ class HandlerClass:
         if STATUS.is_auto_paused():
             self.w.btn_pause.setText("  PAUSE")
             self.pause_timer.stop()
-            self.pause_delay = 0
             self.h['runtime-start'] = False
             self.h['runtime-pause'] = False
-            if self.runtime_style:
-                self.w.lineEdit_runtime.setStyleSheet(self.runtime_style)
             self.update_runtime()
         ACTION.ABORT()
         ACTION.SET_MANUAL_MODE()
@@ -821,9 +807,6 @@ class HandlerClass:
     def btn_pause_pressed(self):
         if STATUS.is_on_and_idle(): return
         if STATUS.is_auto_paused():
-            if self.pause_delay > 0:
-                self.add_status("Wait for spindle at speed before resuming", WARNING)
-                return
             self.w.btn_pause.setText("  PAUSE")
             self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {RUN_COLOR};')
             self.h['runtime-pause'] = False
@@ -849,16 +832,10 @@ class HandlerClass:
         self.h['eoffset-count'] = int(self.w.lineEdit_eoffset_count.text())
         self.h['spindle-inhibit'] = True
         self.add_status(f"Spindle paused at {self.w.lineEdit_runtime.text()}")
-        # modify runtime text
-        self.runtime_save = self.w.lineEdit_runtime.text()
-        self.pause_delay = int(self.w.lineEdit_spindle_delay.text())
-        self.w.lineEdit_runtime.setText(f"WAIT {self.pause_delay}")
-        if self.runtime_style:
-            self.w.lineEdit_runtime.setStyleSheet("color: #FF0000;")
         # instantiate warning box
         icon = QMessageBox.Warning
         title = "SPINDLE PAUSED"
-        info = "Wait for spindle at speed signal before resuming"
+        info = "Press OK when ready to resume program.\nSpindle will lower when at-speed is achieved."
         button = QMessageBox.Ok
         retval = self.message_box(icon, title, info, button)
         if retval == QMessageBox.Ok:
@@ -970,6 +947,25 @@ class HandlerClass:
             self.add_status("Invalid touchoff method specified", WARNING)
 
     # DRO frame
+    def show_macros_clicked(self, state):
+        if self.macros_defined == 0: return
+        if state and not STATUS.is_auto_mode():
+            self.w.group1_macro_buttons.show()
+            if self.macros_defined > 10:
+                self.w.group2_macro_buttons.show()
+                for i in range(self.macros_defined, 20):
+                    self.w[f'btn_macro{i}'].setEnabled(False)
+            else:
+                for i in range(self.macros_defined, 10):
+                    self.w[f'btn_macro{i}'].setEnabled(False)
+        else:
+            self.w.group1_macro_buttons.hide()
+            self.w.group2_macro_buttons.hide()
+
+    def systemtoolbutton_toggled(self, state):
+        if state:
+            STATUS.emit('dro-reference-change-request', 1)
+
     def btn_home_all_clicked(self, obj):
         if not STATUS.is_all_homed():
             ACTION.SET_MACHINE_HOMING(-1)
@@ -1000,18 +996,22 @@ class HandlerClass:
     def btn_goto_location_clicked(self):
         dest = self.w.sender().property('location')
         man_mode = True if STATUS.is_man_mode() else False
-        ACTION.CALL_MDI("G90")
         if dest == 'zero':
-            ACTION.CALL_MDI_WAIT("G53 G0 Z0", 30)
-            ACTION.CALL_MDI_WAIT("X0 Y0", 30)
+            x = 0
+            y = 0
         elif dest == 'home':
-            ACTION.CALL_MDI_WAIT("G53 G0 Z0", 30)
-            cmd = f"G53 G0 X{self.w.lbl_home_x.text()} Y{self.w.lbl_home_y.text()}"
-            ACTION.CALL_MDI_WAIT(cmd, 30)
+            x = self.w.lbl_home_x.text()
+            y = self.w.lbl_home_y.text()
         elif dest == 'sensor':
-            ACTION.CALL_MDI_WAIT("G53 G0 Z0", 30)
-            cmd = f"G53 G0 X{self.w.lineEdit_sensor_x.text()} Y{self.w.lineEdit_sensor_y.text()}"
-            ACTION.CALL_MDI_WAIT(cmd, 30)
+            x = self.w.lineEdit_sensor_x.text()
+            y = self.w.lineEdit_sensor_y.text()
+        else:
+            return
+        if dest == 'zero':
+            cmd = ['G90', 'G53 G0 Z0', f'G0 X{x} Y{y}']
+        else:
+            cmd = ['G90', 'G53 G0 Z0', f'G53 G0 X{x} Y{y}']
+        ACTION.CALL_BACKGROUND_MDI(cmd, label=f'Moving to {dest}', timeout=30)
         if man_mode:
             ACTION.SET_MANUAL_MODE()
 
@@ -1130,12 +1130,12 @@ class HandlerClass:
     def btn_clear_status_clicked(self):
         STATUS.emit('update-machine-log', None, 'DELETE')
 
-    def btn_select_log_pressed(self, state):
-        if state:
-            self.w.stackedWidget_log.setCurrentIndex(1)
-        else:
-            self.w.stackedWidget_log.setCurrentIndex(0)
+    def btn_select_log_clicked(self, state):
+        i = 1 if state else 0
+        self.w.stackedWidget_log.setCurrentIndex(i)
         self.w.widget_status_errors.setVisible(not state)
+        text = "SYSTEM\nLOG" if state else "MACHINE\nLOG"
+        self.w.btn_select_log.setText(text)
 
     def btn_save_log_pressed(self):
         if self.w.btn_select_log.isChecked():
@@ -1196,34 +1196,24 @@ class HandlerClass:
             self.w.btn_cycle_start.setText('  CYCLE START')
             self.start_line = 1
 
-    def chk_show_macros_changed(self, state):
-        if self.macros_defined == 0: return
-        if state and not STATUS.is_auto_mode():
-            self.w.group1_macro_buttons.show()
-            if self.macros_defined > 10:
-                self.w.group2_macro_buttons.show()
-                for i in range(self.macros_defined, 20):
-                    self.w[f'btn_macro{i}'].setEnabled(False)
-            else:
-                for i in range(self.macros_defined, 10):
-                    self.w[f'btn_macro{i}'].setEnabled(False)
-        else:
-            self.w.group1_macro_buttons.hide()
-            self.w.group2_macro_buttons.hide()
+    def chk_use_calc_changed(self, state):
+        if self.probe is None: return
+        if self.probe.objectName() == 'basicprobe':
+            self.probe.set_calc_mode(state)
 
     def touchoff_changed(self, state):
         if not state: return
         image = ''
         if self.w.chk_touchplate.isChecked():
-            self.w.btn_touchoff.setText("TOUCHPLATE")
+            self.w.btn_touchoff.setText("  TOUCHPLATE")
             self.w.btn_touchoff.setToolTip("Auto probe Z down to touchplate")
             image = 'touch_plate.png'
         elif self.w.chk_auto_toolsensor.isChecked():
-            self.w.btn_touchoff.setText("AUTO TOUCHOFF Z")
+            self.w.btn_touchoff.setText("  AUTO TOUCHOFF")
             self.w.btn_touchoff.setToolTip("Auto probe Z down to tool sensor")
             image = 'tool_sensor.png'
         elif self.w.chk_manual_toolsensor.isChecked():
-            self.w.btn_touchoff.setText("MANUAL TOUCHOFF Z")
+            self.w.btn_touchoff.setText("  MANUAL TOUCHOFF")
             self.w.btn_touchoff.setToolTip("Set workpiece Z0")
             image = 'tool_gauge.png'
         if image:
@@ -1267,11 +1257,6 @@ class HandlerClass:
             self.max_spindle_power = 100
             self.w.lineEdit_max_power.setText('100')
             self.add_status("Max spindle power must be >0 - using default of 100", WARNING)
-
-    def probe_offset_edited(self):
-        x = self.w.lineEdit_probe_x.text()
-        y = self.w.lineEdit_probe_y.text()
-        self.probe.set_offsets(x, y)
 
     def show_selected_axis(self, obj):
         if self.w.chk_use_mpg.isChecked():
@@ -1343,15 +1328,10 @@ class HandlerClass:
         retval = self.message_box(icon, title, info, button)
 
     def spindle_pause_timer(self):
-        self.pause_delay -= 1
-        if self.pause_delay <= 0:
-            self.h['eoffset-count'] = 0.0
-            self.add_status("Program resumed")
-            self.w.lineEdit_runtime.setText(self.runtime_save)
-            if self.runtime_style:
-                self.w.lineEdit_runtime.setStyleSheet(self.runtime_style)
+        if bool(self.h.hal.get_value('spindle.0.at-speed')):
+            self.h['eoffset-count'] = 0
+            self.add_status("Spindle pause resumed")
         else:
-            self.w.lineEdit_runtime.setText(f"WAIT {self.pause_delay}")
             self.pause_timer.start(1000)
         
     def kb_jog(self, state, axis, direction):
@@ -1361,7 +1341,7 @@ class HandlerClass:
         if state == 0: direction = 0
         ACTION.DO_JOG(axis, direction)
 
-    def add_status(self, message, level=DEFAULT):
+    def add_status(self, message, level=DEFAULT, noLog=False):
         if level == WARNING:
             self.w.statusbar.setStyleSheet(f"color: {WARNING_COLOR};")
             message = 'WARNING: ' + message
@@ -1377,7 +1357,7 @@ class HandlerClass:
         else:
             self.w.statusbar.showMessage(message)
             self.w.statusbar.setStyleSheet(self.statusbar_style)
-        if not message == "":
+        if not message == "" and noLog is False:
             STATUS.emit('update-machine-log', message, 'TIME')
 
     def statusbar_changed(self, message):
@@ -1393,8 +1373,8 @@ class HandlerClass:
         self.w.groupBox_jog_pads.setEnabled(not state)
         self.w.btn_cycle_start.setEnabled(state)
         self.w.lineEdit_eoffset_count.setReadOnly(state)
-        if self.w.chk_show_macros.isChecked():
-            self.chk_show_macros_changed(not state)
+        if self.w.btn_show_macros.isChecked():
+            self.show_macros_clicked(not state)
         if state:
             self.w.btn_main.setChecked(True)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
@@ -1403,10 +1383,8 @@ class HandlerClass:
             self.w.gcode_viewer.readOnlyMode()
         else:
             self.w.widget_gcode_history.show()
-        if STATUS.is_mdi_mode():
-            self.w.stackedWidget_gcode.setCurrentIndex(1)
-        else:
-            self.w.stackedWidget_gcode.setCurrentIndex(0)
+            i = 1 if STATUS.is_mdi_mode() else 0
+            self.w.stackedWidget_gcode.setCurrentIndex(i)
 
     def enable_onoff(self, state):
         text = "ON" if state else "OFF"
@@ -1459,7 +1437,6 @@ class HandlerClass:
 
     def on_keycall_ESTOP(self,event,state,shift,cntrl):
         if state:
-#            ACTION.SET_ESTOP_STATE(True)
             self.w.btn_estop.setChecked(False)
 
     def on_keycall_POWER(self,event,state,shift,cntrl):
@@ -1578,14 +1555,6 @@ class HandlerClass:
             self.w.lbl_feedrate.setStyleSheet(self.feedrate_style)
         else:
             self.feedrate_style = ''
-
-        if "QLineEdit" in style:
-            start_index = style.index("QLineEdit")
-            end_index = style.find("}", start_index) + 1
-            self.runtime_style = style[start_index:end_index]
-            self.w.lineEdit_runtime.setStyleSheet(self.runtime_style)
-        else:
-            self.runtime_style = ''
 
         if "QStatusBar" in style:
             start_index = style.index("QStatusBar")

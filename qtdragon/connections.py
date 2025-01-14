@@ -4,6 +4,9 @@ class Connections():
     def __init__(self, parent, widget):
         self.w = widget
         self.parent = parent
+        # DRO buttons
+        self.w.btn_show_macros.clicked.connect(self.parent.show_macros_clicked)
+        self.w.systemtoolbutton.toggled.connect(lambda state: self.parent.systemtoolbutton_toggled(state))
         # jog buttons
         self.w.jog_xy.joy_btn_pressed.connect(self.parent.jog_xy_pressed)
         self.w.jog_xy.joy_btn_released.connect(self.parent.jog_xy_released)
@@ -17,7 +20,7 @@ class Connections():
         self.w.btn_pause_spindle.clicked.connect(self.parent.btn_pause_spindle_clicked)
         self.w.btn_enable_comp.clicked.connect(self.parent.btn_enable_comp_clicked)
         # menu buttons
-        self.w.btn_select_log.clicked.connect(lambda state: self.parent.btn_select_log_pressed(state))
+        self.w.btn_select_log.clicked.connect(lambda state: self.parent.btn_select_log_clicked(state))
         self.w.btn_save_log.pressed.connect(self.parent.btn_save_log_pressed)
         self.w.btn_clear_status.clicked.connect(self.parent.btn_clear_status_clicked)
         self.w.btn_home_all.clicked.connect(self.parent.btn_home_all_clicked)
@@ -49,7 +52,7 @@ class Connections():
         self.w.chk_override_limits.stateChanged.connect(lambda state: self.parent.override_limits_changed(state))
         self.w.chk_use_camera.stateChanged.connect(lambda state: self.parent.use_camera_changed(state))
         self.w.chk_use_mdi_keyboard.stateChanged.connect(lambda state: self.parent.use_mdi_keyboard_changed(state))
-        self.w.chk_show_macros.stateChanged.connect(lambda state: self.parent.chk_show_macros_changed(state))
+        self.w.chk_use_calculator.stateChanged.connect(lambda state: self.parent.chk_use_calc_changed(state))
         self.w.chk_touchplate.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
         self.w.chk_manual_toolsensor.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
         self.w.chk_auto_toolsensor.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
@@ -66,4 +69,3 @@ class Connections():
         # misc
         self.w.gcode_viewer.percentDone.connect(lambda percent: self.parent.percent_done_changed(percent))
         self.w.gcodegraphics.percentLoaded.connect(lambda percent: self.parent.percent_loaded_changed(percent))
-        
