@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Qtvcp probe subprogram
 #
+# Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>
 # Copyright (c) 2020  Jim Sloot <persei802@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -45,6 +46,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.parm_list = ['probe_diam',
                           'latch_return_dist',
                           'max_travel',
+                          'max_z',
                           'search_vel',
                           'probe_vel',
                           'rapid_vel',
@@ -64,18 +66,30 @@ class ProbeSubprog(QObject, ProbeRoutines):
                           'cal_x_width',
                           'cal_y_width',
                           'cal_diameter',
-                          'cal_offset']
+                          'cal_offset',
+#                          the rest are for versaprobe tool setter measurements
+                          'ts_diam',
+                          'z_max_clear',
+                          'ts_x',
+                          'ts_y',
+                          'ts_z',
+                          'ts_max',
+                          'tool_diameter',
+                          'tool_number',
+                          'tool_probe_height',
+                          'tool_block_height']
         # data structure to hold parameters
         # common
         self.data_probe_diam = 1.0
-        self.data_latch_return_dist = 1.0
+        self.data_latch_return_dist = 10.0
         self.data_search_vel = 10.0
         self.data_probe_vel = 10.0
         self.data_rapid_vel = 10.0
+        self.data_max_z = 10.0
         self.data_max_travel = 10.0
-        self.data_side_edge_length = 1.0
-        self.data_xy_clearance = 1.0
-        self.data_z_clearance = 1.0
+        self.data_side_edge_length = 10.0
+        self.data_xy_clearance = 10.0
+        self.data_z_clearance = 10.0
         self.data_extra_depth = 0.0
         self.allow_auto_zero = False
         self.allow_auto_skew = False
@@ -96,22 +110,37 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.cal_avg_error = False
         self.cal_x_error = False
         self.cal_y_error = False
+        # VersaProbe exclusive
+        self.data_ts_diam = None
+        self.data_z_max_clear = None
+        self.data_ts_x= None
+        self.data_ts_y= None
+        self.data_ts_z= None
+        self.data_ts_max = None
+        self.data_tool_diameter = None
+        self.data_tool_number = None
+        self.data_tool_probe_height = None
+        self.data_tool_block_height = None
+
         # list of results to be transferred to main program
-        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta']
+        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta','th','bh']
+
         # data structure to hold result values
-        self.status_xm = 0.0
-        self.status_xc = 0.0
-        self.status_xp = 0.0
-        self.status_ym = 0.0
-        self.status_yc = 0.0
-        self.status_yp = 0.0
-        self.status_lx = 0.0
-        self.status_ly = 0.0
-        self.status_z = 0.0
-        self.status_d = 0.0
-        self.status_a = 0.0
-        self.status_delta = 0.0
-        self.status_offset = 0.0
+        self.status_xm = None
+        self.status_xc = None
+        self.status_xp = None
+        self.status_ym = None
+        self.status_yc = None
+        self.status_yp = None
+        self.status_lx = None
+        self.status_ly = None
+        self.status_z = None
+        self.status_d = None
+        self.status_a = None
+        self.status_delta = None
+        self.status_offset = None
+        self.status_th = None
+        self.status_bh = None
         self.history_log = ""
 
         self.process()
@@ -127,14 +156,14 @@ class ProbeSubprog(QObject, ProbeRoutines):
                 line = None
                 try:
                     error = self.process_command(cmd)
+                    STATUS.block_error_polling()
                     # error = 1 means success,
                     # error = None means ignore,
                     # anything else is an error - a returned string is an error message
-                    STATUS.block_error_polling()
                     if error is not None:
                         if error != 1:
                             if type(error) == str:
-                                sys.stdout.write(f"ERROR Probe routine: {error}\n")
+                                sys.stdout.write(f"ERROR INFO {error}\n")
                             else:
                                 sys.stdout.write("ERROR Probe routine returned with error\n")
                         else:
@@ -173,7 +202,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
             self.postreset()
             return error
         else:
-            return None
+            return 'Command function {} not in probe routines'.format(cmd[0])
 
     def update_data(self, parms):
         for key in parms:
@@ -190,6 +219,8 @@ class ProbeSubprog(QObject, ProbeRoutines):
             self.cal_y_error = True if parms['cal_y_error'] == '1' else False
         except:
             pass
+        for i in (self.status_list):
+            self['status_' + i] = None
         self.status_offset = self.data_cal_offset
         self.cal_diameter = self.data_probe_diam + self.data_cal_offset
 
@@ -197,7 +228,10 @@ class ProbeSubprog(QObject, ProbeRoutines):
         try:
             tmpl = lambda s: self._format_template % s
             for key in self.status_list:
-                data = tmpl(self['status_' + key])
+                if self['status_' + key] is None:
+                    data = 'None'
+                else:
+                    data = tmpl(self['status_' + key])
                 self.send_dict.update( {key: data} )
             data = tmpl(self.status_offset)
             self.send_dict.update( {'offset': data} )
@@ -205,12 +239,17 @@ class ProbeSubprog(QObject, ProbeRoutines):
             print('ERROR ',e)
 
     def prechecks(self):
+        # This is a work around. If a user sets the spindle running in MDI
+        # but turn it off with a manual button, then when M72 will turn the
+        # spindle back on! So we explicitly set M5 here.
+        ACTION.CALL_MDI('M5')
+        # record current G,S,M codes
         ACTION.CALL_MDI('M70')
+        # set proper mode based on what machine is based
         if INFO.MACHINE_IS_METRIC and STATUS.is_metric_mode():
             return None
         if not INFO.MACHINE_IS_METRIC and not STATUS.is_metric_mode():
             return None
-        # record motion modes
         if INFO.MACHINE_IS_METRIC:
             ACTION.CALL_MDI('g21')
         else:
