@@ -30,3 +30,12 @@ Jan. 5/25 v 2.0.7
     - fixed keybindings for F1 and Pause, spacebar only works when Key_Any is assigned
     - fixed statusbar not returning to default style after a WARNING or ERROR status message
     - changed btn_estop HAL pin type to BIT
+
+Jan. 14/25 v 2.0.8
+    - changed spindle pause to resume on at-speed signal instead of down counter
+    - removed PROBE tab from SETTINGS and moved parameters to TOUCHOFF tab
+    - created HelpPage class in basic_probe.py
+    - updated stylesheets for QToolButton:checked state
+    - added SHOW MACROS button on DRO frame
+    - added calculator mode option for parameter input in basicprobe
+    
