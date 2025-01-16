@@ -16,9 +16,10 @@ import requests
 import linuxcnc
 from connections import Connections
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
-from PyQt5.QtCore import QRegExp
+from PyQt5.QtCore import QObject, QEvent, QRegExp, pyqtSignal
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor
 from PyQt5.QtWidgets import QMessageBox
+from qtvcp.widgets.calculator import Calculator
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -41,7 +42,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.0.8'
+VERSION = '2.0.9'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -90,6 +91,63 @@ class Highlighter(QSyntaxHighlighter):
                 length = expression.matchedLength()
                 self.setFormat(index, length, format)
                 index = expression.indexIn(text, index + length)
+
+
+class EventFilter(QObject):
+    def __init__(self):
+        super().__init__()
+        self.use_calc = False
+        self.calc = CalcInput()
+        self.line_list = []
+        self.line = None
+        self.hilightStyle = "border: 1px solid cyan;"
+        self._oldStyle = ''
+
+        self.calc.accepted.connect(lambda: self.calc_data(True))
+        self.calc.rejected.connect(self.calc_data)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.FocusIn:
+            if isinstance(obj, QtWidgets.QLineEdit) and self.use_calc:
+                if event.reason() == 0:
+                    self.line = obj
+                    self.popEntry()
+                    obj.clearFocus()
+                    event.accept()
+                    return True
+        return False
+
+    def popEntry(self):
+        self.line.setStyleSheet(self.hilightStyle)
+        self.calc.setWindowTitle(f"Enter data for {self.line.objectName().replace('lineEdit_','')}")
+        self.calc.show()
+
+    def calc_data(self, accept=False):
+        self.line.setStyleSheet(self._oldStyle)
+        if accept:
+            text = self.calc.display.text()
+            self.line.setText(text)
+        self.calc.clearAll()
+
+    def set_use_calculator(self, data):
+        self.use_calc = data
+
+    def set_line_list(self, data):
+        self.line_list = data
+
+    def set_old_style(self, style):
+        self._oldStyle = style
+
+# sub-classed Calculator so button actions can be redefined
+class CalcInput(Calculator):
+    apply_action = pyqtSignal(str)
+
+    def __init__(self):
+        super(CalcInput, self).__init__()
+        
+    def applyAction(self):
+        data = self.display.text()
+        self.apply_action.emit(data)
 
 
 class HandlerClass:
@@ -195,7 +253,9 @@ class HandlerClass:
         self.init_utils()
         self.init_macros()
         self.init_adjustments()
+        self.init_event_filter()
         self.check_for_updates()
+        # initialize widget states
         self.w.stackedWidget_gcode.setCurrentIndex(0)
         self.w.stackedWidget_log.setCurrentIndex(0)
         self.w.btn_dimensions.setChecked(True)
@@ -204,7 +264,8 @@ class HandlerClass:
         self.w.filemanager.onUserClicked()
         self.use_mpg_changed(self.w.chk_use_mpg.isChecked())
         self.use_camera_changed(self.w.chk_use_camera.isChecked())
-        self.chk_use_calc_changed(self.w.chk_use_calculator.isChecked())
+        self.chk_use_basic_calc(self.w.chk_use_basic_calculator.isChecked())
+        self.chk_use_handler_calc(self.w.chk_use_handler_calculator.isChecked())
         self.touchoff_changed(True)
         # determine if A axis widgets should be visible or not
         if not "A" in self.axis_list:
@@ -226,7 +287,6 @@ class HandlerClass:
         self.w.tooloffsetview.tablemodel.layoutChanged.connect(self.get_checked_tools)
         self.w.tooloffsetview.tablemodel.dataChanged.connect(lambda new, old, roles: self.tool_data_changed(new, old, roles))
         self.w.statusbar.messageChanged.connect(self.statusbar_changed)
-
 
     #############################
     # SPECIAL FUNCTIONS SECTION #
@@ -472,6 +532,16 @@ class HandlerClass:
         self.get_next_available()
         self.tool_db.update_tools(self.tool_list)
 
+    def init_event_filter(self):
+        line_list = self.lineedit_list
+        if 'eoffset' in line_list:
+            line_list.remove('eoffset')
+        self.event_filter = EventFilter()
+        self.event_filter.set_line_list(line_list)
+        for line in line_list:
+            self.w[f'lineEdit_{line}'].installEventFilter(self.event_filter)
+        self.event_filter.set_old_style(self.w.lineEdit_work_height.styleSheet())
+
     def init_macros(self):
         # macro buttons defined in INI under [MDI_COMMAND_LIST]
         for i in range(20):
@@ -489,8 +559,6 @@ class HandlerClass:
                 button.setEnabled(False)
         self.w.group1_macro_buttons.hide()
         self.w.group2_macro_buttons.hide()
-#        state = self.w.chk_show_macros.isChecked()
-#        self.chk_show_macros_changed(state)
         self.show_macros_clicked(self.w.btn_show_macros.isChecked())
 
     def init_adjustments(self):
@@ -508,7 +576,7 @@ class HandlerClass:
             btn.setArrowType(QtCore.Qt.NoArrow)
             btn.setIcon(icon)
             btn.setIconSize(QtCore.QSize(icon_size, icon_size))
-        # slow the timer down
+        # slow the adjustment bars timer down
         for item in self.adj_list:
             self.w[f"adj_{item}"].timer_value = 200
 
@@ -1196,10 +1264,13 @@ class HandlerClass:
             self.w.btn_cycle_start.setText('  CYCLE START')
             self.start_line = 1
 
-    def chk_use_calc_changed(self, state):
+    def chk_use_basic_calc(self, state):
         if self.probe is None: return
         if self.probe.objectName() == 'basicprobe':
             self.probe.set_calc_mode(state)
+
+    def chk_use_handler_calc(self, state):
+        self.event_filter.set_use_calculator(state)
 
     def touchoff_changed(self, state):
         if not state: return
@@ -1563,7 +1634,7 @@ class HandlerClass:
             self.w.statusbar.setStyleSheet(self.statusbar_style)
         else:
             self.statusbar_style = ''
-
+        
     ##############################
     # required class boiler code #
     ##############################

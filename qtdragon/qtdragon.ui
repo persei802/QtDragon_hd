@@ -5518,7 +5518,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>08:12:41 AM</string>
+                       <string>08:25:58 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -5832,7 +5832,7 @@ TO FILE</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QCheckBox" name="chk_use_calculator">
+                        <widget class="QCheckBox" name="chk_use_basic_calculator">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -5856,6 +5856,34 @@ TO FILE</string>
                          </property>
                          <property name="text">
                           <string>USE CALCULATOR FOR  PROBE INPUT</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QCheckBox" name="chk_use_handler_calculator">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Use a calculator to input data to handler parameters</string>
+                         </property>
+                         <property name="text">
+                          <string>USE CALCULATOR FOR DATA INPUT</string>
                          </property>
                         </widget>
                        </item>
@@ -7157,7 +7185,7 @@ TO FILE</string>
                        <attribute name="title">
                         <string>TOUCHOFF</string>
                        </attribute>
-                       <layout class="QVBoxLayout" name="verticalLayout_43" stretch="0,1">
+                       <layout class="QVBoxLayout" name="verticalLayout_43" stretch="0,0">
                         <property name="spacing">
                          <number>4</number>
                         </property>
@@ -7165,7 +7193,7 @@ TO FILE</string>
                          <number>0</number>
                         </property>
                         <property name="topMargin">
-                         <number>8</number>
+                         <number>4</number>
                         </property>
                         <property name="rightMargin">
                          <number>0</number>
@@ -14520,14 +14548,14 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="util_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
   <buttongroup name="about_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="util_buttonGroup"/>
  </buttongroups>
 </ui>
