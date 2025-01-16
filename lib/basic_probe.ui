@@ -133,6 +133,9 @@
               <property name="alignment">
                <set>Qt::AlignCenter</set>
               </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                <property name="spacing">
                 <number>4</number>
@@ -1271,7 +1274,7 @@ OFFSET</string>
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::ClickFocus</enum>
+                      <enum>Qt::NoFocus</enum>
                      </property>
                      <property name="toolTip">
                       <string>Offset to apply due to probe travel before probe signal is triggered after contact with workpiece.</string>
@@ -4929,6 +4932,9 @@ HELP</string>
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
                  <property name="maxLength">
                   <number>10</number>
                  </property>
@@ -4990,6 +4996,9 @@ HELP</string>
                    <width>80</width>
                    <height>30</height>
                   </size>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
                  </property>
                  <property name="maxLength">
                   <number>10</number>
@@ -5053,6 +5062,9 @@ HELP</string>
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
                  <property name="maxLength">
                   <number>10</number>
                  </property>
@@ -5114,6 +5126,9 @@ HELP</string>
                    <width>80</width>
                    <height>30</height>
                   </size>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
                  </property>
                  <property name="maxLength">
                   <number>10</number>
@@ -5198,6 +5213,9 @@ HELP</string>
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
                  <property name="maxLength">
                   <number>10</number>
                  </property>
@@ -5259,6 +5277,9 @@ HELP</string>
                    <width>80</width>
                    <height>30</height>
                   </size>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
                  </property>
                  <property name="maxLength">
                   <number>10</number>
@@ -5322,6 +5343,9 @@ HELP</string>
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
                  <property name="maxLength">
                   <number>10</number>
                  </property>
@@ -5383,6 +5407,9 @@ HELP</string>
                    <width>80</width>
                    <height>30</height>
                   </size>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
                  </property>
                  <property name="maxLength">
                   <number>10</number>
@@ -5467,6 +5494,9 @@ HELP</string>
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
                  <property name="maxLength">
                   <number>10</number>
                  </property>
@@ -5528,6 +5558,9 @@ HELP</string>
                    <width>80</width>
                    <height>30</height>
                   </size>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
                  </property>
                  <property name="maxLength">
                   <number>10</number>
@@ -5591,6 +5624,9 @@ HELP</string>
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
                  <property name="maxLength">
                   <number>10</number>
                  </property>
@@ -5653,6 +5689,9 @@ HELP</string>
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
                  <property name="maxLength">
                   <number>10</number>
                  </property>
@@ -5699,11 +5738,11 @@ HELP</string>
  <connections/>
  <buttongroups>
   <buttongroup name="cal_buttonGroup"/>
-  <buttongroup name="clear_buttonGroup"/>
-  <buttongroup name="outside_buttonGroup"/>
   <buttongroup name="inside_buttonGroup"/>
-  <buttongroup name="skew_buttonGroup"/>
-  <buttongroup name="boss_pocket_buttonGroup"/>
+  <buttongroup name="clear_buttonGroup"/>
   <buttongroup name="ridge_valley_buttonGroup"/>
+  <buttongroup name="boss_pocket_buttonGroup"/>
+  <buttongroup name="skew_buttonGroup"/>
+  <buttongroup name="outside_buttonGroup"/>
  </buttongroups>
 </ui>
