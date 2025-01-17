@@ -39,3 +39,6 @@ Jan. 14/25 v 2.0.8
     - added SHOW MACROS button on DRO frame
     - added calculator mode option for parameter input in basicprobe
     
+Jan. 16/25 v 2.0.9
+    - added calculator mode option for inputting data to lineEdits
+    
