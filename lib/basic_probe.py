@@ -521,7 +521,7 @@ class HelpPage(QtWidgets.QWidget):
 
 # sub-classed Calculator so button actions can be redefined
 class CalcInput(Calculator):
-    apply_action = pyqtSignal(str)
+    apply_action = pyqtSignal()
     next_action = pyqtSignal()
     back_action = pyqtSignal()
 
@@ -529,8 +529,7 @@ class CalcInput(Calculator):
         super(CalcInput, self).__init__()
         
     def applyAction(self):
-        data = self.display.text()
-        self.apply_action.emit(data)
+        self.apply_action.emit()
 
     def nextAction(self):
         self.next_action.emit()

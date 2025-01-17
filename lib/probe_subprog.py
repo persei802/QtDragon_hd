@@ -21,8 +21,8 @@ import json
 
 from PyQt5.QtCore import QObject
 from qtvcp.core import Status, Action, Info
-#from qtvcp.widgets.probe_routines import ProbeRoutines
-from probe_routines import ProbeRoutines
+from qtvcp.widgets.probe_routines import ProbeRoutines
+#from qtvcp.widgets.test_routines import ProbeRoutines
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 STATUS = Status()
