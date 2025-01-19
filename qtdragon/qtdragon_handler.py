@@ -42,7 +42,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.0.9'
+VERSION = '2.1.0'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -102,6 +102,7 @@ class EventFilter(QObject):
         self.line = None
         self.hilightStyle = "border: 1px solid cyan;"
         self._oldStyle = ''
+        self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
 
         self.calc.accepted.connect(lambda: self.calc_data(True))
         self.calc.rejected.connect(self.calc_data)
@@ -120,14 +121,17 @@ class EventFilter(QObject):
     def popEntry(self):
         self.line.setStyleSheet(self.hilightStyle)
         self.calc.setWindowTitle(f"Enter data for {self.line.objectName().replace('lineEdit_','')}")
+        preset = self.line.text()
+        if preset == '': preset = '0'
+        self.calc.display.setText(preset)
         self.calc.show()
 
     def calc_data(self, accept=False):
         self.line.setStyleSheet(self._oldStyle)
         if accept:
             text = self.calc.display.text()
-            self.line.setText(text)
-        self.calc.clearAll()
+            value = float(text)
+            self.line.setText(f'{value:{self.tmpl}}')
 
     def set_use_calculator(self, data):
         self.use_calc = data

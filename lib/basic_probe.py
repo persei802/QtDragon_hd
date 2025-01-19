@@ -19,7 +19,7 @@
 import sys
 import os
 import json
-from PyQt5.QtCore import QProcess, QEvent, QObject, QRegExp, QFile, Qt, pyqtSignal
+from PyQt5.QtCore import QProcess, QEvent, QObject, QRegularExpression, QFile, Qt, pyqtSignal
 from PyQt5 import QtGui, QtWidgets, uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info, Path, Tool
@@ -54,8 +54,9 @@ class EventFilter(QObject):
         self._nextIndex = 0
         self.hilightStyle = "border: 1px solid cyan;"
         self._oldStyle = ''
-
         self.calc = CalcInput()
+
+        self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
 
         self.calc.apply_action.connect(lambda: self.calc_data(apply=True))
         self.calc.next_action.connect(lambda: self.calc_data(next=True))
@@ -78,21 +79,23 @@ class EventFilter(QObject):
     def popEntry(self, obj, next=False):
         obj.setStyleSheet(self.hilightStyle)
         self.calc.setWindowTitle(f"Enter data for {obj.objectName().replace('lineEdit_','')}")
+        preset = obj.text()
+        if preset == '': preset = '0'
+        self.calc.display.setText(preset)
         if not next:
             self.calc.show()
 
     def calc_data(self, next=False, back=False, apply=False, accept=False):
         line = self.line_list[self._nextIndex]
         self.w[f'lineEdit_{line}'].setStyleSheet(self._oldStyle)
-        if next or back:
-            if next:
-                self._nextIndex += 1
-                if self._nextIndex == len(self.line_list):
-                    self._nextIndex = 0
-            elif back:
-                self._nextIndex -= 1
-                if self._nextIndex < 0:
-                    self._nextIndex = len(self.line_list) - 1
+        if next:
+            self._nextIndex += 1
+            if self._nextIndex == len(self.line_list):
+                self._nextIndex = 0
+        elif back:
+            self._nextIndex -= 1
+            if self._nextIndex < 0:
+                self._nextIndex = len(self.line_list) - 1
         elif apply or accept:
             text = self.calc.display.text()
             if line == 'probe_tool':
@@ -100,12 +103,12 @@ class EventFilter(QObject):
                 value = int(value)
                 self.w.lineEdit_probe_tool.setText(str(value))
             else:
-                self.w[f'lineEdit_{line}'].setText(text)
+                value = float(text)
+                self.w[f'lineEdit_{line}'].setText(f'{value:{self.tmpl}}')
             if apply:
                 self._nextIndex += 1
                 if self._nextIndex == len(self.line_list):
                     self._nextIndex = 0
-        self.calc.clearAll()
         if next or back or apply:
             newobj = self.w[f'lineEdit_{self.line_list[self._nextIndex]}']
             self.popEntry(newobj, True)
@@ -130,6 +133,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(BasicProbe, self).__init__()
         self.parent = parent
+        self.regex = ''
         try:
             self.tool_db = self.parent.tool_db
         except Exception as e:
@@ -139,10 +143,6 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.test_mode = False
         self.help = HelpPage()
         self.probe_settings = []
-        if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QRegExpValidator(QRegExp('^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
-        else:
-            self.valid = QtGui.QRegExpValidator(QRegExp('^[+-]?((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
         self.setMinimumSize(600, 420)
         # load the widgets ui file
         self.filename = os.path.join(HERE, 'basic_probe.ui')
@@ -168,26 +168,27 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         #create parameter dictionary
         self.send_dict = {}
         # these parameters are sent to the subprogram
+        # this is also the order of the next widget when calculator 'next' button is pressed
         self.parm_list = ['probe_diam',
+                          'rapid_vel',
+                          'search_vel',
+                          'probe_vel',
+                          'extra_depth',
+                          'latch_return_dist',
                           'max_travel',
                           'max_z',
                           'xy_clearance',
+                          'z_clearance',
+                          'side_edge_length',
                           'adj_x',
                           'adj_y',
                           'adj_z',
                           'adj_angle',
-                          'z_clearance',
-                          'extra_depth',
-                          'latch_return_dist',
-                          'search_vel',
-                          'probe_vel',
-                          'rapid_vel',
-                          'side_edge_length',
+                          'diameter_hint',
                           'x_hint_bp',
                           'y_hint_bp',
                           'x_hint_rv',
                           'y_hint_rv',
-                          'diameter_hint',
                           'cal_diameter',
                           'cal_x_width',
                           'cal_y_width',
@@ -208,8 +209,16 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.btn_probe_help.pressed.connect(self.probe_help_pressed)
 
         self.stackedWidget_probe_buttons.setCurrentIndex(0)
+
         # define validators for all lineEdit widgets
-        self.lineEdit_probe_tool.setValidator(QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}')))
+        # this only works when directly typing into a lineEdit
+        if INFO.MACHINE_IS_METRIC:
+            self.regex = QRegularExpression(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$')
+        else:
+            self.regex = QRegularExpression(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$')
+        self.valid = QtGui.QRegularExpressionValidator(self.regex)
+        regex = QRegularExpression(r'^\d{0,5}$')
+        self.lineEdit_probe_tool.setValidator(QtGui.QRegularExpressionValidator(regex))
         for i in self.parm_list:
             self['lineEdit_' + i].setValidator(self.valid)
 
