@@ -12,15 +12,15 @@
 # GNU General Public License for more details.
 import sys
 import os
+import re
 import xml.etree.ElementTree as ET
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QPushButton, QStackedWidget, QDialog, QDialogButtonBox, QVBoxLayout, QHBoxLayout, QSizePolicy
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
 from qtvcp.core import Info, Path
-from qtvcp.widgets.screen_options import ScreenOptions
 from qtvcp.lib.qt_pdf import PDFViewer
 from qtvcp import logger
 
@@ -64,8 +64,7 @@ class Setup_Utils():
         self.w = widgets
         self.parent = parent
         self.tool_db = self.parent.tool_db
-        self.html_setup_index = 0
-        self.pdf_setup_index = 0
+        self.doc_index = 0
         self.util_btns = []
         self.num_utils = 0
         self.max_util_btns = 8
@@ -80,7 +79,6 @@ class Setup_Utils():
         self.tree = ET.parse(xml_filename)
         self.root = self.tree.getroot()
         self.machine = self.root.get('type')
-
         # setup help file viewer
         self.dialog = QDialog()
         self.help_page = ShowHelp(self.dialog)
@@ -97,16 +95,6 @@ class Setup_Utils():
                     LOG.debug(f"Installed {child.tag} utility")
                 else:
                     LOG.debug(f"No such utility as {child.tag}")
-        # html setup page viewer
-        self.web_view_setup = QWebEngineView()
-        self.web_page_setup = WebPage()
-        self.web_view_setup.setPage(self.web_page_setup)
-        self.html_setup_index = self.stackedWidget_utils.addWidget(self.web_view_setup)
-        self.make_button('html', 'HTML\nVIEWER')
-        # PDF setup page viewer
-        self.PDFView = PDFViewer.PDFView()
-        self.pdf_setup_index = self.stackedWidget_utils.addWidget(self.PDFView)
-        self.make_button('pdf', 'PDF\nVIEWER')
 
         self.num_utils = len(self.util_btns)
         self['btn_' + self.util_btns[0]].setChecked(True)
@@ -187,6 +175,25 @@ class Setup_Utils():
             self.make_button('rotary', 'RAPID\nROTARY')
             self.rapid_rotary._hal_init()
 
+    def install_document_viewer(self):
+        self.doc_viewer = QtWidgets.QTabWidget()
+        self.doc_index = self.stackedWidget_utils.addWidget(self.doc_viewer)
+        self.make_button('docs', 'DOCUMENT\nVIEWER')
+        # html page viewer
+        self.web_view_setup = QWebEngineView()
+        self.web_page_setup = WebPage()
+        self.web_view_setup.setPage(self.web_page_setup)
+        self.doc_viewer.addTab(self.web_view_setup, 'HTML')
+        # PDF page viewer
+        self.PDFView = PDFViewer.PDFView()
+        self.doc_viewer.addTab(self.PDFView, 'PDF')
+        # gcode properties viewer
+        self.gcode_properties = QtWidgets.QPlainTextEdit()
+        self.gcode_properties.setReadOnly(True)
+        # need a monospace font or text won't line up
+        self.gcode_properties.setFont(QtGui.QFont("Courier", 12))
+        self.doc_viewer.addTab(self.gcode_properties, 'GCODE')
+
     def make_button(self, name, title):
         self['btn_' + name] = QPushButton(title)
         self['btn_' + name].setSizePolicy(self.sizePolicy)
@@ -216,13 +223,40 @@ class Setup_Utils():
     def show_html(self, fname):
         url = QtCore.QUrl("file:///" + fname)
         self.web_page_setup.load(url)
-        self.stackedWidget_utils.setCurrentIndex(self.html_setup_index)
-        self.btn_html.setChecked(True)
+        self.stackedWidget_utils.setCurrentIndex(self.doc_index)
+        self.doc_viewer.setCurrentIndex(0)
+        self.btn_docs.setChecked(True)
 
     def show_pdf(self, fname):
         self.PDFView.loadView(fname)
-        self.stackedWidget_utils.setCurrentIndex(self.pdf_setup_index)
-        self.btn_pdf.setChecked(True)
+        self.stackedWidget_utils.setCurrentIndex(self.doc_index)
+        self.doc_viewer.setCurrentIndex(1)
+        self.btn_docs.setChecked(True)
+
+    def show_gcode_properties(self, props):
+        lines = props.split('\n')
+        # convert huge numbers to scientific notation
+        for index, line in enumerate(lines):
+            numbers = re.findall(r'-?\d+\.?\d*', line)
+            for num in numbers:
+                value = float(num)
+                if abs(value) > 100000:
+                    data = f'{value:.3e}'
+                    line = line.replace(num, data)
+            lines[index] = line
+        # arrange lines into 2 columns
+        col_width = 30
+        for index, line in enumerate(lines):
+            parts = line.split(':')
+            if len(parts) < 2: continue
+            key = parts[0] + ':'
+            while len(key) < col_width:
+                key += ' '
+            line = key + parts[1]
+            lines[index] = line
+        text = "\n".join(lines)
+        self.gcode_properties.setPlainText(text)
+        self.doc_viewer.setCurrentIndex(2)
 
     def show_help_page(self, page):
         url = QtCore.QUrl("file:///" + page)

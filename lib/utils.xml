@@ -9,5 +9,6 @@
         <hole_enlarge install="yes" />
         <gcodes install="yes" />
         <rapid_rotary install="yes" />
+        <document_viewer install="yes" />
     </Utils>
 </Machine>
