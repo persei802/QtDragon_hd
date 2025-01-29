@@ -15,11 +15,11 @@ import datetime
 import requests
 import linuxcnc
 from connections import Connections
+from lib.event_filter import EventFilter
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import QObject, QEvent, QRegExp, pyqtSignal
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor
 from PyQt5.QtWidgets import QMessageBox
-from qtvcp.widgets.calculator import Calculator
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -42,7 +42,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.1.0'
+VERSION = '2.1.1'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -91,67 +91,6 @@ class Highlighter(QSyntaxHighlighter):
                 length = expression.matchedLength()
                 self.setFormat(index, length, format)
                 index = expression.indexIn(text, index + length)
-
-
-class EventFilter(QObject):
-    def __init__(self):
-        super().__init__()
-        self.use_calc = False
-        self.calc = CalcInput()
-        self.line_list = []
-        self.line = None
-        self.hilightStyle = "border: 1px solid cyan;"
-        self._oldStyle = ''
-        self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
-
-        self.calc.accepted.connect(lambda: self.calc_data(True))
-        self.calc.rejected.connect(self.calc_data)
-
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.FocusIn:
-            if isinstance(obj, QtWidgets.QLineEdit) and self.use_calc:
-                if event.reason() == 0:
-                    self.line = obj
-                    self.popEntry()
-                    obj.clearFocus()
-                    event.accept()
-                    return True
-        return False
-
-    def popEntry(self):
-        self.line.setStyleSheet(self.hilightStyle)
-        self.calc.setWindowTitle(f"Enter data for {self.line.objectName().replace('lineEdit_','')}")
-        preset = self.line.text()
-        if preset == '': preset = '0'
-        self.calc.display.setText(preset)
-        self.calc.show()
-
-    def calc_data(self, accept=False):
-        self.line.setStyleSheet(self._oldStyle)
-        if accept:
-            text = self.calc.display.text()
-            value = float(text)
-            self.line.setText(f'{value:{self.tmpl}}')
-
-    def set_use_calculator(self, data):
-        self.use_calc = data
-
-    def set_line_list(self, data):
-        self.line_list = data
-
-    def set_old_style(self, style):
-        self._oldStyle = style
-
-# sub-classed Calculator so button actions can be redefined
-class CalcInput(Calculator):
-    apply_action = pyqtSignal(str)
-
-    def __init__(self):
-        super(CalcInput, self).__init__()
-        
-    def applyAction(self):
-        data = self.display.text()
-        self.apply_action.emit(data)
 
 
 class HandlerClass:
@@ -242,6 +181,7 @@ class HandlerClass:
         STATUS.connect('all-homed', self.all_homed)
         STATUS.connect('not-all-homed', self.not_all_homed)
         STATUS.connect('interp-idle', lambda w: self.stop_timer())
+        STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_gcode_properties(d))
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
 
     def class_patch__(self):
@@ -540,11 +480,12 @@ class HandlerClass:
         line_list = self.lineedit_list
         if 'eoffset' in line_list:
             line_list.remove('eoffset')
-        self.event_filter = EventFilter()
+        self.event_filter = EventFilter(self.w)
         self.event_filter.set_line_list(line_list)
         for line in line_list:
             self.w[f'lineEdit_{line}'].installEventFilter(self.event_filter)
         self.event_filter.set_old_style(self.w.lineEdit_work_height.styleSheet())
+        self.event_filter.set_accept_mode(True)
 
     def init_macros(self):
         # macro buttons defined in INI under [MDI_COMMAND_LIST]
@@ -775,6 +716,42 @@ class HandlerClass:
         minutes = self.h['runtime-minutes']
         seconds = self.h['runtime-seconds']
         self.w.lineEdit_runtime.setText(f"{hours:02d}:{minutes:02d}:{seconds:02d}")
+
+    def update_gcode_properties(self, props):
+        # substitute nice looking text:
+        property_names = {
+            'name': "Name:", 'size': "Size:",
+            'tools': "Tool order:", 'g0': "Rapid distance:",
+            'g1': "Feed distance:", 'g': "Total distance:",
+            'run': "Run time:",'machine_unit_sys':"Machine Unit System:",
+            'x': "X bounds:",'x_zero_rxy':'X @ Zero Rotation:',
+            'y': "Y bounds:",'y_zero_rxy':'Y @ Zero Rotation:',
+            'z': "Z bounds:",'z_zero_rxy':'Z @ Zero Rotation:',
+            'a': "A bounds:", 'b': "B bounds:",
+            'c': "C bounds:",'toollist':'Tool Change List:',
+            'gcode_units':"Gcode Units:"
+        }
+        if not props: return
+        text = ''
+        for i in props:
+            text += f'{property_names[i]} {props[i]}\n'
+        self.setup_utils.show_gcode_properties(text)
+        # update estimated runtime
+        value, units = props['run'].split(' ')
+        if units == 'Seconds':
+            runtime = float(value)
+        elif units == 'Minutes':
+            runtime = float(value) * 60
+        else:
+            self.w.lineEdit_runtime_estimate.setText('')
+            return
+        hours, remainder = divmod(int(runtime), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        text = f'{hours:02d}:{minutes:02d}:{seconds:02d}'
+        self.w.lineEdit_runtime_estimate.setText(text)
+        # send data to zlevel compensation module
+        zdata = (props['x'], props['y'], props['gcode_units'])
+        self.zlevel.set_comp_area(zdata)
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
         self.add_status("Hard limits tripped", ERROR)
@@ -1274,7 +1251,7 @@ class HandlerClass:
             self.probe.set_calc_mode(state)
 
     def chk_use_handler_calc(self, state):
-        self.event_filter.set_use_calculator(state)
+        self.event_filter.set_calc_mode(state)
 
     def touchoff_changed(self, state):
         if not state: return
@@ -1456,6 +1433,7 @@ class HandlerClass:
             self.w.widget_gcode_history.hide()
             self.w.btn_edit_gcode.setChecked(False)
             self.w.gcode_viewer.readOnlyMode()
+            self.w.stackedWidget_gcode.setCurrentIndex(0)
         else:
             self.w.widget_gcode_history.show()
             i = 1 if STATUS.is_mdi_mode() else 0

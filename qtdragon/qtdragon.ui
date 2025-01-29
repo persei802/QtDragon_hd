@@ -74,7 +74,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="ScreenOptions" name="screen_options">
+     <widget class="ScreenOptions" name="screen_options" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -839,7 +839,7 @@ GCODE</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="GcodeEditor" name="gcode_viewer">
+                  <widget class="GcodeEditor" name="gcode_viewer" native="true">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -894,7 +894,7 @@ GCODE</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="MDIHistory" name="mdihistory">
+                  <widget class="MDIHistory" name="mdihistory" native="true">
                    <property name="minimumSize">
                     <size>
                      <width>0</width>
@@ -2539,7 +2539,7 @@ P</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="FileManager" name="filemanager"/>
+                  <widget class="FileManager" name="filemanager" native="true"/>
                  </item>
                 </layout>
                </widget>
@@ -4707,7 +4707,7 @@ TO FILE</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="CamView" name="camview"/>
+                  <widget class="CamView" name="camview" native="true"/>
                  </item>
                  <item>
                   <widget class="QWidget" name="widget_cam_controls" native="true">
@@ -8400,15 +8400,12 @@ SCOPE</string>
                <number>4</number>
               </property>
               <item>
-               <widget class="JoyPad" name="jog_az">
+               <widget class="JoyPad" name="jog_az" native="true">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
-                </property>
-                <property name="highlightPosition" stdset="0">
-                 <enum>JoyPad::NONE</enum>
                 </property>
                 <property name="setColorState" stdset="0">
                  <bool>true</bool>
@@ -8441,15 +8438,12 @@ SCOPE</string>
                </widget>
               </item>
               <item>
-               <widget class="JoyPad" name="jog_xy">
+               <widget class="JoyPad" name="jog_xy" native="true">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
-                </property>
-                <property name="highlightPosition" stdset="0">
-                 <enum>JoyPad::NONE</enum>
                 </property>
                 <property name="setColorState" stdset="0">
                  <bool>true</bool>
@@ -8854,9 +8848,6 @@ RESET</string>
                  <string>ESTOP
 ACTIVE</string>
                 </property>
-                <property name="pin_type" stdset="0">
-                 <enum>PushButton::BIT</enum>
-                </property>
                </widget>
               </item>
               <item>
@@ -9022,7 +9013,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_estop">
+                 <widget class="LED" name="hal_led_estop" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9041,7 +9032,7 @@ ACTIVE</string>
                     <height>24</height>
                    </size>
                   </property>
-                  <property name="color">
+                  <property name="color" stdset="0">
                    <color>
                     <red>0</red>
                     <green>0</green>
@@ -9102,7 +9093,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_home_x">
+                 <widget class="LED" name="hal_led_home_x" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9121,10 +9112,10 @@ ACTIVE</string>
                     <height>24</height>
                    </size>
                   </property>
-                  <property name="diameter">
+                  <property name="diameter" stdset="0">
                    <number>15</number>
                   </property>
-                  <property name="color">
+                  <property name="color" stdset="0">
                    <color>
                     <red>0</red>
                     <green>255</green>
@@ -9185,7 +9176,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_home_y">
+                 <widget class="LED" name="hal_led_home_y" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9204,10 +9195,10 @@ ACTIVE</string>
                     <height>24</height>
                    </size>
                   </property>
-                  <property name="diameter">
+                  <property name="diameter" stdset="0">
                    <number>15</number>
                   </property>
-                  <property name="color">
+                  <property name="color" stdset="0">
                    <color>
                     <red>0</red>
                     <green>255</green>
@@ -9265,7 +9256,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_home_z">
+                 <widget class="LED" name="hal_led_home_z" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9284,10 +9275,10 @@ ACTIVE</string>
                     <height>24</height>
                    </size>
                   </property>
-                  <property name="diameter">
+                  <property name="diameter" stdset="0">
                    <number>15</number>
                   </property>
-                  <property name="color">
+                  <property name="color" stdset="0">
                    <color>
                     <red>0</red>
                     <green>255</green>
@@ -9345,7 +9336,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_probe">
+                 <widget class="LED" name="hal_led_probe" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9364,10 +9355,10 @@ ACTIVE</string>
                     <height>24</height>
                    </size>
                   </property>
-                  <property name="diameter">
+                  <property name="diameter" stdset="0">
                    <number>15</number>
                   </property>
-                  <property name="color">
+                  <property name="color" stdset="0">
                    <color>
                     <red>0</red>
                     <green>120</green>
@@ -9428,7 +9419,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_limit">
+                 <widget class="LED" name="hal_led_limit" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9450,7 +9441,7 @@ ACTIVE</string>
                   <property name="toolTip">
                    <string>Motion limited due to external offsets</string>
                   </property>
-                  <property name="color">
+                  <property name="color" stdset="0">
                    <color>
                     <red>255</red>
                     <green>0</green>
@@ -9496,7 +9487,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_inhibit">
+                 <widget class="LED" name="hal_led_inhibit" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -11695,6 +11686,64 @@ STATUS</string>
               </layout>
              </item>
              <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_10">
+               <property name="spacing">
+                <number>4</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label">
+                 <property name="minimumSize">
+                  <size>
+                   <width>120</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>ESTIMATED
+RUNTIME</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lineEdit_runtime_estimate">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maxLength">
+                  <number>10</number>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
               <layout class="QHBoxLayout" name="layout_runtime">
                <property name="spacing">
                 <number>4</number>
@@ -13562,7 +13611,7 @@ WCS</string>
                 <number>4</number>
                </property>
                <item>
-                <widget class="StatusAdjustmentBar" name="adj_maxvel_ovr">
+                <widget class="StatusAdjustmentBar" name="adj_maxvel_ovr" native="true">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -13587,7 +13636,7 @@ WCS</string>
                 </widget>
                </item>
                <item>
-                <widget class="StatusAdjustmentBar" name="adj_rapid_ovr">
+                <widget class="StatusAdjustmentBar" name="adj_rapid_ovr" native="true">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -13609,7 +13658,7 @@ WCS</string>
                 </widget>
                </item>
                <item>
-                <widget class="StatusAdjustmentBar" name="adj_feed_ovr">
+                <widget class="StatusAdjustmentBar" name="adj_feed_ovr" native="true">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -13634,7 +13683,7 @@ WCS</string>
                 </widget>
                </item>
                <item>
-                <widget class="StatusAdjustmentBar" name="adj_spindle_ovr">
+                <widget class="StatusAdjustmentBar" name="adj_spindle_ovr" native="true">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -13720,7 +13769,7 @@ WCS</string>
                 <number>4</number>
                </property>
                <item>
-                <widget class="Gauge" name="gauge_spindle">
+                <widget class="Gauge" name="gauge_spindle" native="true">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -13846,7 +13895,7 @@ SPEED</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="LED" name="hal_led_atspeed">
+                  <widget class="LED" name="hal_led_atspeed" native="true">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -13865,7 +13914,7 @@ SPEED</string>
                      <height>24</height>
                     </size>
                    </property>
-                   <property name="color">
+                   <property name="color" stdset="0">
                     <color>
                      <red>0</red>
                      <green>255</green>
@@ -14548,14 +14597,14 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="util_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="util_buttonGroup"/>
+  <buttongroup name="about_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="about_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
