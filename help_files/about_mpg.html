@@ -18,7 +18,7 @@ which axis is being jogged with the MPG. </p>
 <h2>SCALE SELECT</h2>
 <p>A HAL float input pin is created to allow the handler file to display the currently selected jog scale setting of the MPG.
 Connections from the MPG to a mux4 HAL component are made in a <i>mpg.hal</i> file and the output of the mux4 is connected
-to QtDragon in order to display the currently selected MPG jog increment. If the MPG is pulse outputs are quadrature encoded, the
+to QtDragon in order to display the currently selected MPG jog increment. If the MPG's pulse outputs are quadrature encoded, the
 scale value inputs to the MUX4 component should be the desired step size divided by 4.</p>
 <h2>MPG DISABLE</h2>
 <p>A HAL output pin is created to disable the MPG encoder if the Enable MPG Jogging checkbox is unchecked. Note that this does not
