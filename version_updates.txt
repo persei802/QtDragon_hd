@@ -44,3 +44,10 @@ Jan. 16/25 v 2.0.9
     
 Jan. 19/25 v 2.1.0
     - apply formatting to calculator input
+
+Jan. 29/25 v 2.1.1
+    - make sure gcode is displayed when entering AUTO mode
+    - combined HTML and PDF viewers into DOCUMENT VIEWER and added gcode properites display
+    - push gcode properties to zlevel module
+    - import EventFilter class from local lib folder
+    
