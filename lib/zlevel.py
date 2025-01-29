@@ -13,6 +13,7 @@
 import sys
 import os
 import re
+import math
 import tempfile
 import atexit
 import shutil
@@ -30,32 +31,8 @@ HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 WARNING = 1
 
 
-class Read_Gcode:
-    def __init__(self):
-        pass
-
-    def read_gcode_file(self, file_path):
-        with open(file_path, 'r') as file:
-            lines = file.readlines()
-        return lines
-
-    def parse_gcode_lines(self, lines):
-        min_values = {'x': 9999.0, 'y': 9999.0}
-        max_values = {'x': -9999.0, 'y': -9999.0}
-        axis_pattern = re.compile(r'[XYZ]([+-]?\d*\.?\d+)')
-        for line in lines:
-            matches = axis_pattern.findall(line)
-            for axis, value in zip('xy', matches):
-                value = float(value)
-                if value < min_values[axis]:
-                    min_values[axis] = value
-                if value > max_values[axis]:
-                    max_values[axis] = value
-        return min_values, max_values
-
-
 class ZLevel(QWidget):
-    def __init__(self, widget, handler, parent=None):
+    def __init__(self, widget=None, handler=None, parent=None):
         super(ZLevel, self).__init__()
         self.w = widget
         self.h = handler
@@ -78,13 +55,10 @@ class ZLevel(QWidget):
         self.probe_vel = 0
         self.z_safe = 0
         self.max_probe = 0
-        self.probe_start = 0
         self.probe_filename = ""
         self.comp_file = ""
-        self.normal_color = ""
-        self.error_color = "color: #ff0000;"
+        self.red_border = "border: 2px solid red;"
         self.help_text = []
-        self.read_gc = Read_Gcode()
         # list of zero reference locations
         self.reference = ["top-left", "top-right", "center", "bottom-left", "bottom-right"]
         # set valid input formats for lineEdits
@@ -92,20 +66,13 @@ class ZLevel(QWidget):
         self.lineEdit_size_y.setValidator(QtGui.QIntValidator(0, 9999))
         self.lineEdit_steps_x.setValidator(QtGui.QIntValidator(0, 100))
         self.lineEdit_steps_y.setValidator(QtGui.QIntValidator(0, 100))
+        self.lineEdit_probe_tool.setValidator(QtGui.QIntValidator(0, 100))
         units = "MM" if INFO.MACHINE_IS_METRIC else "IN"
         self.lbl_probe_area_unit.setText(units)
 
         # populate combobox
         self.cmb_zero_ref.addItems(self.reference)
         self.cmb_zero_ref.setCurrentIndex(2)
-
-        # signal connections
-        self.btn_read_gcode.pressed.connect(self.read_gcode)
-        self.btn_save_gcode.pressed.connect(self.save_gcode)
-        self.btn_send_gcode.pressed.connect(self.send_gcode)
-        self.btn_load_comp.pressed.connect(self.load_comp_file)
-        self.btn_get_maxz.pressed.connect(self.get_maxz)
-        self.btn_help.pressed.connect(self.show_help)
 
         # display default height map if available
         self.map_ready()
@@ -119,19 +86,15 @@ class ZLevel(QWidget):
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         STATUS.connect('file-loaded', lambda w, fname: self.lineEdit_gcode_program.setText(fname))
 
-    def read_gcode(self):
-        fname = self.lineEdit_gcode_program.text()
-        if os.path.exists(fname):
-            lines = self.read_gc.read_gcode_file(fname)
-            min_vals, max_vals = self.read_gc.parse_gcode_lines(lines)
-            self.size_x = int(max_vals['x'] - min_vals['x'])
-            self.size_y = int(max_vals['y'] - min_vals['y'])
-            self.lineEdit_size_x.setText(f'{self.size_x}')
-            self.lineEdit_size_y.setText(f'{self.size_y}')
-        else:
-            self.h.add_status(f"{fname} does not exist - load a gcode file or enter manually", WARNING)
-            return
-        
+        # signal connections
+        self.btn_save_gcode.pressed.connect(self.save_gcode)
+        self.btn_send_gcode.pressed.connect(self.send_gcode)
+        self.btn_load_comp.pressed.connect(self.load_comp_file)
+        self.btn_get_maxz.pressed.connect(self.get_maxz)
+        self.btn_help.pressed.connect(self.show_help)
+
+        self.default_style = self.w.lineEdit_search_vel.styleSheet()
+
     def save_gcode(self):
         if not self.validate(): return
         fname = self.lineEdit_gcode_program.text()
@@ -194,7 +157,6 @@ class ZLevel(QWidget):
         self.next_line("  #200 = 0")
         self.next_line(f"  O200 while [#200 LT {self.x_steps}]")
         self.next_line(f"    G0 X[{x_start} + {x_inc:.3f} * #200]")
-        self.next_line(f"    G0 Z{self.probe_start}")
         self.next_line(f"    G38.2 Z-{self.max_probe} F{self.probe_vel}")
         self.next_line(f"    G0 Z{self.z_safe}")
         self.next_line("    #200 = [#200 + 1]")
@@ -209,78 +171,72 @@ class ZLevel(QWidget):
 
     def validate(self):
         valid = True
-        # create lineEdit colors to indicate error state
-        # placed here because changing stylesheets could change colors
-        default_color = self.w.lineEdit_probe_tool.palette().color(self.w.lineEdit_probe_tool.foregroundRole())
-        self.normal_color = f"color: {default_color.name()};"
-        # restore normal text colors
+        # restore normal border colors
         for item in ["size_x", "size_y", "steps_x", "steps_y"]:
-            widget = self['lineEdit_' + item]
-            color = widget.palette().color(widget.foregroundRole())
-            if color.name() == "#ff0000":
-                widget.setStyleSheet(self.normal_color)
-        for item in ["probe_tool", "zsafe", "probe_vel", "max_probe", "probe_start"]:
-            widget = self.w['lineEdit_' + item]
-            color = widget.palette().color(widget.foregroundRole())
-            if color.name() == "#ff0000":
-                widget.setStyleSheet(self.normal_color)
+            if self['lineEdit_' + item].styleSheet() == self.red_border:
+                self['lineEdit_' + item].setStyleSheet(self.default_style)
+        for item in ["zsafe", "probe_vel", "max_probe"]:
+            if self.w['lineEdit_' + item].styleSheet() == self.red_border:
+                self.w['lineEdit_' + item].setStyleSheet(self.default_style)
+        if self.lineEdit_probe_tool.styleSheet == self.red_border:
+            self.lineEdit_probe_tool.setStyleSheet(self.default_style)
         # check array size parameter
         try:
             self.size_x = float(self.lineEdit_size_x.text())
             if self.size_x <= 0:
-                self.lineEdit_size_x.setStyleSheet(self.error_color)
+                self.lineEdit_size_x.setStyleSheet(self.red_border)
                 self.h.add_status("Size X must be > 0", WARNING)
                 valid = False
         except:
-            self.lineEdit_size_x.setStyleSheet(self.error_color)
+            self.lineEdit_size_x.setStyleSheet(self.red_border)
             valid = False
         try:
             self.size_y = float(self.lineEdit_size_y.text())
             if self.size_y <= 0:
-                self.lineEdit_size_y.setStyleSheet(self.error_color)
+                self.lineEdit_size_y.setStyleSheet(self.red_border)
                 self.h.add_status("Size Y must be > 0", WARNING)
                 valid = False
         except:
-            self.lineEdit_size_y.setStyleSheet(self.error_color)
+            self.lineEdit_size_y.setStyleSheet(self.red_border)
             valid = False
         # check array steps parameter
         try:
             self.x_steps = int(self.lineEdit_steps_x.text())
             if self.x_steps < 2:
-                self.lineEdit_steps_x.setStyleSheet(self.error_color)
+                self.lineEdit_steps_x.setStyleSheet(self.red_border)
                 self.h.add_status("Steps X must be >= 2", WARNING)
                 valid = False
         except:
-            self.lineEdit_steps_x.setStyleSheet(self.error_color)
+            self.lineEdit_steps_x.setStyleSheet(self.red_border)
             valid = False
         try:
             self.y_steps = int(self.lineEdit_steps_y.text())
             if self.y_steps < 2:
-                self.lineEdit_steps_y.setStyleSheet(self.error_color)
+                self.lineEdit_steps_y.setStyleSheet(self.red_border)
                 self.h.add_status("Steps Y must be >= 2", WARNING)
                 valid = False
         except:
-            self.lineEdit_steps_y.setStyleSheet(self.error_color)
+            self.lineEdit_steps_y.setStyleSheet(self.red_border)
             valid = False
         # check probe tool number
         try:
-            self.probe_tool = int(self.w.lineEdit_probe_tool.text())
+            self.probe_tool = int(self.lineEdit_probe_tool.text())
             if self.probe_tool <= 0:
-                self.w.lineEdit_probe_tool.setStyleSheet(self.error_color)
+                self.w.lineEdit_probe_tool.setStyleSheet(self.red_border)
                 self.h.add_status("Probe tool number must be > 0", WARNING)
                 valid = False
         except:
-            self.w.lineEdit_probe_tool.setStyleSheet(self.error_color)
+            self.w.lineEdit_probe_tool.setStyleSheet(self.red_border)
             valid = False
         # check z safe parameter
         try:
             self.z_safe = float(self.w.lineEdit_zsafe.text())
             if self.z_safe <= 0.0:
-                self.w.lineEdit_zsafe.setStyleSheet(self.error_color)
+                self.w.lineEdit_zsafe.setStyleSheet(self.red_border)
                 self.h.add_status("Z safe height must be > 0", WARNING)
                 valid = False
         except:
-            self.w.lineEdit_zsafe.setStyleSheet(self.error_color)
+            self.w.lineEdit_zsafe.setStyleSheet(self.red_border)
             valid = False
         # check probe velocity
         try:
@@ -288,35 +244,17 @@ class ZLevel(QWidget):
             if self.probe_vel <= 0.0:
                 self.h.add_status("Slow probing sequence will be skipped", WARNING)
         except:
-            self.w.lineEdit_probe_vel.setStyleSheet(self.error_color)
+            self.w.lineEdit_probe_vel.setStyleSheet(self.red_border)
             valid = False
         # check max probe distance
         try:
             self.max_probe = float(self.w.lineEdit_max_probe.text())
             if self.max_probe <= 0.0:
-                self.w.lineEdit_max_probe.setStyleSheet(self.error_color)
+                self.w.lineEdit_max_probe.setStyleSheet(self.red_border)
                 self.h.add_status("Max probe distance must be > 0", WARNING)
                 valid = False
         except:
-            self.w.lineEdit_max_probe.setStyleSheet(self.error_color)
-            valid = False
-        # check probe start height
-        try:
-            self.probe_start = float(self.w.lineEdit_probe_start.text())
-            if self.probe_start <= 0.0:
-                self.w.lineEdit_probe_start.setStyleSheet(self.error_color)
-                self.h.add_status("Start probe height must be > 0", WARNING)
-                valid = False
-            elif self.probe_start > self.z_safe:
-                self.w.lineEdit_probe_start.setStyleSheet(self.error_color)
-                self.h.add_status("Start probe height must be < Z Safe height", WARNING)
-                valid = False
-            elif self.probe_start > self.max_probe:
-                self.w.lineEdit_probe_start.setStyleSheet(self.error_color)
-                self.h.add_status("Start probe height must be < Max Probe distance", WARNING)
-                valid = False
-        except:
-            self.w.lineEdit_probe_start.setStyleSheet(self.error_color)
+            self.w.lineEdit_max_probe.setStyleSheet(self.red_border)
             valid = False
         return valid
 
@@ -369,6 +307,22 @@ class ZLevel(QWidget):
     def get_map(self):
         return self.comp_file
 
+    def set_comp_area(self, data):
+        units = data[2]
+        line_x = data[0]
+        numbers = re.findall(r'-?\d+\.?\d*', line_x)
+        span_x = float(numbers[2])
+        line_y = data[1]
+        numbers = re.findall(r'-?\d+\.?\d*', line_y)
+        span_y = float(numbers[2])
+        if units == 'in':
+            span_x = span_x * 25.4
+            span_y = span_y * 25.4
+        span_x = math.ceil(span_x)
+        span_y = math.ceil(span_y)
+        self.lineEdit_size_x.setText(str(span_x))
+        self.lineEdit_size_y.setText(str(span_y))
+
     def show_help(self):
         fname = os.path.join(HELP, self.helpfile)
         self.parent.show_help_page(fname)
@@ -385,6 +339,7 @@ class ZLevel(QWidget):
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
+# for standalone testing
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = ZLevel()
