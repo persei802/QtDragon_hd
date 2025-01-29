@@ -19,12 +19,17 @@
 import sys
 import os
 import json
-from PyQt5.QtCore import QProcess, QEvent, QObject, QRegularExpression, QFile, Qt, pyqtSignal
+
+from PyQt5.QtCore import QProcess, QEvent, QObject, QRegExp, QFile, Qt, pyqtSignal
 from PyQt5 import QtGui, QtWidgets, uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info, Path, Tool
-from qtvcp.widgets.calculator import Calculator
 from qtvcp import logger
+
+try:
+    from event_filter import EventFilter
+except:
+    from lib.event_filter import EventFilter
 
 ACTION = Action()
 STATUS = Status()
@@ -44,89 +49,6 @@ HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 DEFAULT =  0
 WARNING =  1
 ERROR = 2
-
-class EventFilter(QObject):
-    def __init__(self, widgets):
-        super().__init__()
-        self.w = widgets
-        self.use_calc = False
-        self.line_list = []
-        self._nextIndex = 0
-        self.hilightStyle = "border: 1px solid cyan;"
-        self._oldStyle = ''
-        self.calc = CalcInput()
-
-        self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
-
-        self.calc.apply_action.connect(lambda: self.calc_data(apply=True))
-        self.calc.next_action.connect(lambda: self.calc_data(next=True))
-        self.calc.back_action.connect(lambda: self.calc_data(back=True))
-        self.calc.accepted.connect(lambda: self.calc_data(accept=True))
-        self.calc.rejected.connect(self.calc_data)
-
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.FocusIn:
-            if isinstance(obj, QtWidgets.QLineEdit) and self.use_calc:
-                # only if mouse selected
-                if event.reason() == 0:
-                    self._nextIndex = self.line_list.index(obj.objectName().replace('lineEdit_',''))
-                    self.popEntry(obj)
-                    obj.clearFocus()
-                    event.accept()
-                    return True
-        return False
-
-    def popEntry(self, obj, next=False):
-        obj.setStyleSheet(self.hilightStyle)
-        self.calc.setWindowTitle(f"Enter data for {obj.objectName().replace('lineEdit_','')}")
-        preset = obj.text()
-        if preset == '': preset = '0'
-        self.calc.display.setText(preset)
-        if not next:
-            self.calc.show()
-
-    def calc_data(self, next=False, back=False, apply=False, accept=False):
-        line = self.line_list[self._nextIndex]
-        self.w[f'lineEdit_{line}'].setStyleSheet(self._oldStyle)
-        if next:
-            self._nextIndex += 1
-            if self._nextIndex == len(self.line_list):
-                self._nextIndex = 0
-        elif back:
-            self._nextIndex -= 1
-            if self._nextIndex < 0:
-                self._nextIndex = len(self.line_list) - 1
-        elif apply or accept:
-            text = self.calc.display.text()
-            if line == 'probe_tool':
-                value = float(text)
-                value = int(value)
-                self.w.lineEdit_probe_tool.setText(str(value))
-            else:
-                value = float(text)
-                self.w[f'lineEdit_{line}'].setText(f'{value:{self.tmpl}}')
-            if apply:
-                self._nextIndex += 1
-                if self._nextIndex == len(self.line_list):
-                    self._nextIndex = 0
-        if next or back or apply:
-            newobj = self.w[f'lineEdit_{self.line_list[self._nextIndex]}']
-            self.popEntry(newobj, True)
-
-    def set_calc_mode(self, mode):
-        self.use_calc = mode
-
-    def set_line_list(self, data):
-        self.line_list = data
-
-    def set_old_style(self, style):
-        self._oldStyle = style
-
-    def __getitem__(self, item):
-        return getattr(self, item)
-
-    def __setitem__(self, item, value):
-        return setattr(self, item, value)
 
 
 class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
@@ -213,12 +135,12 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         # define validators for all lineEdit widgets
         # this only works when directly typing into a lineEdit
         if INFO.MACHINE_IS_METRIC:
-            self.regex = QRegularExpression(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$')
+            self.regex = QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$')
         else:
-            self.regex = QRegularExpression(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$')
-        self.valid = QtGui.QRegularExpressionValidator(self.regex)
-        regex = QRegularExpression(r'^\d{0,5}$')
-        self.lineEdit_probe_tool.setValidator(QtGui.QRegularExpressionValidator(regex))
+            self.regex = QRegExp(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$')
+        self.valid = QtGui.QRegExpValidator(self.regex)
+        regex = QRegExp(r'^\d{0,5}$')
+        self.lineEdit_probe_tool.setValidator(QtGui.QRegExpValidator(regex))
         for i in self.parm_list:
             self['lineEdit_' + i].setValidator(self.valid)
 
@@ -527,24 +449,6 @@ class HelpPage(QtWidgets.QWidget):
 <span style=" font-size:xx-large; font-weight:600;">Basic Probe Help not available</span> </h1>
 {e}''')
 
-
-# sub-classed Calculator so button actions can be redefined
-class CalcInput(Calculator):
-    apply_action = pyqtSignal()
-    next_action = pyqtSignal()
-    back_action = pyqtSignal()
-
-    def __init__(self):
-        super(CalcInput, self).__init__()
-        
-    def applyAction(self):
-        self.apply_action.emit()
-
-    def nextAction(self):
-        self.next_action.emit()
-
-    def backAction(self):
-        self.back_action.emit()
 
     #############################
     # Testing                   #
