@@ -51,3 +51,8 @@ Jan. 29/25 v 2.1.1
     - push gcode properties to zlevel module
     - import EventFilter class from local lib folder
     
+Feb. 11/25 v 2.1.2
+    - use 2 filemanagers in FILE page
+    - add checkbox to disable navigation above folder root path
+    - remove left/right file copy buttons and add drag and drop funtionality
+    
