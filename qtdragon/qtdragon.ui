@@ -74,7 +74,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="ScreenOptions" name="screen_options" native="true">
+     <widget class="ScreenOptions" name="screen_options">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -839,7 +839,7 @@ GCODE</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="GcodeEditor" name="gcode_viewer" native="true">
+                  <widget class="GcodeEditor" name="gcode_viewer">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -894,7 +894,7 @@ GCODE</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="MDIHistory" name="mdihistory" native="true">
+                  <widget class="MDIHistory" name="mdihistory">
                    <property name="minimumSize">
                     <size>
                      <width>0</width>
@@ -1025,7 +1025,7 @@ GCODE</string>
            </widget>
            <widget class="QGroupBox" name="groupBox_preview">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -1094,18 +1094,18 @@ GCODE</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>8</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="main_tab_widget_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
                  <property name="spacing">
-                  <number>0</number>
+                  <number>4</number>
                  </property>
                  <property name="leftMargin">
                   <number>4</number>
                  </property>
                  <property name="topMargin">
-                  <number>9</number>
+                  <number>0</number>
                  </property>
                  <property name="rightMargin">
                   <number>4</number>
@@ -2522,9 +2522,12 @@ P</string>
                 </layout>
                </widget>
                <widget class="QWidget" name="main_tab_widget_File">
-                <layout class="QHBoxLayout" name="horizontalLayout_6">
+                <layout class="QHBoxLayout" name="layout_main_tab_file">
                  <property name="spacing">
                   <number>4</number>
+                 </property>
+                 <property name="sizeConstraint">
+                  <enum>QLayout::SetDefaultConstraint</enum>
                  </property>
                  <property name="leftMargin">
                   <number>4</number>
@@ -2538,9 +2541,6 @@ P</string>
                  <property name="bottomMargin">
                   <number>0</number>
                  </property>
-                 <item>
-                  <widget class="FileManager" name="filemanager" native="true"/>
-                 </item>
                 </layout>
                </widget>
                <widget class="QWidget" name="main_tab_widget_Offsets">
@@ -4666,7 +4666,7 @@ TO FILE</string>
                <widget class="QWidget" name="main_tab_widget_Probe">
                 <layout class="QHBoxLayout" name="horizontalLayout_53">
                  <property name="spacing">
-                  <number>0</number>
+                  <number>4</number>
                  </property>
                  <property name="leftMargin">
                   <number>0</number>
@@ -4707,7 +4707,7 @@ TO FILE</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="CamView" name="camview" native="true"/>
+                  <widget class="CamView" name="camview"/>
                  </item>
                  <item>
                   <widget class="QWidget" name="widget_cam_controls" native="true">
@@ -4911,13 +4911,13 @@ TO FILE</string>
                   <number>4</number>
                  </property>
                  <property name="leftMargin">
-                  <number>0</number>
+                  <number>4</number>
                  </property>
                  <property name="topMargin">
                   <number>0</number>
                  </property>
                  <property name="rightMargin">
-                  <number>0</number>
+                  <number>4</number>
                  </property>
                  <property name="bottomMargin">
                   <number>0</number>
@@ -5518,7 +5518,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>08:25:58 AM</string>
+                       <string>11:00:02 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -8207,13 +8207,13 @@ SCOPE</string>
                   <number>4</number>
                  </property>
                  <property name="leftMargin">
-                  <number>0</number>
+                  <number>4</number>
                  </property>
                  <property name="topMargin">
                   <number>0</number>
                  </property>
                  <property name="rightMargin">
-                  <number>0</number>
+                  <number>4</number>
                  </property>
                  <property name="bottomMargin">
                   <number>0</number>
@@ -8356,427 +8356,447 @@ SCOPE</string>
           </widget>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_31">
-           <property name="spacing">
-            <number>8</number>
+          <widget class="QWidget" name="widget_jog" native="true">
+           <property name="enabled">
+            <bool>true</bool>
            </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QGroupBox" name="groupBox_jog_pads">
-             <property name="minimumSize">
-              <size>
-               <width>220</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>220</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="title">
-              <string>JOG</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_20">
-              <property name="spacing">
-               <number>4</number>
+           <layout class="QVBoxLayout" name="layout_jog">
+            <property name="spacing">
+             <number>8</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QGroupBox" name="groupBox_jog_pads">
+              <property name="minimumSize">
+               <size>
+                <width>220</width>
+                <height>0</height>
+               </size>
               </property>
-              <property name="leftMargin">
-               <number>4</number>
+              <property name="maximumSize">
+               <size>
+                <width>220</width>
+                <height>16777215</height>
+               </size>
               </property>
-              <property name="topMargin">
-               <number>12</number>
+              <property name="title">
+               <string>JOG</string>
               </property>
-              <property name="rightMargin">
-               <number>4</number>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
-              <property name="bottomMargin">
-               <number>4</number>
+              <layout class="QVBoxLayout" name="verticalLayout_20">
+               <property name="spacing">
+                <number>4</number>
+               </property>
+               <property name="leftMargin">
+                <number>4</number>
+               </property>
+               <property name="topMargin">
+                <number>12</number>
+               </property>
+               <property name="rightMargin">
+                <number>4</number>
+               </property>
+               <property name="bottomMargin">
+                <number>4</number>
+               </property>
+               <item>
+                <widget class="JoyPad" name="jog_az">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="setColorState" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="left_image_path" stdset="0">
+                  <pixmap resource="qtdragon.qrc">:/images/images/a_minus_jog_button.png</pixmap>
+                 </property>
+                 <property name="right_image_path" stdset="0">
+                  <pixmap resource="qtdragon.qrc">:/images/images/a_plus_jog_button.png</pixmap>
+                 </property>
+                 <property name="top_image_path" stdset="0">
+                  <pixmap resource="qtdragon.qrc">:/images/images/z_plus_jog_button.png</pixmap>
+                 </property>
+                 <property name="bottom_image_path" stdset="0">
+                  <pixmap resource="qtdragon.qrc">:/images/images/z_minus_jog_button.png</pixmap>
+                 </property>
+                 <property name="button_font" stdset="0">
+                  <font>
+                   <family>Lato Heavy</family>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="center_text" stdset="0">
+                  <string>FAST</string>
+                 </property>
+                 <property name="true_color" stdset="0">
+                  <color>
+                   <red>0</red>
+                   <green>200</green>
+                   <blue>255</blue>
+                  </color>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="JoyPad" name="jog_xy">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="setColorState" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="left_image_path" stdset="0">
+                  <pixmap resource="qtdragon.qrc">:/images/images/x_minus_jog_button.png</pixmap>
+                 </property>
+                 <property name="right_image_path" stdset="0">
+                  <pixmap resource="qtdragon.qrc">:/images/images/x_plus_jog_button.png</pixmap>
+                 </property>
+                 <property name="top_image_path" stdset="0">
+                  <pixmap resource="qtdragon.qrc">:/images/images/y_plus_jog_button.png</pixmap>
+                 </property>
+                 <property name="bottom_image_path" stdset="0">
+                  <pixmap resource="qtdragon.qrc">:/images/images/y_minus_jog_button.png</pixmap>
+                 </property>
+                 <property name="button_font" stdset="0">
+                  <font>
+                   <family>Lato Heavy</family>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="center_text" stdset="0">
+                  <string>FAST</string>
+                 </property>
+                 <property name="true_color" stdset="0">
+                  <color>
+                   <red>0</red>
+                   <green>200</green>
+                   <blue>255</blue>
+                  </color>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_increments">
+              <property name="minimumSize">
+               <size>
+                <width>220</width>
+                <height>0</height>
+               </size>
               </property>
-              <item>
-               <widget class="JoyPad" name="jog_az" native="true">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="setColorState" stdset="0">
-                 <bool>true</bool>
-                </property>
-                <property name="left_image_path" stdset="0">
-                 <pixmap resource="qtdragon.qrc">:/images/images/a_minus_jog_button.png</pixmap>
-                </property>
-                <property name="right_image_path" stdset="0">
-                 <pixmap resource="qtdragon.qrc">:/images/images/a_plus_jog_button.png</pixmap>
-                </property>
-                <property name="top_image_path" stdset="0">
-                 <pixmap resource="qtdragon.qrc">:/images/images/z_plus_jog_button.png</pixmap>
-                </property>
-                <property name="bottom_image_path" stdset="0">
-                 <pixmap resource="qtdragon.qrc">:/images/images/z_minus_jog_button.png</pixmap>
-                </property>
-                <property name="button_font" stdset="0">
-                 <font>
-                  <family>Lato Heavy</family>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="true_color" stdset="0">
-                 <color>
-                  <red>0</red>
-                  <green>200</green>
-                  <blue>255</blue>
-                 </color>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="JoyPad" name="jog_xy" native="true">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="setColorState" stdset="0">
-                 <bool>true</bool>
-                </property>
-                <property name="left_image_path" stdset="0">
-                 <pixmap resource="qtdragon.qrc">:/images/images/x_minus_jog_button.png</pixmap>
-                </property>
-                <property name="right_image_path" stdset="0">
-                 <pixmap resource="qtdragon.qrc">:/images/images/x_plus_jog_button.png</pixmap>
-                </property>
-                <property name="top_image_path" stdset="0">
-                 <pixmap resource="qtdragon.qrc">:/images/images/y_plus_jog_button.png</pixmap>
-                </property>
-                <property name="bottom_image_path" stdset="0">
-                 <pixmap resource="qtdragon.qrc">:/images/images/y_minus_jog_button.png</pixmap>
-                </property>
-                <property name="button_font" stdset="0">
-                 <font>
-                  <family>Lato Heavy</family>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="true_color" stdset="0">
-                 <color>
-                  <red>0</red>
-                  <green>200</green>
-                  <blue>255</blue>
-                 </color>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_increments">
-             <property name="minimumSize">
-              <size>
-               <width>220</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>220</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="title">
-              <string>INCREMENTS</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_34">
-              <property name="spacing">
-               <number>4</number>
+              <property name="maximumSize">
+               <size>
+                <width>220</width>
+                <height>16777215</height>
+               </size>
               </property>
-              <property name="leftMargin">
-               <number>4</number>
+              <property name="title">
+               <string>INCREMENTS</string>
               </property>
-              <property name="topMargin">
-               <number>12</number>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
-              <property name="rightMargin">
-               <number>4</number>
-              </property>
-              <property name="bottomMargin">
-               <number>4</number>
-              </property>
-              <item>
-               <widget class="QWidget" name="linear_increment" native="true">
-                <layout class="QHBoxLayout" name="layout_linear_inc">
-                 <property name="spacing">
-                  <number>4</number>
-                 </property>
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="lbl_linear_increment">
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>80</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>LINEAR</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="JogIncrements" name="jogincrements_linear">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
-                   </property>
-                   <property name="maxCount">
-                    <number>30</number>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>24</width>
-                     <height>24</height>
-                    </size>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QWidget" name="angular_increment" native="true">
-                <layout class="QHBoxLayout" name="horizontalLayout_2">
-                 <property name="spacing">
-                  <number>4</number>
-                 </property>
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="lbl_angular_increment">
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>80</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>ANGULAR</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="JogIncrements" name="jogincrements_angular">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
-                   </property>
-                   <property name="maxCount">
-                    <number>30</number>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>24</width>
-                     <height>24</height>
-                    </size>
-                   </property>
-                   <property name="linear_option" stdset="0">
-                    <bool>false</bool>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QWidget" name="mpg_increment" native="true">
-                <layout class="QHBoxLayout" name="horizontalLayout_17">
-                 <property name="spacing">
-                  <number>4</number>
-                 </property>
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="lbl_mpg_increment">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>80</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>MPG</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_mpg_increment">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maxLength">
-                    <number>8</number>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignCenter</set>
-                   </property>
-                   <property name="readOnly">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="lbl_mpg_units">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>MM</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignCenter</set>
-                   </property>
-                   <property name="margin">
-                    <number>8</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-          </layout>
+              <layout class="QVBoxLayout" name="verticalLayout_34">
+               <property name="spacing">
+                <number>4</number>
+               </property>
+               <property name="leftMargin">
+                <number>4</number>
+               </property>
+               <property name="topMargin">
+                <number>12</number>
+               </property>
+               <property name="rightMargin">
+                <number>4</number>
+               </property>
+               <property name="bottomMargin">
+                <number>4</number>
+               </property>
+               <item>
+                <widget class="QWidget" name="linear_increment" native="true">
+                 <layout class="QHBoxLayout" name="layout_linear_inc">
+                  <property name="spacing">
+                   <number>4</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="lbl_linear_increment">
+                    <property name="minimumSize">
+                     <size>
+                      <width>80</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>80</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>LINEAR</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="JogIncrements" name="jogincrements_linear">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::ClickFocus</enum>
+                    </property>
+                    <property name="maxCount">
+                     <number>30</number>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>24</width>
+                      <height>24</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="angular_increment" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_2">
+                  <property name="spacing">
+                   <number>4</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="lbl_angular_increment">
+                    <property name="minimumSize">
+                     <size>
+                      <width>80</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>80</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>ANGULAR</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="JogIncrements" name="jogincrements_angular">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::ClickFocus</enum>
+                    </property>
+                    <property name="maxCount">
+                     <number>30</number>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>24</width>
+                      <height>24</height>
+                     </size>
+                    </property>
+                    <property name="linear_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="mpg_increment" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_17">
+                  <property name="spacing">
+                   <number>4</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="lbl_mpg_increment">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>80</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>80</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>MPG</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="lineEdit_mpg_increment">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="maxLength">
+                     <number>8</number>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                    <property name="readOnly">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="lbl_mpg_units">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>MM</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                    <property name="margin">
+                     <number>8</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_26" stretch="0,1,0">
+          <layout class="QVBoxLayout" name="layout_estop" stretch="0,1,0">
            <property name="spacing">
             <number>8</number>
            </property>
@@ -9013,7 +9033,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_estop" native="true">
+                 <widget class="LED" name="hal_led_estop">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9032,7 +9052,7 @@ ACTIVE</string>
                     <height>24</height>
                    </size>
                   </property>
-                  <property name="color" stdset="0">
+                  <property name="color">
                    <color>
                     <red>0</red>
                     <green>0</green>
@@ -9093,7 +9113,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_home_x" native="true">
+                 <widget class="LED" name="hal_led_home_x">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9112,10 +9132,10 @@ ACTIVE</string>
                     <height>24</height>
                    </size>
                   </property>
-                  <property name="diameter" stdset="0">
+                  <property name="diameter">
                    <number>15</number>
                   </property>
-                  <property name="color" stdset="0">
+                  <property name="color">
                    <color>
                     <red>0</red>
                     <green>255</green>
@@ -9176,7 +9196,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_home_y" native="true">
+                 <widget class="LED" name="hal_led_home_y">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9195,10 +9215,10 @@ ACTIVE</string>
                     <height>24</height>
                    </size>
                   </property>
-                  <property name="diameter" stdset="0">
+                  <property name="diameter">
                    <number>15</number>
                   </property>
-                  <property name="color" stdset="0">
+                  <property name="color">
                    <color>
                     <red>0</red>
                     <green>255</green>
@@ -9256,7 +9276,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_home_z" native="true">
+                 <widget class="LED" name="hal_led_home_z">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9275,10 +9295,10 @@ ACTIVE</string>
                     <height>24</height>
                    </size>
                   </property>
-                  <property name="diameter" stdset="0">
+                  <property name="diameter">
                    <number>15</number>
                   </property>
-                  <property name="color" stdset="0">
+                  <property name="color">
                    <color>
                     <red>0</red>
                     <green>255</green>
@@ -9336,7 +9356,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_probe" native="true">
+                 <widget class="LED" name="hal_led_probe">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9355,10 +9375,10 @@ ACTIVE</string>
                     <height>24</height>
                    </size>
                   </property>
-                  <property name="diameter" stdset="0">
+                  <property name="diameter">
                    <number>15</number>
                   </property>
-                  <property name="color" stdset="0">
+                  <property name="color">
                    <color>
                     <red>0</red>
                     <green>120</green>
@@ -9419,7 +9439,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_limit" native="true">
+                 <widget class="LED" name="hal_led_limit">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9441,7 +9461,7 @@ ACTIVE</string>
                   <property name="toolTip">
                    <string>Motion limited due to external offsets</string>
                   </property>
-                  <property name="color" stdset="0">
+                  <property name="color">
                    <color>
                     <red>255</red>
                     <green>0</green>
@@ -9487,7 +9507,7 @@ ACTIVE</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_inhibit" native="true">
+                 <widget class="LED" name="hal_led_inhibit">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -10760,7 +10780,7 @@ SPINDLE</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="StatusLabel" name="lbl_tool_no">
+                     <widget class="QLineEdit" name="lineEdit_tool_in_spindle">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                         <horstretch>0</horstretch>
@@ -10779,23 +10799,11 @@ SPINDLE</string>
                         <height>30</height>
                        </size>
                       </property>
-                      <property name="frameShape">
-                       <enum>QFrame::WinPanel</enum>
-                      </property>
-                      <property name="frameShadow">
-                       <enum>QFrame::Sunken</enum>
+                      <property name="maxLength">
+                       <number>5</number>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
-                      </property>
-                      <property name="textTemplate" stdset="0">
-                       <string>%d</string>
-                      </property>
-                      <property name="alt_textTemplate" stdset="0">
-                       <string>%d</string>
-                      </property>
-                      <property name="tool_number_status" stdset="0">
-                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -13611,7 +13619,7 @@ WCS</string>
                 <number>4</number>
                </property>
                <item>
-                <widget class="StatusAdjustmentBar" name="adj_maxvel_ovr" native="true">
+                <widget class="StatusAdjustmentBar" name="adj_maxvel_ovr">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -13636,7 +13644,7 @@ WCS</string>
                 </widget>
                </item>
                <item>
-                <widget class="StatusAdjustmentBar" name="adj_rapid_ovr" native="true">
+                <widget class="StatusAdjustmentBar" name="adj_rapid_ovr">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -13658,7 +13666,7 @@ WCS</string>
                 </widget>
                </item>
                <item>
-                <widget class="StatusAdjustmentBar" name="adj_feed_ovr" native="true">
+                <widget class="StatusAdjustmentBar" name="adj_feed_ovr">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -13683,7 +13691,7 @@ WCS</string>
                 </widget>
                </item>
                <item>
-                <widget class="StatusAdjustmentBar" name="adj_spindle_ovr" native="true">
+                <widget class="StatusAdjustmentBar" name="adj_spindle_ovr">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -13769,7 +13777,7 @@ WCS</string>
                 <number>4</number>
                </property>
                <item>
-                <widget class="Gauge" name="gauge_spindle" native="true">
+                <widget class="Gauge" name="gauge_spindle">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -13895,7 +13903,7 @@ SPEED</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="LED" name="hal_led_atspeed" native="true">
+                  <widget class="LED" name="hal_led_atspeed">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -13914,7 +13922,7 @@ SPEED</string>
                      <height>24</height>
                     </size>
                    </property>
-                   <property name="color" stdset="0">
+                   <property name="color">
                     <color>
                      <red>0</red>
                      <green>255</green>
@@ -14420,11 +14428,6 @@ SPEED</string>
    <header>qtvcp.widgets.axis_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>FileManager</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.file_manager</header>
-  </customwidget>
-  <customwidget>
    <class>MachineLog</class>
    <extends>QTextEdit</extends>
    <header>qtvcp.widgets.machine_log</header>
@@ -14597,14 +14600,14 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="util_buttonGroup"/>
-  <buttongroup name="about_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="about_buttonGroup"/>
+  <buttongroup name="util_buttonGroup"/>
  </buttongroups>
 </ui>

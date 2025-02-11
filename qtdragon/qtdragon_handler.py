@@ -14,8 +14,10 @@ import os
 import datetime
 import requests
 import linuxcnc
+import shutil
 from connections import Connections
 from lib.event_filter import EventFilter
+from lib.file_manager import FileManager
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import QObject, QEvent, QRegExp, pyqtSignal
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor
@@ -25,7 +27,7 @@ from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSET_VIEW
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
-from qtvcp.widgets.file_manager import FileManager as FM
+#from qtvcp.widgets.file_manager import FileManager as FM
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.core import Status, Action, Info, Path, Tool, Qhal
 from qtvcp import logger
@@ -42,7 +44,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.1.1'
+VERSION = '2.1.2'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -144,8 +146,6 @@ class HandlerClass:
         self.current_loaded_program = None
         self.first_turnon = True
         self.macros_defined = 0
-        self.source_file = ""
-        self.destination_file = ""
         self.pause_timer = QtCore.QTimer()
         self.icon_btns = {'action_exit': 'SP_BrowserStop'}
 
@@ -185,14 +185,16 @@ class HandlerClass:
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
 
     def class_patch__(self):
+        pass
 #        self.old_fman = FM.load
-        FM.load = self.load_code
+#        FM.load = self.load_code
 
     def initialized__(self):
         self.init_pins()
         self.init_preferences()
         self.init_tooldb()
         self.init_widgets()
+        self.init_file_manager()
         self.init_probe()
         self.init_utils()
         self.init_macros()
@@ -205,7 +207,6 @@ class HandlerClass:
         self.w.btn_dimensions.setChecked(True)
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.preset_buttonGroup.buttonClicked.connect(self.preset_jograte)
-        self.w.filemanager.onUserClicked()
         self.use_mpg_changed(self.w.chk_use_mpg.isChecked())
         self.use_camera_changed(self.w.chk_use_camera.isChecked())
         self.chk_use_basic_calc(self.w.chk_use_basic_calculator.isChecked())
@@ -219,6 +220,7 @@ class HandlerClass:
         for val in self.lineedit_list:
             self.w['lineEdit_' + val].setValidator(self.valid)
         self.w.lineEdit_max_power.setValidator(QtGui.QIntValidator(0, 9999))
+        self.w.lineEdit_tool_in_spindle.setValidator(QtGui.QIntValidator(0, 99999))
         # set unit labels according to machine mode
         self.w.lbl_machine_units.setText("METRIC" if INFO.MACHINE_IS_METRIC else "IMPERIAL")
         for i in self.unit_label_list:
@@ -231,6 +233,7 @@ class HandlerClass:
         self.w.tooloffsetview.tablemodel.layoutChanged.connect(self.get_checked_tools)
         self.w.tooloffsetview.tablemodel.dataChanged.connect(lambda new, old, roles: self.tool_data_changed(new, old, roles))
         self.w.statusbar.messageChanged.connect(self.statusbar_changed)
+        self.w.lineEdit_tool_in_spindle.returnPressed.connect(self.tool_edit_finished)
 
     #############################
     # SPECIAL FUNCTIONS SECTION #
@@ -375,7 +378,6 @@ class HandlerClass:
         self.w.jogincrements_linear.wheelEvent = lambda event: None
         self.w.jogincrements_angular.wheelEvent = lambda event: None
         # turn off table grids
-        self.w.filemanager.table.setShowGrid(False)
         self.w.offset_table.setShowGrid(False)
         self.w.tooloffsetview.setShowGrid(False)
         # move clock to statusbar
@@ -398,25 +400,9 @@ class HandlerClass:
         # initialize spindle gauge
         self.w.gauge_spindle._value_font_size = 12
         self.w.gauge_spindle.set_threshold(self.min_spindle_rpm)
-        # util page scroll buttons
-        pixmap = QtGui.QPixmap('qtdragon/images/Right_arrow.png')
-        self.w.btn_util_right.setIcon(QtGui.QIcon(pixmap))
-        pixmap = QtGui.QPixmap('qtdragon/images/Left_arrow.png')
-        self.w.btn_util_left.setIcon(QtGui.QIcon(pixmap))
         # initialize jog joypads
-        self.w.jog_xy.set_icon('L', 'image', 'qtdragon/images/x_minus_jog_button.png')
-        self.w.jog_xy.set_icon('R', 'image', 'qtdragon/images/x_plus_jog_button.png')
-        self.w.jog_xy.set_icon('T', 'image', 'qtdragon/images/y_plus_jog_button.png')
-        self.w.jog_xy.set_icon('B', 'image', 'qtdragon/images/y_minus_jog_button.png')
-        self.w.jog_az.set_icon('L', 'image', 'qtdragon/images/a_minus_jog_button.png')
-        self.w.jog_az.set_icon('R', 'image', 'qtdragon/images/a_plus_jog_button.png')
-        self.w.jog_az.set_icon('T', 'image', 'qtdragon/images/z_plus_jog_button.png')
-        self.w.jog_az.set_icon('B', 'image', 'qtdragon/images/z_minus_jog_button.png')
-        # only if override adjusters are sliders
         self.w.jog_xy.setFont(QtGui.QFont('Lato Heavy', 9))
         self.w.jog_az.setFont(QtGui.QFont('Lato Heavy', 9))
-        self.w.jog_xy.setCenterText("FAST")
-        self.w.jog_az.setCenterText("FAST")
         self.w.jog_xy.set_tooltip('C', 'Toggle FAST / SLOW linear jograte')
         self.w.jog_az.set_tooltip('C', 'Toggle FAST / SLOW angular jograte')
         # apply standard button icons
@@ -439,6 +425,28 @@ class HandlerClass:
         # spindle pause delay timer
         self.pause_timer.setSingleShot(True)
         self.pause_timer.timeout.connect(self.spindle_pause_timer)
+
+    def init_file_manager(self):
+        self.filemanager_media = FileManager()
+        self.w.layout_main_tab_file.addWidget(self.filemanager_media)
+        self.filemanager_media._hal_init()
+        self.filemanager_media.table.setShowGrid(False)
+        self.filemanager_media.load = self.load_code
+        self.filemanager_media.chk_restricted.setChecked(True)
+        self.filemanager_media.onMediaClicked()
+
+        self.filemanager_user = FileManager()
+        self.w.layout_main_tab_file.addWidget(self.filemanager_user)
+        self.filemanager_user._hal_init()
+        self.filemanager_user.table.setShowGrid(False)
+        self.filemanager_user.load = self.load_code
+        self.filemanager_user.chk_restricted.setChecked(True)
+        self.filemanager_user.onUserClicked()
+
+        self.filemanager_user.list.itemDropped.connect(self.do_file_copy)
+        self.filemanager_media.list.itemDropped.connect(self.do_file_copy)
+        self.filemanager_user.table.itemDropped.connect(self.do_file_copy)
+        self.filemanager_media.table.itemDropped.connect(self.do_file_copy)
 
     def init_tooldb(self):
         from lib.tool_db import Tool_Database
@@ -628,6 +636,7 @@ class HandlerClass:
 
     def tool_changed(self, tool):
         self.current_tool = tool
+        self.w.lineEdit_tool_in_spindle.setText(str(tool))
         LOG.debug(f"Tool changed to {self.current_tool}")
         self.tool_db.set_checked_tool(tool)
         icon = self.tool_db.get_tool_data(tool, "ICON")
@@ -979,6 +988,17 @@ class HandlerClass:
         self.w.mpg_increment.setVisible(state)
 
     # TOOL frame
+    def tool_edit_finished(self):
+        tool = int(self.w.lineEdit_tool_in_spindle.text())
+        if tool == self.current_tool:
+            self.add_status(f"Tool {tool} already in spindle")
+        elif tool not in self.tool_list:
+            self.add_status(f'Tool {tool} is not a valid tool', WARNING)
+            self.w.lineEdit_tool_in_spindle.setText(str(self.current_tool))
+        elif ACTION.CALL_MDI(f'M61 Q{tool}') == 1:
+            self.current_tool = tool
+        self.w.lineEdit_tool_in_spindle.clearFocus()
+
     def btn_touchoff_pressed(self):
         if STATUS.get_current_tool() == 0:
             self.add_status("Cannot touchoff with no tool loaded", WARNING)
@@ -1150,6 +1170,8 @@ class HandlerClass:
         if not tools:
             self.add_status("No tool selected to delete", WARNING)
             return
+        if tools[0] == self.current_tool:
+            ACTION.CALL_MDI('M61 Q0')
         TOOL.DELETE_TOOLS(tools)
         self.add_status(f"Deleted tool {tools[0]}")
         self.tool_db.delete_tool(tools[0])
@@ -1318,30 +1340,35 @@ class HandlerClass:
             if 'A' in self.axis_list:
                 self.w.jog_az.set_highlight('A', bool(self.h['axis-select-a'] is True))
 
-    # class patched function from file_manager widget
+    # class patched function for file_manager widget
     def load_code(self, fname):
         if fname is None: return
-        if self.w.PREFS_:
-            self.w.PREFS_.putpref('last_loaded_directory', os.path.dirname(fname), str, 'BOOK_KEEPING')
-            self.w.PREFS_.putpref('RecentPath_0', fname, str, 'BOOK_KEEPING')
-        if fname.endswith(".ngc") or fname.endswith(".py"):
+        filename, file_extension = os.path.splitext(fname)
+        if not INFO.program_extension_valid(fname):
+            self.add_status(f"Unknown or invalid filename extension {file_extension}", WARNING)
+            return
+        if file_extension in ('.ngc', '.nc', 'tap', 'py'):
+            if self.w.btn_edit_gcode.isChecked():
+                self.add_status('Cannot load file while GCode editing is active', WARNING)
+                return
             self.w.cmb_gcode_history.addItem(fname)
             self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
             ACTION.OPEN_PROGRAM(fname)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
             self.w.btn_main.setChecked(True)
-        elif fname.endswith(".html"):
+            self.filemanager_user.recordBookKeeping()
+        elif file_extension == '.html':
             self.setup_utils.show_html(fname)
             self.w.main_tab_widget.setCurrentIndex(TAB_UTILS)
             self.w.btn_utils.setChecked(True)
             self.add_status(f"Loaded HTML file : {fname}")
-        elif fname.endswith(".pdf"):
+        elif file_extension == '.pdf':
             self.setup_utils.show_pdf(fname)
             self.w.main_tab_widget.setCurrentIndex(TAB_UTILS)
             self.w.btn_utils.setChecked(True)
             self.add_status(f"Loaded PDF file : {fname}")
         else:
-            self.add_status("Unknown or invalid filename", WARNING)
+            self.add_status(f"No action for {fname}", WARNING)
 
     def touchoff(self, mode):
         if mode == 'touchplate':
@@ -1460,6 +1487,26 @@ class HandlerClass:
         else:
             self.add_status('Keyboard shortcuts are disabled', WARNING)
             return False
+
+    def do_file_copy(self, data):
+        source, dest = data
+        if os.path.isfile(dest):
+            icon = QMessageBox.Warning
+            title = "File Already Exists"
+            info = f"Overwrite {dest}?"
+            button = QMessageBox.No | QMessageBox.Yes
+            retval = self.message_box(icon, title, info, button)
+            if retval == QMessageBox.No:
+                self.add_status(f'File {dest} not copied', WARNING)
+                return
+        try:
+            if os.path.isdir(source):
+                shutil.copytree(source, dest)
+            else:
+                shutil.copy2(source, dest)
+            self.add_status(f' Copied {source} to {dest}')
+        except Exception as e:
+            self.add_status(f'Error copying file: {e}', WARNING)
 
     def stop_timer(self):
         self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {STOP_COLOR};')
