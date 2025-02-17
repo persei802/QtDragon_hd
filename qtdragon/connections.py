@@ -38,6 +38,7 @@ class Connections():
         self.w.btn_add_tool.pressed.connect(self.parent.btn_add_tool_pressed)
         self.w.btn_delete_tool.pressed.connect(self.parent.btn_delete_tool_pressed)
         self.w.btn_load_tool.pressed.connect(self.parent.btn_load_tool_pressed)
+        self.w.btn_enable_edit.clicked.connect(lambda state: self.parent.btn_enable_edit_clicked(state))
         self.w.btn_tool_db.clicked.connect(lambda state: self.parent.btn_tool_db_clicked(state))
         self.w.btn_db_help.pressed.connect(self.parent.show_db_help_page)
         # gcode viewer

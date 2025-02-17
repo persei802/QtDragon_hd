@@ -2541,6 +2541,12 @@ P</string>
                  <property name="bottomMargin">
                   <number>0</number>
                  </property>
+                 <item>
+                  <widget class="FileManager" name="filemanager_media"/>
+                 </item>
+                 <item>
+                  <widget class="FileManager" name="filemanager_user"/>
+                 </item>
                 </layout>
                </widget>
                <widget class="QWidget" name="main_tab_widget_Offsets">
@@ -5518,7 +5524,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>11:00:02 AM</string>
+                       <string>11:31:41 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -14428,6 +14434,11 @@ SPEED</string>
    <header>qtvcp.widgets.axis_tool_button</header>
   </customwidget>
   <customwidget>
+   <class>FileManager</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.file_manager</header>
+  </customwidget>
+  <customwidget>
    <class>MachineLog</class>
    <extends>QTextEdit</extends>
    <header>qtvcp.widgets.machine_log</header>
@@ -14600,14 +14611,14 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="util_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
   <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="about_buttonGroup"/>
-  <buttongroup name="util_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>

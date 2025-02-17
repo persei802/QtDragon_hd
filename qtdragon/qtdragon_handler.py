@@ -17,7 +17,6 @@ import linuxcnc
 import shutil
 from connections import Connections
 from lib.event_filter import EventFilter
-from lib.file_manager import FileManager
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from PyQt5.QtCore import QObject, QEvent, QRegExp, pyqtSignal
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor
@@ -27,7 +26,7 @@ from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSET_VIEW
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
-#from qtvcp.widgets.file_manager import FileManager as FM
+from qtvcp.widgets.file_manager import FileManager as FM
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.core import Status, Action, Info, Path, Tool, Qhal
 from qtvcp import logger
@@ -44,7 +43,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.1.2'
+VERSION = '2.1.3'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -182,6 +181,7 @@ class HandlerClass:
         STATUS.connect('not-all-homed', self.not_all_homed)
         STATUS.connect('interp-idle', lambda w: self.stop_timer())
         STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_gcode_properties(d))
+        STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d, o)) 
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
 
     def class_patch__(self):
@@ -427,26 +427,15 @@ class HandlerClass:
         self.pause_timer.timeout.connect(self.spindle_pause_timer)
 
     def init_file_manager(self):
-        self.filemanager_media = FileManager()
-        self.w.layout_main_tab_file.addWidget(self.filemanager_media)
-        self.filemanager_media._hal_init()
-        self.filemanager_media.table.setShowGrid(False)
-        self.filemanager_media.load = self.load_code
-        self.filemanager_media.chk_restricted.setChecked(True)
-        self.filemanager_media.onMediaClicked()
+        self.w.filemanager_media.table.setShowGrid(False)
+        self.w.filemanager_media.load = self.load_code
+        self.w.filemanager_media.chk_restricted.setChecked(True)
+        self.w.filemanager_media.onMediaClicked()
 
-        self.filemanager_user = FileManager()
-        self.w.layout_main_tab_file.addWidget(self.filemanager_user)
-        self.filemanager_user._hal_init()
-        self.filemanager_user.table.setShowGrid(False)
-        self.filemanager_user.load = self.load_code
-        self.filemanager_user.chk_restricted.setChecked(True)
-        self.filemanager_user.onUserClicked()
-
-        self.filemanager_user.list.itemDropped.connect(self.do_file_copy)
-        self.filemanager_media.list.itemDropped.connect(self.do_file_copy)
-        self.filemanager_user.table.itemDropped.connect(self.do_file_copy)
-        self.filemanager_media.table.itemDropped.connect(self.do_file_copy)
+        self.w.filemanager_user.table.setShowGrid(False)
+        self.w.filemanager_user.load = self.load_code
+        self.w.filemanager_user.chk_restricted.setChecked(True)
+        self.w.filemanager_user.onUserClicked()
 
     def init_tooldb(self):
         from lib.tool_db import Tool_Database
@@ -725,6 +714,12 @@ class HandlerClass:
         minutes = self.h['runtime-minutes']
         seconds = self.h['runtime-seconds']
         self.w.lineEdit_runtime.setText(f"{hours:02d}:{minutes:02d}:{seconds:02d}")
+
+    def add_external_status(self, message, option):
+        level = option.get('LEVEL', STATUS.DEFAULT)
+        log = option.get('LOG', True)
+        msg = message.get('SHORTTEXT', '')
+        self.add_status(msg, level)
 
     def update_gcode_properties(self, props):
         # substitute nice looking text:
@@ -1187,6 +1182,9 @@ class HandlerClass:
         else:
             self.add_status("No tool selected", WARNING)
 
+    def btn_enable_edit_clicked(self, state):
+        self.tool_db.set_edit_enable(state)
+
     def btn_tool_db_clicked(self, state):
         if not state and self.w.btn_enable_edit.isChecked():
             self.w.btn_enable_edit.setChecked(False)
@@ -1301,14 +1299,18 @@ class HandlerClass:
     # GENERAL FUNCTIONS #
     #####################
     def tool_data_changed(self, new, old, roles):
-        if new.column() > 1: return
-        old_list = self.tool_list
-        self.get_next_available()
-        new_list = self.tool_list
-        old_tno = list(set(old_list) - set(new_list))
-        new_tno = list(set(new_list) - set(old_list))
-        self.tool_db.update_tool_no(old_tno[0], new_tno[0])
-        
+        row = new.row()
+        col = new.column()
+        if col == 1:
+            old_list = self.tool_list
+            self.get_next_available()
+            new_list = self.tool_list
+            old_tno = list(set(old_list) - set(new_list))
+            new_tno = list(set(new_list) - set(old_list))
+            self.tool_db.update_tool_no(old_tno[0], new_tno[0])
+        elif col == 15 or col == 19:
+            self.tool_db.update_tool_data(row, col)
+
     def get_checked_tools(self):
         checked = self.w.tooloffsetview.get_checked_list()
         if checked: self.tool_db.set_checked_tool(checked[0])
@@ -1356,7 +1358,7 @@ class HandlerClass:
             ACTION.OPEN_PROGRAM(fname)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
             self.w.btn_main.setChecked(True)
-            self.filemanager_user.recordBookKeeping()
+            self.w.filemanager_user.recordBookKeeping()
         elif file_extension == '.html':
             self.setup_utils.show_html(fname)
             self.w.main_tab_widget.setCurrentIndex(TAB_UTILS)
@@ -1488,25 +1490,14 @@ class HandlerClass:
             self.add_status('Keyboard shortcuts are disabled', WARNING)
             return False
 
-    def do_file_copy(self, data):
+    def do_file_copy(self, data, src):
+        if src == 'user':
+            fm = self.w.filemanager_user
+        elif src == 'media':
+            fm = self.w.filemanager_media
+        else: return
         source, dest = data
-        if os.path.isfile(dest):
-            icon = QMessageBox.Warning
-            title = "File Already Exists"
-            info = f"Overwrite {dest}?"
-            button = QMessageBox.No | QMessageBox.Yes
-            retval = self.message_box(icon, title, info, button)
-            if retval == QMessageBox.No:
-                self.add_status(f'File {dest} not copied', WARNING)
-                return
-        try:
-            if os.path.isdir(source):
-                shutil.copytree(source, dest)
-            else:
-                shutil.copy2(source, dest)
-            self.add_status(f' Copied {source} to {dest}')
-        except Exception as e:
-            self.add_status(f'Error copying file: {e}', WARNING)
+        fm.copyChecks(source, dest)
 
     def stop_timer(self):
         self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {STOP_COLOR};')
