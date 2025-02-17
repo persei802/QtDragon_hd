@@ -14,12 +14,13 @@ import sys
 import os
 
 from PyQt5 import QtCore, QtWidgets, QtSql, QtGui
-from PyQt5.QtWidgets import (QWidget, QFileDialog, QInputDialog)
+from PyQt5.QtWidgets import (QWidget, QFileDialog, QInputDialog, QAbstractItemView)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 
 from qtvcp import logger
 from qtvcp.core import Status, Info, Path, Tool
+from qtvcp.widgets.calculator import Calculator
 
 STATUS = Status()
 INFO = Info()
@@ -28,7 +29,7 @@ TOOL = Tool()
 LOG = logger.getLogger(__name__)
 LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-VERSION = '1.3'
+VERSION = '1.4'
 
 
 class StyleDelegate(QtWidgets.QStyledItemDelegate):
@@ -63,28 +64,37 @@ class Tool_Database(QWidget):
         self.query = None
         self.current_row = 0
         self.selected_row = None
-        self.ndec = 3 if INFO.MACHINE_IS_METRIC else 4
-        self.max_spindle_rpm = int(INFO.MAX_SPINDLE_SPEED)
-        self.max_linear_velocity = int(INFO.MAX_TRAJ_VELOCITY)
+        self.dialog_code = 'CALCULATOR'
+        self.text_dialog_code = 'KEYBOARD'
 
         if not self.create_connection():
             return None
         if 'tools' not in self.tables:
             LOG.debug("Creating tools table")
             self.create_tool_table()
+        elif self.check_num_columns() == 9:
+            self.query.prepare("ALTER TABLE tools RENAME COLUMN CPT TO DIA")
+            if not self.query.exec_():
+                LOG.debug(f'Rename column error: {self.query.lastError().text()}')
+                return None
+            self.query.prepare("ALTER TABLE tools ADD COLUMN Comment TEXT")
+            if not self.query.exec_():
+                LOG.debug(f'Add column error: {self.query.lastError().text()}')
+                return None
  
+        # set up the Qsql table model
         LOG.debug(f"Database tables: {self.tables}")
         self.tool_model = QtSql.QSqlTableModel()
         self.tool_model.setTable('tools')
         self.tool_model.setEditStrategy(QtSql.QSqlTableModel.OnFieldChange)
-        self.tool_model.select()
-        LOG.info(f"Using TOOL DATABASE version {VERSION}")
-
-        # fill in tool header dictionary
         rec = self.tool_model.record()
         for i in range(rec.count()):
             hdr = rec.fieldName(i)
             self.headers[hdr] = i
+        self.tool_model.setSort(self.headers['TOOL'], Qt.AscendingOrder)
+        self.tool_model.select()
+        LOG.info(f"Using TOOL DATABASE version {VERSION}")
+
         self.init_tool_view()
         self.w.cmb_icon_select.setEnabled(False)
 
@@ -96,6 +106,7 @@ class Tool_Database(QWidget):
     def hal_init(self):
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         STATUS.connect('not-all-homed', lambda w, axis: self.setEnabled(False))
+        STATUS.connect('general',self.return_value)
 
     def create_connection(self):
         db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
@@ -107,22 +118,31 @@ class Tool_Database(QWidget):
         self.tables = db.tables()
         return True
 
+    # check if database is latest version
+    def check_num_columns(self):
+        self.query.prepare('SELECT * FROM tools LIMIT 1')
+        if not self.query.exec_():
+            LOG.debug(f'Query error: {self.query.lastError().text()}')
+            return False
+        column_count = self.query.record().count()
+        return column_count
+        
     def create_tool_table(self):
-        if self.query.exec_(
-            '''
+        query = '''
             CREATE TABLE tools (
                 TOOL INTEGER DEFAULT 0,
                 TIME REAL DEFAULT 0.0,
                 RPM INTEGER DEFAULT 0,
-                CPT REAL DEFAULT 0.0,
+                DIA REAL DEFAULT 0.0,
                 LENGTH REAL DEFAULT 0.0,
                 FLUTES INTEGER DEFAULT 0,
                 FEED INTEGER DEFAULT 0,
                 MFG TEXT DEFAULT "",
-                ICON TEXT DEFAULT "not_found.png"
-            )
+                ICON TEXT DEFAULT "not_found.png",
+                Comment TEXT DEFAULT "");
             '''
-        ) is True:
+        self.query.prepare(query)
+        if self.query.exec_() is True:
             LOG.debug("Create tool table success")
         else:
             LOG.debug(f"Create tool table error: {self.query.lastError().text()}")
@@ -131,14 +151,17 @@ class Tool_Database(QWidget):
         self.tool_view.setModel(self.tool_model)
         delegate = StyleDelegate(self)
         for key, col in self.headers.items():
-            if key == 'MFG' or key == 'ICON':
+            if key == 'MFG' or key == 'ICON' or key == 'Comment':
                 delegate.setAlignment(col, Qt.AlignLeft | Qt.AlignVCenter)
             else:
                 delegate.setAlignment(col, Qt.AlignCenter)
         self.tool_view.setItemDelegate(delegate)
         self.tool_view.horizontalHeader().setDefaultAlignment(Qt.AlignCenter)
-        self.tool_view.setColumnWidth(self.headers['MFG'], 150)
-        self.tool_view.clicked.connect(self.showToolSelection)
+        self.tool_view.setColumnWidth(self.headers['MFG'], 120)
+        self.tool_view.setColumnWidth(self.headers['ICON'], 120)
+        self.tool_view.setSelectionMode(QAbstractItemView.NoSelection)
+        self.tool_view.setSelectionBehavior(QAbstractItemView.SelectItems)
+        self.tool_view.clicked.connect(self.showSelection)
 
     def update_tools(self, tools):
         LOG.debug("Updating tool model")
@@ -158,6 +181,13 @@ class Tool_Database(QWidget):
             if len(delete_list) > 1: delete_list.reverse()
             for tno in delete_list:
                 self.delete_tool(tno)
+        # poulate DIA and Comment columns with data from tool table
+        tool_table = TOOL.GET_TOOL_ARRAY()
+        for line in tool_table:
+            row = self.get_index(line[0])
+            self.tool_model.setData(self.tool_model.index(row, self.headers['DIA']), line[11])
+            self.tool_model.setData(self.tool_model.index(row, self.headers['Comment']), line[15])
+        self.tool_model.submitAll()
         self.tool_model.select()
 
     def update_tool_no(self, old, new):
@@ -166,7 +196,22 @@ class Tool_Database(QWidget):
             LOG.debug(f"Index not found for tool {old}")
             return
         LOG.debug(f"Updating tool number from {old} to {new}")
-        self.tool_model.setData(self.tool_model.index(row, self.headers['TOOL']), new)
+        idx = self.tool_model.index(row, self.headers['TOOL'])
+        self.tool_model.setData(idx, new)
+        self.tool_model.select()
+
+    def update_tool_data(self, row, col):
+        tool_table = TOOL.GET_TOOL_ARRAY()
+        tool = tool_table[row][1]
+        new_row = self.get_index(tool)
+        if new_row is None:
+            LOG.debug(f"Index not found for tool {tool}")
+            return
+        data = tool_table[row][col - 4]
+        new_col = self.headers['DIA'] if col == 15 else self.headers['Comment']
+        idx = self.tool_model.index(new_row, new_col)
+        self.tool_model.setData(idx, data)
+        self.tool_model.submitAll()
         self.tool_model.select()
 
     def get_index(self, tno):
@@ -194,40 +239,64 @@ class Tool_Database(QWidget):
         self.tool_model.select()
 
 ## callbacks from widgets
-    def showToolSelection(self, item):
+    def showSelection(self, item):
         if not self.w.btn_enable_edit.isChecked(): return
+        if item.row() == 0: return
+        data = self.tool_model.data(item)
         col = item.column()
         field = self.tool_model.record().fieldName(col)
-        if field == 'TOOL': return
+        if field == 'TOOL' or field == 'DIA' or field == 'Comment': return
         if field == 'ICON':
             self.current_row = item.row()
             self.w.cmb_icon_select.showPopup()
+        elif field == 'MFG':
+             self.callTextDialog(data, item)
         elif field in self.headers:
-            self.callToolDialog(item, field)
+            self.callDialog(data, item)
+        self.tool_view.clearSelection()
+        self.tool_view.selectRow(self.selected_row)
 
-    def callToolDialog(self, item, field):
+    def callTextDialog(self, text, item):
         idx = self.tool_model.index(item.row(), self.headers['TOOL'])
         tool = self.tool_model.data(idx)
-        if tool == 0: return
-        idx = self.tool_model.index(item.row(), self.headers[field])
-        header = f'Tool {tool} Data'
-        preload = self.tool_model.data(idx)
-        if field in ['TIME', 'CPT', 'LENGTH']:
-            ret_val, ok = QInputDialog.getDouble(self, header, field, float(preload), decimals=self.ndec)
-            if ok: self.tool_model.setData(idx, ret_val)
-        elif field == 'RPM':
-            ret_val, ok = QInputDialog.getInt(self, header, field, int(preload), 0, self.max_spindle_rpm, 100)
-            if ok: self.tool_model.setData(idx, ret_val)
-        elif field == 'FLUTES':
-            ret_val, ok = QInputDialog.getInt(self, header, field, int(preload), 0, 8, 1)
-            if ok: self.tool_model.setData(idx, ret_val)
-        elif field == 'FEED':
-            ret_val, ok = QInputDialog.getInt(self, header, field, int(preload), 0, self.max_linear_velocity, 100)
-            if ok: self.tool_model.setData(idx, ret_val)
-        elif field == 'MFG':
-            ret_val, ok = QInputDialog.getText(self, header, field, text=preload)
-            if ok: self.tool_model.setData(idx, ret_val)
-        self.tool_model.submitAll()
+        mess = {'NAME':self.text_dialog_code,
+                'ID':f'{self.objectName()}__',
+                'PRELOAD':text,
+                'TITLE':f'Tool {tool} Text Entry',
+                'ITEM':item}
+        LOG.debug('message sent:{}'.format (mess))
+        STATUS.emit('dialog-request', mess)
+
+    def callDialog(self, data, item):
+        idx = self.tool_model.index(item.row(), self.headers['TOOL'])
+        tool = self.tool_model.data(idx)
+        field = self.tool_model.record().fieldName(item.column())
+        mess = {'NAME':self.dialog_code,
+                'ID':f'{self.objectName()}__',
+                'PRELOAD':data,
+                'TITLE':f'Tool {tool} Data for {field}',
+                'ITEM':item}
+        LOG.debug(f'message sent:{mess}')
+        STATUS.emit('dialog-request', mess)
+        
+    def return_value(self, w, message):
+        num = message['RETURN']
+        code = bool(message.get('ID') == f'{self.objectName()}__')
+        name = bool(message.get('NAME') == self.dialog_code)
+        name2 = bool(message.get('NAME') == self.text_dialog_code)
+        item = message.get('ITEM')
+
+        if code:
+            LOG.debug(f'message returned:{message}')
+        if code and name and num is not None:
+            field = self.tool_model.record().fieldName(item.column())
+            if field in ['RPM', 'FLUTES', 'FEED']:
+                num = int(num)
+            else:
+                num = round(float(num), 3)
+            self.tool_model.setData(item, num)
+        elif code and name2 and num is not None:
+            self.tool_model.setData(item, num)
 
     def icon_select_activated(self, index):
         if not self.w.btn_enable_edit.isChecked(): return
@@ -236,16 +305,22 @@ class Tool_Database(QWidget):
             self.set_tool_icon(icon)
             self.w.cmb_icon_select.setCurrentIndex(0)
 
-## calls from host
-    def set_checked_tool(self, tool):
-        self.selected_row = self.get_index(tool)
-
     def set_tool_icon(self, icon):
         row = self.current_row
         if row is None: return
         idx = self.tool_model.index(row, self.headers['ICON'])
         if not self.tool_model.setData(idx, icon):
             print(f"Setdata error - {self.tool_model.lastError().text()}")
+
+## calls from host
+    def set_checked_tool(self, tool):
+        self.selected_row = self.get_index(tool)
+
+    def set_edit_enable(self, state):
+        if state:
+            self.tool_view.setSelectionMode(QAbstractItemView.SingleSelection)
+        else:
+            self.tool_view.setSelectionMode(QAbstractItemView.NoSelection)
 
     def get_tool_data(self, tool, data):
         rtn = None
@@ -357,21 +432,13 @@ class Tool_Database(QWidget):
     def update_tool_time(self, tno, time):
         row = self.get_index(tno)
         if row is None: return
-        idx = self.tool_model.index(row, self.headers['TIME'])
         total_time = self.tool_model.record(row).value('TIME') + time
         total_time = f"{total_time:.3f}"
+        idx = self.tool_model.index(row, self.headers['TIME'])
         self.tool_model.setData(idx, total_time)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = Tool_Database()
-    w.initialize()
     w.show()
-    style = 'tooldb.qss'
-    if os.path.isfile(style):
-        file = QtCore.QFile(style)
-        file.open(QtCore.QFile.ReadOnly)
-        styleSheet = QtCore.QTextStream(file)
-        w.setStyleSheet("")
-        w.setStyleSheet(styleSheet.readAll())
     sys.exit( app.exec_() )
