@@ -29,6 +29,7 @@ LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 INFO = Info()
 PATH = Path()
 HERE = os.path.dirname(os.path.abspath(__file__))
+HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 
 # status message alert levels
 DEFAULT =  0
@@ -59,21 +60,55 @@ class ShowHelp(QtCore.QObject):
     def load_url(self, url):
         self.webview.load(url)
 
-class Setup_Utils():
+class SetupAbout():
+    def __init__(self, widgets, parent):
+        self.w = widgets
+        self.parent = parent
+        self.about_btns = {'ABOUT': 'intro',
+                           'USING A VFD': 'vfd',
+                           'SPINDLE PAUSE': 'spindle_pause',
+                           'USING A MPG': 'mpg',
+                           'TOOL TOUCHOFF': 'touchoff',
+                           'RUN FROM LINE': 'runfromline',
+                           'STYLESHEETS': 'stylesheets',
+                           'ROTARY AXIS': 'rotary_axis',
+                           'CUSTOM PANELS': 'custom'}
+
+        self.web_view_about = QWebEngineView()
+        self.web_page_about = WebPage()
+        self.web_view_about.setPage(self.web_page_about)
+        self.w.layout_about_pages.addWidget(self.web_view_about)
+
+        self.show_defaults()
+
+    def show_about_page(self, page):
+        fname = os.path.join(HELP, 'about_' + page + '.html')
+        if os.path.dirname(fname):
+            url = QtCore.QUrl("file:///" + fname)
+            self.web_page_about.load(url)
+        else:
+            self.parent.add_status(f"About file {fname} not found")
+
+    def show_defaults(self):
+        try:
+            fname = os.path.join(HELP, 'about_intro.html')
+            url = QtCore.QUrl("file:///" + fname)
+            self.web_page_about.load(url)
+        except Exception as e:
+            self.parent.add_status(f"Could not find default ABOUT page - {e}", CRITICAL)
+
+    def get_about_dict(self):
+        return self.about_btns
+
+
+class SetupUtils():
     def __init__(self, widgets, parent):
         self.w = widgets
         self.parent = parent
         self.tool_db = self.parent.tool_db
         self.doc_index = 0
-        self.util_btns = []
-        self.num_utils = 0
-        self.max_util_btns = 8
+        self.utils_dict = {}
         self.btn_idx = 0
-        self.scroll_window = {'left': 0, 'right': 0}
-        self.sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        self.stackedWidget_utils = QStackedWidget()
-        self.stackedWidget_utils.setSizePolicy(self.sizePolicy)
-        self.w.layout_utils.addWidget(self.stackedWidget_utils)
         # setup XML parser
         xml_filename = os.path.join(HERE, 'utils.xml')
         self.tree = ET.parse(xml_filename)
@@ -96,89 +131,88 @@ class Setup_Utils():
                 else:
                     LOG.debug(f"No such utility as {child.tag}")
 
-        self.num_utils = len(self.util_btns)
-        self['btn_' + self.util_btns[0]].setChecked(True)
-        self.scroll_window['left'] = 0
-        self.scroll_window['right'] = self.max_util_btns - 1
-
-        if self.num_utils <= self.max_util_btns:
-            self.w.btn_util_left.hide()
-            self.w.btn_util_right.hide()
-        else:
-            self.slide_scroll_window()
-        self.w.util_buttonGroup.buttonClicked.connect(self.utils_tab_changed)
         self.show_defaults()
 
     def install_facing(self):
         from lib.facing import Facing
         self.facing = Facing(self.tool_db, self.parent, self)
-        self.stackedWidget_utils.addWidget(self.facing)
-        self.make_button('facing', 'FACING')
+        self.w.stackedWidget_utils.addWidget(self.facing)
+        self.utils_dict['FACING'] = self.btn_idx
+        self.btn_idx += 1
         self.facing._hal_init()
 
     def install_hole_circle(self):
         from lib.hole_circle import Hole_Circle
         self.hole_circle = Hole_Circle(self.parent, self)
-        self.stackedWidget_utils.addWidget(self.hole_circle)
-        self.make_button('hole_circle', 'HOLE\nCIRCLE')
+        self.w.stackedWidget_utils.addWidget(self.hole_circle)
+        self.utils_dict['HOLE CIRCLE'] = self.btn_idx
+        self.btn_idx += 1
         self.hole_circle._hal_init()
 
     def install_auto_measure(self):
         from lib.auto_height import Auto_Measure
         self.auto_measure = Auto_Measure(self.w, self.parent, self)
-        self.stackedWidget_utils.addWidget(self.auto_measure)
-        self.make_button('auto_measure', 'WORKPIECE\nHEIGHT')
+        self.w.stackedWidget_utils.addWidget(self.auto_measure)
+        self.utils_dict['WORKPIECE HEIGHT'] = self.btn_idx
+        self.btn_idx += 1
         self.auto_measure._hal_init()
 
     def install_zlevel(self):
         from lib.zlevel import ZLevel
         self.zlevel = ZLevel(self.w, self.parent, self)
         self.parent.zlevel = self.zlevel
-        self.stackedWidget_utils.addWidget(self.zlevel)
-        self.make_button('zlevel', 'Z LEVEL\nCOMP')
+        self.w.stackedWidget_utils.addWidget(self.zlevel)
+        self.utils_dict['Z LEVEL COMP'] = self.btn_idx
+        self.btn_idx += 1
         self.zlevel._hal_init()
 
     def install_spindle_warmup(self):
         from lib.spindle_warmup import Spindle_Warmup
         self.warmup = Spindle_Warmup(self.parent)
-        self.stackedWidget_utils.addWidget(self.warmup)
-        self.make_button('warmup', 'SPINDLE\nWARMUP')
+        self.w.stackedWidget_utils.addWidget(self.warmup)
+        self.utils_dict['SPINDLE WARMUP'] = self.btn_idx
+        self.btn_idx += 1
         self.warmup._hal_init()
 
     def install_hole_enlarge(self):
         from lib.hole_enlarge import Hole_Enlarge
         self.enlarge = Hole_Enlarge(self.tool_db, self.parent, self)
-        self.stackedWidget_utils.addWidget(self.enlarge)
-        self.make_button('enlarge', 'HOLE\nENLARGE')
+        self.w.stackedWidget_utils.addWidget(self.enlarge)
+        self.utils_dict['HOLE ENLARGE'] = self.btn_idx
+        self.btn_idx += 1
         self.enlarge._hal_init()
 
     def install_ngcgui(self):
         LOG.info("Using NGCGUI utility")
         from lib.ngcgui import NgcGui
         self.ngcgui = NgcGui()
-        self.stackedWidget_utils.addWidget(self.ngcgui)
-        self.make_button('ngcgui', 'NGCGUI')
+        self.w.stackedWidget_utils.addWidget(self.ngcgui)
+        self.utils_dict['NGCGUI'] = self.btn_idx
+        self.btn_idx += 1
         self.ngcgui._hal_init()
 
     def install_gcodes(self):
         from lib.gcodes import GCodes
         self.gcodes = GCodes(self)
-        self.stackedWidget_utils.addWidget(self.gcodes)
-        self.make_button('gcodes', 'GCODES')
+        self.w.stackedWidget_utils.addWidget(self.gcodes)
+        self.utils_dict['GCODES'] = self.btn_idx
+        self.btn_idx += 1
         self.gcodes.setup_list()
 
     def install_rapid_rotary(self):
         if 'A' in INFO.AVAILABLE_AXES:
             from lib.rapid_rotary import Rapid_Rotary
             self.rapid_rotary = Rapid_Rotary(self)
-            self.stackedWidget_utils.addWidget(self.rapid_rotary)
-            self.make_button('rotary', 'RAPID\nROTARY')
+            self.w.stackedWidget_utils.addWidget(self.rapid_rotary)
+            self.utils_dict['RAPID ROTARY'] = self.btn_idx
+            self.btn_idx += 1
             self.rapid_rotary._hal_init()
 
     def install_document_viewer(self):
         self.doc_viewer = QtWidgets.QTabWidget()
-        self.doc_index = self.stackedWidget_utils.addWidget(self.doc_viewer)
-        self.make_button('docs', 'DOCUMENT\nVIEWER')
+        self.doc_index = self.w.stackedWidget_utils.addWidget(self.doc_viewer)
+        self.utils_dict['DOCUMENT VIEWER'] = self.btn_idx
+        self.btn_idx += 1
         # html page viewer
         self.web_view_setup = QWebEngineView()
         self.web_page_setup = WebPage()
@@ -194,16 +228,8 @@ class Setup_Utils():
         self.gcode_properties.setFont(QtGui.QFont("Courier", 12))
         self.doc_viewer.addTab(self.gcode_properties, 'GCODE')
 
-    def make_button(self, name, title):
-        self['btn_' + name] = QPushButton(title)
-        self['btn_' + name].setSizePolicy(self.sizePolicy)
-        self['btn_' + name].setMinimumSize(QtCore.QSize(90, 0))
-        self['btn_' + name].setCheckable(True)
-        self['btn_' + name].setProperty('index', self.btn_idx)
-        self.w.util_buttonGroup.addButton(self['btn_' + name])
-        self.w.layout_util_btns.insertWidget(self.btn_idx + 1, self['btn_' + name])
-        self.util_btns.append(name)
-        self.btn_idx += 1
+    def get_utils_dict(self):
+        return self.utils_dict
 
     def show_defaults(self):
         # default html page
@@ -223,15 +249,13 @@ class Setup_Utils():
     def show_html(self, fname):
         url = QtCore.QUrl("file:///" + fname)
         self.web_page_setup.load(url)
-        self.stackedWidget_utils.setCurrentIndex(self.doc_index)
+        self.w.stackedWidget_utils.setCurrentIndex(self.doc_index)
         self.doc_viewer.setCurrentIndex(0)
-        self.btn_docs.setChecked(True)
 
     def show_pdf(self, fname):
         self.PDFView.loadView(fname)
-        self.stackedWidget_utils.setCurrentIndex(self.doc_index)
+        self.w.stackedWidget_utils.setCurrentIndex(self.doc_index)
         self.doc_viewer.setCurrentIndex(1)
-        self.btn_docs.setChecked(True)
 
     def show_gcode_properties(self, props):
         lines = props.split('\n')
@@ -263,35 +287,6 @@ class Setup_Utils():
         self.help_page.load_url(url)
         self.dialog.show()
 
-    def utils_tab_changed(self, btn):
-        if btn == self.w.btn_util_left:
-            self.scroll_left()
-        elif btn == self.w.btn_util_right:
-            self.scroll_right()
-        else:
-            index = btn.property('index')
-            self.stackedWidget_utils.setCurrentIndex(index)
-
-    def scroll_left(self):
-        if self.scroll_window['left'] > 0:
-            self.scroll_window['left'] -= 1
-            self.scroll_window['right'] -= 1
-            self.slide_scroll_window()
-
-    def scroll_right(self):
-        if self.scroll_window['right'] < self.num_utils - 1:
-            self.scroll_window['left'] += 1
-            self.scroll_window['right'] += 1
-            self.slide_scroll_window()
-
-    def slide_scroll_window(self):
-        for item in self.util_btns:
-            index = self['btn_' + item].property('index')
-            if index < self.scroll_window['left'] or index > self.scroll_window['right']:
-                self['btn_' + item].hide()
-            else:
-                self['btn_' + item].show()
-
     # required code for subscriptable objects
     def __getitem__(self, item):
         return getattr(self, item)
@@ -301,7 +296,7 @@ class Setup_Utils():
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    w = Setup_Utils()
+    w = SetupUtils()
     w.show()
     sys.exit( app.exec_() )
 

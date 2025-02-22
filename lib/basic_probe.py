@@ -73,18 +73,6 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         except AttributeError as e:
             LOG.critical(e)
 
-        self.probe_page_list = ['OUTSIDE MEASUREMENTS',
-                                'INSIDE MEASUREMENTS',
-                                'ANGLE MEASUREMENTS',
-                                'BOSS AND POCKET',
-                                'RIDGE AND VALLEY',
-                                'CALIBRATION']
-
-        # populate probe page combobox
-        self.cmb_probe_select.clear()
-        self.cmb_probe_select.addItems(self.probe_page_list)
-        self.cmb_probe_select.wheelEvent = lambda event: None
-
         self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta']
 
         #create parameter dictionary
@@ -117,7 +105,6 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                           'cal_offset']
 
         # signal connections
-        self.cmb_probe_select.activated.connect(lambda index: self.stackedWidget_probe_buttons.setCurrentIndex(index))
         self.lineEdit_extra_depth.editingFinished.connect(self.get_probe_max_depth)
         self.lineEdit_max_z.editingFinished.connect(self.get_probe_max_depth)
         self.outside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)

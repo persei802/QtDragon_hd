@@ -14,13 +14,12 @@ import os
 import datetime
 import requests
 import linuxcnc
-import shutil
 from connections import Connections
 from lib.event_filter import EventFilter
-from PyQt5 import QtCore, QtWidgets, QtGui, uic
-from PyQt5.QtCore import QObject, QEvent, QRegExp, pyqtSignal
+from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtCore import Qt, QRegExp
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QMenu, QAction
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -43,7 +42,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.1.3'
+VERSION = '2.1.4'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -137,6 +136,7 @@ class HandlerClass:
         self.axis_list = INFO.AVAILABLE_AXES
         self.jog_from_name = INFO.GET_JOG_FROM_NAME
         self.system_list = ["G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3"]
+        self.user_system = 0
         self.slow_linear_jog = False
         self.slow_angular_jog = False
         self.slow_jog_factor = 10
@@ -145,6 +145,10 @@ class HandlerClass:
         self.current_loaded_program = None
         self.first_turnon = True
         self.macros_defined = 0
+        self.utils_menu = None
+        self.about_menu = None
+        self.utils_dict = {}
+        self.about_dict = {}
         self.pause_timer = QtCore.QTimer()
         self.icon_btns = {'action_exit': 'SP_BrowserStop'}
 
@@ -193,10 +197,11 @@ class HandlerClass:
         self.init_pins()
         self.init_preferences()
         self.init_tooldb()
+        self.init_utils()
+        self.init_probe()
+        self.init_menus()
         self.init_widgets()
         self.init_file_manager()
-        self.init_probe()
-        self.init_utils()
         self.init_macros()
         self.init_adjustments()
         self.init_event_filter()
@@ -331,7 +336,69 @@ class HandlerClass:
         self.w.PREFS_.putpref('Tool to load', STATUS.get_current_tool(), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Work Height', self.w.lineEdit_work_height.text(), float, 'CUSTOM_FORM_ENTRIES')
 
+        # remove orphaned entries in the .pref file
+        obj_list = []
+        for key in self.settings_checkboxes:
+            obj_list.append(key.objectName())
+        for key in self.touchoff_checkboxes:
+            obj_list.append(key.objectName())
+        for key in self.settings_touchoff:
+            obj_list.append(key.objectName())
+        for key in self.settings_offsets:
+            obj_list.append(key.objectName())
+        for key in self.settings_spindle:
+            obj_list.append(key.objectName())
+
+        del_list = []
+        all_forms = self.w.PREFS_.getall('CUSTOM_FORM_ENTRIES')
+        for key, val in all_forms.items():
+            if key not in obj_list:
+                del_list.append(key)
+#        print(del_list)
+
+#        for item in del_list:
+#            self.w.PREFS_.removepref(item, 'CUSTOM_FORM_ENTRIES')
+
+    def init_menus(self):
+        self.offsets_menu = QMenu()
+        action = QAction('ZERO Z ROTATION', self.offsets_menu)
+        action.triggered.connect(lambda state: ACTION.ZERO_ROTATIONAL_OFFSET())
+        self.offsets_menu.addAction(action)
+
+        action = QAction('ZERO G92', self.offsets_menu)
+        action.triggered.connect(lambda state: ACTION.ZERO_G92_OFFSET())
+        self.offsets_menu.addAction(action)
+
+        action = QAction('ZERO G5X', self.offsets_menu)
+        action.triggered.connect(lambda state, sys=self.user_system: ACTION.ZERO_G5X_OFFSET(sys))
+        self.offsets_menu.addAction(action)
+
+        self.probe_menu = QMenu()
+        self.probe_dict = {'OUTSIDE MEASUREMENTS': 0,
+                           'INSIDE MEASUREMENTS': 1,
+                           'ANGLE MEASUREMENTS': 2,
+                           'BOSS AND POCKET': 3,
+                           'RIDGE AND VALLEY': 4,
+                           'CALIBRATION': 5}
+        for key, val in self.probe_dict.items():
+            action = QAction(key, self.probe_menu)
+            action.triggered.connect(lambda state, title=key, idx=val: self.probe_action_triggered(title, idx))
+            self.probe_menu.addAction(action)
+
+        self.utils_menu = QMenu()
+        for key, val in self.utils_dict.items():
+            action = QAction(key, self.utils_menu)
+            action.triggered.connect(lambda state, title=key, idx=val: self.util_action_triggered(title, idx))
+            self.utils_menu.addAction(action)
+
+        self.about_menu = QMenu()
+        for key, val in self.about_dict.items():
+            action = QAction(key, self.about_menu)
+            action.triggered.connect(lambda state, i=val: self.about_pages.show_about_page(i))
+            self.about_menu.addAction(action)
+        
     def init_widgets(self):
+        # initialize widget states
         self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
         self.w.adj_linear_jog.setValue(self.default_linear_jog_vel)
         self.w.adj_linear_jog.setMaximum(self.max_linear_velocity)
@@ -352,10 +419,6 @@ class HandlerClass:
         self.w.cmb_gcode_history.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         # gcode editor mode
         self.w.gcode_viewer.readOnlyMode()
-        # ABOUT pages
-        from lib.setup_about import Setup_About
-        self.about_pages = Setup_About(self.w, self)
-        self.about_pages.init_about()
         # mdi history
         self.w.mdihistory.MDILine.setFixedHeight(30)
         self.w.mdihistory.MDILine.setPlaceholderText('MDI:')
@@ -465,13 +528,18 @@ class HandlerClass:
         self.probe.hal_init()
 
     def init_utils(self):
-        from lib.setup_utils import Setup_Utils
-        self.setup_utils = Setup_Utils(self.w, self)
+        from lib.setup_utils import SetupUtils
+        self.setup_utils = SetupUtils(self.w, self)
         self.setup_utils.init_utils()
         if self.zlevel is None:
             self.w.btn_enable_comp.setEnabled(False)
         self.get_next_available()
         self.tool_db.update_tools(self.tool_list)
+        self.utils_dict = self.setup_utils.get_utils_dict()
+
+        from lib.setup_utils import SetupAbout
+        self.about_pages = SetupAbout(self.w, self)
+        self.about_dict = self.about_pages.get_about_dict()
 
     def init_event_filter(self):
         line_list = self.lineedit_list
@@ -609,6 +677,7 @@ class HandlerClass:
             self.h['eoffset-count'] = 0
 
     def user_system_changed(self, data):
+        self.user_system = int(data)
         sys = self.system_list[int(data) - 1]
         self.w.systemtoolbutton.setText(sys)
         txt = sys.replace('.', '_')
@@ -778,7 +847,11 @@ class HandlerClass:
     def main_tab_changed(self, btn):
         index = btn.property("index")
         if index is None: return
-        if index == self.w.main_tab_widget.currentIndex(): return
+#        if self.w.main_tab_widget.currentIndex() == TAB_UTILS:
+#            pass
+#        elif self.w.main_tab_widget.currentIndex() == TAB_ABOUT:
+#            pass
+#        elif index == self.w.main_tab_widget.currentIndex(): return
         spindle_inhibit = False
         if STATUS.is_auto_mode() and index != TAB_SETTINGS:
             self.add_status("Cannot switch pages while in AUTO mode", WARNING)
@@ -786,14 +859,29 @@ class HandlerClass:
             self.w.btn_main.setChecked(True)
             self.w.groupBox_preview.setTitle(self.w.btn_main.text())
             return
-        if index == TAB_STATUS:
+        if index == TAB_OFFSETS:
+            self.offsets_menu.popup(self.w.btn_offsets.mapToGlobal(self.w.btn_offsets.rect().bottomLeft()))
+        elif index == TAB_STATUS:
             highlighter = Highlighter(self.w.machine_log)
         elif index == TAB_PROBE:
+            self.probe_menu.popup(self.w.btn_probe.mapToGlobal(self.w.btn_probe.rect().bottomLeft()))
             spindle_inhibit = self.w.chk_inhibit_spindle.isChecked()
+        elif index == TAB_UTILS:
+            self.utils_menu.popup(self.w.btn_utils.mapToGlobal(self.w.btn_utils.rect().bottomLeft()))
+        elif index == TAB_ABOUT:
+            self.about_menu.popup(self.w.btn_about.mapToGlobal(self.w.btn_about.rect().bottomLeft()))
         self.w.mdihistory.MDILine.spindle_inhibit(spindle_inhibit)
         self.h['spindle-inhibit'] = spindle_inhibit
         self.w.main_tab_widget.setCurrentIndex(index)
         self.w.groupBox_preview.setTitle(btn.text())
+
+    def util_action_triggered(self, title, idx):
+        self.w.stackedWidget_utils.setCurrentIndex(idx)
+        self.w.groupBox_preview.setTitle(title)
+        
+    def probe_action_triggered(self, title, index):
+        self.probe.stackedWidget_probe_buttons.setCurrentIndex(index)
+        self.probe.groupBox_probe_select.setTitle(title)
 
     # preview frame
     def btn_dimensions_changed(self, state):
@@ -1368,6 +1456,7 @@ class HandlerClass:
             self.setup_utils.show_pdf(fname)
             self.w.main_tab_widget.setCurrentIndex(TAB_UTILS)
             self.w.btn_utils.setChecked(True)
+            self.w.groupBox_preview.setTitle(title)
             self.add_status(f"Loaded PDF file : {fname}")
         else:
             self.add_status(f"No action for {fname}", WARNING)
@@ -1654,7 +1743,21 @@ class HandlerClass:
             self.w.statusbar.setStyleSheet(self.statusbar_style)
         else:
             self.statusbar_style = ''
-        
+
+        # styles applied to the mainwindow may not propagate to the qmenu
+        # as it is a popup widget. Therefore, must apply directly.
+        menu_style = ""
+        for text in ['QMenu', 'QMenu::item', 'QMenu::item:selected']:
+            if text in style:
+                start_index = style.index(text)
+                end_index = style.find("}", start_index) + 1
+                menu_style = menu_style + style[start_index:end_index] +'\n'
+
+        self.offsets_menu.setStyleSheet(menu_style)
+        self.probe_menu.setStyleSheet(menu_style)
+        self.utils_menu.setStyleSheet(menu_style)
+        self.about_menu.setStyleSheet(menu_style)
+
     ##############################
     # required class boiler code #
     ##############################
