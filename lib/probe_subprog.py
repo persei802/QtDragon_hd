@@ -22,7 +22,7 @@ import json
 from PyQt5.QtCore import QObject
 from qtvcp.core import Status, Action, Info
 #from qtvcp.widgets.probe_routines import ProbeRoutines
-from lib.probe_routines import ProbeRoutines
+from probe_routines import ProbeRoutines
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
