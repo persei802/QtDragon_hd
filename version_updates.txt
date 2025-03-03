@@ -61,3 +61,8 @@ Feb. 17/25 v 2.1.3
     - added DIA and Comment columns to tool database
     - added code to update tool database to new version if the old one was found
     - switched filemanager back to qtvcp version due to it being updated with drag and drop and navigation restrictions
+
+Mar. 3/25 v 2.1.4
+    - fixed bug with Zlevel compensation file save names
+    - fixed PAUSE button not showing RESUME when program is paused due to M1
+    
