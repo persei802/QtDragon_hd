@@ -55,6 +55,7 @@ class ZLevel(QWidget):
         self.probe_vel = 0
         self.z_safe = 0
         self.max_probe = 0
+        self.start_height = 0
         self.probe_filename = ""
         self.comp_file = ""
         self.red_border = "border: 2px solid red;"
@@ -98,17 +99,26 @@ class ZLevel(QWidget):
     def save_gcode(self):
         if not self.validate(): return
         fname = self.lineEdit_gcode_program.text()
-        if os.path.exists(fname):
-            dname = os.path.dirname(fname)
-            pname = os.path.basename(fname)
-            fname = os.path.join(dname, 'probe_' + pname)
-        else:
+        if fname.startswith('/tmp') or fname == '' or os.path.exists(fname):
             options = QFileDialog.Options()
             options |= QFileDialog.DontUseNativeDialog
             _filter = "Compensation Probe Files (*.ngc)"
             _dir = INFO.SUB_PATH_LIST[0]
             _caption = "Save Probe File"
             fname, _ =  QFileDialog.getSaveFileName(None, _caption, _dir, _filter, options=options)
+        else:
+            dname = os.path.dirname(fname)
+            pname = os.path.basename(fname)
+            if not pname.startswith('probe_'):
+                fname = os.path.join(dname, 'probe_' + pname)
+        if fname == '': return
+        if not fname.startswith('/home'):
+            if INFO.PROGRAM_PREFIX is not None:
+                user_path = os.path.expanduser(INFO.PROGRAM_PREFIX)
+            else:
+                user_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
+            fname = os.path.join(user_path, fname)
+        self.lineEdit_gcode_program.setText(fname)
         if fname.endswith('.ngc'):
             self.probe_filename = fname.replace(".ngc", ".txt")
             self.calculate_gcode(fname)
@@ -157,6 +167,7 @@ class ZLevel(QWidget):
         self.next_line("  #200 = 0")
         self.next_line(f"  O200 while [#200 LT {self.x_steps}]")
         self.next_line(f"    G0 X[{x_start} + {x_inc:.3f} * #200]")
+        self.next_line(f"    G0 Z{self.start_height}")
         self.next_line(f"    G38.2 Z-{self.max_probe} F{self.probe_vel}")
         self.next_line(f"    G0 Z{self.z_safe}")
         self.next_line("    #200 = [#200 + 1]")
@@ -172,14 +183,12 @@ class ZLevel(QWidget):
     def validate(self):
         valid = True
         # restore normal border colors
-        for item in ["size_x", "size_y", "steps_x", "steps_y"]:
+        for item in ["size_x", "size_y", "steps_x", "steps_y", "probe_tool"]:
             if self['lineEdit_' + item].styleSheet() == self.red_border:
                 self['lineEdit_' + item].setStyleSheet(self.default_style)
-        for item in ["zsafe", "probe_vel", "max_probe"]:
+        for item in ["zsafe", "probe_vel", "max_probe", "start_height"]:
             if self.w['lineEdit_' + item].styleSheet() == self.red_border:
                 self.w['lineEdit_' + item].setStyleSheet(self.default_style)
-        if self.lineEdit_probe_tool.styleSheet == self.red_border:
-            self.lineEdit_probe_tool.setStyleSheet(self.default_style)
         # check array size parameter
         try:
             self.size_x = float(self.lineEdit_size_x.text())
@@ -222,11 +231,11 @@ class ZLevel(QWidget):
         try:
             self.probe_tool = int(self.lineEdit_probe_tool.text())
             if self.probe_tool <= 0:
-                self.w.lineEdit_probe_tool.setStyleSheet(self.red_border)
+                self.lineEdit_probe_tool.setStyleSheet(self.red_border)
                 self.h.add_status("Probe tool number must be > 0", WARNING)
                 valid = False
         except:
-            self.w.lineEdit_probe_tool.setStyleSheet(self.red_border)
+            self.lineEdit_probe_tool.setStyleSheet(self.red_border)
             valid = False
         # check z safe parameter
         try:
@@ -255,6 +264,16 @@ class ZLevel(QWidget):
                 valid = False
         except:
             self.w.lineEdit_max_probe.setStyleSheet(self.red_border)
+            valid = False
+        # check Z probe start height
+        try:
+            self.start_height = float(self.w.lineEdit_start_height.text())
+            if self.start_height <= 0:
+                self.w.lineEdit_start_height.setStyleSheet(self.red_border)
+                self.h.add_status("Start height must be > 0", WARNING)
+                valid = False
+        except:
+            self.w.lineEdit_start_height.setStyleSheet(self.red_border)
             valid = False
         return valid
 
