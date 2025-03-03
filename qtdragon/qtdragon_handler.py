@@ -43,7 +43,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.1.3'
+VERSION = '2.1.4'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -98,7 +98,6 @@ class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
         self.w = widgets
-        self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
         self.styleeditor = SSE(widgets, paths, addBuiltinStyles=False)
         self.settings_checkboxes = []
         self.touchoff_checkboxes = []
@@ -118,7 +117,6 @@ class HandlerClass:
         self.current_tool = 0
         self.tool_list = []
         self.next_available = 0
-        self.pause_dialog = None
         self.about_html = os.path.join(PATH.CONFIGPATH, "help_files/about.html")
         self.start_line = 0
         self.feedrate_style = ''
@@ -151,12 +149,12 @@ class HandlerClass:
         self.adj_list = ['maxvel_ovr', 'rapid_ovr', 'feed_ovr', 'spindle_ovr']
 
         self.unit_label_list = ["zoffset_units", "retract_units", "zsafe_units", "touch_units", "max_probe_units",
-                                "sensor_units", "gauge_units", "rotary_units", "mpg_units"]
+                                "start_height_units", "sensor_units", "gauge_units", "rotary_units", "mpg_units"]
 
         self.unit_speed_list = ["search_vel_units", "probe_vel_units"]
 
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y", "camera_x",
-                              "camera_y", "search_vel", "probe_vel", "retract", "max_probe", "eoffset", "eoffset_count",
+                              "camera_y", "search_vel", "probe_vel", "retract", "max_probe", "start_height", "eoffset",
                               "sensor_x", "sensor_y", "zsafe", "probe_x", "probe_y", "rotary_height", "gauge_height"]
 
         self.axis_a_list = ["dro_axis_a", "lbl_max_angular", "lbl_max_angular_vel", "angular_increment",
@@ -179,6 +177,7 @@ class HandlerClass:
         STATUS.connect('file-loaded', lambda w, filename: self.file_loaded(filename))
         STATUS.connect('all-homed', self.all_homed)
         STATUS.connect('not-all-homed', self.not_all_homed)
+        STATUS.connect('program_pause_changed', lambda w, state: self.pause_changed(state))
         STATUS.connect('interp-idle', lambda w: self.stop_timer())
         STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_gcode_properties(d))
         STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d, o)) 
@@ -217,8 +216,14 @@ class HandlerClass:
             for item in self.axis_a_list:
                 self.w[item].hide()
         # set validators for lineEdit widgets
+        if INFO.MACHINE_IS_METRIC:
+            regex = QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$')
+        else:
+            regex = QRegExp(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$')
+        valid = QtGui.QRegExpValidator(regex)
         for val in self.lineedit_list:
-            self.w['lineEdit_' + val].setValidator(self.valid)
+            self.w['lineEdit_' + val].setValidator(valid)
+        self.w.lineEdit_eoffset_count.setValidator(QtGui.QIntValidator(0, 999))
         self.w.lineEdit_max_power.setValidator(QtGui.QIntValidator(0, 9999))
         self.w.lineEdit_tool_in_spindle.setValidator(QtGui.QIntValidator(0, 99999))
         # set unit labels according to machine mode
@@ -601,7 +606,7 @@ class HandlerClass:
             try:
                 self.zlevel.map_ready()
             except Exception as e:
-                self.add_status(f"Error - {e}", WARNING)
+                self.add_status(f"Map ready - {e}", WARNING)
             
     def command_stopped(self, obj):
         if self.w.btn_pause_spindle.isChecked():
@@ -714,6 +719,15 @@ class HandlerClass:
         minutes = self.h['runtime-minutes']
         seconds = self.h['runtime-seconds']
         self.w.lineEdit_runtime.setText(f"{hours:02d}:{minutes:02d}:{seconds:02d}")
+
+    def pause_changed(self, state):
+        text = '  RESUME' if state else '  PAUSE'
+        self.w.btn_pause.setText(text)
+        if state:
+            self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {PAUSE_COLOR};')
+        else:
+            self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {RUN_COLOR};')
+        self.add_status(f'Program paused set {state}')
 
     def add_external_status(self, message, option):
         level = option.get('LEVEL', STATUS.DEFAULT)
@@ -848,7 +862,6 @@ class HandlerClass:
 
     def btn_stop_pressed(self):
         if STATUS.is_auto_paused():
-            self.w.btn_pause.setText("  PAUSE")
             self.pause_timer.stop()
             self.h['runtime-start'] = False
             self.h['runtime-pause'] = False
@@ -860,13 +873,9 @@ class HandlerClass:
     def btn_pause_pressed(self):
         if STATUS.is_on_and_idle(): return
         if STATUS.is_auto_paused():
-            self.w.btn_pause.setText("  PAUSE")
-            self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {RUN_COLOR};')
             self.h['runtime-pause'] = False
             ACTION.PAUSE()
         else:
-            self.w.btn_pause.setText("  RESUME")
-            self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {PAUSE_COLOR};')
             self.h['runtime-pause'] = True
             ACTION.PAUSE()
             if self.w.btn_pause_spindle.isChecked():
