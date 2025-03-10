@@ -803,6 +803,7 @@ class HandlerClass:
         if index == TAB_STATUS:
             highlighter = Highlighter(self.w.machine_log)
         elif index == TAB_PROBE:
+            ACTION.CALL_MDI('M5')
             spindle_inhibit = self.w.chk_inhibit_spindle.isChecked()
         self.w.mdihistory.MDILine.spindle_inhibit(spindle_inhibit)
         self.h['spindle-inhibit'] = spindle_inhibit
@@ -868,6 +869,7 @@ class HandlerClass:
             self.update_runtime()
         ACTION.ABORT()
         ACTION.SET_MANUAL_MODE()
+        self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {PAUSE_COLOR};')
         self.add_status("Program manually aborted")
 
     def btn_pause_pressed(self):
