@@ -1094,7 +1094,7 @@ GCODE</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>8</number>
+                <number>4</number>
                </property>
                <widget class="QWidget" name="main_tab_widget_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -4374,29 +4374,14 @@ DATABASE</string>
                      </property>
                      <item>
                       <widget class="MachineLog" name="machine_log">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="frameShape">
-                        <enum>QFrame::NoFrame</enum>
-                       </property>
-                       <property name="frameShadow">
-                        <enum>QFrame::Plain</enum>
-                       </property>
-                       <property name="lineWidth">
-                        <number>0</number>
-                       </property>
-                       <property name="documentTitle">
-                        <string>Machine Log</string>
-                       </property>
-                       <property name="readOnly">
+                       <property name="machine_log_option" stdset="0">
                         <bool>true</bool>
                        </property>
-                       <property name="placeholderText">
-                        <string>Machine Log</string>
+                       <property name="machine_log_severity_option" stdset="0">
+                        <bool>false</bool>
+                       </property>
+                       <property name="integrator_log_option" stdset="0">
+                        <bool>false</bool>
                        </property>
                       </widget>
                      </item>
@@ -4427,23 +4412,17 @@ DATABASE</string>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
-                       <property name="frameShape">
-                        <enum>QFrame::NoFrame</enum>
-                       </property>
-                       <property name="frameShadow">
-                        <enum>QFrame::Plain</enum>
-                       </property>
-                       <property name="documentTitle">
-                        <string>Integrator Log</string>
-                       </property>
-                       <property name="readOnly">
-                        <bool>true</bool>
-                       </property>
-                       <property name="placeholderText">
-                        <string>Integrator Log</string>
-                       </property>
                        <property name="integrator_log_option" stdset="0">
                         <bool>true</bool>
+                       </property>
+                       <property name="documentTitle" stdset="0">
+                        <string>Integrator Log</string>
+                       </property>
+                       <property name="readOnly" stdset="0">
+                        <bool>true</bool>
+                       </property>
+                       <property name="placeholderText" stdset="0">
+                        <string>Integrator Log</string>
                        </property>
                       </widget>
                      </item>
@@ -5524,7 +5503,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>11:50:02 AM</string>
+                       <string>07:46:54 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -14522,7 +14501,7 @@ SPEED</string>
   </customwidget>
   <customwidget>
    <class>MachineLog</class>
-   <extends>QTextEdit</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
@@ -14693,10 +14672,10 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="util_buttonGroup"/>
   <buttongroup name="about_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>

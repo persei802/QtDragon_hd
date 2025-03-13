@@ -70,13 +70,13 @@ STOP_COLOR = 'red'
 
 
 class Highlighter(QSyntaxHighlighter):
-    def __init__(self, parent=None):
-        super(Highlighter, self).__init__(parent)
+    def __init__(self, document):
+        super(Highlighter, self).__init__(document)
         self.highlightingRules = []
 
         warningLineFormat = QTextCharFormat()
-        errorLineFormat = QTextCharFormat()
         warningLineFormat.setForeground(QColor(WARNING_COLOR))
+        errorLineFormat = QTextCharFormat()
         errorLineFormat.setForeground(QColor(ERROR_COLOR))
 
         warningLinePattern = QRegExp(".*WARNING.*")
@@ -233,6 +233,9 @@ class HandlerClass:
         for i in self.unit_speed_list:
             self.w['lbl_' + i].setText(self.machine_units + "/MIN")
         self.w.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        # instantiate color highlighter for machine log
+        self.highlighter = Highlighter(self.w.machine_log.logText)
+
         # connect all signals to corresponding slots
         connect = Connections(self, self.w)
         self.w.tooloffsetview.tablemodel.layoutChanged.connect(self.get_checked_tools)
@@ -800,9 +803,7 @@ class HandlerClass:
             self.w.btn_main.setChecked(True)
             self.w.groupBox_preview.setTitle(self.w.btn_main.text())
             return
-        if index == TAB_STATUS:
-            highlighter = Highlighter(self.w.machine_log)
-        elif index == TAB_PROBE:
+        if index == TAB_PROBE:
             ACTION.CALL_MDI('M5')
             spindle_inhibit = self.w.chk_inhibit_spindle.isChecked()
         self.w.mdihistory.MDILine.spindle_inhibit(spindle_inhibit)
