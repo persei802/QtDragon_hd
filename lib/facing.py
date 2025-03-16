@@ -10,17 +10,17 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-import sys
 import os
 import numpy as np
 import tempfile
 import atexit
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import QFile, Qt
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QFileDialog, QWidget
 
 from qtvcp.core import Info, Status, Action, Path, Tool
+from .preview import Preview
 
 INFO = Info()
 STATUS = Status()
@@ -33,7 +33,7 @@ IMAGES = os.path.join(PATH.CONFIGPATH, 'qtdragon/images')
 WARNING = 1
 
 
-class Facing(QtWidgets.QWidget):
+class Facing(QWidget):
     def __init__(self, tooldb, handler, parent=None):
         super(Facing, self).__init__()
         self.tool_db = tooldb
@@ -49,7 +49,6 @@ class Facing(QtWidgets.QWidget):
             self.h.add_status(e, WARNING)
 
         # Initial values
-        self._tmp = None
         self.rpm = INFO.get_error_safe_setting("DISPLAY", "DEFAULT_SPINDLE_0_SPEED", 500)
         self.min_x = INFO.get_safe_float("AXIS_X", "MIN_LIMIT")
         self.max_x = INFO.get_safe_float("AXIS_X", "MAX_LIMIT")
@@ -60,7 +59,7 @@ class Facing(QtWidgets.QWidget):
         self.max_feed = INFO.get_safe_int("DISPLAY", "MAX_LINEAR_VELOCITY") * 60
         self.size_x = 0
         self.size_y = 0
-        self.tool_no = 0
+        self.tool = 0
         self.feedrate = 0
         self.stepover = 0
         self.tool_dia = 0
@@ -70,8 +69,10 @@ class Facing(QtWidgets.QWidget):
         self.red_border = "border: 2px solid red;"
         self.black_border = "border: 2px solid black;"
         self.parm_list = ["size_x", "size_y", "spindle", "feedrate", "safe_z", "tool_diameter", "stepover"]
+        self.preview = Preview()
 
         # set valid input formats for lineEdits
+        self.layout_preview.addWidget(self.preview)
         self.lineEdit_tool_num.setValidator(QtGui.QIntValidator(1, 99))
         self.lineEdit_tool_diameter.setValidator(QtGui.QDoubleValidator(0, 999, 3))
         self.lineEdit_spindle.setValidator(QtGui.QIntValidator(0, 99999))
@@ -82,27 +83,25 @@ class Facing(QtWidgets.QWidget):
         self.lineEdit_size_y.setValidator(QtGui.QDoubleValidator(0, 9999, 3))
 
         # signal connections
+        self.chk_units.stateChanged.connect(lambda state: self.units_changed(state))
         self.lineEdit_tool_num.editingFinished.connect(self.load_tool)
+        self.btn_preview.pressed.connect(self.preview_program)
         self.btn_create.pressed.connect(self.create_program)
         self.btn_send.pressed.connect(self.send_program)
-        self.rbtn_raster_0.clicked.connect(self.raster_changed)
-        self.rbtn_raster_45.clicked.connect(self.raster_changed)
-        self.rbtn_raster_90.clicked.connect(self.raster_changed)
         self.btn_help.pressed.connect(self.show_help)
-
-        self.raster_changed()
 
     def _hal_init(self):
         def homed_on_status():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
-        STATUS.connect('metric-mode-changed', lambda w, mode: self.units_changed(mode))
         STATUS.connect('state_off', lambda w: self.setEnabled(False))
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
 
-    def units_changed(self, mode):
-        text = "MM" if mode else "IN"
+    def units_changed(self, state):
+        text = "MM" if state else "IN"
+        chk_text = 'METRIC' if state else 'IMPERIAL'
+        self.chk_units.setText(chk_text)
         self.lbl_feed_unit.setText(text + "/MIN")
         self.lbl_safe_z_unit.setText(text)
         self.lbl_tool_unit.setText(text)
@@ -110,20 +109,21 @@ class Facing(QtWidgets.QWidget):
         self.lbl_size_unit.setText(text)
         self.units_text = (f"**NOTE - All units are in {text}")
 
-    def raster_changed(self):
-        if self.rbtn_raster_0.isChecked():
-            pixmap = QtGui.QPixmap(os.path.join(IMAGES, 'raster_0.png'))
-        elif self.rbtn_raster_45.isChecked():
-            pixmap = QtGui.QPixmap(os.path.join(IMAGES, 'raster_45.png'))
-        elif self.rbtn_raster_90.isChecked():
-            pixmap = QtGui.QPixmap(os.path.join(IMAGES, 'raster_90.png'))
-        self.lbl_image.setPixmap(pixmap)
-
     def validate(self):
         valid = True
         blank = "Input field cannot be blank"
         for item in self.parm_list:
             self['lineEdit_' + item].setStyleSheet(self.black_border)
+        # check tool number
+        try:
+            self.tool = int(self.lineEdit_tool_num.text())
+            if self.tool <= 0:
+                self.lineEdit_tool_num.setStyleSheet(self.red_border)
+                self.h.add_status("Error - Tool Number must be > 0", WARNING)
+                valid = False
+        except:
+            self.lineEdit_tool_num.setStyleSheet(self.red_border)
+            valid = False
         # check for valid size
         try:
             self.size_x = float(self.lineEdit_size_x.text())
@@ -203,24 +203,35 @@ class Facing(QtWidgets.QWidget):
     def load_tool(self):
         #check for valid tool and populate rpm, dia and feed parameters
         try:
-            self.tool_no = int(self.lineEdit_tool_num.text())
+            self.tool = int(self.lineEdit_tool_num.text())
         except:
-            self.tool_no = 0
-
-        if self.tool_no > 0:
-            info = TOOL.GET_TOOL_INFO(self.tool_no)
+            self.tool = 0
+        if self.tool > 0:
+            info = TOOL.GET_TOOL_INFO(self.tool)
             dia = info[11]
             self.lineEdit_tool_diameter.setText(f"{dia:8.3f}")
-            rpm = self.tool_db.get_tool_data(self.tool_no, "RPM")
+            rpm = self.tool_db.get_tool_data(self.tool, "RPM")
             self.lineEdit_spindle.setText(str(rpm))
-            feed = self.tool_db.get_tool_data(self.tool_no, "FEED")
+            feed = self.tool_db.get_tool_data(self.tool, "FEED")
             self.lineEdit_feedrate.setText(str(feed))
             self.lineEdit_tool_num.setStyleSheet(self.black_border)
-            ACTION.CALL_MDI(f"M61 Q{self.tool_no}")
+            ACTION.CALL_MDI(f"M61 Q{self.tool}")
         else:
             self.h.add_status("Invalid tool number specified", WARNING)
             self.lineEdit_tool_num.setStyleSheet(self.red_border)
         self.validate()
+
+    def preview_program(self):
+        if not self.validate(): return
+        filename = self.make_temp()
+        self.calculate_program(filename)
+        result = self.preview.load_program(filename)
+        if result:
+            self.preview.set_path_points()
+            self.preview.update()
+            self.h.add_status(f'Previewing file {filename}')
+        else:
+            self.h.add_status('Program preview failed', WARNING)
 
     def create_program(self):
         if not self.validate(): return
@@ -228,20 +239,21 @@ class Facing(QtWidgets.QWidget):
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getSaveFileName(self,"Save to file","","All Files (*);;ngc Files (*.ngc)", options=options)
         if fileName:
-            self.calculate_toolpath(fileName)
+            self.calculate_program(fileName)
             self.h.add_status(f"Program successfully saved to {fileName}")
         else:
             self.h.add_status("Program creation aborted")
 
     def send_program(self):
         if not self.validate(): return
-        filename = self.make_temp()[1]
-        self.calculate_toolpath(filename)
+        filename = self.make_temp()
+        self.calculate_program(filename)
         ACTION.OPEN_PROGRAM(filename)
         self.h.add_status("Program successfully sent to Linuxcnc")
 
-    def calculate_toolpath(self, fname):
+    def calculate_program(self, fname):
         comment = self.lineEdit_comment.text()
+        unit_code = 'G21' if self.chk_units.isChecked() else 'G20'
         self.line_num = 5
         self.file = open(fname, 'w')
         # opening preamble
@@ -251,8 +263,13 @@ class Facing(QtWidgets.QWidget):
         self.file.write(f"(Area: X {self.size_x} by Y {self.size_y})\n")
         self.file.write(f"({self.tool_dia} Tool Diameter with {self.stepover} Stepover)\n")
         self.file.write("\n")
-        self.next_line("G40 G49 G64 P0.03")
+        self.next_line(f"G40 G49 G64 P0.03 M6 T{self.tool}")
         self.next_line("G17")
+        self.next_line(unit_code)
+        if self.chk_mist.isChecked():
+            self.next_line("M7")
+        if self.chk_flood.isChecked():
+            self.next_line("M8")
         self.next_line(f"G0 Z{self.safe_z}")
         self.next_line("G0 X0.0 Y0.0")
         self.next_line(f"S{self.rpm} M3")
@@ -266,10 +283,22 @@ class Facing(QtWidgets.QWidget):
         elif self.rbtn_raster_90.isChecked():
             self.raster_90()
         else:
-            self.h.add_status("Fatal error occurred - exiting", WARNING)
-            sys.exit()
+            self.file.write("(Unable to determine raster direction)\n")
+        # final profile
+        if self.chk_profile.isChecked():
+            self.file.write("(Profile pass)\n")
+            self.next_line(f"G0 Z{self.safe_z}")
+            self.next_line("G0 X0.0 Y0.0")
+            self.next_line(f"G0 Z{self.safe_z / 2}")
+            self.next_line(f"G1 Z0.0 F{self.feedrate / 2}")
+            self.next_line(f"G1 X{self.size_x} F{self.feedrate}")
+            self.next_line(f"G1 Y{self.size_y}")
+            self.next_line("G1 X0")
+            self.next_line("G1 Y0")
         # closing section
         self.next_line(f"G0 Z{self.safe_z}")
+        self.next_line("M9")
+        self.next_line("M5")
         self.next_line("M2")
         self.file.write("%\n")
         self.file.close()
@@ -388,9 +417,9 @@ class Facing(QtWidgets.QWidget):
         self.parent.show_help_page(fname)
 
     def make_temp(self):
-        _tmp = tempfile.mkstemp(prefix='facing', suffix='.ngc')
-        atexit.register(lambda: os.remove(_tmp[1]))
-        return _tmp
+        fd, path = tempfile.mkstemp(prefix='facing', suffix='.ngc')
+        atexit.register(lambda: os.remove(path))
+        return path
 
     # required code for subscriptable objects
     def __getitem__(self, item):
@@ -398,10 +427,3 @@ class Facing(QtWidgets.QWidget):
 
     def __setitem__(self, item, value):
         return setattr(self, item, value)
-
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    w = Facing()
-    w.show()
-    sys.exit( app.exec_() )
-

@@ -51,13 +51,13 @@
        <widget class="QGroupBox" name="groupbox_parameters">
         <property name="minimumSize">
          <size>
-          <width>0</width>
+          <width>400</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
+          <width>400</width>
           <height>16777215</height>
          </size>
         </property>
@@ -69,16 +69,16 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
          <property name="spacing">
-          <number>8</number>
+          <number>4</number>
          </property>
          <property name="leftMargin">
-          <number>8</number>
+          <number>4</number>
          </property>
          <property name="topMargin">
           <number>12</number>
          </property>
          <property name="rightMargin">
-          <number>8</number>
+          <number>4</number>
          </property>
          <property name="bottomMargin">
           <number>4</number>
@@ -942,13 +942,13 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>50</width>
+                <width>70</width>
                 <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>50</width>
+                <width>70</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -976,13 +976,13 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>50</width>
+                <width>70</width>
                 <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>50</width>
+                <width>70</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -1007,13 +1007,13 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>50</width>
+                <width>70</width>
                 <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>50</width>
+                <width>70</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -1043,6 +1043,120 @@
             </item>
            </layout>
           </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QCheckBox" name="chk_units">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>IMPERIAL</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="chk_flood">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>FLOOD</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="chk_mist">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>MIST</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="chk_profile">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Add final profile pathafter facing</string>
+             </property>
+             <property name="text">
+              <string>FINAL
+PROFILE</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <widget class="QWidget" name="widget_comment" native="true">
@@ -1174,6 +1288,32 @@
              <number>0</number>
             </property>
             <item>
+             <widget class="QPushButton" name="btn_preview">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>50</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>50</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>PREVIEW
+PROGRAM</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="btn_create">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -1183,14 +1323,14 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
-                <height>0</height>
+                <width>0</width>
+                <height>50</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
-                <height>16777215</height>
+                <height>50</height>
                </size>
               </property>
               <property name="toolTip">
@@ -1212,14 +1352,14 @@ PROGRAM</string>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
-                <height>0</height>
+                <width>0</width>
+                <height>50</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
-                <height>16777215</height>
+                <height>50</height>
                </size>
               </property>
               <property name="toolTip">
@@ -1241,14 +1381,14 @@ LINUXCNC</string>
               </property>
               <property name="minimumSize">
                <size>
-                <width>80</width>
-                <height>0</height>
+                <width>0</width>
+                <height>50</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
-                <height>16777215</height>
+                <height>50</height>
                </size>
               </property>
               <property name="toolTip">
@@ -1287,27 +1427,17 @@ LINUXCNC</string>
           <number>4</number>
          </property>
          <property name="leftMargin">
-          <number>8</number>
+          <number>4</number>
          </property>
          <property name="topMargin">
           <number>12</number>
          </property>
          <property name="rightMargin">
-          <number>8</number>
+          <number>4</number>
          </property>
          <property name="bottomMargin">
           <number>4</number>
          </property>
-         <item>
-          <widget class="QLabel" name="lbl_image">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </item>

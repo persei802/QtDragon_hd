@@ -1166,7 +1166,7 @@ LINUXCNC</string>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
         </property>
-        <layout class="QVBoxLayout" name="layout_gb_preview">
+        <layout class="QVBoxLayout" name="layout_preview">
          <property name="spacing">
           <number>4</number>
          </property>
