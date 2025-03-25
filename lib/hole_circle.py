@@ -284,7 +284,7 @@ class Hole_Circle(QtWidgets.QWidget):
         if not self.validate(): return
         self.show_preview()
         self.clear_model()
-        filename = self.make_temp()[1]
+        filename = self.make_temp()
         self.calculate_toolpath(filename)
         ACTION.OPEN_PROGRAM(filename)
         self.h.add_status("Program successfully sent to Linuxcnc")
@@ -346,9 +346,9 @@ class Hole_Circle(QtWidgets.QWidget):
         self.preview.update()
         
     def make_temp(self):
-        _tmp = tempfile.mkstemp(prefix='hole_circle', suffix='.ngc')
-        atexit.register(lambda: os.remove(_tmp[1]))
-        return _tmp
+        fd, path = tempfile.mkstemp(prefix='hole_circle', suffix='.ngc')
+        atexit.register(lambda: os.remove(path))
+        return path
 
     def next_line(self, text):
         self.file.write(f"N{self.line_num} " + text + "\n")

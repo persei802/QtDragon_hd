@@ -16,12 +16,12 @@ class BaseCanon(object):
         self.in_arc = 0
         self.xo = self.yo = self.zo = self.ao = self.bo = self.co = self.uo = self.vo = self.wo = 0
         self.suppress = 0
-
         self.plane = 1
         self.arcdivision = 64
         self.arcfeed = []
         self.feed = []
         self.traverse = []
+        self.dwells = []
 
         # extents
         self.min_extents = [9e99, 9e99, 9e99]

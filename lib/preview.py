@@ -15,7 +15,7 @@ import os
 import gcode
 import shutil
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QPainter, QPen, QColor
+from PyQt5.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QTransform
 from PyQt5.QtCore import Qt, QPointF, QLine
 from PyQt5.QtWidgets import QWidget
 from qtvcp.core import Info, Path
@@ -54,7 +54,7 @@ class Preview(QWidget):
         self.scale = 1
         self.cx = 0.0
         self.cy = 0.0
-        self.offset = QPointF(0.0, 0.0)
+        self.margin = 20
         self.viewer = Viewer()
         self.config_dir = PATH.CONFIGPATH
         self.parameter_file = os.path.join(self.config_dir, 'linuxcnc.var')
@@ -63,18 +63,17 @@ class Preview(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.setBrush(QColor(200, 200, 200, 255))
         self.draw_path(event, painter)
         
     def draw_path(self, event, qp):
-        qp.setPen(QPen(Qt.yellow, 1))
         qp.translate((self.width/2) - self.cx, (self.height/2) + self.cy)
         qp.scale(1, -1)
-        for i in range(len(self.x_coords)-1):
-            if self.x_coords[i] == self.x_coords[i+1] and self.y_coords[i] == self.y_coords[i+1]: continue
-            start = QPointF(self.x_coords[i] * self.scale, self.y_coords[i] * self.scale)
-            end = QPointF(self.x_coords[i+1] * self.scale, self.y_coords[i+1] * self.scale)
-            qp.drawLine(start, end)
+        qp.setPen(QPen(Qt.yellow, 1))
+        for i in range(len(self.path_points)-1):
+            if self.path_points[i] == self.path_points[i+1]: continue
+            start = tuple(x * self.scale for x in self.path_points[i])
+            end = tuple(x * self.scale for x in self.path_points[i+1])
+            qp.drawLine(QPointF(*start), QPointF(*end))
         qp.end()
 
     def set_path_points(self):
@@ -94,8 +93,8 @@ class Preview(QWidget):
         dist_x = xmax - xmin
         dist_y = ymax - ymin
         try:
-            scale_w = self.width / dist_x
-            scale_h = self.height / dist_y 
+            scale_w = (self.width - self.margin)/ dist_x
+            scale_h = (self.height - self.margin) / dist_y 
             self.scale = min([scale_w, scale_h])
             self.scale = int(self.scale)
             self.cx = ((xmax + xmin)/2) * self.scale
