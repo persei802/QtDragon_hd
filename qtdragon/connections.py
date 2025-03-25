@@ -29,7 +29,7 @@ class Connections():
         self.w.btn_goto_zero.clicked.connect(self.parent.btn_goto_location_clicked)
         self.w.btn_rewind_a.clicked.connect(self.parent.btn_rewind_clicked)
         self.w.btn_go_home.clicked.connect(self.parent.btn_goto_location_clicked)
-        self.w.btn_mdi_clear.pressed.connect(lambda: self.w.mdihistory.MDILine.clear())
+        self.w.btn_mdi_clear.pressed.connect(self.parent.mdi_clear_pressed)
         self.w.btn_mdi_enter.pressed.connect(self.parent.mdi_enter_pressed)
         # tool frame buttons
         self.w.btn_goto_sensor.clicked.connect(self.parent.btn_goto_location_clicked)

@@ -43,7 +43,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.1.4'
+VERSION = '2.1.5'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -113,6 +113,7 @@ class HandlerClass:
         self.probe = None
         self.tool_db = None
         self.zlevel = None
+        self.smart_mdi = None
         # some global variables
         self.current_tool = 0
         self.tool_list = []
@@ -367,7 +368,6 @@ class HandlerClass:
         # mdi history
         self.w.mdihistory.MDILine.setFixedHeight(30)
         self.w.mdihistory.MDILine.setPlaceholderText('MDI:')
-        self.use_mdi_keyboard_changed(self.w.chk_use_mdi_keyboard.isChecked())
         self.w.cmb_mdi_texts.addItem("SELECT")
         self.w.cmb_mdi_texts.addItem("HALSHOW")
         self.w.cmb_mdi_texts.addItem("HALMETER")
@@ -480,6 +480,8 @@ class HandlerClass:
             self.w.btn_enable_comp.setEnabled(False)
         self.get_next_available()
         self.tool_db.update_tools(self.tool_list)
+        self.original_request_keyboard = self.w.mdihistory.MDILine.request_keyboard
+        self.use_mdi_keyboard_changed(self.w.chk_use_mdi_keyboard.isChecked())
 
     def init_event_filter(self):
         line_list = self.lineedit_list
@@ -830,11 +832,19 @@ class HandlerClass:
         self.w.mdihistory.MDILine.setText(self.w.cmb_mdi_texts.currentText())
         self.w.cmb_mdi_texts.setCurrentIndex(0)
 
+    def mdi_clear_pressed(self):
+        self.w.mdihistory.MDILine.clear()
+        if self.w.chk_use_mdi_keyboard.isChecked():
+            self.smart_mdi.mdiSmartClear()
+            self.smart_mdi.hide()
+
     def mdi_enter_pressed(self):
         if self.w.mdihistory.MDILine.text() == "CLEAR HISTORY":
             self.add_status("MDI history cleared")
         self.w.mdihistory.run_command()
         self.w.mdihistory.MDILine.clear()
+        if self.w.chk_use_mdi_keyboard.isChecked():
+            self.smart_mdi.mdiSmartClear()
 
     # program frame
     def btn_run_pressed(self):
@@ -1263,8 +1273,11 @@ class HandlerClass:
         self.w.btn_ref_camera.setEnabled(state)
 
     def use_mdi_keyboard_changed(self, state):
-        self.w.widget_mdi_controls.setVisible(not state)
-        self.w.mdihistory.set_soft_keyboard(state)
+        self.w.mdihistory.MDILine.set_dialog_keyboard(state)
+        if state:
+            self.w.mdihistory.MDILine.request_keyboard = self.smart_mdi.request_keyboard
+        else:
+            self.w.mdihistory.MDILine.request_keyboard = self.original_request_keyboard
 
     def edit_gcode_changed(self, state):
         if state:
@@ -1475,10 +1488,14 @@ class HandlerClass:
             self.w.btn_edit_gcode.setChecked(False)
             self.w.gcode_viewer.readOnlyMode()
             self.w.stackedWidget_gcode.setCurrentIndex(0)
+            self.smart_mdi.hide()
+        elif STATUS.is_mdi_mode():
+            self.w.widget_gcode_history.show()
+            self.w.stackedWidget_gcode.setCurrentIndex(1)
         else:
             self.w.widget_gcode_history.show()
-            i = 1 if STATUS.is_mdi_mode() else 0
-            self.w.stackedWidget_gcode.setCurrentIndex(i)
+            self.w.stackedWidget_gcode.setCurrentIndex(0)
+            self.smart_mdi.hide()
 
     def enable_onoff(self, state):
         text = "ON" if state else "OFF"
@@ -1666,6 +1683,9 @@ class HandlerClass:
             self.w.statusbar.setStyleSheet(self.statusbar_style)
         else:
             self.statusbar_style = ''
+
+        if not self.smart_mdi is None:
+            self.smart_mdi.set_style(style)
         
     ##############################
     # required class boiler code #

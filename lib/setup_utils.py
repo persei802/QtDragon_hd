@@ -162,10 +162,13 @@ class Setup_Utils():
 
     def install_gcodes(self):
         from lib.gcodes import GCodes
-        self.gcodes = GCodes(self)
+        self.gcodes = GCodes()
         self.stackedWidget_utils.addWidget(self.gcodes)
         self.make_button('gcodes', 'GCODES')
         self.gcodes.setup_list()
+        from lib.gcodes import SmartMDI
+        self.smart_mdi = SmartMDI(self.w)
+        self.parent.smart_mdi = self.smart_mdi
 
     def install_rapid_rotary(self):
         if 'A' in INFO.AVAILABLE_AXES:
