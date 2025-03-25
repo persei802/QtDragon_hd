@@ -66,3 +66,6 @@ Mar. 3/25 v 2.1.4
     - fixed bug with Zlevel compensation file save names
     - fixed PAUSE button not showing RESUME when program is paused due to M1
     
+Mar. 25/25 v 2.1.5
+    - use smart MDI panel as MDI keyboard when enabled in SETTINGS
+    - added missing M codes to mdi_text.py
