@@ -117,17 +117,13 @@ QTreeView {
 }
 
 QListView::item:hover,
-QTreeView::item:hover {
+QTreeView::item:hover,
+QTreeView::item:selected,
+QListView::item:selected {
   border: 1px solid #E0E0E0;
 }
 
 QTreeView::item:pressed {
-  background: qlineargradient(x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, stop: 0.0 rgba(128, 128, 128, 100%), stop: 1.0 rgba(224, 224, 224, 100%));
-  color: #101010;
-}
-
-QTreeView::item:selected:active,
-QListView::item:selected:active {
   background: qlineargradient(x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, stop: 0.0 rgba(128, 128, 128, 100%), stop: 1.0 rgba(224, 224, 224, 100%));
   color: #101010;
 }

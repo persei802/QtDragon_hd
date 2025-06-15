@@ -108,17 +108,13 @@ QTreeView {
 }
 
 QListView::item:hover,
-QTreeView::item:hover {
+QTreeView::item:hover,
+QListView::item:selected,
+QTreeView::item:selected {
   border: #727578;
 }
 
 QTreeView::item:pressed {
-  background: #555a5f;
-  color: #eff0f1;
-}
-
-QTreeView::item:selected:active,
-QListView::item:selected:active {
   background: #555a5f;
   color: #eff0f1;
 }
