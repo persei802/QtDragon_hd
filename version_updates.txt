@@ -69,3 +69,11 @@ Mar. 3/25 v 2.1.4
 Mar. 25/25 v 2.1.5
     - use smart MDI panel as MDI keyboard when enabled in SETTINGS
     - added missing M codes to mdi_text.py
+
+Jun  15/25 v 2.1.6
+    - fixed wrong color of run_status label when STOP button pressed
+    - changed TOOL page stackedWidget to tabWidget
+    - added code to call calculator, keyboard or toolchooser dialogs for data entry
+    - reorganized folders to separate utilities, hal files and library files
+    - added several functions to file management
+    - added MDI button panel
