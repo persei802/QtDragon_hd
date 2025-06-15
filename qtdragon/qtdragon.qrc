@@ -1,6 +1,15 @@
 <RCC>
   <qresource prefix="images">
+    <file>images/left_right.png</file>
+    <file>images/right_left.png</file>
+    <file>images/arrow_left.png</file>
+    <file>images/arrow_right.png</file>
+    <file>images/backspace.png</file>
+    <file>images/arrow_down.png</file>
+    <file>images/arrow_up.png</file>
+    <file>images/spindle_tool.png</file>
     <file>images/spindle_fwd.png</file>
+    <file>images/atc_spindle_tool.png</file>
     <file>images/spindle_pause.png</file>
     <file>images/spindle_rev.png</file>
     <file>images/spindle_stop.png</file>
