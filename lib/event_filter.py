@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Event filter to allow lineEdit objects to be input with a calculator widget
 #
 # Copyright (c) 2025  Jim Sloot <persei802@gmail.com>
 #
@@ -12,142 +11,123 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
+#
+# used to capture focus_in events for lineEdit widgets
 
 import sys
 import os
-from PyQt5.QtCore import QEvent, QObject, Qt, pyqtSignal
-from PyQt5 import QtGui, QtWidgets
-from qtvcp.core import Info
-from qtvcp.widgets.calculator import Calculator
+from PyQt5.QtCore import QEvent, QObject, Qt
+from PyQt5 import QtWidgets
+from qtvcp.core import Action
+from qtvcp import logger
 
-INFO = Info()
-
+LOG = logger.getLogger(__name__)
+LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+ACTION = Action()
 
 class EventFilter(QObject):
-    def __init__(self, widgets):
+    def __init__(self, parent=None):
         super().__init__()
-        self.w = widgets
-        self.use_calc = False
-        self.line_list = []
-        self._nextIndex = 0
+        self.parent = parent
+        self.use_dialog = False
+        self.id = ''
+        self.cycle = False
         self.hilightStyle = "border: 1px solid cyan;"
-        self._oldStyle = ''
-        self.accept_only = False
-        self.calc = CalcInput()
-
-        self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
-
-        self.calc.apply_action.connect(lambda: self.calc_data(apply=True))
-        self.calc.next_action.connect(lambda: self.calc_data(next=True))
-        self.calc.back_action.connect(lambda: self.calc_data(back=True))
-        self.calc.accepted.connect(lambda: self.calc_data(accept=True))
-        self.calc.rejected.connect(self.calc_data)
+        self._nextIndex = 0
+        self.line_list = []
+        self.kbd_list = []
+        self.tool_list = []
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.FocusIn:
-            if isinstance(obj, QtWidgets.QLineEdit) and self.use_calc:
+            if isinstance(obj, QtWidgets.QLineEdit) and self.use_dialog:
                 # only if mouse selected
-                if event.reason() == 0:
-                    self._nextIndex = self.line_list.index(obj.objectName().replace('lineEdit_',''))
-                    self.popEntry(obj)
+                if event.reason () == 0:
+                    if obj.objectName().replace('lineEdit_','') in self.kbd_list:
+                        self.show_kbd(obj)
+                    elif obj.objectName().replace('lineEdit_','') in self.tool_list:
+                        self.show_tool_chooser(obj)
+                    else:
+                        self._nextIndex = self.line_list.index(obj.objectName().replace('lineEdit_',''))
+                        self.show_calc(obj)
                     obj.clearFocus()
                     event.accept()
                     return True
         return False
 
-    def popEntry(self, obj, next=False):
+    def show_calc(self, obj, next=False):
         obj.setStyleSheet(self.hilightStyle)
-        self.calc.setWindowTitle(f"Enter data for {obj.objectName().replace('lineEdit_','')}")
-        preset = obj.text()
-        if preset == '': preset = '0'
-        self.calc.display.setText(preset)
-        if not next:
-            self.calc.show()
+        QtWidgets.qApp.processEvents()
 
-    def calc_data(self, next=False, back=False, apply=False, accept=False):
-        line = self.line_list[self._nextIndex]
-        self.w[f'lineEdit_{line}'].setStyleSheet(self._oldStyle)
-        if self.accept_only:
-            if accept:
-                text = self.calc.display.text()
-                value = float(text)
-                validator = self.check_validator(self.w[f'lineEdit_{line}'])
-                if validator == 'int':
-                    value = int(value)
-                    self.w[f'lineEdit_{line}'].setText(str(value))
-                elif validator == 'float':
-                    self.w[f'lineEdit_{line}'].setText(f'{value:{self.tmpl}}')
-            return
-        if next:
+        mess = {'NAME': 'CALCULATOR',
+                'ID': self.id,
+                'PRELOAD': obj.text(),
+                'OBJECT': obj,
+                'TITLE': f'{obj.toolTip().upper()}',
+                'GEONAME': '__calculator',
+                'OVERLAY': False,
+                'NEXT': next,
+                'WIDGETCYCLE': self.cycle}
+        LOG.debug(f'message sent:{mess}')
+        ACTION.CALL_DIALOG(mess)
+
+    def show_kbd(self, obj):
+        obj.setStyleSheet(self.hilightStyle)
+        mess = {'NAME': 'KEYBOARD',
+                'ID': self.id,
+                'PRELOAD': obj.text(),
+                'TITLE': 'Enter item text',
+                'GEONAME': '__keyboard',
+                'OBJECT': obj}
+        LOG.debug(f'message sent:{mess}')
+        ACTION.CALL_DIALOG(mess)
+
+    def show_tool_chooser(self, obj):
+        mess = {'NAME' : 'TOOLCHOOSER',
+                'ID' : self.id,
+                'GEONAME': '__toolchooser',
+                'OBJECT': obj}
+        LOG.debug(f'message sent:{mess}')
+        ACTION.CALL_DIALOG(mess)
+
+    def findNext(self):
+        while 1:
             self._nextIndex += 1
             if self._nextIndex == len(self.line_list):
                 self._nextIndex = 0
-        elif back:
+            newobj = self.parent[f'lineEdit_{self.line_list[self._nextIndex]}']
+            if newobj.isVisible():
+                break
+        return newobj
+
+    def findBack(self):
+        while 1:
             self._nextIndex -= 1
-            if self._nextIndex < 0:
+            if self._nextIndex == -1:
                 self._nextIndex = len(self.line_list) - 1
-        elif apply or accept:
-            text = self.calc.display.text()
-            value = float(text)
-            validator = self.check_validator(self.w[f'lineEdit_{line}'])
-            if validator == 'int':
-                value = int(value)
-                self.w[f'lineEdit_{line}'].setText(str(value))
-            elif validator == 'float':
-                self.w[f'lineEdit_{line}'].setText(f'{value:{self.tmpl}}')
-            if apply:
-                self._nextIndex += 1
-                if self._nextIndex == len(self.line_list):
-                    self._nextIndex = 0
-        if next or back or apply:
-            newobj = self.w[f'lineEdit_{self.line_list[self._nextIndex]}']
-            self.popEntry(newobj, True)
+            newobj = self.parent[f'lineEdit_{self.line_list[self._nextIndex]}']
+            if newobj.isVisible():
+                break
+        return newobj
 
-    def check_validator(self, obj):
-        validator = obj.validator()
-        if isinstance(validator, QtGui.QIntValidator): return 'int'
-        if isinstance(validator, QtGui.QDoubleValidator): return 'float'
-        if isinstance(validator, QtGui.QRegExpValidator):
-            pattern = validator.regExp().pattern()
-            if pattern ==  r'^\d{0,5}$': return 'int'
-            if pattern ==  r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$': return 'float'
-            if pattern ==  r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$': return 'float'
-        return None
-
-    def set_calc_mode(self, mode):
-        self.use_calc = mode
+    def set_dialog_mode(self, mode):
+        self.use_dialog = mode
 
     def set_line_list(self, data):
         self.line_list = data
 
-    def set_old_style(self, style):
-        self._oldStyle = style
+    def set_kbd_list(self, data):
+        self.kbd_list = data
 
-    def set_accept_mode(self, mode):
-        self.accept_only = mode
+    def set_tool_list(self, data):
+        self.tool_list = data
 
+    def set_parms(self, parms):
+        self.id, self.cycle = parms
+
+    # required code for subscriptable objects
     def __getitem__(self, item):
         return getattr(self, item)
 
     def __setitem__(self, item, value):
         return setattr(self, item, value)
-
-# sub-classed Calculator so button actions can be redefined
-class CalcInput(Calculator):
-    apply_action = pyqtSignal()
-    next_action = pyqtSignal()
-    back_action = pyqtSignal()
-
-    def __init__(self):
-        super(CalcInput, self).__init__()
-        
-    def applyAction(self):
-        self.apply_action.emit()
-
-    def nextAction(self):
-        self.next_action.emit()
-
-    def backAction(self):
-        self.back_action.emit()
-
-

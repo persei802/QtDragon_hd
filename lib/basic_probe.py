@@ -20,16 +20,12 @@ import sys
 import os
 import json
 
-from PyQt5.QtCore import QProcess, QEvent, QObject, QRegExp, QFile, Qt, pyqtSignal
+from .event_filter import EventFilter
+from PyQt5.QtCore import QProcess, QEvent, QObject, QRegExp, QFile, Qt
 from PyQt5 import QtGui, QtWidgets, uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info, Path, Tool
 from qtvcp import logger
-
-try:
-    from event_filter import EventFilter
-except:
-    from lib.event_filter import EventFilter
 
 ACTION = Action()
 STATUS = Status()
@@ -55,7 +51,11 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(BasicProbe, self).__init__()
         self.parent = parent
+        self.dialog_code = 'CALCULATOR'
+        self.tool_code = 'TOOLCHOOSER'
+        self.default_style = ''
         self.regex = ''
+        self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         try:
             self.tool_db = self.parent.tool_db
         except Exception as e:
@@ -145,16 +145,20 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self['lineEdit_' + i].setValidator(self.valid)
 
         self.event_filter = EventFilter(self)
-        self.line_list = self.parm_list[:]
-        self.line_list[self.parm_list.index('cal_offset')] = 'probe_tool'
-        self.event_filter.set_line_list(self.line_list)
-        self.event_filter.set_old_style(self.lineEdit_probe_diam.styleSheet())
-        for line in self.line_list:
+        line_list = self.parm_list
+        line_list.remove('cal_offset')
+#        line_list[self.parm_list.index('cal_offset')] = 'probe_tool'
+        for line in line_list:
             self[f'lineEdit_{line}'].installEventFilter(self.event_filter)
+        self.lineEdit_probe_tool.installEventFilter(self.event_filter)
+        self.event_filter.set_line_list(line_list)
+        self.event_filter.set_tool_list('probe_tool')
+        self.event_filter.set_parms(('_basicprobe_', True))
 
     def _hal_init(self):
         def homed_on_status():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+        STATUS.connect('general', self.dialog_return)
         STATUS.connect('state_off', lambda w: self.setEnabled(False))
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
@@ -168,6 +172,8 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             for probe in self.probe_settings:
                 probe.setText(self.PREFS_.getpref(probe.objectName(), '10', str, 'PROBE OPTIONS'))
 
+        self.default_style = self.lineEdit_probe_diam.styleSheet()
+
     def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving Basic Probe data to preference file.')
@@ -175,11 +181,36 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                 self.PREFS_.putpref(probe.objectName(), probe.text(), str, 'PROBE OPTIONS')
         if self.proc is not None: self.proc.terminate()
 
+    def dialog_return(self, w, message):
+        rtn = message['RETURN']
+        name = message.get('NAME')
+        obj = message.get('OBJECT')
+        code = bool(message.get('ID') == '_basicprobe_')
+        next = message.get('NEXT', False)
+        back = message.get('BACK', False)
+        if code and name == self.dialog_code:
+            obj.setStyleSheet(self.default_style)
+            if rtn is not None:
+                LOG.debug(f'message return:{message}')
+                obj.setText(f'{rtn:{self.tmpl}}')
+            # request for next input widget from linelist
+            if next:
+                newobj = self.event_filter.findNext()
+                self.event_filter.show_calc(newobj, True)
+            elif back:
+                newobj = self.event_filter.findBack()
+                self.event_filter.show_calc(newobj, True)
+        elif code and name == self.tool_code:
+#            obj.setStyleSheet(self.default_style)
+            if rtn is not None:
+                obj.setText(str(int(rtn)))
+                self.load_probe_pressed()
+
     def set_test_mode(self):
         self.test_mode = True
 
     def set_calc_mode(self, mode):
-        self.event_filter.set_calc_mode(mode)
+        self.event_filter.set_dialog_mode(mode)
 
 #################
 # process control
@@ -266,14 +297,14 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def load_probe_pressed(self):
         try:
             tool =  int(self.lineEdit_probe_tool.text())
+            if tool > 0:
+                info = TOOL.GET_TOOL_INFO(tool)
+                dia = info[11]
+                self.lineEdit_probe_diam.setText(f"{dia:8.3f}")
+                ACTION.CALL_MDI_WAIT(f'M61 Q{tool}', mode_return=True)
+            else:
+                self.parent.add_status("Invalid probe tool specified", WARNING)
         except:
-            tool = 0
-        if tool > 0:
-            info = TOOL.GET_TOOL_INFO(tool)
-            dia = info[11]
-            self.lineEdit_probe_diam.setText(f"{dia:8.3f}")
-            ACTION.CALL_MDI(f"M61 Q{tool}")
-        else:
             self.parent.add_status("Invalid probe tool specified", WARNING)
 
     def probe_help_pressed(self):
@@ -449,6 +480,12 @@ class HelpPage(QtWidgets.QWidget):
 <span style=" font-size:xx-large; font-weight:600;">Basic Probe Help not available</span> </h1>
 {e}''')
 
+    # required code for subscriptable objects
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
     #############################
     # Testing                   #

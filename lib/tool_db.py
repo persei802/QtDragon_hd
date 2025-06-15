@@ -14,14 +14,14 @@ import sys
 import os
 
 from PyQt5 import QtCore, QtWidgets, QtSql, QtGui
-from PyQt5.QtWidgets import (QWidget, QFileDialog, QInputDialog, QAbstractItemView)
+from PyQt5.QtWidgets import (QWidget, QFileDialog, QAbstractItemView)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 
 from qtvcp import logger
-from qtvcp.core import Status, Info, Path, Tool
-from qtvcp.widgets.calculator import Calculator
+from qtvcp.core import Action, Status, Info, Path, Tool
 
+ACTION = Action()
 STATUS = Status()
 INFO = Info()
 PATH = Path()
@@ -29,7 +29,7 @@ TOOL = Tool()
 LOG = logger.getLogger(__name__)
 LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-VERSION = '1.4'
+VERSION = '1.5'
 
 
 class StyleDelegate(QtWidgets.QStyledItemDelegate):
@@ -163,6 +163,7 @@ class Tool_Database(QWidget):
         self.tool_view.setSelectionBehavior(QAbstractItemView.SelectItems)
         self.tool_view.clicked.connect(self.showSelection)
 
+    # called from handler during initialization
     def update_tools(self, tools):
         LOG.debug("Updating tool model")
         # look for lines to add
@@ -181,7 +182,7 @@ class Tool_Database(QWidget):
             if len(delete_list) > 1: delete_list.reverse()
             for tno in delete_list:
                 self.delete_tool(tno)
-        # poulate DIA and Comment columns with data from tool table
+        # populate DIA and Comment columns with data from tool table
         tool_table = TOOL.GET_TOOL_ARRAY()
         for line in tool_table:
             row = self.get_index(line[0])
@@ -200,6 +201,7 @@ class Tool_Database(QWidget):
         self.tool_model.setData(idx, new)
         self.tool_model.select()
 
+    # update tool database when the tool table is edited
     def update_tool_data(self, row, col):
         tool_table = TOOL.GET_TOOL_ARRAY()
         tool = tool_table[row][1]
@@ -224,6 +226,7 @@ class Tool_Database(QWidget):
                 break
         return found
 
+    # called during initialization or when the handler adds a new tool
     def add_tool(self, tno):
         row = self.tool_model.rowCount()
         if self.tool_model.insertRows(row, 1): LOG.debug(f"Added tool {tno}")
@@ -259,29 +262,29 @@ class Tool_Database(QWidget):
     def callTextDialog(self, text, item):
         idx = self.tool_model.index(item.row(), self.headers['TOOL'])
         tool = self.tool_model.data(idx)
-        mess = {'NAME':self.text_dialog_code,
-                'ID':f'{self.objectName()}__',
-                'PRELOAD':text,
-                'TITLE':f'Tool {tool} Text Entry',
-                'ITEM':item}
+        mess = {'NAME': self.text_dialog_code,
+                'ID': '_edit_table_',
+                'PRELOAD': text,
+                'TITLE': f'Tool {tool} Text Entry',
+                'ITEM': item}
         LOG.debug('message sent:{}'.format (mess))
-        STATUS.emit('dialog-request', mess)
+        ACTION.CALL_DIALOG(mess)
 
     def callDialog(self, data, item):
         idx = self.tool_model.index(item.row(), self.headers['TOOL'])
         tool = self.tool_model.data(idx)
         field = self.tool_model.record().fieldName(item.column())
-        mess = {'NAME':self.dialog_code,
-                'ID':f'{self.objectName()}__',
-                'PRELOAD':data,
-                'TITLE':f'Tool {tool} Data for {field}',
-                'ITEM':item}
+        mess = {'NAME': self.dialog_code,
+                'ID': '_edit_table_',
+                'PRELOAD': data,
+                'TITLE': f'Tool {tool} Data for {field}',
+                'ITEM': item}
         LOG.debug(f'message sent:{mess}')
-        STATUS.emit('dialog-request', mess)
-        
+        ACTION.CALL_DIALOG(mess)
+
     def return_value(self, w, message):
         num = message['RETURN']
-        code = bool(message.get('ID') == f'{self.objectName()}__')
+        code = bool(message.get('ID') == '_edit_table_')
         name = bool(message.get('NAME') == self.dialog_code)
         name2 = bool(message.get('NAME') == self.text_dialog_code)
         item = message.get('ITEM')

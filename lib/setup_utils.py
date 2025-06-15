@@ -110,44 +110,44 @@ class Setup_Utils():
         self.show_defaults()
 
     def install_facing(self):
-        from lib.facing import Facing
-        self.facing = Facing(self.tool_db, self.parent, self)
+        from utils.facing import Facing
+        self.facing = Facing(self)
         self.stackedWidget_utils.addWidget(self.facing)
         self.make_button('facing', 'FACING')
         self.facing._hal_init()
 
     def install_hole_circle(self):
-        from lib.hole_circle import Hole_Circle
-        self.hole_circle = Hole_Circle(self.parent, self)
+        from utils.hole_circle import Hole_Circle
+        self.hole_circle = Hole_Circle(self)
         self.stackedWidget_utils.addWidget(self.hole_circle)
         self.make_button('hole_circle', 'HOLE\nCIRCLE')
         self.hole_circle._hal_init()
 
     def install_auto_measure(self):
-        from lib.auto_height import Auto_Measure
-        self.auto_measure = Auto_Measure(self.w, self.parent, self)
+        from utils.auto_height import Auto_Measure
+        self.auto_measure = Auto_Measure(self)
         self.stackedWidget_utils.addWidget(self.auto_measure)
         self.make_button('auto_measure', 'WORKPIECE\nHEIGHT')
         self.auto_measure._hal_init()
 
     def install_zlevel(self):
-        from lib.zlevel import ZLevel
-        self.zlevel = ZLevel(self.w, self.parent, self)
+        from utils.zlevel import ZLevel
+        self.zlevel = ZLevel(self)
         self.parent.zlevel = self.zlevel
         self.stackedWidget_utils.addWidget(self.zlevel)
         self.make_button('zlevel', 'Z LEVEL\nCOMP')
         self.zlevel._hal_init()
 
     def install_spindle_warmup(self):
-        from lib.spindle_warmup import Spindle_Warmup
-        self.warmup = Spindle_Warmup(self.parent)
+        from utils.spindle_warmup import Spindle_Warmup
+        self.warmup = Spindle_Warmup(self)
         self.stackedWidget_utils.addWidget(self.warmup)
         self.make_button('warmup', 'SPINDLE\nWARMUP')
         self.warmup._hal_init()
 
     def install_hole_enlarge(self):
-        from lib.hole_enlarge import Hole_Enlarge
-        self.enlarge = Hole_Enlarge(self.tool_db, self.parent, self)
+        from utils.hole_enlarge import Hole_Enlarge
+        self.enlarge = Hole_Enlarge(self)
         self.stackedWidget_utils.addWidget(self.enlarge)
         self.make_button('enlarge', 'HOLE\nENLARGE')
         self.enlarge._hal_init()
@@ -161,18 +161,15 @@ class Setup_Utils():
         self.ngcgui._hal_init()
 
     def install_gcodes(self):
-        from lib.gcodes import GCodes
+        from utils.gcodes import GCodes
         self.gcodes = GCodes()
         self.stackedWidget_utils.addWidget(self.gcodes)
         self.make_button('gcodes', 'GCODES')
         self.gcodes.setup_list()
-        from lib.gcodes import SmartMDI
-        self.smart_mdi = SmartMDI(self.w)
-        self.parent.smart_mdi = self.smart_mdi
 
     def install_rapid_rotary(self):
         if 'A' in INFO.AVAILABLE_AXES:
-            from lib.rapid_rotary import Rapid_Rotary
+            from utils.rapid_rotary import Rapid_Rotary
             self.rapid_rotary = Rapid_Rotary(self)
             self.stackedWidget_utils.addWidget(self.rapid_rotary)
             self.make_button('rotary', 'RAPID\nROTARY')
