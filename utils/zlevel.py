@@ -355,7 +355,7 @@ class ZLevel(QWidget):
                 shutil.copy(fname, dst)
                 self.h.add_status(f"Loaded compensation file {fname}")
             except Exception as e:
-                self.h.add_status(e, WARNING)
+                self.h.add_status(f'{e}', WARNING)
 
     def get_maxz(self):
         fname = os.path.join(PATH.CONFIGPATH, "probe_points.txt")

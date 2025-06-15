@@ -917,6 +917,7 @@ class HandlerClass:
         self.w.lineEdit_runtime_estimate.setText(text)
         # send data to zlevel compensation module
         zdata = (props['x'], props['y'], props['gcode_units'])
+        if self.zlevel is None: return
         self.zlevel.set_comp_area(zdata)
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):

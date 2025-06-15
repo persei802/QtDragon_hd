@@ -581,7 +581,7 @@
             <string>Turn on flood coolant while warming up</string>
            </property>
            <property name="text">
-            <string>FLOOD COOLANT ON</string>
+            <string>FLOOD COOLANT</string>
            </property>
           </widget>
          </item>
@@ -609,7 +609,7 @@
             <string>Turn on mist coolant while warming up</string>
            </property>
            <property name="text">
-            <string>MIST COOLANT ON</string>
+            <string>MIST COOLANT</string>
            </property>
           </widget>
          </item>

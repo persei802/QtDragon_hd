@@ -1,14 +1,32 @@
-<Machine type="QtDragon">
-    <Utils>
-        <facing install="yes" />
-        <hole_circle install="yes" />
-        <auto_measure install="yes" />
-        <ngcgui install="yes" />
-        <zlevel install="yes" />
-        <spindle_warmup install="yes" />
-        <hole_enlarge install="yes" />
-        <gcodes install="yes" />
-        <rapid_rotary install="yes" />
-        <document_viewer install="yes" />
-    </Utils>
-</Machine>
+<Utils>
+    <util>
+        <module>facing</module>
+        <class>Facing</class>
+        <button>FACING</button>
+    </util>
+    <util>
+        <module>hole_circle</module>
+        <class>Hole_Circle</class>
+        <button>HOLE CIRCLE</button>
+    </util>
+    <util>
+        <module>auto_height</module>
+        <class>Auto_Measure</class>
+        <button>WORKPIECE HEIGHT</button>
+    </util>
+    <util>
+        <module>zlevel</module>
+        <class>ZLevel</class>
+        <button>ZLEVEL COMP</button>
+    </util>
+    <util>
+        <module>spindle_warmup</module>
+        <class>Spindle_Warmup</class>
+        <button>SPINDLE WARMUP</button>
+    </util>
+    <util>
+        <module>hole_enlarge</module>
+        <class>Hole_Enlarge</class>
+        <button>HOLE ENLARGE</button>
+    </util>
+</Utils>

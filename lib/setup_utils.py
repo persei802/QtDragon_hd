@@ -13,6 +13,7 @@
 import sys
 import os
 import re
+import importlib
 import xml.etree.ElementTree as ET
 
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -63,7 +64,9 @@ class Setup_Utils():
     def __init__(self, widgets, parent):
         self.w = widgets
         self.parent = parent
-        self.tool_db = self.parent.tool_db
+        if self.parent is not None:
+            self.tool_db = self.parent.tool_db
+        self.zlevel = None
         self.doc_index = 0
         self.util_btns = []
         self.num_utils = 0
@@ -73,29 +76,33 @@ class Setup_Utils():
         self.sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.stackedWidget_utils = QStackedWidget()
         self.stackedWidget_utils.setSizePolicy(self.sizePolicy)
-        self.w.layout_utils.addWidget(self.stackedWidget_utils)
+        if self.w is not None:
+            self.w.layout_utils.addWidget(self.stackedWidget_utils)
         # setup XML parser
         xml_filename = os.path.join(HERE, 'utils.xml')
         self.tree = ET.parse(xml_filename)
         self.root = self.tree.getroot()
-        self.machine = self.root.get('type')
         # setup help file viewer
         self.dialog = QDialog()
         self.help_page = ShowHelp(self.dialog)
         self.dialog.hide()
 
     def init_utils(self):
-        xml = self.root.find('Utils')
-        for child in xml:
-            install = child.get('install')
-            if install == 'yes':
-                cmd = 'install_' + child.tag
-                if cmd in dir(self):
-                    self[cmd]()
-                    LOG.debug(f"Installed {child.tag} utility")
-                else:
-                    LOG.debug(f"No such utility as {child.tag}")
-
+        # install optional utilities
+        utils = self.root.findall("util")
+        for util in utils:
+            mod_name = util.find("module").text
+            class_name = util.find("class").text 
+            btn_text = util.find("button").text
+            self.install_module(mod_name, class_name, btn_text)
+        # check if Z level compenstation was installed
+        if self.zlevel is not None:
+            self.parent.zlevel = self.zlevel
+        # install permanent utilities
+        self.install_rapid_rotary()
+        self.install_ngcgui()
+        self.install_document_viewer()
+        self.install_gcodes()
         self.num_utils = len(self.util_btns)
         self['btn_' + self.util_btns[0]].setChecked(True)
         self.scroll_window['left'] = 0
@@ -109,48 +116,14 @@ class Setup_Utils():
         self.w.util_buttonGroup.buttonClicked.connect(self.utils_tab_changed)
         self.show_defaults()
 
-    def install_facing(self):
-        from utils.facing import Facing
-        self.facing = Facing(self)
-        self.stackedWidget_utils.addWidget(self.facing)
-        self.make_button('facing', 'FACING')
-        self.facing._hal_init()
-
-    def install_hole_circle(self):
-        from utils.hole_circle import Hole_Circle
-        self.hole_circle = Hole_Circle(self)
-        self.stackedWidget_utils.addWidget(self.hole_circle)
-        self.make_button('hole_circle', 'HOLE\nCIRCLE')
-        self.hole_circle._hal_init()
-
-    def install_auto_measure(self):
-        from utils.auto_height import Auto_Measure
-        self.auto_measure = Auto_Measure(self)
-        self.stackedWidget_utils.addWidget(self.auto_measure)
-        self.make_button('auto_measure', 'WORKPIECE\nHEIGHT')
-        self.auto_measure._hal_init()
-
-    def install_zlevel(self):
-        from utils.zlevel import ZLevel
-        self.zlevel = ZLevel(self)
-        self.parent.zlevel = self.zlevel
-        self.stackedWidget_utils.addWidget(self.zlevel)
-        self.make_button('zlevel', 'Z LEVEL\nCOMP')
-        self.zlevel._hal_init()
-
-    def install_spindle_warmup(self):
-        from utils.spindle_warmup import Spindle_Warmup
-        self.warmup = Spindle_Warmup(self)
-        self.stackedWidget_utils.addWidget(self.warmup)
-        self.make_button('warmup', 'SPINDLE\nWARMUP')
-        self.warmup._hal_init()
-
-    def install_hole_enlarge(self):
-        from utils.hole_enlarge import Hole_Enlarge
-        self.enlarge = Hole_Enlarge(self)
-        self.stackedWidget_utils.addWidget(self.enlarge)
-        self.make_button('enlarge', 'HOLE\nENLARGE')
-        self.enlarge._hal_init()
+    def install_module(self, mod_name, class_name, btn):
+        mod_path = 'utils.' + mod_name
+        module = importlib.import_module(mod_path)
+        cls = getattr(module, class_name)
+        self[mod_name] = cls(self)
+        self.stackedWidget_utils.addWidget(self[mod_name])
+        self.make_button(mod_name, btn)
+        self[mod_name]._hal_init()
 
     def install_ngcgui(self):
         LOG.info("Using NGCGUI utility")
@@ -195,7 +168,12 @@ class Setup_Utils():
         self.doc_viewer.addTab(self.gcode_properties, 'GCODE')
 
     def make_button(self, name, title):
-        self['btn_' + name] = QPushButton(title)
+        text = title.split(' ')
+        if len(text) > 1:
+            text = f"{text[0]}\n{text[1]}"
+        else:
+            text = text[0]
+        self['btn_' + name] = QPushButton(text)
         self['btn_' + name].setSizePolicy(self.sizePolicy)
         self['btn_' + name].setMinimumSize(QtCore.QSize(90, 0))
         self['btn_' + name].setCheckable(True)
@@ -301,7 +279,7 @@ class Setup_Utils():
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    w = Setup_Utils()
-    w.show()
+    w = Setup_Utils(None, None)
+    w.init_utils()
     sys.exit( app.exec_() )
 
