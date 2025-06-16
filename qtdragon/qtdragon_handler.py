@@ -670,7 +670,6 @@ class HandlerClass:
             self.add_status("All axes unhomed")
         elif lower_code and name == 'MESSAGE':
             self.h['spindle-inhibit'] = False
-            self.h['eoffset-count'] = 0
             # add time delay for spindle to attain speed
             self.pause_timer.start(1000)
         elif delete_code and name == 'MESSAGE':
@@ -1655,6 +1654,7 @@ class HandlerClass:
 
     def spindle_pause_timer(self):
         if bool(self.h.hal.get_value('spindle.0.at-speed')):
+            self.h['eoffset-count'] = 0
             self.w.btn_pause.setEnabled(True)
             self.add_status("Spindle pause resumed")
         else:

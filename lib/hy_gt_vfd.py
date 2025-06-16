@@ -40,6 +40,7 @@ stop_bits = 1
 slave = 1
 max_speed = 24000
 min_speed = 7200
+last_speed = 0
 period = 0.25 # seconds to sleep before each cycle
 retries = 3
 motor_is_on = False
@@ -126,6 +127,8 @@ def init_pins():
     h.newpin('speed-cmd', hal.HAL_FLOAT, hal.HAL_IN)
     h.newpin('speed-fb', hal.HAL_FLOAT, hal.HAL_OUT)
     h.newpin('spindle-on', hal.HAL_BIT, hal.HAL_IN)
+    h.newpin('spindle-inhibit', hal.HAL_BIT, hal.HAL_IN)
+    h.newpin('reverse', hal.HAL_BIT, hal.HAL_IN)
     h.newpin('at-speed', hal.HAL_BIT, hal.HAL_OUT)
     h.newpin('output-current', hal.HAL_FLOAT, hal.HAL_OUT)
     h.newpin('output-voltage', hal.HAL_FLOAT, hal.HAL_OUT)
@@ -139,14 +142,15 @@ def set_motor_on():
     if motor_is_on is False:
         motor_is_on = True
         error = True
+        direction = 2 if h['reverse'] else 1
         for i in range(retries):
             time.sleep(delay)
-            req = vfd.write_register(0x1000, 1, slave = slave)
+            req = vfd.write_register(0x1000, direction, slave = slave)
             if not req.isError():
                 error = False
                 break
-        if error is None:
-            print("Error writing to register 0x1000")
+        if error is True:
+            print("Motor On: Error writing to register 0x1000")
 
 def set_motor_off():
     global motor_is_on, retries
@@ -161,7 +165,7 @@ def set_motor_off():
                 error = False
                 break
         if error is True:
-            print("Error writing to register 0x1000")
+            print("Motor Off: Error writing to register 0x1000")
 
 # Set spindle speed as percentage of maximum speed
 def set_motor_speed():
@@ -222,8 +226,6 @@ def get_vfd_data():
 def set_atspeed():
     speed_cmd = h['speed-cmd']
     speed_fb = h['speed-fb']
-    if speed_cmd > max_speed: speed_cmd = max_speed
-    elif speed_cmd < min_speed: speed_cmd = min_speed
     if speed_cmd == 0: 
         h['at-speed'] = False
     elif abs((speed_cmd - speed_fb) / speed_cmd) <= 0.02:
@@ -232,7 +234,6 @@ def set_atspeed():
         h['at-speed'] = False
 
 ## start
-last_speed = 0
 currentState = INIT
 prevState = None
 delay = 80 / baud_rate
@@ -259,7 +260,9 @@ try:
                 LOG.info("State : VFD RUNNING")
                 prevState = currentState
             get_vfd_data()
-            if h['spindle-on'] is True:
+            if h['spindle-inhibit'] is True:
+                set_motor_off()
+            elif h['spindle-on'] is True:
                 set_motor_on()
                 set_motor_speed()
                 set_atspeed()

@@ -2743,7 +2743,7 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>1</number>
+                <number>3</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -5638,7 +5638,7 @@ G5X</string>
                  <item>
                   <widget class="QTabWidget" name="tabWidget_tools">
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>1</number>
                    </property>
                    <widget class="QWidget" name="tab_offsets">
                     <attribute name="title">
@@ -6097,7 +6097,7 @@ AVAILABLE</string>
                    </widget>
                    <widget class="QWidget" name="tab_database">
                     <attribute name="title">
-                     <string>TOOL DATABASE</string>
+                     <string>DATABASE</string>
                     </attribute>
                     <layout class="QVBoxLayout" name="verticalLayout_18">
                      <property name="spacing">
@@ -7472,7 +7472,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>04:34:05 PM</string>
+                       <string>12:47:28 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -16626,15 +16626,15 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="mdi_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="util_buttonGroup"/>
   <buttongroup name="about_buttonGroup"/>
+  <buttongroup name="util_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="mdi_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
