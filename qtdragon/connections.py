@@ -71,6 +71,8 @@ class Connections():
         self.w.cmb_icon_select.activated.connect(self.parent.tool_db.icon_select_activated)
         # lineEdits
         self.w.lineEdit_max_power.editingFinished.connect(self.parent.max_power_edited)
+        self.w.lineEdit_max_volts.editingFinished.connect(self.parent.max_volts_edited)
+        self.w.lineEdit_max_amps.editingFinished.connect(self.parent.max_amps_edited)
         # misc
         self.w.gcode_viewer.percentDone.connect(lambda percent: self.parent.percent_done_changed(percent))
         self.w.gcodegraphics.percentLoaded.connect(lambda percent: self.parent.percent_loaded_changed(percent))

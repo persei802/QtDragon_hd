@@ -2743,7 +2743,7 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>3</number>
+                <number>8</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -7472,7 +7472,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>12:47:28 PM</string>
+                       <string>08:50:15 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -8199,6 +8199,9 @@ SCOPE</string>
                                  <height>30</height>
                                 </size>
                                </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::NoFocus</enum>
+                               </property>
                                <property name="text">
                                 <string>0</string>
                                </property>
@@ -8232,6 +8235,9 @@ SCOPE</string>
                                  <width>70</width>
                                  <height>30</height>
                                 </size>
+                               </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::NoFocus</enum>
                                </property>
                                <property name="text">
                                 <string>0</string>
@@ -9017,6 +9023,170 @@ SCOPE</string>
                             </layout>
                            </item>
                            <item>
+                            <layout class="QHBoxLayout" name="horizontalLayout_32">
+                             <property name="spacing">
+                              <number>4</number>
+                             </property>
+                             <property name="topMargin">
+                              <number>0</number>
+                             </property>
+                             <item>
+                              <widget class="QLabel" name="label_6">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>0</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>16777215</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="text">
+                                <string>MAX SPINDLE VOLTS</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_max_volts">
+                               <property name="sizePolicy">
+                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                 <horstretch>0</horstretch>
+                                 <verstretch>0</verstretch>
+                                </sizepolicy>
+                               </property>
+                               <property name="minimumSize">
+                                <size>
+                                 <width>70</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>70</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="text">
+                                <string>100</string>
+                               </property>
+                               <property name="maxLength">
+                                <number>8</number>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_7">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>60</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>60</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="text">
+                                <string>VOLTS</string>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
+                           </item>
+                           <item>
+                            <layout class="QHBoxLayout" name="horizontalLayout_33">
+                             <property name="spacing">
+                              <number>4</number>
+                             </property>
+                             <property name="topMargin">
+                              <number>0</number>
+                             </property>
+                             <item>
+                              <widget class="QLabel" name="label_9">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>0</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>16777215</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="text">
+                                <string>MAX SPINDLE AMPS</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_max_amps">
+                               <property name="sizePolicy">
+                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                 <horstretch>0</horstretch>
+                                 <verstretch>0</verstretch>
+                                </sizepolicy>
+                               </property>
+                               <property name="minimumSize">
+                                <size>
+                                 <width>70</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>70</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="text">
+                                <string>10</string>
+                               </property>
+                               <property name="maxLength">
+                                <number>4</number>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_46">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>60</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>60</width>
+                                 <height>30</height>
+                                </size>
+                               </property>
+                               <property name="text">
+                                <string>AMPS</string>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
+                           </item>
+                           <item>
                             <layout class="QHBoxLayout" name="horizontalLayout_38">
                              <property name="spacing">
                               <number>4</number>
@@ -9062,6 +9232,9 @@ SCOPE</string>
                                  <width>70</width>
                                  <height>30</height>
                                 </size>
+                               </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::NoFocus</enum>
                                </property>
                                <property name="text">
                                 <string>100</string>
@@ -9147,6 +9320,9 @@ SCOPE</string>
                                  <width>70</width>
                                  <height>30</height>
                                 </size>
+                               </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::NoFocus</enum>
                                </property>
                                <property name="text">
                                 <string>1000</string>
@@ -15864,7 +16040,7 @@ WCS</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QProgressBar" name="spindle_power">
+                  <widget class="SpindleBar" name="spindle_power">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -15904,54 +16080,31 @@ WCS</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="label_56">
+                  <widget class="LED" name="led_at_speed">
                    <property name="minimumSize">
                     <size>
-                     <width>0</width>
+                     <width>30</width>
                      <height>30</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>16777215</width>
+                     <width>30</width>
                      <height>30</height>
                     </size>
                    </property>
-                   <property name="text">
-                    <string>AT
-SPEED</string>
+                   <property name="toolTip">
+                    <string>At speed indicator</string>
                    </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="LED" name="hal_led_atspeed">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>24</width>
-                     <height>24</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>24</width>
-                     <height>24</height>
-                    </size>
+                   <property name="pin_name" stdset="0">
+                    <string>hal_led_atspeed</string>
                    </property>
                    <property name="color">
                     <color>
                      <red>0</red>
                      <green>255</green>
-                     <blue>0</blue>
+                     <blue>1</blue>
                     </color>
-                   </property>
-                   <property name="currentstate" stdset="0">
-                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -15960,7 +16113,7 @@ SPEED</string>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_69">
                  <property name="spacing">
-                  <number>8</number>
+                  <number>4</number>
                  </property>
                  <property name="topMargin">
                   <number>0</number>
@@ -15981,7 +16134,7 @@ SPEED</string>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>80</width>
+                     <width>16777215</width>
                      <height>40</height>
                     </size>
                    </property>
@@ -16009,13 +16162,13 @@ SPEED</string>
                     <string>at_speed_rev</string>
                    </property>
                    <property name="indicator_option" stdset="0">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="indicator_HAL_pin_option" stdset="0">
                     <bool>false</bool>
                    </property>
                    <property name="indicator_status_option" stdset="0">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="on_color" stdset="0">
                     <color>
@@ -16027,11 +16180,21 @@ SPEED</string>
                    <property name="shape_option" stdset="0">
                     <number>0</number>
                    </property>
+                   <property name="off_color" stdset="0">
+                    <color>
+                     <red>255</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
                    <property name="right_edge_offset" stdset="0">
                     <number>0</number>
                    </property>
                    <property name="top_edge_offset" stdset="0">
                     <number>0</number>
+                   </property>
+                   <property name="is_spindle_rev_status" stdset="0">
+                    <bool>true</bool>
                    </property>
                    <property name="spindle_rev_action" stdset="0">
                     <bool>true</bool>
@@ -16054,7 +16217,7 @@ SPEED</string>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>80</width>
+                     <width>16777215</width>
                      <height>40</height>
                     </size>
                    </property>
@@ -16100,6 +16263,12 @@ SPEED</string>
                    <property name="shape_option" stdset="0">
                     <number>0</number>
                    </property>
+                   <property name="indicator_size" stdset="0">
+                    <double>0.300000000000000</double>
+                   </property>
+                   <property name="circle_diameter" stdset="0">
+                    <number>10</number>
+                   </property>
                    <property name="right_edge_offset" stdset="0">
                     <number>0</number>
                    </property>
@@ -16130,7 +16299,7 @@ SPEED</string>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>80</width>
+                     <width>16777215</width>
                      <height>40</height>
                     </size>
                    </property>
@@ -16158,10 +16327,13 @@ SPEED</string>
                     <string>at_speed_fwd</string>
                    </property>
                    <property name="indicator_option" stdset="0">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="indicator_HAL_pin_option" stdset="0">
                     <bool>false</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
                    </property>
                    <property name="on_color" stdset="0">
                     <color>
@@ -16173,11 +16345,24 @@ SPEED</string>
                    <property name="shape_option" stdset="0">
                     <number>0</number>
                    </property>
+                   <property name="off_color" stdset="0">
+                    <color>
+                     <red>255</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="circle_diameter" stdset="0">
+                    <number>15</number>
+                   </property>
                    <property name="right_edge_offset" stdset="0">
                     <number>0</number>
                    </property>
                    <property name="top_edge_offset" stdset="0">
                     <number>0</number>
+                   </property>
+                   <property name="is_spindle_fwd_status" stdset="0">
+                    <bool>true</bool>
                    </property>
                    <property name="spindle_fwd_action" stdset="0">
                     <bool>true</bool>
@@ -16549,6 +16734,11 @@ SPEED</string>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.round_gauge</header>
   </customwidget>
+  <customwidget>
+   <class>SpindleBar</class>
+   <extends>QProgressBar</extends>
+   <header>lib/spindle_bar</header>
+  </customwidget>
  </customwidgets>
  <resources>
   <include location="qtdragon.qrc"/>
@@ -16626,15 +16816,15 @@ SPEED</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mdi_buttonGroup"/>
+  <buttongroup name="about_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="util_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="about_buttonGroup"/>
-  <buttongroup name="util_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="mdi_buttonGroup"/>
  </buttongroups>
 </ui>

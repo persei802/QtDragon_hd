@@ -12,14 +12,13 @@
 
 import os
 import datetime
-import requests
 import linuxcnc
 from send2trash import send2trash
 from connections import Connections
 from lib.event_filter import EventFilter
 from PyQt5.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QIntValidator, QRegExpValidator, QFont, QColor, QIcon, QPixmap
-from PyQt5.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QInputDialog, QFileDialog
+from PyQt5.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QInputDialog, QFileDialog, QMenu, QAction, QToolButton
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -29,7 +28,6 @@ from qtvcp.widgets.file_manager import FileManager as FM
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.core import Status, Action, Info, Path, Tool, Qhal
 from qtvcp import logger
-from qtvcp.qt_makegui import VCPWindow
 
 LOG = logger.getLogger(__name__)
 LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -181,7 +179,7 @@ class HandlerClass:
         self.statusbar_style = ''
         self.stat_warnings = 0
         self.stat_errors = 0
-        self.max_spindle_power = 100
+        self.spindle_role = 'power'
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         self.machine_units = "MM" if INFO.MACHINE_IS_METRIC else "IN"
         self.min_spindle_rpm = int(INFO.MIN_SPINDLE_SPEED)
@@ -237,7 +235,6 @@ class HandlerClass:
         STATUS.connect('user-system-changed', lambda w, data: self.user_system_changed(data))
         STATUS.connect('metric-mode-changed', lambda w, mode: self.metric_mode_changed(mode))
         STATUS.connect('tool-in-spindle-changed', lambda w, tool: self.tool_changed(tool))
-#        STATUS.connect('command-stopped', self.command_stopped)
         STATUS.connect('file-loaded', lambda w, filename: self.file_loaded(filename))
         STATUS.connect('all-homed', self.all_homed)
         STATUS.connect('not-all-homed', self.not_all_homed)
@@ -287,6 +284,8 @@ class HandlerClass:
             self.w['lineEdit_' + val].setValidator(valid)
         self.w.lineEdit_spindle_raise.setValidator(QIntValidator(0, 99))
         self.w.lineEdit_max_power.setValidator(QIntValidator(0, 9999))
+        self.w.lineEdit_max_volts.setValidator(QIntValidator(0, 999))
+        self.w.lineEdit_max_amps.setValidator(QIntValidator(0, 99))
         self.w.lineEdit_tool_in_spindle.setValidator(QIntValidator(0, 99999))
         # set unit labels according to machine mode
         self.w.lbl_machine_units.setText("METRIC" if INFO.MACHINE_IS_METRIC else "IMPERIAL")
@@ -305,6 +304,7 @@ class HandlerClass:
         self.w.statusbar.messageChanged.connect(self.statusbar_changed)
         self.w.stackedWidget_gcode.currentChanged.connect(self.gcode_widget_changed)
         self.w.lineEdit_tool_in_spindle.returnPressed.connect(self.tool_edit_finished)
+        self.w.spindle_power.role_changed.connect(self.spindle_role_changed)
 
     #############################
     # SPECIAL FUNCTIONS SECTION #
@@ -378,7 +378,9 @@ class HandlerClass:
         self.settings_spindle = self.w.frame_spindle_settings.findChildren(QLineEdit)
         for spindle in self.settings_spindle:
             spindle.setText(self.w.PREFS_.getpref(spindle.objectName(), '10', str, 'CUSTOM_FORM_ENTRIES'))
-        self.max_spindle_power = float(self.w.lineEdit_max_power.text())
+        self.max_spindle_power = int(self.w.lineEdit_max_power.text())
+        self.max_spindle_volts = int(self.w.lineEdit_max_volts.text())
+        self.max_spindle_amps = int(self.w.lineEdit_max_amps.text())
         # all remaining fields
         self.last_loaded_program = self.w.PREFS_.getpref('last_loaded_file', None, str,'BOOK_KEEPING')
         self.reload_tool = self.w.PREFS_.getpref('Tool to load', 0, int,'CUSTOM_FORM_ENTRIES')
@@ -722,16 +724,44 @@ class HandlerClass:
             ACTION.CALL_MDI_WAIT(f'M61 Q{tool}', mode_return=True)
         self.w.lineEdit_tool_in_spindle.clearFocus()
 
+    def spindle_role_changed(self, role):
+        self.spindle_role = role
+        if role == 'power':
+            self.w.spindle_power.setMaximum(self.max_spindle_power)
+            self.w.spindle_power.setFormat("POWER %p%")
+        elif role == 'volts':
+            self.w.spindle_power.setMaximum(self.max_spindle_volts)
+        elif role == 'amps':
+            self.w.spindle_power.setMaximum(self.max_spindle_amps)
+        self.spindle_pwr_changed()
+
     def spindle_pwr_changed(self):
-        # this calculation assumes a power factor of 0.8
-        power = float(self.h['spindle-volts'] * self.h['spindle-amps'] * 1.386) # V x I x PF x sqrt(3)
-        try: # in case of divide by zero
-            pc_power = int((power / self.max_spindle_power) * 100)
-            if pc_power > 100:
-                pc_power = 100
-            self.w.spindle_power.setValue(pc_power)
-        except Exception as e:
-            self.w.spindle_power.setValue(0)
+        if self.spindle_role == 'power':
+            # V x I x PF x sqrt(3)
+            # this calculation assumes a power factor of 0.8
+            power = int(self.h['spindle-volts'] * self.h['spindle-amps'] * 1.386)
+            if power > self.max_spindle_power:
+                self.w.spindle_power.setFormat('OUT OF RANGE')
+                self.w.spindle_power.setValue(0)
+            else:
+                self.w.spindle_power.setValue(power)
+        elif self.spindle_role == 'volts':
+            volts = self.h['spindle-volts']
+            if volts > self.max_spindle_volts:
+                print('Volts out of range')
+                self.w.spindle_power.setFormat('OUT OF RANGE')
+                self.w.spindle_power.setValue(0)
+            else:
+                self.w.spindle_power.setFormat(f'{volts:.1f} VOLTS')
+                self.w.spindle_power.setValue(int(volts))
+        elif self.spindle_role == 'amps':
+            amps = self.h['spindle-amps']
+            if amps > self.max_spindle_amps:
+                self.w.spindle_power.setFormat('OUT OF RANGE')
+                self.w.spindle_power.setValue(0)
+            else:
+                self.w.spindle_power.setFormat(f'{amps:.1f} AMPS')
+                self.w.spindle_power.setValue(int(amps))
 
     def eoffset_value_changed(self, data):
         if not self.w.btn_pause_spindle.isChecked() and not self.w.btn_enable_comp.isChecked():
@@ -1548,9 +1578,6 @@ class HandlerClass:
         if self.probe.objectName() == 'basicprobe':
             self.probe.set_calc_mode(state)
 
-#    def chk_use_handler_calc(self, state):
-#        self.event_filter.set_dialog_mode(state)
-
     def touchoff_changed(self, state):
         if not state: return
         image = ''
@@ -1607,11 +1634,31 @@ class HandlerClass:
         self.w.lineEdit_next_available.setText(str(tno))
 
     def max_power_edited(self):
-        self.max_spindle_power = float(self.w.lineEdit_max_power.text())
-        if self.max_spindle_power <= 0:
-            self.max_spindle_power = 100
-            self.w.lineEdit_max_power.setText('100')
-            self.add_status("Max spindle power must be >0 - using default of 100", WARNING)
+        power = int(self.w.lineEdit_max_power.text())
+        if power <= 0:
+            self.w.lineEdit_max_power.setText(str(self.max_spindle_power))
+            self.add_status("Max spindle power must be >0 - discarding change", WARNING)
+        else:
+            self.max_spindle_power = power
+        self.w.lineEdit_max_power.clearFocus()
+
+    def max_volts_edited(self):
+        volts = int(self.w.lineEdit_max_volts.text())
+        if volts <= 0:
+            self.w.lineEdit_max_volts.setText(str(self.max_spindle_volts))
+            self.add_status("Max spindle volts must be >0 - discarding change", WARNING)
+        else:
+            self.max_spindle_volts = volts
+        self.w.lineEdit_max_volts.clearFocus()
+
+    def max_amps_edited(self):
+        amps = int(self.w.lineEdit_max_amps.text())
+        if amps <= 0:
+            self.w.lineEdit_max_amps.setText(str(self.max_spindle_amps))
+            self.add_status("Max spindle amps must be >0 - discarding change.", WARNING)
+        else:
+            self.max_spindle_amps = amps
+        self.w.lineEdit_max_amps.clearFocus()
 
     def show_selected_axis(self, obj):
         if self.w.chk_use_mpg.isChecked():
