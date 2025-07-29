@@ -510,7 +510,7 @@ class SaveSection():
 
 
 class NgcGui(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, parent=None):
         super(NgcGui, self).__init__()
         self.ini = INFO.INI
         self.gcmc_exe = None
