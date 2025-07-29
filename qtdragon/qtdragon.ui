@@ -2743,7 +2743,7 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>8</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -4191,17 +4191,7 @@ P</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_31" stretch="1">
-                   <property name="spacing">
-                    <number>4</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <widget class="FileManager" name="filemanager_media"/>
-                   </item>
-                  </layout>
+                  <widget class="FileManager" name="filemanager_media"/>
                  </item>
                  <item>
                   <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -4538,17 +4528,7 @@ DIALOG</string>
                   </layout>
                  </item>
                  <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_40" stretch="1">
-                   <property name="spacing">
-                    <number>4</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <widget class="FileManager" name="filemanager_user"/>
-                   </item>
-                  </layout>
+                  <widget class="FileManager" name="filemanager_user"/>
                  </item>
                 </layout>
                </widget>
@@ -5638,7 +5618,7 @@ G5X</string>
                  <item>
                   <widget class="QTabWidget" name="tabWidget_tools">
                    <property name="currentIndex">
-                    <number>1</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="tab_offsets">
                     <attribute name="title">
@@ -7472,7 +7452,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>08:50:15 AM</string>
+                       <string>10:03:58 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -8012,7 +7992,7 @@ SCOPE</string>
                        </sizepolicy>
                       </property>
                       <property name="currentIndex">
-                       <number>1</number>
+                       <number>0</number>
                       </property>
                       <property name="usesScrollButtons">
                        <bool>false</bool>
@@ -8478,7 +8458,7 @@ SCOPE</string>
                             </layout>
                            </item>
                            <item>
-                            <layout class="QHBoxLayout" name="horizontalLayout_34">
+                            <layout class="QHBoxLayout" name="layout_camera_offset">
                              <property name="spacing">
                               <number>4</number>
                              </property>
@@ -8578,7 +8558,7 @@ SCOPE</string>
                             </layout>
                            </item>
                            <item>
-                            <layout class="QHBoxLayout" name="horizontalLayout_15">
+                            <layout class="QHBoxLayout" name="layout_probe_offset">
                              <property name="spacing">
                               <number>4</number>
                              </property>
@@ -8688,7 +8668,7 @@ SCOPE</string>
                             </widget>
                            </item>
                            <item>
-                            <layout class="QHBoxLayout" name="horizontalLayout_56">
+                            <layout class="QHBoxLayout" name="layout_axis_a_offset">
                              <property name="spacing">
                               <number>4</number>
                              </property>
@@ -16816,15 +16796,15 @@ WCS</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="about_buttonGroup"/>
-  <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="util_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mdi_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="about_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="util_buttonGroup"/>
  </buttongroups>
 </ui>

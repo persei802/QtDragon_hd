@@ -29,4 +29,14 @@
         <class>Hole_Enlarge</class>
         <button>HOLE ENLARGE</button>
     </util>
+    <util>
+        <module>custom_macros</module>
+        <class>CustomMacros</class>
+        <button>CUSTOM MACROS</button>
+    </util>
+    <util>
+        <module>ngcgui</module>
+        <class>NgcGui</class>
+        <button>NGCGUI</button>
+    </util>
 </Utils>

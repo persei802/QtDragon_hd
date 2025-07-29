@@ -34,7 +34,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # status message alert levels
 DEFAULT =  0
 WARNING =  1
-CRITICAL = 2
+ERROR = 2
 
 # this class provides an overloaded function to disable navigation links
 class WebPage(QWebEnginePage):
@@ -66,6 +66,7 @@ class Setup_Utils():
         self.parent = parent
         if self.parent is not None:
             self.tool_db = self.parent.tool_db
+        self.installed_modules = list()
         self.zlevel = None
         self.doc_index = 0
         self.util_btns = []
@@ -87,6 +88,11 @@ class Setup_Utils():
         self.help_page = ShowHelp(self.dialog)
         self.dialog.hide()
 
+    def closing_cleanup__(self):
+        for mod in self.installed_modules:
+            if 'closing_cleanup__' in dir(mod):
+                mod.closing_cleanup__()
+
     def init_utils(self):
         # install optional utilities
         utils = self.root.findall("util")
@@ -100,7 +106,6 @@ class Setup_Utils():
             self.parent.zlevel = self.zlevel
         # install permanent utilities
         self.install_rapid_rotary()
-        self.install_ngcgui()
         self.install_document_viewer()
         self.install_gcodes()
         self.num_utils = len(self.util_btns)
@@ -118,20 +123,24 @@ class Setup_Utils():
 
     def install_module(self, mod_name, class_name, btn):
         mod_path = 'utils.' + mod_name
-        module = importlib.import_module(mod_path)
-        cls = getattr(module, class_name)
-        self[mod_name] = cls(self)
+        try:
+            module = importlib.import_module(mod_path)
+            cls = getattr(module, class_name)
+            self[mod_name] = cls(self)
+            self.installed_modules.append(self[mod_name])
+        except FileNotFoundError:
+            print(f'File {mod_name} not found')
+            return
+        except SyntaxError as e:
+            print(f'Syntax error in {mod_name}: {e}')
+            return
+        except ImportError as e:
+            print(f'Import error: {e}')
+            return
         self.stackedWidget_utils.addWidget(self[mod_name])
         self.make_button(mod_name, btn)
         self[mod_name]._hal_init()
-
-    def install_ngcgui(self):
-        LOG.info("Using NGCGUI utility")
-        from lib.ngcgui import NgcGui
-        self.ngcgui = NgcGui()
-        self.stackedWidget_utils.addWidget(self.ngcgui)
-        self.make_button('ngcgui', 'NGCGUI')
-        self.ngcgui._hal_init()
+        LOG.debug(f"Installed utility: {class_name}")
 
     def install_gcodes(self):
         from utils.gcodes import GCodes
@@ -139,6 +148,7 @@ class Setup_Utils():
         self.stackedWidget_utils.addWidget(self.gcodes)
         self.make_button('gcodes', 'GCODES')
         self.gcodes.setup_list()
+        LOG.debug("Installed utility: GCodes")
 
     def install_rapid_rotary(self):
         if 'A' in INFO.AVAILABLE_AXES:
@@ -147,6 +157,7 @@ class Setup_Utils():
             self.stackedWidget_utils.addWidget(self.rapid_rotary)
             self.make_button('rotary', 'RAPID\nROTARY')
             self.rapid_rotary._hal_init()
+            LOG.debug("Installed utility: Rapid Rotary")
 
     def install_document_viewer(self):
         self.doc_viewer = QtWidgets.QTabWidget()
@@ -166,6 +177,7 @@ class Setup_Utils():
         # need a monospace font or text won't line up
         self.gcode_properties.setFont(QtGui.QFont("Courier", 12))
         self.doc_viewer.addTab(self.gcode_properties, 'GCODE')
+        LOG.debug("Installed utility: Document Viewer")
 
     def make_button(self, name, title):
         text = title.split(' ')
@@ -190,13 +202,13 @@ class Setup_Utils():
             url = QtCore.QUrl("file:///" + fname)
             self.web_page_setup.load(url)
         except Exception as e:
-            self.parent.add_status(f"Could not find default HTML file - {e}", CRITICAL)
+            self.parent.add_status(f"Could not find default HTML file - {e}", ERROR)
         # default pdf file
         try:
             fname = os.path.join(PATH.CONFIGPATH, 'qtdragon/default_setup.pdf')
             self.PDFView.loadView(fname)
         except Exception as e:
-            self.parent.add_status(f"Could not find default PDF file - {e}", CRITICAL)
+            self.parent.add_status(f"Could not find default PDF file - {e}", ERROR)
 
     def show_html(self, fname):
         url = QtCore.QUrl("file:///" + fname)

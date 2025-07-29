@@ -40,7 +40,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.1.6'
+VERSION = '2.1.7'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -199,7 +199,7 @@ class HandlerClass:
         self.last_loaded_program = ""
         self.current_loaded_program = None
         self.first_turnon = True
-        self.macros_defined = 0
+        self.macros_defined = list()
         self.pause_timer = QTimer()
         self.source_file = ''
         self.destination_file = ''
@@ -217,8 +217,7 @@ class HandlerClass:
                               "zsafe", "probe_x", "probe_y", "rotary_height", "gauge_height", "spindle_raise"]
 
         self.axis_a_list = ["dro_axis_a", "lbl_max_angular", "lbl_max_angular_vel", "angular_increment",
-                            "action_zero_a", "btn_rewind_a", "action_home_a", "widget_angular_jog",
-                            "lbl_rotary_height", "lineEdit_rotary_height", "lbl_rotary_units"]
+                            "action_zero_a", "btn_rewind_a", "action_home_a", "widget_angular_jog"]
 
         self.gcode_titles = ["GCODE", "MDI INPUT"]
 
@@ -257,8 +256,8 @@ class HandlerClass:
         self.init_file_manager()
         self.init_probe()
         self.init_mdi_panel()
-        self.init_utils()
         self.init_macros()
+        self.init_utils()
         self.init_adjustments()
         self.init_event_filter()
         # initialize widget states
@@ -274,6 +273,10 @@ class HandlerClass:
         if not "A" in self.axis_list:
             for item in self.axis_a_list:
                 self.w[item].hide()
+            for i in range(self.w.layout_axis_a_offset.count()):
+                widget = self.w.layout_axis_a_offset.itemAt(i).widget()
+                if widget is not None:
+                    widget.hide()
         # set validators for lineEdit widgets
         if INFO.MACHINE_IS_METRIC:
             regex = QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$')
@@ -404,6 +407,9 @@ class HandlerClass:
         self.w.PREFS_.putpref('Tool to load', STATUS.get_current_tool(), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Work Height', self.w.lineEdit_work_height.text(), float, 'CUSTOM_FORM_ENTRIES')
 
+        # check for closing cleanup methods in imported utilities
+        self.setup_utils.closing_cleanup__()
+
     def init_widgets(self):
         self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
         self.w.adj_linear_jog.setValue(self.default_linear_jog_vel)
@@ -530,6 +536,12 @@ class HandlerClass:
         else:
             LOG.info("No valid probe widget specified")
             self.w.btn_probe.hide()
+            self.w.chk_use_basic_calculator.hide()
+            self.w.chk_inhibit_spindle.hide()
+            for i in range(self.w.layout_probe_offset.count()):
+                widget = self.w.layout_probe_offset.itemAt(i).widget()
+                if widget is not None:
+                    widget.hide()
             return
         self.w.probe_layout.addWidget(self.probe)
         self.probe.hal_init()
@@ -573,7 +585,7 @@ class HandlerClass:
             try:
                 code = INFO.get_ini_mdi_command(key)
                 if code is None: raise Exception
-                self.macros_defined += 1
+                self.macros_defined.append(i)
             except:
                 button.setText('')
                 button.setEnabled(False)
@@ -1186,16 +1198,19 @@ class HandlerClass:
 
     # DRO frame
     def show_macros_clicked(self, state):
-        if self.macros_defined == 0: return
         if state and not STATUS.is_auto_mode():
-            self.w.group1_macro_buttons.show()
-            if self.macros_defined > 10:
-                self.w.group2_macro_buttons.show()
-                for i in range(self.macros_defined, 20):
-                    self.w[f'btn_macro{i}'].setEnabled(False)
-            else:
-                for i in range(self.macros_defined, 10):
-                    self.w[f'btn_macro{i}'].setEnabled(False)
+            show = False
+            for i in range(10):
+                if self.w[f'btn_macro{i}'].text() != '':
+                    show = True
+                self.w[f'btn_macro{i}'].setEnabled(bool(self.w[f'btn_macro{i}'].text() != ''))
+            self.w.group1_macro_buttons.setVisible(show)
+            show = False
+            for i in range(10, 20):
+                if self.w[f'btn_macro{i}'].text() != '':
+                    show = True
+                self.w[f'btn_macro{i}'].setEnabled(bool(self.w[f'btn_macro{i}'].text() != ''))
+            self.w.group2_macro_buttons.setVisible(show)
         else:
             self.w.group1_macro_buttons.hide()
             self.w.group2_macro_buttons.hide()
@@ -1555,6 +1570,10 @@ class HandlerClass:
     def use_camera_changed(self, state):
         self.w.btn_camera.setVisible(state)
         self.w.btn_ref_camera.setEnabled(state)
+        for i in range(self.w.layout_camera_offset.count()):
+            widget = self.w.layout_camera_offset.itemAt(i).widget()
+            if widget is not None:
+                widget.setVisible(state)
 
     def use_mdi_keyboard_changed(self, state):
         if state:
