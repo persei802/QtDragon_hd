@@ -147,6 +147,45 @@ QLineEdit {
   color: #000000;
 }
 
+/** SpinBoxes **/
+QSpinBox {
+  background: transparent;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  font: 10pt "Lato Heavy";
+  color: #000000;
+  selection-color: #000000;
+  selection-background-color: transparent;
+}
+
+QSpinBox::up-button {
+  subcontrol-origin: border;
+  subcontrol-position: top right;
+  width: 20px;
+  background-color: transparent;
+  border-left: 1px solid gray;
+}
+
+QSpinBox::down-button {
+  subcontrol-origin: border;
+  subcontrol-position: bottom right;
+  width: 20px;
+  background-color: transparent;
+  border-left: 1px solid gray;
+}
+
+QSpinBox::up-arrow {
+  image: url("qtdragon/style_rc/arrow_up.png");
+  width: 16px;
+  height: 16px;
+}
+
+QSpinBox::down-arrow {
+  image: url("qtdragon/style_rc/arrow_down.png");
+  width: 16px;
+  height: 16px;
+}
+
 /* ProgressBar */
 QProgressBar {
   background-color: transparent;

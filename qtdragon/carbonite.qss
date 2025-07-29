@@ -513,6 +513,45 @@ QLineEdit:focus {
   color: #727578;
 }
 
+/** SpinBoxes **/
+QSpinBox {
+  background: #1d2023;
+  border: 1px solid #626568;
+  border-radius: 4px;
+  font: 10pt "Lato Heavy";
+  color: #eff0f1;
+  selection-color: #eff0f1;
+  selection-background-color: transparent;
+}
+
+QSpinBox::up-button {
+  subcontrol-origin: border;
+  subcontrol-position: top right;
+  width: 20px;
+  background-color: transparent;
+  border-left: 1px solid gray;
+}
+
+QSpinBox::down-button {
+  subcontrol-origin: border;
+  subcontrol-position: bottom right;
+  width: 20px;
+  background-color: transparent;
+  border-left: 1px solid gray;
+}
+
+QSpinBox::up-arrow {
+  image: url("qtdragon/style_rc/arrow_up.png");
+  width: 16px;
+  height: 16px;
+}
+
+QSpinBox::down-arrow {
+  image: url("qtdragon/style_rc/arrow_down.png");
+  width: 16px;
+  height: 16px;
+}
+
 /** Checkboxes **/
 QCheckBox {
   spacing: 10px;

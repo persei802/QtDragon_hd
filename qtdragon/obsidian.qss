@@ -164,6 +164,48 @@ QLineEdit:focus {
   border: 1px solid #00AAFF;
 }
 
+/** SpinBoxes **/
+QSpinBox {
+  background: #202020;
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+  border-right: 2px solid #707070;
+  border-bottom: 2px solid #707070;
+  border-radius: 4px;
+  font: 10pt "Lato Heavy";
+  color: #F0F0F0;
+  selection-color: #F0F0F0;
+  selection-background-color: transparent;
+}
+
+QSpinBox::up-button {
+  subcontrol-origin: border;
+  subcontrol-position: top right;
+  width: 20px;
+  background-color: transparent;
+  border-left: 1px solid gray;
+}
+
+QSpinBox::down-button {
+  subcontrol-origin: border;
+  subcontrol-position: bottom right;
+  width: 20px;
+  background-color: transparent;
+  border-left: 1px solid gray;
+}
+
+QSpinBox::up-arrow {
+  image: url("qtdragon/style_rc/arrow_up.png");
+  width: 16px;
+  height: 16px;
+}
+
+QSpinBox::down-arrow {
+  image: url("qtdragon/style_rc/arrow_down.png");
+  width: 16px;
+  height: 16px;
+}
+
 /** Listviews **/
 QListView,
 QTreeView {
