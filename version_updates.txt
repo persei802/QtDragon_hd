@@ -84,3 +84,7 @@ Jul. 28/25 v 2.1.7
     - updated all stylesheets to include qspinbox
     - fixed how macro buttons are shown/hidden
     
+Aug. 3/25 v 2.1.8
+    - converted UTIL and ABOUT buttons to comboboxes, thus eliminating the scroll menus
+    - updated stylesheets to add combobox hover style
+    - fixed custom_macros not being enabled after machine is turned off and then on
