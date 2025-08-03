@@ -38,7 +38,6 @@ class Connections():
         self.w.btn_rename.pressed.connect(self.parent.rename_file)
         self.w.btn_load_file.pressed.connect(self.parent.load_file)
         self.w.btn_new_folder.pressed.connect(self.parent.new_folder)
-        self.w.btn_select.clicked.connect(self.parent.select_filemanager)
         # tool page buttons
         self.w.btn_add_tool.pressed.connect(self.parent.btn_add_tool_pressed)
         self.w.btn_delete_tool.pressed.connect(self.parent.btn_delete_tool_pressed)
@@ -56,7 +55,7 @@ class Connections():
         self.w.chk_use_mpg.stateChanged.connect(lambda state: self.parent.use_mpg_changed(state))
         self.w.chk_override_limits.stateChanged.connect(lambda state: self.parent.override_limits_changed(state))
         self.w.chk_use_camera.stateChanged.connect(lambda state: self.parent.use_camera_changed(state))
-        self.w.chk_use_mdi_keyboard.stateChanged.connect(lambda state: self.parent.use_mdi_keyboard_changed(state))
+        self.w.chk_use_mdi_keyboard.stateChanged.connect(lambda state: self.w.mdi_keyboard.setVisible(state))
         self.w.chk_use_basic_calculator.stateChanged.connect(lambda state: self.parent.chk_use_basic_calc(state))
         self.w.chk_use_handler_calculator.stateChanged.connect(lambda state: self.parent.event_filter.set_dialog_mode(state))
         self.w.chk_touchplate.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
@@ -67,8 +66,10 @@ class Connections():
         self.w.cam_diameter.valueChanged.connect(lambda value: self.parent.cam_dia_changed(value))
         self.w.cam_rotate.valueChanged.connect(lambda value: self.parent.cam_rot_changed(value))
         # comboboxes
-        self.w.cmb_gcode_history.activated.connect(self.parent.cmb_gcode_history_clicked)
+        self.w.cmb_gcode_history.activated.connect(self.parent.cmb_gcode_history_activated)
         self.w.cmb_icon_select.activated.connect(self.parent.tool_db.icon_select_activated)
+        self.w.cmb_utils.activated.connect(self.parent.cmb_utils_activated)
+        self.w.cmb_about.activated.connect(self.parent.cmb_about_activated)
         # lineEdits
         self.w.lineEdit_max_power.editingFinished.connect(self.parent.max_power_edited)
         self.w.lineEdit_max_volts.editingFinished.connect(self.parent.max_volts_edited)

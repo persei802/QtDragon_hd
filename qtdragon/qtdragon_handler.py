@@ -11,14 +11,16 @@
 # GNU General Public License for more details.
 
 import os
+import shutil
 import datetime
 import linuxcnc
 from send2trash import send2trash
 from connections import Connections
 from lib.event_filter import EventFilter
-from PyQt5.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt
+from PyQt5.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt, QUrl
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QIntValidator, QRegExpValidator, QFont, QColor, QIcon, QPixmap
-from PyQt5.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QInputDialog, QFileDialog, QMenu, QAction, QToolButton
+from PyQt5.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QInputDialog, QMessageBox
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -40,7 +42,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.1.7'
+VERSION = '2.1.8'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -92,10 +94,10 @@ class Highlighter(QSyntaxHighlighter):
 
 
 class MDIPanel(QWidget):
-    def __init__(self, parent=None, widgets=None):
+    def __init__(self, parent=None):
         super(MDIPanel, self).__init__()
         self.parent = parent
-        self.w = widgets
+        self.w = parent.w
         self.mdiLine = self.w.mdihistory.MDILine
                 
         # mdi command combobox
@@ -144,6 +146,13 @@ class MDIPanel(QWidget):
         self.mdiLine.setText(self.w.cmb_mdi_texts.currentText())
         self.w.cmb_mdi_texts.setCurrentIndex(0)
 
+# this class provides an overloaded function to disable navigation links
+class WebPage(QWebEnginePage):
+    def acceptNavigationRequest(self, url, navtype, mainframe):
+        if navtype == self.NavigationTypeLinkClicked: return False
+        return super().acceptNavigationRequest(url, navtype, mainframe)
+
+
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
@@ -173,7 +182,6 @@ class HandlerClass:
         self.current_tool = 0
         self.tool_list = []
         self.next_available = 0
-        self.about_html = os.path.join(PATH.CONFIGPATH, "help_files/about.html")
         self.start_line = 0
         self.feedrate_style = ''
         self.statusbar_style = ''
@@ -258,6 +266,7 @@ class HandlerClass:
         self.init_mdi_panel()
         self.init_macros()
         self.init_utils()
+        self.init_about()
         self.init_adjustments()
         self.init_event_filter()
         # initialize widget states
@@ -273,10 +282,7 @@ class HandlerClass:
         if not "A" in self.axis_list:
             for item in self.axis_a_list:
                 self.w[item].hide()
-            for i in range(self.w.layout_axis_a_offset.count()):
-                widget = self.w.layout_axis_a_offset.itemAt(i).widget()
-                if widget is not None:
-                    widget.hide()
+            self.w.axis_a_height.hide()
         # set validators for lineEdit widgets
         if INFO.MACHINE_IS_METRIC:
             regex = QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$')
@@ -431,10 +437,6 @@ class HandlerClass:
         self.w.cmb_gcode_history.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         # gcode editor mode
         self.w.gcode_viewer.readOnlyMode()
-        # ABOUT pages
-        from lib.setup_about import Setup_About
-        self.about_pages = Setup_About(self.w, self)
-        self.about_pages.init_about()
         # set calculator mode for menu buttons
         for i in ("x", "y", "z"):
             self.w["axistoolbutton_" + i].set_dialog_code('CALCULATOR')
@@ -443,6 +445,8 @@ class HandlerClass:
         self.w.cmb_icon_select.wheelEvent = lambda event: None
         self.w.jogincrements_linear.wheelEvent = lambda event: None
         self.w.jogincrements_angular.wheelEvent = lambda event: None
+        self.w.cmb_utils.wheelEvent = lambda event: None
+        self.w.cmb_about.wheelEvent = lambda event: None
         # turn off table grids
         self.w.offset_table.setShowGrid(False)
         self.w.tooloffsetview.setShowGrid(False)
@@ -501,18 +505,25 @@ class HandlerClass:
         self.w.filemanager_media.onMediaClicked()
         self.w.filemanager_media.loadButton.hide()
         self.w.filemanager_media.copy_control.hide()
-
         self.w.filemanager_user.table.setShowGrid(False)
         self.w.filemanager_user.chk_restricted.setChecked(True)
         self.w.filemanager_user.onUserClicked()
         self.w.filemanager_user.loadButton.hide()
         self.w.filemanager_user.copy_control.hide()
+        self.w.filemanager_user.table.clicked.connect(lambda index: self.select_filemanager(True))
+        self.w.filemanager_media.table.clicked.connect(lambda index: self.select_filemanager(False))
         # set initial active file manager
         self.filemanager = self.w.filemanager_user
         # create the input dialog for non keyboard input
         self.input_dialog = QInputDialog()
         self.input_dialog.setModal(False)
+        self.input_dialog.setWindowModality(Qt.NonModal)
         self.input_dialog.accepted.connect(self.on_input_accepted)
+        # create message box for file control buttons
+        self.messagebox = QMessageBox()
+        self.messagebox.setWindowModality(Qt.NonModal)
+        self.messagebox.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
+        self.messagebox.buttonClicked.connect(self.do_file_copy)
 
     def init_tooldb(self):
         from lib.tool_db import Tool_Database
@@ -538,29 +549,45 @@ class HandlerClass:
             self.w.btn_probe.hide()
             self.w.chk_use_basic_calculator.hide()
             self.w.chk_inhibit_spindle.hide()
-            for i in range(self.w.layout_probe_offset.count()):
-                widget = self.w.layout_probe_offset.itemAt(i).widget()
-                if widget is not None:
-                    widget.hide()
+            self.w.probe_offset.hide()
             return
         self.w.probe_layout.addWidget(self.probe)
         self.probe.hal_init()
 
     def init_mdi_panel(self):
-        self.mdiPanel = MDIPanel(self, self.w)
-        self.use_mdi_keyboard_changed(self.w.chk_use_mdi_keyboard.isChecked())
+        self.mdiPanel = MDIPanel(self)
+        self.w.mdi_keyboard.setVisible(self.w.chk_use_mdi_keyboard.isChecked())
         
     def init_utils(self):
         from lib.setup_utils import Setup_Utils
         self.setup_utils = Setup_Utils(self.w, self)
+        self.w.cmb_utils.addItem(' UTILS')
         self.setup_utils.init_utils()
         if self.zlevel is None:
             self.w.btn_enable_comp.setEnabled(False)
         self.get_next_available()
         self.tool_db.update_tools(self.tool_list)
 
+    def init_about(self):
+        self.about_dict = {1: ('vfd', 'USING A VFD'),
+                           2: ('spindle_pause', 'SPINDLE PAUSE'),
+                           3: ('mpg', 'USING A MPG'),
+                           4: ('touchoff', 'TOOL TOUCHOFF'),
+                           5: ('runfromline', 'RUN FROM LINE'),
+                           6: ('stylesheets', 'STYLESHEETS'),
+                           7: ('rotary_axis', 'ROTARY AXIS'),
+                           8: ('custom', 'CUSTOM PANELS')}
+        self.w.cmb_about.addItem(' ABOUT')
+        for val in self.about_dict.values():
+            self.w.cmb_about.addItem(val[1])
+        
+        self.web_view_about = QWebEngineView()
+        self.web_page_about = WebPage()
+        self.web_view_about.setPage(self.web_page_about)
+        self.w.layout_about_pages.addWidget(self.web_view_about)
+
     def init_event_filter(self):
-        self.default_style = self.w.lineEdit_work_height.styleSheet()
+        self.default_line_style = self.w.lineEdit_work_height.styleSheet()
         line_list = self.lineedit_list
         # eoffset is removed because it's readonly
         if 'eoffset' in line_list:
@@ -677,8 +704,6 @@ class HandlerClass:
         lower_code = bool(message.get('ID') == '_wait_to_lower_')
         handler_code = bool(message.get('ID') == '_handler_')
         delete_code = bool(message.get('ID') == '_delete_')
-        rename_code = bool(message.get('ID') == '_rename_')
-        folder_code = bool(message.get('ID') == '_new_folder_')
         if unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
             self.add_status("All axes unhomed")
@@ -693,21 +718,8 @@ class HandlerClass:
                 self.add_status(f"{self.deleteFile} sent to Trash")
             else:
                 self.add_status(f"{self.deleteFile} not deleted")
-        elif rename_code and name == self.kbd_code:
-            if rtn is None:
-                self.add_status("File renaming cancelled")
-            else:
-                os.rename(self.source_file, rtn)
-                self.add_status(f"Renamed {self.source_file} to {rtn}")
-        elif folder_code and name == self.kbd_code:
-            if rtn is None: return
-            try:
-                os.makedirs(rtn, exist_ok = False)
-                self.add_status(f"Folder {rtn} created successfully")
-            except Exception as e:
-                self.add_status(f"Folder create error: {e}", WARNING)
         elif handler_code and name == self.dialog_code:
-            obj.setStyleSheet(self.default_style)
+            obj.setStyleSheet(self.default_line_style)
             if rtn is None: return
             LOG.debug(f'message return: {message}')
             if obj == self.w.lineEdit_spindle_raise:
@@ -715,7 +727,7 @@ class HandlerClass:
             else:
                 obj.setText(f'{rtn:{self.tmpl}}')
         elif handler_code and name == self.kbd_code:
-            obj.setStyleSheet(self.default_style)
+            obj.setStyleSheet(self.default_line_style)
             if rtn is None: return
             LOG.debug(f'message return: {message}')
             obj.setText(rtn)
@@ -998,13 +1010,39 @@ class HandlerClass:
         self.w.main_tab_widget.setCurrentIndex(index)
         self.w.groupBox_preview.setTitle(btn.text())
 
+    def cmb_utils_activated(self):
+        if self.w.cmb_utils.currentIndex() == 0: return
+        if STATUS.is_auto_mode(): return
+        self.w.main_tab_widget.setCurrentIndex(TAB_UTILS)
+        self.w.stackedWidget_utils.setCurrentIndex(self.w.cmb_utils.currentIndex() - 1)
+        self.w.groupBox_preview.setTitle(self.w.cmb_utils.currentText() + ' UTILITY')
+        self.uncheck_all_buttons(self.w.page_buttonGroup)
+        self.w.cmb_utils.setCurrentIndex(0)
+
+    def cmb_about_activated(self):
+        if self.w.cmb_about.currentIndex() == 0: return
+        if STATUS.is_auto_mode(): return
+        self.w.main_tab_widget.setCurrentIndex(TAB_ABOUT)
+        key = self.w.cmb_about.currentIndex()
+        text = self.about_dict[key]
+        html = text[0]
+        fname = os.path.join(HELP, 'about_' + html + '.html')
+        if os.path.dirname(fname):
+            url = QUrl("file:///" + fname)
+            self.web_page_about.load(url)
+        else:
+            self.add_status(f"About file {fname} not found", WARNING)
+        self.w.groupBox_preview.setTitle(text[1])
+        self.uncheck_all_buttons(self.w.page_buttonGroup)
+        self.w.cmb_about.setCurrentIndex(0)
+
     # preview frame
     def btn_dimensions_changed(self, state):
         self.w.gcodegraphics.show_extents_option = state
         self.w.gcodegraphics.clear_live_plotter()
 
     # gcode frame
-    def cmb_gcode_history_clicked(self):
+    def cmb_gcode_history_activated(self):
         if self.w.cmb_gcode_history.currentIndex() == 0: return
         filename = self.w.cmb_gcode_history.currentText()
         if filename == self.last_loaded_program:
@@ -1354,20 +1392,14 @@ class HandlerClass:
             self.destination_file = os.path.join(os.path.dirname(target[0]), os.path.basename(source[0]))
         else:
             self.destination_file = os.path.join(target[0], os.path.basename(source[0]))
-        self.do_file_copy()
-        return
-        if os.path.isfile(self.destination_file):
-            info = f"{self.source_file} already exists in destination directory {self.destination_file}"
-            mess = {'NAME':'MESSAGE', 
-                    'ICON':'WARNING',
-                    'ID':'_overwrite_',
-                    'MESSAGE':'OVERWRITE FILE?',
-                    'MORE':info,
-                    'TYPE':'YESNO',
-                    'NONBLOCKING':True}
-            ACTION.CALL_DIALOG(mess)
+
+        if os.path.isfile(self.destination_file) or os.path.isdir(self.destination_file):
+            self.messagebox.setWindowTitle('Copy File')
+            self.messagebox.setIcon(QMessageBox.Question)
+            self.messagebox.setText(f'{self.destination_file} exists - overwrite?')
+            self.messagebox.show()
         else:
-            self.do_file_copy()
+            self.do_file_copy(self.messagebox.button(QMessageBox.Yes))
 
     def load_file(self):
         if self.w.btn_edit_gcode.isChecked():
@@ -1418,23 +1450,13 @@ class HandlerClass:
 
     def rename_file(self):
         fname = self.filemanager.getCurrentSelected()
-        if fname[1] is False:
-            self.add_status("Cannot rename a directory", WARNING)
-            return
+        title = "Rename File" if fname[1] is True else "Rename Folder"
+        label = "File" if fname[1] is True else "Folder"
         self.source_file = fname[0]
-        if not self.w.chk_use_kybd.isChecked():
-            self.input_dialog.setWindowTitle("Rename File")
-            self.input_dialog.setLabelText("Enter New File Name")
-            self.input_dialog.setTextValue(self.source_file)
-            self.input_dialog.show()
-        else:
-            mess = {'NAME': self.kbd_code, 
-                    'ID': '_rename_',
-                    'PRELOAD': self.source_file,
-                    'TITLE': 'Enter new file name',
-                    'GEONAME': '__keyboard',
-                    'NONBLOCKING': True}
-            ACTION.CALL_DIALOG(mess)
+        self.input_dialog.setWindowTitle(title)
+        self.input_dialog.setLabelText(f"Enter New {label} Name")
+        self.input_dialog.setTextValue(self.source_file)
+        self.input_dialog.show()
 
     def new_folder(self):
         current_dir = self.filemanager.getCurrentSelected()
@@ -1442,38 +1464,36 @@ class HandlerClass:
             current_path = os.path.dirname(current_dir[0])
         else:
             current_path = current_dir[0]
-        if not self.w.chk_use_kybd.isChecked():
-            self.input_dialog.setWindowTitle("New Folder")
-            self.input_dialog.setLabelText("Enter New Folder Name")
-            self.input_dialog.setTextValue(current_path)
-            self.input_dialog.show()
-        else:
-            mess = {'NAME': self.kbd_code,
-                    'ID': '_new_folder_',
-                    'PRELOAD': current_path,
-                    'TITLE': 'Enter new folder name',
-                    'GEONAME': '__keyboard',
-                    'NONBLOCKING': True}
-            LOG.debug(f'message sent:{mess}')
-            ACTION.CALL_DIALOG(mess)
+        self.input_dialog.setWindowTitle("New Folder")
+        self.input_dialog.setLabelText("Enter New Folder Name")
+        self.input_dialog.setTextValue(current_path)
+        self.input_dialog.show()
 
     def select_filemanager(self, state):
-        if state:
-            self.filemanager = self.w.filemanager_user
-        else:
-            self.filemanager = self.w.filemanager_media
+        self.filemanager = self.w.filemanager_user if state else self.w.filemanager_media
 
-    def do_file_copy(self):
-        if self.filemanager.copyChecks(self.source_file, self.destination_file) is False:
-            self.add_status(f"File {self.source_file} not copied", WARNING)
-        else:
-            self.add_status(f"Copied file from {self.source_file} to {self.destination_file}")
+    def do_file_copy(self, btn):
+        if btn == self.messagebox.button(QMessageBox.No):
+            self.add_status(f"File {self.source_file} not copied")
+            return
+        try:
+            shutil.copy2(self.source_file, self.destination_file)
+            self.add_status(f"File {self.source_file} copied to {self.destination_file}")
+        except FileNotFoundError:
+            self.add_status(f"File {self.source_file} not found", ERROR)
+        except PermissionError:
+            self.add_status(f"Permission denied for {self.destination_file}", ERROR)
+        except Exception as e:
+            self.add_status(f"Copy file error: {e}", ERROR)
 
     def on_input_accepted(self):
         text = self.input_dialog.textValue()
         if self.input_dialog.windowTitle() == "Rename File":
             os.rename(self.source_file, text)
-            self.add_status(f"Renamed {self.source_file} to {text}")
+            self.add_status(f"Renamed file {self.source_file} to {text}")
+        elif self.input_dialog.windowTitle() == "Rename Folder":
+            os.rename(self.source_file, text)
+            self.add_status(f"Renamed folder {self.source_file} to {text}")
         elif self.input_dialog.windowTitle() == "New Folder":
             try:
                 os.makedirs(text, exist_ok = False)
@@ -1481,6 +1501,9 @@ class HandlerClass:
             except Exception as e:
                 self.add_status(f"Folder create error: {e}", WARNING)
 
+    def on_message_clicked(self, btn):
+            self.do_file_copy()
+                       
     # TOOL tab
     def btn_add_tool_pressed(self):
         if not STATUS.is_on_and_idle():
@@ -1570,16 +1593,7 @@ class HandlerClass:
     def use_camera_changed(self, state):
         self.w.btn_camera.setVisible(state)
         self.w.btn_ref_camera.setEnabled(state)
-        for i in range(self.w.layout_camera_offset.count()):
-            widget = self.w.layout_camera_offset.itemAt(i).widget()
-            if widget is not None:
-                widget.setVisible(state)
-
-    def use_mdi_keyboard_changed(self, state):
-        if state:
-            self.w.widget_mdi_panel.show()
-        else:
-            self.w.widget_mdi_panel.hide()
+        self.w.camera_offset.setVisible(state)
 
     def edit_gcode_changed(self, state):
         if state:
@@ -1770,18 +1784,14 @@ class HandlerClass:
         if state:
             self.w.btn_main.setChecked(True)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
-            self.w.widget_gcode_history.hide()
+            self.w.gcode_history.hide()
             self.w.btn_edit_gcode.setChecked(False)
             self.w.gcode_viewer.readOnlyMode()
             self.w.stackedWidget_gcode.setCurrentIndex(0)
-            self.mdiPanel.hide()
-        elif STATUS.is_mdi_mode():
-            self.w.widget_gcode_history.show()
-            self.w.stackedWidget_gcode.setCurrentIndex(1)
         else:
-            self.w.widget_gcode_history.show()
-            self.w.stackedWidget_gcode.setCurrentIndex(0)
-            self.mdiPanel.hide()
+            i = 1 if STATUS.is_mdi_mode() else 0
+            self.w.stackedWidget_gcode.setCurrentIndex(i)
+            self.w.gcode_history.show()
 
     def enable_onoff(self, state):
         text = "ON" if state else "OFF"
@@ -1818,6 +1828,12 @@ class HandlerClass:
                 rtime = self.tool_db.get_tool_data(self.current_tool, "TIME")
                 text = "---" if rtime is None else f"{rtime:5.1f}"
                 self.w.lineEdit_acc_time.setText(text)
+
+    def uncheck_all_buttons(self, group):
+        group.setExclusive(False)
+        for btn in group.buttons():
+            btn.setChecked(False)
+        group.setExclusive(True)
 
     #####################
     # KEY BINDING CALLS #
