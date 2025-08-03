@@ -19,16 +19,15 @@ software will be required.</p>
     <ul class='no-bullets'>
         <li>&lt;module&gt;custom_panel&lt;/module&gt;</li>
         <li>&lt;class&gt;Custom_Panel&lt;/class&gt;</li>
-        <li>&lt;button&gt;CUSTOM PANEL&lt;/button&gt;</li>
+        <li>&lt;name&gt;CUSTOM PANEL&lt;/name&gt;</li>
     </ul>
     <li>&lt;/util&gt;</li>
     </ul>
 </div>
 <p>The module line is the name of the custom modules python file, without the .py extension. It must be located in the utils folder.</p>
 <p>The class line is the name of the class within the the module that needs to be imported.</p>
-<p>The button line is the text that will appear on the button that is created. If there are 2 words or more, the button text will have as many lines
-as there are words. The words must be seperated by a single space and no \n characters.</p>
-<p>The buttons in the UTILS page of the QtDragon UI are created in the order that they appear in the utils.xml file.</p>
+<p>The name line is the text that will appear in the UTILS combobox.</p>
+<p>The names in the UTILS combobox of the QtDragon UI are created in the order that they appear in the utils.xml file.</p>
 <p>The setup_utils.py module provides several instances of utilities added to QtDragon that can be used as a guide.
 It is also responsible for displaying the modules help file, if there is one. The custom module would
 call the show_help_page function of the setup_utils.py program and pass it a path to the help file.</p>

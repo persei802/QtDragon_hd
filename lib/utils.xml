@@ -2,41 +2,41 @@
     <util>
         <module>facing</module>
         <class>Facing</class>
-        <button>FACING</button>
+        <name>FACING</name>
     </util>
     <util>
         <module>hole_circle</module>
         <class>Hole_Circle</class>
-        <button>HOLE CIRCLE</button>
+        <name>HOLE CIRCLE</name>
     </util>
     <util>
         <module>auto_height</module>
         <class>Auto_Measure</class>
-        <button>WORKPIECE HEIGHT</button>
+        <name>WORKPIECE HEIGHT</name>
     </util>
     <util>
         <module>zlevel</module>
         <class>ZLevel</class>
-        <button>ZLEVEL COMP</button>
+        <name>ZLEVEL COMP</name>
     </util>
     <util>
         <module>spindle_warmup</module>
         <class>Spindle_Warmup</class>
-        <button>SPINDLE WARMUP</button>
+        <name>SPINDLE WARMUP</name>
     </util>
     <util>
         <module>hole_enlarge</module>
         <class>Hole_Enlarge</class>
-        <button>HOLE ENLARGE</button>
+        <name>HOLE ENLARGE</name>
     </util>
     <util>
         <module>custom_macros</module>
         <class>CustomMacros</class>
-        <button>CUSTOM MACROS</button>
+        <name>CUSTOM MACROS</name>
     </util>
     <util>
         <module>ngcgui</module>
         <class>NgcGui</class>
-        <button>NGCGUI</button>
+        <name>NGCGUI</name>
     </util>
 </Utils>
