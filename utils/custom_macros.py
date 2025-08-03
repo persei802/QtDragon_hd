@@ -51,6 +51,7 @@ class CustomMacros(QWidget):
     def _hal_init(self):
         def homed_on_status():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+        STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('general', self.dialog_return)
         STATUS.connect('state_off', lambda w: self.setEnabled(False))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
