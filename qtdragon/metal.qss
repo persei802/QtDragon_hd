@@ -34,9 +34,12 @@ QComboBox {
   background: transparent;
   border: 2px solid #000000;
   border-radius: 4px;
-  min-width: 100px;
   font: 10pt "Lato Heavy";
   color: #000000;
+}
+
+QComboBox:hover {
+  border: 2px solid #73C7FF;
 }
 
 QComboBox::drop-down {
@@ -53,6 +56,10 @@ QComboBox::item {
 
 QComboBox::item:selected {
   color: #0000FF;
+}
+
+QComboBox::down-arrow {
+  image: url("qtdragon/images/arrow_down.png");
 }
 
 /* Dialog */

@@ -36,10 +36,13 @@ QComboBox {
   border-right: 2px solid #000000;
   border-bottom: 2px solid #000000;
   border-radius: 4px;
-  min-width: 100px;
   padding: 1px 0px 1px 8px;
   font: 10pt "Lato Heavy";
   color: #F0F0F0;
+}
+
+QComboBox:hover {
+  border: 1px solid white;
 }
 
 QComboBox::drop-down {
@@ -174,7 +177,6 @@ QSpinBox {
   border-radius: 4px;
   font: 10pt "Lato Heavy";
   color: #F0F0F0;
-  selection-color: #F0F0F0;
   selection-background-color: transparent;
 }
 
@@ -305,7 +307,6 @@ QToolButton:checked {
 
 QPushButton:hover,
 QToolButton:hover {
-  /*    color: $color-hover;*/
   border: 1px solid white;
 }
 

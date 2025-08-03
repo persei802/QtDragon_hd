@@ -301,13 +301,16 @@ QTableView#offset_table {
 
 /** Comboboxes **/
 QComboBox {
-  background: #555a5f;
+  background: #31363b;
   border: 1px solid #626568;
   border-radius: 4px;
-  min-width: 100px;
   padding: 1px 0px 1px 8px;
   font: 10pt "Lato Heavy";
   color: #f0f0f0;
+}
+
+QComboBox:hover {
+  border: 1px solid #727578;
 }
 
 QComboBox::drop-down {
