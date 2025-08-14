@@ -51,7 +51,9 @@ class Compensation():
         self.method = 'nearest'
         self.scale = 0.001
         self.file_valid = True
-        self.filename = "probe_points.txt"
+        self.folder = os.path.expanduser('~/linuxcnc/nc_files')
+        self.inputData = os.path.join(self.folder, 'probe_points.txt')
+        self.mapFile = os.path.join(self.folder, 'height_map.png')
         if len(sys.argv) < 2:
             print("ERROR: No interpolation method specified. Defaulting to nearest.")
         elif sys.argv[1] in ("nearest", "linear", "cubic"):
@@ -59,7 +61,7 @@ class Compensation():
 
     def loadMap(self):
         # data coordinates and values
-        self.data = np.loadtxt(self.filename, dtype = float, delimiter = " ", usecols = (0, 1, 2))
+        self.data = np.loadtxt(self.inputData, dtype = float, delimiter = " ", usecols = (0, 1, 2))
         self.x_data = np.around(self.data[:, 0], 1)
         self.y_data = np.around(self.data[:, 1], 1)
         self.z_data = self.data[:, 2]
@@ -91,7 +93,7 @@ class Compensation():
         ax.set_xlabel('X Axis')
         ax.set_ylabel('Y Axis')
         ax.set_zlabel('Z Axis')
-        plt.savefig("height_map.png", transparent=True)
+        plt.savefig(self.mapFile, transparent=True)
 
     def compensate(self):
         if not self.file_valid: return 0
@@ -159,7 +161,7 @@ class Compensation():
                 elif currentState == States.LOADMAP:
                     if currentState != prevState:
                         prevState = currentState
-                    mapTime = os.path.getmtime(self.filename)
+                    mapTime = os.path.getmtime(self.inputData)
                     if mapTime != prevMapTime:
                         prevMapTime = mapTime
                         try:
