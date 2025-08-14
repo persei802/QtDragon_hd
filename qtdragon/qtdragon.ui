@@ -581,7 +581,7 @@
              </widget>
             </item>
             <item>
-             <widget class="ActionButton" name="action_exit">
+             <widget class="ActionButton" name="btn_exit">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -755,99 +755,49 @@
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QWidget" name="gcode_history" native="true">
-                   <layout class="QHBoxLayout" name="horizontalLayout_35">
-                    <property name="spacing">
-                     <number>4</number>
-                    </property>
-                    <property name="leftMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="topMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="rightMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="bottomMargin">
-                     <number>0</number>
-                    </property>
-                    <item>
-                     <widget class="QPushButton" name="btn_edit_gcode">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>70</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>70</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>EDIT
-GCODE</string>
-                      </property>
-                      <property name="checkable">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QComboBox" name="cmb_gcode_history">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="focusPolicy">
-                       <enum>Qt::ClickFocus</enum>
-                      </property>
-                      <property name="toolTip">
-                       <string>History of loaded GCODE programs</string>
-                      </property>
-                      <property name="editable">
-                       <bool>false</bool>
-                      </property>
-                      <property name="currentText">
-                       <string/>
-                      </property>
-                      <property name="maxCount">
-                       <number>30</number>
-                      </property>
-                      <property name="insertPolicy">
-                       <enum>QComboBox::InsertAtTop</enum>
-                      </property>
-                      <property name="iconSize">
-                       <size>
-                        <width>24</width>
-                        <height>24</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
+                  <widget class="QComboBox" name="cmb_gcode_history">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::ClickFocus</enum>
+                   </property>
+                   <property name="toolTip">
+                    <string>History of loaded GCODE programs</string>
+                   </property>
+                   <property name="editable">
+                    <bool>false</bool>
+                   </property>
+                   <property name="currentText">
+                    <string/>
+                   </property>
+                   <property name="maxCount">
+                    <number>30</number>
+                   </property>
+                   <property name="insertPolicy">
+                    <enum>QComboBox::InsertAtTop</enum>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -2752,7 +2702,7 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -4200,266 +4150,340 @@ P</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="FileManager" name="filemanager_media"/>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_14">
-                   <property name="spacing">
-                    <number>8</number>
-                   </property>
-                   <property name="rightMargin">
+                  <widget class="QStackedWidget" name="stackedWidget_file">
+                   <property name="currentIndex">
                     <number>0</number>
                    </property>
-                   <item>
-                    <spacer name="verticalSpacer_5">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                   <widget class="QWidget" name="file_manager_page">
+                    <layout class="QHBoxLayout" name="layout_filemanager">
+                     <property name="spacing">
+                      <number>4</number>
                      </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>40</height>
-                      </size>
+                     <property name="leftMargin">
+                      <number>0</number>
                      </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="btn_copy_right">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
+                     <property name="topMargin">
+                      <number>0</number>
                      </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>80</width>
-                       <height>50</height>
-                      </size>
+                     <property name="rightMargin">
+                      <number>0</number>
                      </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>80</width>
-                       <height>50</height>
-                      </size>
+                     <property name="bottomMargin">
+                      <number>0</number>
                      </property>
-                     <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
-                     </property>
-                     <property name="toolTip">
-                      <string>Copy file from left to right</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="qtdragon.qrc">
-                       <normaloff>:/images/images/Right_arrow.png</normaloff>:/images/images/Right_arrow.png</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>40</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="btn_copy_left">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>80</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>80</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
-                     </property>
-                     <property name="toolTip">
-                      <string>Copt file from right to left</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="qtdragon.qrc">
-                       <normaloff>:/images/images/Left_arrow.png</normaloff>:/images/images/Left_arrow.png</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>40</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="verticalSpacer_6">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="btn_load_file">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>80</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>80</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
-                     </property>
-                     <property name="toolTip">
-                      <string>Load selected file to linuxcnc</string>
-                     </property>
-                     <property name="text">
-                      <string>LOAD</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="btn_delete">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>80</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>80</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
-                     </property>
-                     <property name="toolTip">
-                      <string>Send selected file/folder to system trash folder</string>
-                     </property>
-                     <property name="text">
-                      <string>DELETE</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="btn_rename">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>80</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>80</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
-                     </property>
-                     <property name="toolTip">
-                      <string>Rename selected file</string>
-                     </property>
-                     <property name="text">
-                      <string>RENAME</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="btn_new_folder">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>80</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>80</width>
-                       <height>50</height>
-                      </size>
-                     </property>
-                     <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
-                     </property>
-                     <property name="toolTip">
-                      <string>Create new folder in active directory</string>
-                     </property>
-                     <property name="text">
-                      <string>NEW
+                     <item>
+                      <widget class="FileManager" name="filemanager_media"/>
+                     </item>
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_14">
+                       <property name="spacing">
+                        <number>4</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>8</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="QPushButton" name="btn_edit_gcode">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>EDIT
+GCODE</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="verticalSpacer_5">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="btn_copy_right">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::NoFocus</enum>
+                         </property>
+                         <property name="toolTip">
+                          <string>Copy file from left to right</string>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                         <property name="icon">
+                          <iconset resource="qtdragon.qrc">
+                           <normaloff>:/images/images/Right_arrow.png</normaloff>:/images/images/Right_arrow.png</iconset>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>40</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="btn_copy_left">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::NoFocus</enum>
+                         </property>
+                         <property name="toolTip">
+                          <string>Copt file from right to left</string>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                         <property name="icon">
+                          <iconset resource="qtdragon.qrc">
+                           <normaloff>:/images/images/Left_arrow.png</normaloff>:/images/images/Left_arrow.png</iconset>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>40</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="verticalSpacer_6">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="btn_load_file">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::NoFocus</enum>
+                         </property>
+                         <property name="toolTip">
+                          <string>Load selected file to linuxcnc</string>
+                         </property>
+                         <property name="text">
+                          <string>LOAD</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="btn_delete">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::NoFocus</enum>
+                         </property>
+                         <property name="toolTip">
+                          <string>Send selected file/folder to system trash folder</string>
+                         </property>
+                         <property name="text">
+                          <string>DELETE</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="btn_rename">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::NoFocus</enum>
+                         </property>
+                         <property name="toolTip">
+                          <string>Rename selected file</string>
+                         </property>
+                         <property name="text">
+                          <string>RENAME</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="btn_new_folder">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::NoFocus</enum>
+                         </property>
+                         <property name="toolTip">
+                          <string>Create new folder in active directory</string>
+                         </property>
+                         <property name="text">
+                          <string>NEW
 FOLDER</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="verticalSpacer_7">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <widget class="FileManager" name="filemanager_user"/>
+                     </item>
+                    </layout>
+                   </widget>
+                   <widget class="QWidget" name="gcode_editor_page">
+                    <layout class="QHBoxLayout" name="layout_gcode_editor">
+                     <property name="spacing">
+                      <number>4</number>
                      </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="verticalSpacer_7">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                     <property name="leftMargin">
+                      <number>0</number>
                      </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>40</height>
-                      </size>
+                     <property name="topMargin">
+                      <number>0</number>
                      </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <widget class="FileManager" name="filemanager_user"/>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                    </layout>
+                   </widget>
+                  </widget>
                  </item>
                 </layout>
                </widget>
@@ -7262,7 +7286,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>10:14:30 AM</string>
+                       <string>09:44:26 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -11508,13 +11532,13 @@ ACTIVE</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_status_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="python_command_option" stdset="0">
                   <bool>false</bool>
@@ -11527,16 +11551,16 @@ ACTIVE</string>
                   </color>
                  </property>
                  <property name="shape_option" stdset="0">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <property name="indicator_size" stdset="0">
                   <double>0.200000000000000</double>
                  </property>
                  <property name="right_edge_offset" stdset="0">
-                  <number>6</number>
+                  <number>0</number>
                  </property>
                  <property name="top_edge_offset" stdset="0">
-                  <number>20</number>
+                  <number>0</number>
                  </property>
                  <property name="true_python_cmd_string" stdset="0">
                   <string>INSTANCE.stackedWidget_gcode.setCurrentIndex(0)</string>
@@ -11630,7 +11654,7 @@ ACTIVE</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
@@ -11649,16 +11673,16 @@ ACTIVE</string>
                   </color>
                  </property>
                  <property name="shape_option" stdset="0">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <property name="indicator_size" stdset="0">
                   <double>0.200000000000000</double>
                  </property>
                  <property name="right_edge_offset" stdset="0">
-                  <number>6</number>
+                  <number>0</number>
                  </property>
                  <property name="top_edge_offset" stdset="0">
-                  <number>20</number>
+                  <number>0</number>
                  </property>
                  <property name="true_python_cmd_string" stdset="0">
                   <string>INSTANCE.stackedWidget_gcode.setCurrentIndex(1)</string>
@@ -11752,13 +11776,13 @@ ACTIVE</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_status_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="python_command_option" stdset="0">
                   <bool>false</bool>
@@ -11771,16 +11795,16 @@ ACTIVE</string>
                   </color>
                  </property>
                  <property name="shape_option" stdset="0">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <property name="indicator_size" stdset="0">
                   <double>0.200000000000000</double>
                  </property>
                  <property name="right_edge_offset" stdset="0">
-                  <number>6</number>
+                  <number>0</number>
                  </property>
                  <property name="top_edge_offset" stdset="0">
-                  <number>20</number>
+                  <number>0</number>
                  </property>
                  <property name="true_python_cmd_string" stdset="0">
                   <string>INSTANCE.stackedWidget_gcode.setCurrentIndex(0)</string>
@@ -12081,10 +12105,6 @@ ACTIVE</string>
                <property name="text">
                 <string>  CYCLE START</string>
                </property>
-               <property name="icon">
-                <iconset resource="qtdragon.qrc">
-                 <normaloff>:/images/images/run.png</normaloff>:/images/images/run.png</iconset>
-               </property>
                <property name="iconSize">
                 <size>
                  <width>24</width>
@@ -12123,8 +12143,8 @@ ACTIVE</string>
                <property name="spacing">
                 <number>4</number>
                </property>
-               <item row="1" column="0">
-                <widget class="QPushButton" name="btn_pause">
+               <item row="2" column="0">
+                <widget class="ActionButton" name="action_opt_block">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -12144,17 +12164,176 @@ ACTIVE</string>
                   </size>
                  </property>
                  <property name="text">
-                  <string>  PAUSE</string>
+                  <string>OPT
+BLOCK</string>
                  </property>
-                 <property name="icon">
-                  <iconset resource="qtdragon.qrc">
-                   <normaloff>:/images/images/pause.png</normaloff>:/images/images/pause.png</iconset>
+                 <property name="iconSize">
+                  <size>
+                   <width>100</width>
+                   <height>50</height>
+                  </size>
+                 </property>
+                 <property name="checkable">
+                  <bool>false</bool>
+                 </property>
+                 <property name="flat">
+                  <bool>false</bool>
+                 </property>
+                 <property name="indicator_option" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="indicator_status_option" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="on_color" stdset="0">
+                  <color>
+                   <red>0</red>
+                   <green>255</green>
+                   <blue>0</blue>
+                  </color>
+                 </property>
+                 <property name="is_block_delete_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="block_delete_action" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="PushButton" name="btn_pause_spindle">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string>When enabled, pausing the program will cause the spindle to lift and stop spinning.</string>
+                 </property>
+                 <property name="text">
+                  <string>SPINDLE
+PAUSE</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="pin_name" stdset="0">
+                  <string/>
+                 </property>
+                 <property name="indicator_option" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="indicator_HAL_pin_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="indicator_status_option" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="on_color" stdset="0">
+                  <color>
+                   <red>0</red>
+                   <green>255</green>
+                   <blue>0</blue>
+                  </color>
+                 </property>
+                 <property name="is_paused_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="pin_type" stdset="0">
+                  <enum>PushButton::BIT</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="ActionButton" name="action_flood">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>FLOOD</string>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>100</width>
+                   <height>50</height>
+                  </size>
+                 </property>
+                 <property name="checkable">
+                  <bool>false</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="flat">
+                  <bool>false</bool>
+                 </property>
+                 <property name="indicator_option" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="indicator_status_option" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="checked_state_text_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="on_color" stdset="0">
+                  <color>
+                   <red>0</red>
+                   <green>255</green>
+                   <blue>0</blue>
+                  </color>
+                 </property>
+                 <property name="true_state_string" stdset="0">
+                  <string>FLOOD
+ON</string>
+                 </property>
+                 <property name="false_state_string" stdset="0">
+                  <string>FLOOD
+OFF</string>
+                 </property>
+                 <property name="is_flood_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="flood_action" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="ActionButton" name="btn_stop">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>  STOP</string>
                  </property>
                  <property name="iconSize">
                   <size>
                    <width>24</width>
                    <height>24</height>
                   </size>
+                 </property>
+                 <property name="abort_action" stdset="0">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -12189,18 +12368,31 @@ STOP</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
+                 </property>
+                 <property name="indicator_option" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="on_color" stdset="0">
+                  <color>
+                   <red>0</red>
+                   <green>255</green>
+                   <blue>0</blue>
+                  </color>
+                 </property>
+                 <property name="is_optional_stop_status" stdset="0">
+                  <bool>true</bool>
                  </property>
                  <property name="optional_stop_action" stdset="0">
                   <bool>true</bool>
                  </property>
                 </widget>
                </item>
-               <item row="4" column="1">
-                <widget class="QPushButton" name="btn_enable_comp">
+               <item row="1" column="0">
+                <widget class="QPushButton" name="btn_pause">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -12219,52 +12411,56 @@ STOP</string>
                    <height>16777215</height>
                   </size>
                  </property>
-                 <property name="toolTip">
-                  <string>Enable Z axis compensation via external offsets</string>
+                 <property name="text">
+                  <string>  PAUSE</string>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>24</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="ActionButton" name="btn_step">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>16777215</height>
+                  </size>
                  </property>
                  <property name="text">
-                  <string>Z COMP
-ENABLE</string>
+                  <string>  STEP</string>
                  </property>
-                 <property name="checkable">
+                 <property name="iconSize">
+                  <size>
+                   <width>24</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="top_edge_offset" stdset="0">
+                  <number>0</number>
+                 </property>
+                 <property name="step_action" stdset="0">
                   <bool>true</bool>
                  </property>
                 </widget>
                </item>
-               <item row="4" column="0">
-                <widget class="QPushButton" name="btn_pause_spindle">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>When enabled, pausing the program will cause the spindle to lift and stop spinning.</string>
-                 </property>
-                 <property name="text">
-                  <string>SPINDLE
-PAUSE</string>
-                 </property>
-                 <property name="checkable">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="ActionButton" name="action_flood">
+               <item row="3" column="0">
+                <widget class="ActionButton" name="action_mist">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -12284,8 +12480,7 @@ PAUSE</string>
                   </size>
                  </property>
                  <property name="text">
-                  <string>FLOOD
-OFF</string>
+                  <string>MIST</string>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -12294,7 +12489,7 @@ OFF</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="checked">
                   <bool>false</bool>
@@ -12302,18 +12497,37 @@ OFF</string>
                  <property name="flat">
                   <bool>false</bool>
                  </property>
-                 <property name="checked_state_text_option" stdset="0">
+                 <property name="indicator_option" stdset="0">
                   <bool>true</bool>
                  </property>
+                 <property name="doubleIndicator" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="indicator_status_option" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="checked_state_text_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="on_color" stdset="0">
+                  <color>
+                   <red>0</red>
+                   <green>255</green>
+                   <blue>0</blue>
+                  </color>
+                 </property>
                  <property name="true_state_string" stdset="0">
-                  <string>FLOOD
+                  <string>MIST
 ON</string>
                  </property>
                  <property name="false_state_string" stdset="0">
-                  <string>FLOOD
+                  <string>MIST
 OFF</string>
                  </property>
-                 <property name="flood_action" stdset="0">
+                 <property name="is_mist_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="mist_action" stdset="0">
                   <bool>true</bool>
                  </property>
                 </widget>
@@ -12341,10 +12555,6 @@ OFF</string>
                  <property name="text">
                   <string>  RELOAD</string>
                  </property>
-                 <property name="icon">
-                  <iconset resource="qtdragon.qrc">
-                   <normaloff>:/images/images/reload.png</normaloff>:/images/images/reload.png</iconset>
-                 </property>
                  <property name="iconSize">
                   <size>
                    <width>24</width>
@@ -12353,164 +12563,33 @@ OFF</string>
                  </property>
                 </widget>
                </item>
-               <item row="3" column="0">
-                <widget class="ActionButton" name="action_mist">
+               <item row="4" column="1">
+                <widget class="PushButton" name="btn_enable_comp">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>16777215</height>
-                  </size>
+                 <property name="toolTip">
+                  <string>Enable Z axis compensation via external offsets</string>
                  </property>
                  <property name="text">
-                  <string>MIST
-OFF</string>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>100</width>
-                   <height>50</height>
-                  </size>
+                  <string>Z COMP
+ENABLE</string>
                  </property>
                  <property name="checkable">
                   <bool>true</bool>
                  </property>
-                 <property name="flat">
-                  <bool>false</bool>
-                 </property>
-                 <property name="checked_state_text_option" stdset="0">
+                 <property name="indicator_option" stdset="0">
                   <bool>true</bool>
                  </property>
-                 <property name="true_state_string" stdset="0">
-                  <string>MIST
-ON</string>
-                 </property>
-                 <property name="false_state_string" stdset="0">
-                  <string>MIST
-OFF</string>
-                 </property>
-                 <property name="mist_action" stdset="0">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="ActionButton" name="action_opt_block">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>OPT
-BLOCK</string>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>100</width>
-                   <height>50</height>
-                  </size>
-                 </property>
-                 <property name="checkable">
-                  <bool>true</bool>
-                 </property>
-                 <property name="flat">
-                  <bool>false</bool>
-                 </property>
-                 <property name="block_delete_action" stdset="0">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="ActionButton" name="btn_step">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>  STEP</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="qtdragon.qrc">
-                   <normaloff>:/images/images/step.png</normaloff>:/images/images/step.png</iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>24</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="top_edge_offset" stdset="0">
-                  <number>0</number>
-                 </property>
-                 <property name="step_action" stdset="0">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="ActionButton" name="actionbutton_stop">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string>  STOP</string>
-                 </property>
-                 <property name="icon">
-                  <iconset>
-                   <normalon>:/images/images/stop.png</normalon>
-                  </iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>24</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="abort_action" stdset="0">
-                  <bool>true</bool>
+                 <property name="on_color" stdset="0">
+                  <color>
+                   <red>0</red>
+                   <green>255</green>
+                   <blue>0</blue>
+                  </color>
                  </property>
                 </widget>
                </item>
@@ -14827,7 +14906,7 @@ OFF</string>
                    <bool>false</bool>
                   </property>
                   <property name="indicator_option" stdset="0">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="checked_state_text_option" stdset="0">
                    <bool>true</bool>
@@ -14843,7 +14922,7 @@ OFF</string>
                    </color>
                   </property>
                   <property name="indicator_size" stdset="0">
-                   <double>0.200000000000000</double>
+                   <double>0.300000000000000</double>
                   </property>
                   <property name="true_state_string" stdset="0">
                    <string>LASER
@@ -14858,6 +14937,9 @@ OFF</string>
                   </property>
                   <property name="false_python_cmd_string" stdset="0">
                    <string>INSTANCE.btn_ref_laser.setEnabled(False)</string>
+                  </property>
+                  <property name="pin_type" stdset="0">
+                   <enum>PushButton::BIT</enum>
                   </property>
                  </widget>
                 </item>
@@ -16556,9 +16638,9 @@ WCS</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="mdi_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mdi_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>

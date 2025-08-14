@@ -13,7 +13,7 @@ class Connections():
         self.w.jog_az.joy_btn_pressed.connect(self.parent.jog_az_pressed)
         self.w.jog_az.joy_btn_released.connect(self.parent.jog_az_released)
         # program control buttons
-        self.w.actionbutton_stop.pressed.connect(self.parent.command_stopped)
+        self.w.btn_stop.pressed.connect(self.parent.command_stopped)
         self.w.btn_cycle_start.pressed.connect(self.parent.btn_run_pressed)
         self.w.btn_reload.pressed.connect(self.parent.btn_reload_pressed)
         self.w.btn_pause.pressed.connect(self.parent.btn_pause_pressed)
@@ -38,6 +38,7 @@ class Connections():
         self.w.btn_rename.pressed.connect(self.parent.rename_file)
         self.w.btn_load_file.pressed.connect(self.parent.load_file)
         self.w.btn_new_folder.pressed.connect(self.parent.new_folder)
+        self.w.btn_edit_gcode.pressed.connect(self.parent.edit_gcode)
         # tool page buttons
         self.w.btn_add_tool.pressed.connect(self.parent.btn_add_tool_pressed)
         self.w.btn_delete_tool.pressed.connect(self.parent.btn_delete_tool_pressed)

@@ -21,7 +21,7 @@ from PyQt5.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt, QUrl
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QIntValidator, QRegExpValidator, QFont, QColor, QIcon, QPixmap
 from PyQt5.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QInputDialog, QMessageBox
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
-from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
+from qtvcp.widgets.gcode_editor import GcodeEditor, GcodeEditor as GCODE
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSET_VIEW
@@ -153,6 +153,69 @@ class WebPage(QWebEnginePage):
         return super().acceptNavigationRequest(url, navtype, mainframe)
 
 
+class Gcode_Editor(GcodeEditor):
+    def __init__(self, parent):
+        super(Gcode_Editor, self).__init__()
+        self.parent = parent
+        self.w = self.parent.w
+        self.active_file = None
+        self.editor.setCaretForegroundColor(Qt.yellow)
+        # instance patch the GcodeEditor actions
+        try:
+            self.newAction.triggered.disconnect()
+            self.openAction.triggered.disconnect()
+            self.saveAction.triggered.disconnect()
+            self.exitAction.triggered.disconnect()
+        except TypeError:
+            pass
+        self.newAction.triggered.connect(self.newCall)
+        self.openAction.triggered.connect(lambda: self.openCall(fname=None))
+        self.saveAction.triggered.connect(lambda: self.saveCall(fname=None))
+        self.exitAction.triggered.connect(self.exitCall)
+        # permanently set to editing mode
+        self.editMode()
+
+    def newCall(self):
+        self.active_file = None
+        self.new()
+
+    def openCall(self, fname=None):
+        if self.editor.isModified():
+            result = self.killCheck()
+            if not result: return
+        if fname is None:
+            self.getFileName()
+        else:
+            self.active_file = fname
+            self.editor.load_text(fname)
+            self.label.setText(f'  Editing {fname}')
+            self.parent.add_status(f"Opened gcode file {fname}")
+
+    def saveCall(self, fname=None):
+        if self.active_file is None:
+            self.getSaveFileName()
+        else:
+            saved = ACTION.SAVE_PROGRAM(self.editor.text(), self.active_file)
+            if saved is not None:
+                self.editor.setModified(False)
+                self.parent.add_status(f"Saved gcode file {self.active_file}")
+            
+    def exitCall(self):
+        if self.editor.isModified():
+            result = self.killCheck()
+            if not result: return
+        self.w.stackedWidget_file.setCurrentIndex(0)
+
+    def openReturn(self, fname):
+        self.openCall(fname)
+        self.editor.setModified(False)
+
+    def saveReturn(self, fname):
+        self.active_file = fname
+        saved = ACTION.SAVE_PROGRAM(self.editor.text(), fname)
+        if saved is not None:
+            self.editor.setModified(False)
+
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
@@ -211,7 +274,12 @@ class HandlerClass:
         self.pause_timer = QTimer()
         self.source_file = ''
         self.destination_file = ''
-        self.icon_btns = {'action_exit': 'SP_BrowserStop'}
+        self.icon_btns = {'exit'       : 'SP_BrowserStop',
+                          'cycle_start': 'SP_MediaPlay',
+                          'reload'     : 'SP_BrowserReload',
+                          'step'       : 'SP_ArrowForward',
+                          'pause'      : 'SP_MediaPause',
+                          'stop'       : 'SP_MediaStop'}
 
         self.adj_list = ['maxvel_ovr', 'rapid_ovr', 'feed_ovr', 'spindle_ovr']
 
@@ -261,6 +329,7 @@ class HandlerClass:
         self.init_preferences()
         self.init_tooldb()
         self.init_widgets()
+        self.init_gcode_editor()
         self.init_file_manager()
         self.init_probe()
         self.init_mdi_panel()
@@ -476,10 +545,10 @@ class HandlerClass:
         self.w.jog_xy.set_tooltip('C', 'Toggle FAST / SLOW linear jograte')
         self.w.jog_az.set_tooltip('C', 'Toggle FAST / SLOW angular jograte')
         # apply standard button icons
-        for key in self.icon_btns:
-            style = self.w[key].style()
-            icon = style.standardIcon(getattr(QStyle, self.icon_btns[key]))
-            self.w[key].setIcon(icon)
+        for btn in self.icon_btns:
+            style = self.w[f'btn_{btn}'].style()
+            icon = style.standardIcon(getattr(QStyle, self.icon_btns[btn]))
+            self.w[f'btn_{btn}'].setIcon(icon)
         # populate tool icon combobox
         path = os.path.join(PATH.CONFIGPATH, "tool_icons")
         self.w.cmb_icon_select.addItem('SELECT ICON')
@@ -498,6 +567,10 @@ class HandlerClass:
         # default styles for feedrate and statusbar
         self.feedrate_style = self.w.lbl_feedrate.styleSheet()
         self.statusbar_style = self.w.statusbar.styleSheet()
+
+    def init_gcode_editor(self):
+        self.gcode_editor = Gcode_Editor(self)
+        self.w.layout_gcode_editor.addWidget(self.gcode_editor)
 
     def init_file_manager(self):
         self.w.filemanager_media.table.setShowGrid(False)
@@ -704,6 +777,7 @@ class HandlerClass:
         lower_code = bool(message.get('ID') == '_wait_to_lower_')
         handler_code = bool(message.get('ID') == '_handler_')
         delete_code = bool(message.get('ID') == '_delete_')
+        save_gcode_code = bool(message.get('ID') == '_save_gcode_')
         if unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
             self.add_status("All axes unhomed")
@@ -718,6 +792,11 @@ class HandlerClass:
                 self.add_status(f"{self.deleteFile} sent to Trash")
             else:
                 self.add_status(f"{self.deleteFile} not deleted")
+        elif save_gcode_code and name == 'SAVE':
+            if rtn is None: return
+            saved = ACTION.SAVE_PROGRAM(self.w.gcodeeditor.editor.text(), rtn)
+            if saved is not None:
+                self.w.gcodeeditor.editor.setModified(False)
         elif handler_code and name == self.dialog_code:
             obj.setStyleSheet(self.default_line_style)
             if rtn is None: return
@@ -1469,6 +1548,17 @@ class HandlerClass:
         self.input_dialog.setTextValue(current_path)
         self.input_dialog.show()
 
+    def edit_gcode(self):
+        current_dir = self.filemanager.getCurrentSelected()
+        if current_dir[1] is True:
+            self.source_file = current_dir[0]
+        else:
+            self.add_status("Invalid file name", WARNING)
+            return
+        self.w.stackedWidget_file.setCurrentIndex(1)
+        self.gcode_editor.editor.setModified(False)
+        self.gcode_editor.openCall(self.source_file)
+
     def select_filemanager(self, state):
         self.filemanager = self.w.filemanager_user if state else self.w.filemanager_media
 
@@ -1784,14 +1874,14 @@ class HandlerClass:
         if state:
             self.w.btn_main.setChecked(True)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
-            self.w.gcode_history.hide()
+            self.w.cmb_gcode_history.hide()
             self.w.btn_edit_gcode.setChecked(False)
             self.w.gcode_viewer.readOnlyMode()
             self.w.stackedWidget_gcode.setCurrentIndex(0)
         else:
             i = 1 if STATUS.is_mdi_mode() else 0
             self.w.stackedWidget_gcode.setCurrentIndex(i)
-            self.w.gcode_history.show()
+            self.w.cmb_gcode_history.show()
 
     def enable_onoff(self, state):
         text = "ON" if state else "OFF"
@@ -1804,7 +1894,7 @@ class HandlerClass:
     def set_start_line(self, line):
         if self.w.chk_run_from_line.isChecked():
             self.start_line = line
-            self.w.btn_cycle_start.setText(f"  CYCLE START\n  LINE {self.start_line}")
+            self.w.btn_cycle_start.setText(f"  CYCLE START\n  FROM LINE {self.start_line}")
         else:
             self.start_line = 1
 
