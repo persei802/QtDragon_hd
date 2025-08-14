@@ -17,39 +17,35 @@ If none is specified or if an invalid word is specified, the default will set to
 <p>When Z LEVEL COMP is enabled:</p>
 <ul>
     <li>the compensation component reads a probe data file, called <i>probe_points.txt</i></li>
-    <li>a 3d height map image is created and the HAL map-ready pin is set True</li>
+    <li>a 3d height map image called height_map.png is created and the HAL map-ready pin is set True</li>
     <li>the height map image is shown in the UTILS page -> Z Level Comp tab</li>
 </ul>
 
 <h3>Creating a Map File</h3>
 <ul>
     <li>from the FILE page, load the gcode program which needs to be level compensated</li>
-    <li>enter the X and Y dimensions shown in the preview frame into the X and Y size fields</li>
+    <li>the X and Y dimensions are automatically calculated and shown in the parameter frame in the X and Y size fields</li>
     <li>enter the number of desired probe points for each axis</li>
     <li>ensure that the selected zero reference point is the same as that of the gcode program</li>
     <li>all probe parameters are set according to the values in SETTINGS -> PROBE</li>
     <li>any errors detected during validation will be shown with a red border in SETTINGS -> PROBE</li>
 </ul>
-<button>READ GCODE</button>
-<p>The GCode program currently loaded in LinuxCNC is read and parsed to find the maximum travel points
-of the X and Y axes. These values are then entered in the <button>PROBE AREA</button> fields. These fields
-can overwritten by manually entering data.</p>
-<button>SAVE AS PROGRAM</button>
+<button>SAVE PROGRAM</button>
 <p>The input data parameters are checked and if found valid, a dialog box prompts for a save filename. The probe program is calculated
-and saved to the specified filename. If this file is loaded and run, it will produce a file with the same name but ending with
-<i>.txt</i>. This is the compensation data file.</p>
+and saved to the specified filename. If the returned save file name doesn't start with 'probe_', it is added. 
+When the file is loaded and run, it will produce a file with the same name but ending with <i>.txt</i>. This is the compensation
+data file and contains the probed values.</p>
 <button>SEND TO LINUXCNC</button>
 <p>The input parameters are checked and if found valid, a temporary file is created and loaded to Linuxcnc. If this file is run,
-it will produce a file in the users CONFIG directory called <i>probe_points.txt</i></p>
+it will produce a file in the users CONFIG directory called <i>probe_temp.txt</i></p>
 <button>LOAD MAP</button>
-<p>A popup file dialog prompts for a compensation filename <i>(somefile.txt)</i> and then copies it to the CONFIG folder with the
-name <i>probe_points.txt</i>. It is recommended that probe compensation files be kept in the nc_files folder or a subfolder thereof.</p>
-<p>Each time that the ZCOMP ENABLE button on the main page is enabled, the Compensation HAL component will read the <i>probe_points.txt</i>
+<p>A popup dialog prompts for a compensation filename <i>(probe_somefile.txt)</i> and then copies it to the nc_files folder with
+the name <i>probe_points.txt</i>.</p>
+<p>Each time the ZCOMP ENABLE button on the main page is enabled, the Compensation HAL component will read the <i>probe_points.txt</i>
 file and generate a new compensation map, which is displayed on the right side of the ZLEVEL utility.</p>
-<button>GET MAXZ</button>
-<p>The compensation file that was created is parsed to find the maximum Z level. The XY coordinates and the
-Z level of this point are written to the Highest Point label. This is useful for determining where to set
-Z0 before starting the gcode program to be compensated.</p>
+<p>After a compensation file has been loaded, it is scanned to find the highest point. The coordinates of this highest point are
+displayed under the compensation map image. This is useful for determining where to set Z0 before starting the gcode program to 
+be compensated.</p>
 <h3>Sample postgui HAL file for combined spindle raise and Z Level compensation</h3>
 <div class="code-block">
     <pre class="hal"># load a summing component for adding spindle lift and Z compensation</pre>

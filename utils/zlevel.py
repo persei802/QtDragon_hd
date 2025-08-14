@@ -36,9 +36,10 @@ WARNING = 1
 class ZLevel(QWidget):
     def __init__(self, parent=None):
         super(ZLevel, self).__init__()
-        self.parent = parent
-        self.w = self.parent.w
-        self.h = self.parent.parent
+        self.parent = parent         # reference to setup_utils
+        self.w = self.parent.w       # reference to designer widgets
+        self.h = self.parent.parent  # reference to handler file
+        self.user_path = os.path.expanduser('~/linuxcnc/nc_files')
         self.helpfile = 'zlevel_help.html'
         self.dialog_code = 'CALCULATOR'
         self.kbd_code = 'KEYBOARD'
@@ -64,7 +65,7 @@ class ZLevel(QWidget):
         self.max_probe = 0
         self.start_height = 0
         self.probe_filename = ""
-        self.comp_file = ""
+        self.comp_file = None
         self.red_border = "border: 2px solid red;"
         self.help_text = []
         self.parm_list = ['size_x', 'size_y', 'steps_x', 'steps_y']
@@ -112,7 +113,6 @@ class ZLevel(QWidget):
         self.btn_save_gcode.pressed.connect(self.save_gcode)
         self.btn_send_gcode.pressed.connect(self.send_gcode)
         self.btn_load_comp.pressed.connect(self.load_comp_file)
-        self.btn_get_maxz.pressed.connect(self.get_maxz)
         self.btn_help.pressed.connect(self.show_help)
 
         self.default_style = self.w.lineEdit_search_vel.styleSheet()
@@ -146,41 +146,65 @@ class ZLevel(QWidget):
             obj.setStyleSheet(self.default_style)
             if rtn is not None:
                 obj.setText(str(int(rtn)))
+        elif code and name == 'SAVE':
+            if rtn is not None:
+                self.parse_saveName(rtn)
+        elif code and name == 'LOAD':
+            if rtn is not None:
+                self.parse_comp_file(rtn)
 
     def save_gcode(self):
         if not self.validate(): return
         fname = self.lineEdit_gcode_program.text()
-        if fname.startswith('/tmp') or fname == '' or os.path.exists(fname):
-            options = QFileDialog.Options()
-            options |= QFileDialog.DontUseNativeDialog
-            _filter = "Compensation Probe Files (*.ngc)"
-            _dir = INFO.SUB_PATH_LIST[0]
-            _caption = "Save Probe File"
-            fname, _ =  QFileDialog.getSaveFileName(None, _caption, _dir, _filter, options=options)
+        if fname.startswith('/tmp'):
+            self.h.add_status("Cannot save temporary files", WARNING)
+        elif fname == '':
+            self.h.add_status('No gcode file was loaded', WARNING)
         else:
-            dname = os.path.dirname(fname)
-            pname = os.path.basename(fname)
-            if not pname.startswith('probe_'):
-                fname = os.path.join(dname, 'probe_' + pname)
-        if fname == '': return
-        if not fname.startswith('/home'):
-            if INFO.PROGRAM_PREFIX is not None:
-                user_path = os.path.expanduser(INFO.PROGRAM_PREFIX)
-            else:
-                user_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
-            fname = os.path.join(user_path, fname)
-        self.lineEdit_gcode_program.setText(fname)
+            mess = {'NAME': 'SAVE',
+                    'ID': '_zlevel_',
+                    'TITLE': 'Save Program as',
+                    'DIRECTORY': os.path.dirname(fname),
+                    'FILENAME': os.path.basename(fname),
+                    'EXTENSIONS': 'Gcode Files (*.ngc *.nc);;',
+                    'GEONAME': '__file_save'}
+#                    'OVERLAY': False}
+            ACTION.CALL_DIALOG(mess)
+
+    def parse_saveName(self, fname):
+        dname = os.path.dirname(fname)
+        bname = os.path.basename(fname)
+        if not bname.startswith('probe'):
+            fname = os.path.join(dname, 'probe_' + bname)
         if fname.endswith('.ngc'):
+            self.lineEdit_gcode_program.setText(fname)
             self.probe_filename = fname.replace(".ngc", ".txt")
             self.calculate_gcode(fname)
             self.h.add_status(f"Program successfully saved to {fname}")
         else:
             self.h.add_status("Invalid filename specified", WARNING)
 
+    def parse_comp_file(self, fname):
+        if fname.endswith('.txt'):
+            self.comp_file = fname
+            self.lbl_height_map.setText("Toggle ZCOMP ENABLE to ON to generate new height map")
+            self.lbl_comp_file.setText(os.path.basename(fname))
+            # there's no way to send filenames to the compensation module
+            # so use a hard coded filename that it knows about
+            dst = os.path.join(self.user_path, "probe_points.txt")
+            try:
+                shutil.copy(fname, dst)
+                self.h.add_status(f"Copied compensation file {fname} to {dst}")
+            except Exception as e:
+                self.h.add_status(f'{e}', WARNING)
+            self.get_maxz()
+        else:
+            self.h.add_status(f"Invalid compensation file {fname}", WARNING)
+
     def send_gcode(self):
         if not self.validate(): return
         fname = self.make_temp()[1]
-        self.probe_filename = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
+        self.probe_filename = os.path.join(self.user_path, "probe_temp.txt")
         self.calculate_gcode(fname)
         ACTION.OPEN_PROGRAM(fname)
         self.h.add_status("Program successfully sent to Linuxcnc")
@@ -333,46 +357,35 @@ class ZLevel(QWidget):
         self.line_num += 5
 
     def map_ready(self):
-        fname = os.path.join(PATH.CONFIGPATH, "height_map.png")
+        fname = os.path.join(self.user_path, "height_map.png")
         if os.path.isfile(fname):
             self.lbl_height_map.setPixmap(QtGui.QPixmap(fname))
         else:
             self.lbl_height_map.setText("Height Map not available")
         
     def load_comp_file(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        _filter = "Compensation Files (*.txt)"
-        _dir = INFO.SUB_PATH_LIST[0]
-        _caption = "Load Compensation File"
-        fname, _ =  QFileDialog.getOpenFileName(None, _caption, _dir, _filter, options=options)
-        if fname:
-            self.comp_file = fname
-            self.lbl_height_map.setText("Toggle ZCOMP ENABLE to ON to generate new height map")
-            self.lbl_comp_file.setText(os.path.basename(fname))
-            dst = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
-            try:
-                shutil.copy(fname, dst)
-                self.h.add_status(f"Loaded compensation file {fname}")
-            except Exception as e:
-                self.h.add_status(f'{e}', WARNING)
+        mess = {'NAME': 'LOAD',
+                'ID': '_zlevel_',
+                'TITLE': 'Load Compensation File',
+                'FILENAME': '',
+                'EXTENSIONS': 'Text Files (*.txt);;',
+                'GEONAME': '__file_load',
+                'OVERLAY': False}
+        ACTION.CALL_DIALOG(mess)
 
     def get_maxz(self):
-        fname = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
-        if os.path.isfile(fname):
-            zmax = -999.0
-            high = (0, 0, zmax)
-            with open(fname, 'r') as file:
-                lines = file.readlines()
-            for line in lines:
-                axis = line.split(" ")
-                if float(axis[2]) > zmax:
-                    zmax = float(axis[2])
-                    high = (float(axis[0]), float(axis[1]), float(axis[2]))
-            self.lbl_highest.setText(f"Highest point is at X: {high[0]:.1f}  Y: {high[1]:.1f} Z: {high[2]:.1f}")
-        else:
-            self.lbl_highest.setText("Highest point undefined")
-            self.h.add_status("No probe_points.txt file in CONFIG directory", WARNING)
+        zmax = -999.0
+        high = (0, 0, zmax)
+        with open(self.comp_file, 'r') as file:
+            lines = file.readlines()
+        for line in lines:
+            axis = line.split(" ")
+            if float(axis[2]) > zmax:
+                zmax = float(axis[2])
+                high = (float(axis[0]), float(axis[1]), float(axis[2]))
+        self.lineEdit_X.setText(f'{high[0]:.3f}')
+        self.lineEdit_Y.setText(f'{high[1]:.3f}')
+        self.lineEdit_Z.setText(f'{high[2]:.3f}')
 
     def get_map(self):
         return self.comp_file
