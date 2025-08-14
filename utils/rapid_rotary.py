@@ -46,7 +46,7 @@ class Rapid_Rotary(QWidget):
         super(Rapid_Rotary, self).__init__()
         self.parent = parent
         self.w = self.parent.w
-        self.units = ['MM', 'IN']
+        self.units = 'MM'
         self.convert = None
         self.input_file = None
         self.output_file = None
@@ -98,7 +98,8 @@ class Rapid_Rotary(QWidget):
         self.lineEdit_z0_offset.setText(self.w.lineEdit_rotary_height.text())
 
     def change_units(self, idx):
-        self.lbl_z_units.setText(self.units[idx])
+        self.units = 'MM' if idx == 0 else 'IN'
+        self.lbl_z_units.setText(self.units)
 
     def start_convert(self):
         if self.convert is not None:
@@ -125,7 +126,6 @@ class Rapid_Rotary(QWidget):
         self.status_output.clear()
         self.lineEdit_z0_offset.setText(self.w.lineEdit_rotary_height.text())
         self.z0_offset = float(self.lineEdit_z0_offset.text())
-        self.units = "mm" if self.cmb_units.currentIndex() == 1 else "in"
         self.wrap_all = str(self.cmb_method.currentIndex())
         self.convert = QProcess(self)
         self.convert.setProgram("python3")
