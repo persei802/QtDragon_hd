@@ -19,7 +19,8 @@ from connections import Connections
 from lib.event_filter import EventFilter
 from PyQt5.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt, QUrl
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QIntValidator, QRegExpValidator, QFont, QColor, QIcon, QPixmap
-from PyQt5.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QInputDialog, QMessageBox
+from PyQt5.QtWidgets import (QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QInputDialog, QMessageBox,
+                             QMenu, QAction, QToolButton)
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from qtvcp.widgets.gcode_editor import GcodeEditor, GcodeEditor as GCODE
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
@@ -514,7 +515,6 @@ class HandlerClass:
         self.w.cmb_icon_select.wheelEvent = lambda event: None
         self.w.jogincrements_linear.wheelEvent = lambda event: None
         self.w.jogincrements_angular.wheelEvent = lambda event: None
-        self.w.cmb_utils.wheelEvent = lambda event: None
         self.w.cmb_about.wheelEvent = lambda event: None
         # turn off table grids
         self.w.offset_table.setShowGrid(False)
@@ -612,11 +612,13 @@ class HandlerClass:
 #            from lib.versa_probe import VersaProbe
             self.probe = VersaProbe()
             self.probe.setObjectName('versaprobe')
+            self.w.btn_probe.setProperty('title', 'VERSA PROBE')
         elif probe == 'basicprobe':
             LOG.info("Using Basic Probe")
             from lib.basic_probe import BasicProbe
             self.probe = BasicProbe(self)
             self.probe.setObjectName('basicprobe')
+            self.w.btn_probe.setProperty('title', 'BASIC PROBE')
         else:
             LOG.info("No valid probe widget specified")
             self.w.btn_probe.hide()
@@ -634,8 +636,17 @@ class HandlerClass:
     def init_utils(self):
         from lib.setup_utils import Setup_Utils
         self.setup_utils = Setup_Utils(self.w, self)
-        self.w.cmb_utils.addItem(' UTILS')
         self.setup_utils.init_utils()
+        self.util_list = self.setup_utils.get_util_list()
+        # designer doesn't allow adding buttons not derived from QAbstractButton class
+        self.w.page_buttonGroup.addButton(self.w.btn_utils)
+        menu = QMenu(self.w.btn_utils)
+        for key in self.util_list.keys():
+            action = QAction(key, self.w.btn_utils)
+            action.triggered.connect(lambda checked, t=key: self.update_utils_button(t))
+            menu.addAction(action)
+        self.w.btn_utils.setMenu(menu)
+        # if z level compensation wasn't installed, disable the button
         if self.zlevel is None:
             self.w.btn_enable_comp.setEnabled(False)
         self.get_next_available()
@@ -1072,6 +1083,7 @@ class HandlerClass:
     # main button bar
     def main_tab_changed(self, btn):
         index = btn.property("index")
+        title = btn.property("title")
         if index is None: return
         if index == self.w.main_tab_widget.currentIndex(): return
         spindle_inhibit = False
@@ -1079,24 +1091,30 @@ class HandlerClass:
             self.add_status("Cannot switch pages while in AUTO mode", WARNING)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
             self.w.btn_main.setChecked(True)
-            self.w.groupBox_preview.setTitle(self.w.btn_main.text())
+            self.w.groupBox_preview.setTitle(self.w.btn_main.property("title"))
             return
         if index == TAB_PROBE:
             spindle_inhibit = self.w.chk_inhibit_spindle.isChecked()
             ACTION.CALL_MDI_WAIT("M5", mode_return=True)
+        elif index == TAB_UTILS:
+            if self.w.btn_utils.text() == "UTILITIES":
+                self.add_status('Select a utility from the drop down list')
+                self.w.btn_utils.setChecked(False)
+                return
+            else:
+                title = self.w.btn_utils.text().replace('\n', ' ') + ' UTILITY'
         self.w.mdihistory.MDILine.spindle_inhibit(spindle_inhibit)
         self.h['spindle-inhibit'] = spindle_inhibit
         self.w.main_tab_widget.setCurrentIndex(index)
-        self.w.groupBox_preview.setTitle(btn.text())
+        self.w.groupBox_preview.setTitle(title)
 
-    def cmb_utils_activated(self):
-        if self.w.cmb_utils.currentIndex() == 0: return
-        if STATUS.is_auto_mode(): return
-        self.w.main_tab_widget.setCurrentIndex(TAB_UTILS)
-        self.w.stackedWidget_utils.setCurrentIndex(self.w.cmb_utils.currentIndex() - 1)
-        self.w.groupBox_preview.setTitle(self.w.cmb_utils.currentText() + ' UTILITY')
+    def update_utils_button(self, text):
+        self.w.btn_utils.setText(text.replace(" ", "\n"))
+        self.w.stackedWidget_utils.setCurrentIndex(self.util_list[text])
+        self.w.groupBox_preview.setTitle(text + ' UTILITY')
         self.uncheck_all_buttons(self.w.page_buttonGroup)
-        self.w.cmb_utils.setCurrentIndex(0)
+        self.w.btn_utils.setChecked(True)
+        self.main_tab_changed(self.w.btn_utils)
 
     def cmb_about_activated(self):
         if self.w.cmb_about.currentIndex() == 0: return
@@ -1499,6 +1517,7 @@ class HandlerClass:
             ACTION.OPEN_PROGRAM(fname)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
             self.w.btn_main.setChecked(True)
+            self.w.groupBox_preview.setTitle(self.w.btn_main.property('title'))
             self.filemanager.recordBookKeeping()
         elif file_extension == '.html':
             self.setup_utils.show_html(fname)
@@ -1816,6 +1835,8 @@ class HandlerClass:
             self.add_status("Touchoff routine is already running", WARNING)
 
     def touchoff_return(self, data):
+        if self.w.chk_auto_toolsensor.isChecked():
+            ACTION.CALL_MDI_WAIT('G53 G0 Z0', mode_return=True)
         self.add_status("Touchoff routine returned success")
             
     def touchoff_error(self, data):

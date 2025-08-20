@@ -245,6 +245,9 @@
               <property name="index" stdset="0">
                <number>0</number>
               </property>
+              <property name="title" stdset="0">
+               <string>MAIN DISPLAY</string>
+              </property>
               <attribute name="buttonGroup">
                <string notr="true">page_buttonGroup</string>
               </attribute>
@@ -284,6 +287,9 @@
               </property>
               <property name="index" stdset="0">
                <number>1</number>
+              </property>
+              <property name="title" stdset="0">
+               <string>FILE MANAGER</string>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">page_buttonGroup</string>
@@ -325,6 +331,9 @@
               <property name="index" stdset="0">
                <number>2</number>
               </property>
+              <property name="title" stdset="0">
+               <string>WORK OFFSETS</string>
+              </property>
               <attribute name="buttonGroup">
                <string notr="true">page_buttonGroup</string>
               </attribute>
@@ -364,6 +373,9 @@
               </property>
               <property name="index" stdset="0">
                <number>3</number>
+              </property>
+              <property name="title" stdset="0">
+               <string>TOOL TABLE</string>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">page_buttonGroup</string>
@@ -405,6 +417,9 @@
               <property name="index" stdset="0">
                <number>4</number>
               </property>
+              <property name="title" stdset="0">
+               <string>STATUS MESSAGES</string>
+              </property>
               <attribute name="buttonGroup">
                <string notr="true">page_buttonGroup</string>
               </attribute>
@@ -444,6 +459,9 @@
               </property>
               <property name="index" stdset="0">
                <number>5</number>
+              </property>
+              <property name="title" stdset="0">
+               <string>BASIC PROBE</string>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">page_buttonGroup</string>
@@ -485,6 +503,9 @@
               <property name="index" stdset="0">
                <number>6</number>
               </property>
+              <property name="title" stdset="0">
+               <string>CAMERA VIEW</string>
+              </property>
               <attribute name="buttonGroup">
                <string notr="true">page_buttonGroup</string>
               </attribute>
@@ -525,13 +546,16 @@
               <property name="index" stdset="0">
                <number>8</number>
               </property>
+              <property name="title" stdset="0">
+               <string>SETTINGS AND OFFSETS</string>
+              </property>
               <attribute name="buttonGroup">
                <string notr="true">page_buttonGroup</string>
               </attribute>
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="cmb_utils">
+             <widget class="QToolButton" name="btn_utils">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -544,14 +568,26 @@
                 <height>40</height>
                </size>
               </property>
-              <property name="maxVisibleItems">
-               <number>40</number>
+              <property name="toolTip">
+               <string>Press and hold for list of utilities</string>
               </property>
-              <property name="maxCount">
-               <number>40</number>
+              <property name="text">
+               <string>UTILITIES</string>
               </property>
-              <property name="Index" stdset="0">
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+              <property name="arrowType">
+               <enum>Qt::NoArrow</enum>
+              </property>
+              <property name="index" stdset="0">
                <number>7</number>
+              </property>
+              <property name="title" stdset="0">
+               <string>UTILITIES</string>
               </property>
              </widget>
             </item>
@@ -577,6 +613,9 @@
               </property>
               <property name="Index" stdset="0">
                <number>9</number>
+              </property>
+              <property name="title" stdset="0">
+               <string>GENERAL INFORMATION</string>
               </property>
              </widget>
             </item>
@@ -7286,7 +7325,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>09:44:26 AM</string>
+                       <string>02:59:36 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -16638,13 +16677,13 @@ WCS</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="mdi_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mdi_buttonGroup"/>
  </buttongroups>
 </ui>

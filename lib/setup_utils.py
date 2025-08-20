@@ -70,6 +70,8 @@ class Setup_Utils():
         self.installed_modules = list()
         self.zlevel = None
         self.doc_index = 0
+        self.util_index = 0
+        self.util_list = {}
         # setup XML parser
         xml_filename = os.path.join(HERE, 'utils.xml')
         self.tree = ET.parse(xml_filename)
@@ -92,7 +94,7 @@ class Setup_Utils():
             class_name = util.find("class").text 
             item_text = util.find("name").text
             self.install_module(mod_name, class_name, item_text)
-        # check if Z level compenstation was installed
+        # check if Z level compensation was installed
         if self.zlevel is not None:
             self.parent.zlevel = self.zlevel
         # install permanent utilities
@@ -118,7 +120,10 @@ class Setup_Utils():
             print(f'Import error: {e}')
             return
         self.w.stackedWidget_utils.addWidget(self[mod_name])
-        self.w.cmb_utils.addItem(item)
+#        self.w.cmb_utils.addItem(item)
+#        self.util_list[self.util_index] = item
+        self.util_list[item] = self.util_index
+        self.util_index += 1
         self[mod_name]._hal_init()
         LOG.debug(f"Installed utility: {class_name}")
 
@@ -126,7 +131,9 @@ class Setup_Utils():
         from utils.gcodes import GCodes
         self.gcodes = GCodes()
         self.w.stackedWidget_utils.addWidget(self.gcodes)
-        self.w.cmb_utils.addItem('GCODES')
+#        self.w.cmb_utils.addItem('GCODES')
+        self.util_list['GCODES'] = self.util_index
+        self.util_index += 1
         self.gcodes.setup_list()
         LOG.debug("Installed utility: GCodes")
 
@@ -135,14 +142,18 @@ class Setup_Utils():
             from utils.rapid_rotary import Rapid_Rotary
             self.rapid_rotary = Rapid_Rotary(self)
             self.w.stackedWidget_utils.addWidget(self.rapid_rotary)
-            self.w.cmb_utils.addItem('RAPID ROTARY')
+#            self.w.cmb_utils.addItem('RAPID ROTARY')
+            self.util_list['RAPID ROTARY'] = self.util_index
+            self.util_index += 1
             self.rapid_rotary._hal_init()
             LOG.debug("Installed utility: Rapid Rotary")
 
     def install_document_viewer(self):
         self.doc_viewer = QTabWidget()
         self.doc_index = self.w.stackedWidget_utils.addWidget(self.doc_viewer)
-        self.w.cmb_utils.addItem('DOCUMENT VIEWER')
+#        self.w.cmb_utils.addItem('DOCUMENT VIEWER')
+        self.util_list['DOCUMENT VIEWER'] = self.util_index
+        self.util_index += 1
         # html page viewer
         self.web_view_setup = QWebEngineView()
         self.web_page_setup = WebPage()
@@ -214,6 +225,9 @@ class Setup_Utils():
         url = QUrl("file:///" + page)
         self.help_page.load_url(url)
         self.dialog.show()
+
+    def get_util_list(self):
+        return self.util_list
 
     # required code for subscriptable objects
     def __getitem__(self, item):

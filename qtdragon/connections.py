@@ -69,7 +69,6 @@ class Connections():
         # comboboxes
         self.w.cmb_gcode_history.activated.connect(self.parent.cmb_gcode_history_activated)
         self.w.cmb_icon_select.activated.connect(self.parent.tool_db.icon_select_activated)
-        self.w.cmb_utils.activated.connect(self.parent.cmb_utils_activated)
         self.w.cmb_about.activated.connect(self.parent.cmb_about_activated)
         # lineEdits
         self.w.lineEdit_max_power.editingFinished.connect(self.parent.max_power_edited)
