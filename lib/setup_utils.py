@@ -70,8 +70,7 @@ class Setup_Utils():
         self.installed_modules = list()
         self.zlevel = None
         self.doc_index = 0
-        self.util_index = 0
-        self.util_list = {}
+        self.util_list = []
         # setup XML parser
         xml_filename = os.path.join(HERE, 'utils.xml')
         self.tree = ET.parse(xml_filename)
@@ -120,10 +119,7 @@ class Setup_Utils():
             print(f'Import error: {e}')
             return
         self.w.stackedWidget_utils.addWidget(self[mod_name])
-#        self.w.cmb_utils.addItem(item)
-#        self.util_list[self.util_index] = item
-        self.util_list[item] = self.util_index
-        self.util_index += 1
+        self.util_list.append(item)
         self[mod_name]._hal_init()
         LOG.debug(f"Installed utility: {class_name}")
 
@@ -131,9 +127,7 @@ class Setup_Utils():
         from utils.gcodes import GCodes
         self.gcodes = GCodes()
         self.w.stackedWidget_utils.addWidget(self.gcodes)
-#        self.w.cmb_utils.addItem('GCODES')
-        self.util_list['GCODES'] = self.util_index
-        self.util_index += 1
+        self.util_list.append('GCODES')
         self.gcodes.setup_list()
         LOG.debug("Installed utility: GCodes")
 
@@ -142,18 +136,14 @@ class Setup_Utils():
             from utils.rapid_rotary import Rapid_Rotary
             self.rapid_rotary = Rapid_Rotary(self)
             self.w.stackedWidget_utils.addWidget(self.rapid_rotary)
-#            self.w.cmb_utils.addItem('RAPID ROTARY')
-            self.util_list['RAPID ROTARY'] = self.util_index
-            self.util_index += 1
+            self.util_list.append('RAPID ROTARY')
             self.rapid_rotary._hal_init()
             LOG.debug("Installed utility: Rapid Rotary")
 
     def install_document_viewer(self):
         self.doc_viewer = QTabWidget()
         self.doc_index = self.w.stackedWidget_utils.addWidget(self.doc_viewer)
-#        self.w.cmb_utils.addItem('DOCUMENT VIEWER')
-        self.util_list['DOCUMENT VIEWER'] = self.util_index
-        self.util_index += 1
+        self.util_list.append('DOCUMENT VIEWER')
         # html page viewer
         self.web_view_setup = QWebEngineView()
         self.web_page_setup = WebPage()

@@ -53,8 +53,8 @@ TAB_TOOL = 3
 TAB_STATUS = 4
 TAB_PROBE = 5
 TAB_CAMVIEW = 6
-TAB_UTILS = 7
-TAB_SETTINGS = 8
+TAB_SETTINGS = 7
+TAB_UTILS = 8
 TAB_ABOUT = 9
 
 # status message alert levels
@@ -515,7 +515,6 @@ class HandlerClass:
         self.w.cmb_icon_select.wheelEvent = lambda event: None
         self.w.jogincrements_linear.wheelEvent = lambda event: None
         self.w.jogincrements_angular.wheelEvent = lambda event: None
-        self.w.cmb_about.wheelEvent = lambda event: None
         # turn off table grids
         self.w.offset_table.setShowGrid(False)
         self.w.tooloffsetview.setShowGrid(False)
@@ -641,9 +640,9 @@ class HandlerClass:
         # designer doesn't allow adding buttons not derived from QAbstractButton class
         self.w.page_buttonGroup.addButton(self.w.btn_utils)
         menu = QMenu(self.w.btn_utils)
-        for key in self.util_list.keys():
-            action = QAction(key, self.w.btn_utils)
-            action.triggered.connect(lambda checked, t=key: self.update_utils_button(t))
+        for util in self.util_list:
+            action = QAction(util, self.w.btn_utils)
+            action.triggered.connect(lambda checked, t=util: self.update_utils_button(t))
             menu.addAction(action)
         self.w.btn_utils.setMenu(menu)
         # if z level compensation wasn't installed, disable the button
@@ -653,18 +652,21 @@ class HandlerClass:
         self.tool_db.update_tools(self.tool_list)
 
     def init_about(self):
-        self.about_dict = {1: ('vfd', 'USING A VFD'),
-                           2: ('spindle_pause', 'SPINDLE PAUSE'),
-                           3: ('mpg', 'USING A MPG'),
-                           4: ('touchoff', 'TOOL TOUCHOFF'),
-                           5: ('runfromline', 'RUN FROM LINE'),
-                           6: ('stylesheets', 'STYLESHEETS'),
-                           7: ('rotary_axis', 'ROTARY AXIS'),
-                           8: ('custom', 'CUSTOM PANELS')}
-        self.w.cmb_about.addItem(' ABOUT')
-        for val in self.about_dict.values():
-            self.w.cmb_about.addItem(val[1])
-        
+        self.about_dict = {'vfd'          : 'USING A VFD',
+                           'spindle_pause': 'SPINDLE PAUSE',
+                           'mpg'          : 'USING A MPG',
+                           'touchoff'     : 'TOOL TOUCHOFF',
+                           'runfromline'  : 'RUN FROM LINE',
+                           'stylesheets'  : 'STYLESHEETS',
+                           'rotary_axis'  : 'ROTARY AXIS',
+                           'custom'       : 'CUSTOM PANELS'}
+        self.w.page_buttonGroup.addButton(self.w.btn_about)
+        menu = QMenu(self.w.btn_about)
+        for key, val in self.about_dict.items():
+            action =  QAction(val, self.w.btn_about)
+            action.triggered.connect(lambda checked, t=key: self.update_about_button(t))
+            menu.addAction(action)
+        self.w.btn_about.setMenu(menu)
         self.web_view_about = QWebEngineView()
         self.web_page_about = WebPage()
         self.web_view_about.setPage(self.web_page_about)
@@ -1085,7 +1087,6 @@ class HandlerClass:
         index = btn.property("index")
         title = btn.property("title")
         if index is None: return
-        if index == self.w.main_tab_widget.currentIndex(): return
         spindle_inhibit = False
         if STATUS.is_auto_mode() and index != TAB_SETTINGS:
             self.add_status("Cannot switch pages while in AUTO mode", WARNING)
@@ -1097,41 +1098,42 @@ class HandlerClass:
             spindle_inhibit = self.w.chk_inhibit_spindle.isChecked()
             ACTION.CALL_MDI_WAIT("M5", mode_return=True)
         elif index == TAB_UTILS:
-            if self.w.btn_utils.text() == "UTILITIES":
+            if title == "UTILITIES":
                 self.add_status('Select a utility from the drop down list')
                 self.w.btn_utils.setChecked(False)
                 return
-            else:
-                title = self.w.btn_utils.text().replace('\n', ' ') + ' UTILITY'
+        elif index == TAB_ABOUT:
+            if title == 'ABOUT':
+                self.add_status('Select an ABOUT topic from the drop down list')
+                self.w.btn_about.setChecked(False)
+                return
         self.w.mdihistory.MDILine.spindle_inhibit(spindle_inhibit)
         self.h['spindle-inhibit'] = spindle_inhibit
         self.w.main_tab_widget.setCurrentIndex(index)
         self.w.groupBox_preview.setTitle(title)
 
     def update_utils_button(self, text):
+        try:
+            idx = self.util_list.index(text)
+        except ValueError:
+            self.add_status(f'{text} not found in utilities list', ERROR)
+            return
         self.w.btn_utils.setText(text.replace(" ", "\n"))
-        self.w.stackedWidget_utils.setCurrentIndex(self.util_list[text])
-        self.w.groupBox_preview.setTitle(text + ' UTILITY')
-        self.uncheck_all_buttons(self.w.page_buttonGroup)
+        self.w.btn_utils.setProperty('title', text + ' UTILITY')
+        self.w.stackedWidget_utils.setCurrentIndex(idx)
         self.w.btn_utils.setChecked(True)
         self.main_tab_changed(self.w.btn_utils)
 
-    def cmb_about_activated(self):
-        if self.w.cmb_about.currentIndex() == 0: return
-        if STATUS.is_auto_mode(): return
-        self.w.main_tab_widget.setCurrentIndex(TAB_ABOUT)
-        key = self.w.cmb_about.currentIndex()
-        text = self.about_dict[key]
-        html = text[0]
-        fname = os.path.join(HELP, 'about_' + html + '.html')
+    def update_about_button(self, text):
+        self.w.btn_about.setProperty('title', self.about_dict[text])
+        fname = os.path.join(HELP, 'about_' + text + '.html')
         if os.path.dirname(fname):
             url = QUrl("file:///" + fname)
             self.web_page_about.load(url)
         else:
             self.add_status(f"About file {fname} not found", WARNING)
-        self.w.groupBox_preview.setTitle(text[1])
-        self.uncheck_all_buttons(self.w.page_buttonGroup)
-        self.w.cmb_about.setCurrentIndex(0)
+        self.w.btn_about.setChecked(True)
+        self.main_tab_changed(self.w.btn_about)
 
     # preview frame
     def btn_dimensions_changed(self, state):
@@ -1939,12 +1941,6 @@ class HandlerClass:
                 rtime = self.tool_db.get_tool_data(self.current_tool, "TIME")
                 text = "---" if rtime is None else f"{rtime:5.1f}"
                 self.w.lineEdit_acc_time.setText(text)
-
-    def uncheck_all_buttons(self, group):
-        group.setExclusive(False)
-        for btn in group.buttons():
-            btn.setChecked(False)
-        group.setExclusive(True)
 
     #####################
     # KEY BINDING CALLS #

@@ -544,7 +544,7 @@
                <bool>false</bool>
               </property>
               <property name="index" stdset="0">
-               <number>8</number>
+               <number>7</number>
               </property>
               <property name="title" stdset="0">
                <string>SETTINGS AND OFFSETS</string>
@@ -584,7 +584,7 @@
                <enum>Qt::NoArrow</enum>
               </property>
               <property name="index" stdset="0">
-               <number>7</number>
+               <number>8</number>
               </property>
               <property name="title" stdset="0">
                <string>UTILITIES</string>
@@ -592,7 +592,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="cmb_about">
+             <widget class="QToolButton" name="btn_about">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -605,17 +605,23 @@
                 <height>40</height>
                </size>
               </property>
-              <property name="maxVisibleItems">
-               <number>40</number>
+              <property name="toolTip">
+               <string>Press and hold for a list of ABOUT topics</string>
               </property>
-              <property name="maxCount">
-               <number>40</number>
+              <property name="text">
+               <string>ABOUT</string>
               </property>
-              <property name="Index" stdset="0">
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+              <property name="index" stdset="0">
                <number>9</number>
               </property>
               <property name="title" stdset="0">
-               <string>GENERAL INFORMATION</string>
+               <string>ABOUT</string>
               </property>
              </widget>
             </item>
@@ -2741,7 +2747,7 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>0</number>
+                <number>9</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -6833,28 +6839,6 @@ TO FILE</string>
                  </item>
                 </layout>
                </widget>
-               <widget class="QWidget" name="main_tab_Utilities">
-                <layout class="QVBoxLayout" name="layout_utils">
-                 <property name="spacing">
-                  <number>4</number>
-                 </property>
-                 <property name="leftMargin">
-                  <number>4</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>4</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QStackedWidget" name="stackedWidget_utils"/>
-                 </item>
-                </layout>
-               </widget>
                <widget class="QWidget" name="main_tab_Settings">
                 <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,1">
                  <property name="spacing">
@@ -7325,7 +7309,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>02:59:36 PM</string>
+                       <string>12:34:17 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -10271,6 +10255,28 @@ SCOPE</string>
                  </item>
                 </layout>
                </widget>
+               <widget class="QWidget" name="main_tab_Utilities">
+                <layout class="QVBoxLayout" name="layout_utils">
+                 <property name="spacing">
+                  <number>4</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>4</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>4</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QStackedWidget" name="stackedWidget_utils"/>
+                 </item>
+                </layout>
+               </widget>
                <widget class="QWidget" name="main_tab_About">
                 <layout class="QVBoxLayout" name="layout_about_pages">
                  <property name="spacing">
@@ -12213,7 +12219,7 @@ BLOCK</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
@@ -12314,7 +12320,7 @@ PAUSE</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="checked">
                   <bool>false</bool>
@@ -12407,7 +12413,7 @@ STOP</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
@@ -12528,7 +12534,7 @@ STOP</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="checked">
                   <bool>false</bool>
@@ -16677,13 +16683,13 @@ WCS</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="mdi_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="mdi_buttonGroup"/>
  </buttongroups>
 </ui>
