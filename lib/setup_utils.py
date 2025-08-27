@@ -152,6 +152,10 @@ class Setup_Utils():
         # PDF page viewer
         self.PDFView = PDFViewer.PDFView()
         self.doc_viewer.addTab(self.PDFView, 'PDF')
+        # text page viewer
+        self.text_view = QPlainTextEdit()
+        self.text_view.setReadOnly(True)
+        self.doc_viewer.addTab(self.text_view, 'TEXT')
         # gcode properties viewer
         self.gcode_properties = QPlainTextEdit()
         self.gcode_properties.setReadOnly(True)
@@ -186,6 +190,13 @@ class Setup_Utils():
         self.w.stackedWidget_utils.setCurrentIndex(self.doc_index)
         self.doc_viewer.setCurrentIndex(1)
 
+    def show_text(self, fname):
+        with open(fname, 'r') as lines:
+            text = lines.read()
+            self.text_view.setPlainText(text)
+        self.w.stackedWidget_utils.setCurrentIndex(self.doc_index)
+        self.doc_viewer.setCurrentIndex(2)
+
     def show_gcode_properties(self, props):
         lines = props.split('\n')
         # convert huge numbers to scientific notation
@@ -209,7 +220,7 @@ class Setup_Utils():
             lines[index] = line
         text = "\n".join(lines)
         self.gcode_properties.setPlainText(text)
-        self.doc_viewer.setCurrentIndex(2)
+        self.doc_viewer.setCurrentIndex(3)
 
     def show_help_page(self, page):
         url = QUrl("file:///" + page)

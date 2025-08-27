@@ -503,15 +503,15 @@ class HandlerClass:
         self.w.lineEdit_max_rpm.setText(f"{self.max_spindle_rpm}")
         self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {STOP_COLOR};')
         # gcode file history
-        self.w.cmb_gcode_history.addItem("No File Loaded")
-        self.w.cmb_gcode_history.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.w.cmb_program_history.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.w.cmb_program_history.setMaxVisibleItems(10)
         # gcode editor mode
         self.w.gcode_viewer.readOnlyMode()
         # set calculator mode for menu buttons
         for i in ("x", "y", "z"):
             self.w["axistoolbutton_" + i].set_dialog_code('CALCULATOR')
         # disable mouse wheel events on comboboxes
-        self.w.cmb_gcode_history.wheelEvent = lambda event: None
+        self.w.cmb_program_history.wheelEvent = lambda event: None
         self.w.cmb_icon_select.wheelEvent = lambda event: None
         self.w.jogincrements_linear.wheelEvent = lambda event: None
         self.w.jogincrements_angular.wheelEvent = lambda event: None
@@ -787,6 +787,7 @@ class HandlerClass:
         name = message.get('NAME')
         obj = message.get('OBJECT')
         unhome_code = bool(message.get('ID') == '_unhome_')
+        reload_code = bool(message.get('ID') == '_reload_')
         lower_code = bool(message.get('ID') == '_wait_to_lower_')
         handler_code = bool(message.get('ID') == '_handler_')
         delete_code = bool(message.get('ID') == '_delete_')
@@ -794,6 +795,13 @@ class HandlerClass:
         if unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
             self.add_status("All axes unhomed")
+        if reload_code and name == 'MESSAGE':
+            fname = self.w.cmb_program_history.currentText()
+            self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
+            self.w.btn_main.setChecked(True)
+            self.w.groupBox_preview.setTitle(self.w.btn_main.property('title'))
+            if rtn is True:
+                ACTION.OPEN_PROGRAM(fname)
         elif lower_code and name == 'MESSAGE':
             self.h['spindle-inhibit'] = False
             # add time delay for spindle to attain speed
@@ -991,8 +999,8 @@ class HandlerClass:
                 ACTION.CALL_MDI(command)
             if self.last_loaded_program is not None and self.w.chk_reload_program.isChecked():
                 if os.path.isfile(self.last_loaded_program):
-                    self.w.cmb_gcode_history.addItem(self.last_loaded_program)
-                    self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
+                    self.w.cmb_program_history.addItem(self.last_loaded_program)
+                    self.w.cmb_program_history.setCurrentIndex(self.w.cmb_program_history.count() - 1)
                     ACTION.OPEN_PROGRAM(self.last_loaded_program)
         ACTION.SET_MANUAL_MODE()
         self.w.manual_mode_button.setChecked(True)
@@ -1066,13 +1074,15 @@ class HandlerClass:
         self.zlevel.set_comp_area(zdata)
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
-        self.add_status("Hard limits tripped", ERROR)
-        self.w.chk_override_limits.setEnabled(tripped)
-        if not tripped:
+        if tripped:
+            self.add_status("Hard limits tripped", ERROR)
+            self.w.chk_override_limits.setEnabled(tripped)
+        else:
             self.w.chk_override_limits.setChecked(False)
+            self.add_status("Hard Limits Clear")
 
-    # keep check button in synch of external changes
-    def _check_override_limits(self,state,data):
+    # keep check button in synch with external changes
+    def _check_override_limits(self, state, data):
         if 0 in data:
             self.w.chk_override_limits.setChecked(False)
         else:
@@ -1141,11 +1151,17 @@ class HandlerClass:
         self.w.gcodegraphics.clear_live_plotter()
 
     # gcode frame
-    def cmb_gcode_history_activated(self):
-        if self.w.cmb_gcode_history.currentIndex() == 0: return
-        filename = self.w.cmb_gcode_history.currentText()
+    def cmb_program_history_activated(self):
+        filename = self.w.cmb_program_history.currentText()
         if filename == self.last_loaded_program:
-            self.add_status("Selected program is already loaded", WARNING)
+            mess = {'NAME': 'MESSAGE',
+                    'ID': '_reload_',
+                    'MESSAGE': 'RELOAD PROGRAM',
+                    'GEONAME': '__message',
+                    'MORE': "Program is already loaded. Reload?",
+                    'NONBLOCKING': True,
+                    'TYPE': 'YESNO'}
+            ACTION.CALL_DIALOG(mess)
         else:
             ACTION.OPEN_PROGRAM(filename)
 
@@ -1513,9 +1529,9 @@ class HandlerClass:
         if not INFO.program_extension_valid(fname):
             self.add_status(f"Unknown or invalid filename extension {file_extension}", WARNING)
             return
-        if file_extension in ('.ngc', '.nc', 'tap', 'py'):
-            self.w.cmb_gcode_history.addItem(fname)
-            self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
+        if file_extension in ('.ngc', '.nc', '.tap'):
+            self.w.cmb_program_history.addItem(fname)
+            self.w.cmb_program_history.setCurrentIndex(self.w.cmb_program_history.count() - 1)
             ACTION.OPEN_PROGRAM(fname)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
             self.w.btn_main.setChecked(True)
@@ -1525,12 +1541,20 @@ class HandlerClass:
             self.setup_utils.show_html(fname)
             self.w.main_tab_widget.setCurrentIndex(TAB_UTILS)
             self.w.btn_utils.setChecked(True)
+            self.w.groupBox_preview.setTitle(self.w.btn_utils.property('title'))
             self.add_status(f"Loaded HTML file : {fname}")
         elif file_extension == '.pdf':
             self.setup_utils.show_pdf(fname)
             self.w.main_tab_widget.setCurrentIndex(TAB_UTILS)
             self.w.btn_utils.setChecked(True)
+            self.w.groupBox_preview.setTitle(self.w.btn_utils.property('title'))
             self.add_status(f"Loaded PDF file : {fname}")
+        elif file_extension == '.txt':
+            self.setup_utils.show_text(fname)
+            self.w.main_tab_widget.setCurrentIndex(TAB_UTILS)
+            self.w.btn_utils.setChecked(True)
+            self.w.groupBox_preview.setTitle(self.w.btn_utils.property('title'))
+            self.add_status(f"Loaded text file : {fname}")
         else:
             self.add_status(f"No action for {fname}", WARNING)
 
@@ -1897,14 +1921,14 @@ class HandlerClass:
         if state:
             self.w.btn_main.setChecked(True)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
-            self.w.cmb_gcode_history.hide()
+            self.w.cmb_program_history.hide()
             self.w.btn_edit_gcode.setChecked(False)
             self.w.gcode_viewer.readOnlyMode()
             self.w.stackedWidget_gcode.setCurrentIndex(0)
         else:
             i = 1 if STATUS.is_mdi_mode() else 0
             self.w.stackedWidget_gcode.setCurrentIndex(i)
-            self.w.cmb_gcode_history.show()
+            self.w.cmb_program_history.show()
 
     def enable_onoff(self, state):
         text = "ON" if state else "OFF"

@@ -39,6 +39,7 @@ class Connections():
         self.w.btn_load_file.pressed.connect(self.parent.load_file)
         self.w.btn_new_folder.pressed.connect(self.parent.new_folder)
         self.w.btn_edit_gcode.pressed.connect(self.parent.edit_gcode)
+        self.w.btn_clear_program_history.pressed.connect(lambda: self.w.cmb_program_history.clear())
         # tool page buttons
         self.w.btn_add_tool.pressed.connect(self.parent.btn_add_tool_pressed)
         self.w.btn_delete_tool.pressed.connect(self.parent.btn_delete_tool_pressed)
@@ -67,7 +68,7 @@ class Connections():
         self.w.cam_diameter.valueChanged.connect(lambda value: self.parent.cam_dia_changed(value))
         self.w.cam_rotate.valueChanged.connect(lambda value: self.parent.cam_rot_changed(value))
         # comboboxes
-        self.w.cmb_gcode_history.activated.connect(self.parent.cmb_gcode_history_activated)
+        self.w.cmb_program_history.activated.connect(self.parent.cmb_program_history_activated)
         self.w.cmb_icon_select.activated.connect(self.parent.tool_db.icon_select_activated)
         # lineEdits
         self.w.lineEdit_max_power.editingFinished.connect(self.parent.max_power_edited)
