@@ -8,7 +8,7 @@
 </head>
 <body>
 <h2>TOOL DATABASE</h2>
-<p>The tool database utility enables the user to store additional information about the tools listed in the linuxcnc tool.tbl file.
+<p>The tool database utility enables the user to store additional information about the tools listed in the LinuxCNC tool.tbl file.
 This extra information is kept in a SQLITE database. On startup, the program checks if the database exists and creates one if needed.
 If the database exists, it is updated with any new information in the tool.tbl file. If the tool.tbl contains tools not in the database,
 they are added. If the database contains tools not in the tool.tbl, they are deleted.</p>
@@ -22,32 +22,39 @@ they are added. If the database contains tools not in the tool.tbl, they are del
     </ul>
 <h3>Tool Table Buttons</h3>
 <p><button>ADD TOOL</button> Inserts a new tool table entry to the top of the list with the tool number
-preset to the value in the NEXT AVAILABLE field. The entered data is copied to the database file.</p>
+preset to the value in the NEXT AVAILABLE field. The tool can be renumbered by editing the <i>tool</i> column
+of the tool table. Even though LinuxCNC allows duplicate tool numbers, the database does not. Any tools with the
+same number in the tool table are treated as a single tool in the database. </p>
 <p><button>DELETE TOOL</button> Removes the checked tool from the tool table and updates the database. The 
-NEXT AVAILABLE field is updated and the tool table is reloaded into LinuxCNC.</p>
+NEXT AVAILABLE field is updated and the tool table is reloaded into LinuxCNC. If there were multiple tools with the
+same number, they are all deleted.</p>
 <p><button>LOAD TOOL</button> The checked tool is virtually loaded into the spindle by a M61Qn command and
 the labels in the TOOL panel of the main page are updated. If the tool has an associated icon, it is also 
 displayed in the TOOL panel.</p>
+<p>A tool can also be loaded by clicking on a tool in the tree view of the database tab and pressing LOAD TOOL</p>
 <p><button>UNLOAD TOOL</button> The tool currently in the spindle is virtually removed by a M61Q0 command.</p>
 <p><button>EXPORT TABLE</button> Creates an HTML file of the current tool table.</p>
 
-<h3>Tool Database Buttons</h3>
-<p><button>ENABLE EDIT</button> Allows the table cells to be edited, except for Tool Number. This can only be 
-edited in the Tool Offset view.</p>
-<p><button>EXPORT DATABASE</button> Creates an HTML file containing the data from the database. This is useful 
-for printing a reference sheet, for example.</p>
-<p><button>SELECT ICON</button> Activates a combo box to select a tool icon to be shown in the TOOL frame of 
-the main page whenever that tool is loaded in the spindle.</p>
+<h3>Tool Database Tree View</h3>
+<p>All tools from the tool table are shown in the tree view and organized by category. Any tool can be clicked and
+dragged into a different category. </p>
 
-<h3>Tool Database Data</h3>
-<p>A number of fields are displayed in the table which are editable by the user but not otherwise used in the 
-QtDragon GUI, except for the TIME field. This is a record of how many minutes the tool has been loaded in the 
-spindle while it was running. When a tool is loaded in the spindle, the TIME IN SPINDLE label is set to the 
-value in the database. When a gcode program is run, the TIME IN SPINDLE is updated as long as the spindle is 
-running. When the tool is unloaded, the total accumulated time is written to the database. If a particular 
-tool is broken or worn or replaced for whatever reason, it's TIME data can be reset by editing the TIME field
-in the database table.
-</p>
+<h3>Tool Categories</h3>
+<p>Tool categories can be created and deleted to suit the user's requirements. To create a new category, click on the 
+TOOL GROUP combobox in the Tool Geometry frame and type the name of the category. Pressing RETURN adds it to the tree view.
+To delete a category, first remove all the tools the select that category in the TOOL GROUP combobox. Then right click and 
+select <i>Remove this group</i>. The category is then removed from the tree view.</p>
+
+<h3>Tool Geometry</h3>
+<p>This frame contains information from the tool table as well as custom data. The data from the tool table is for reference only
+and cannot be modified from the DATABASE tab, only the TOOL TABLE tab, as these data are sourced from the LinuxCNC tool table.
+This data includes Tool number, diameter, Z offset and tool comment.</p>
+
+<h3>Updating the Database</h3>
+<p>To store the custom data into the database, select a tool from the tree view, then enter all the pertinent data in the 
+tool geometry frame and press UPDATE when done. A tool icon can also be selected. The image files must be stored in the tool_icons
+folder in the CONFIG directory. If ENABLE AUTO UPDATE is checked, the tool geometry data will be updated to the database every 
+second if there is something new and if the DATABASE page is visible. </p>
 
 <div class=admonition>
     <table>

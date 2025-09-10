@@ -44,7 +44,7 @@ class Connections():
         self.w.btn_add_tool.pressed.connect(self.parent.btn_add_tool_pressed)
         self.w.btn_delete_tool.pressed.connect(self.parent.btn_delete_tool_pressed)
         self.w.btn_load_tool.pressed.connect(self.parent.btn_load_tool_pressed)
-        self.w.btn_enable_edit.clicked.connect(lambda state: self.parent.btn_enable_edit_clicked(state))
+        self.w.btn_unload_tool.pressed.connect(self.parent.btn_unload_tool_pressed)
         self.w.btn_db_help.pressed.connect(self.parent.show_db_help_page)
         # gcode viewer
         self.w.btn_edit_gcode.clicked.connect(lambda state: self.parent.edit_gcode_changed(state))
@@ -69,7 +69,8 @@ class Connections():
         self.w.cam_rotate.valueChanged.connect(lambda value: self.parent.cam_rot_changed(value))
         # comboboxes
         self.w.cmb_program_history.activated.connect(self.parent.cmb_program_history_activated)
-        self.w.cmb_icon_select.activated.connect(self.parent.tool_db.icon_select_activated)
+        # spinboxes
+        self.w.spinBox_duration.valueChanged.connect(self.parent.status_duration_changed)
         # lineEdits
         self.w.lineEdit_max_power.editingFinished.connect(self.parent.max_power_edited)
         self.w.lineEdit_max_volts.editingFinished.connect(self.parent.max_volts_edited)

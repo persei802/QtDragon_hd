@@ -43,7 +43,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
-VERSION = '2.1.8'
+VERSION = '2.1.9'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -238,6 +238,7 @@ class HandlerClass:
         self.zlevel = None
         self.mdiPanel = None
         # some global variables
+        self.status_timeout = 10000
         self.dialog_code = 'CALCULATOR'
         self.kbd_code = 'KEYBOARD'
         self.tool_code = 'TOOLCHOOSER'
@@ -464,7 +465,8 @@ class HandlerClass:
         self.last_loaded_program = self.w.PREFS_.getpref('last_loaded_file', None, str,'BOOK_KEEPING')
         self.reload_tool = self.w.PREFS_.getpref('Tool to load', 0, int,'CUSTOM_FORM_ENTRIES')
         self.w.lineEdit_work_height.setText(self.w.PREFS_.getpref('Work Height', '20', str, 'CUSTOM_FORM_ENTRIES'))
-        
+        self.w.spinBox_duration.setValue(self.w.PREFS_.getpref('Status Timeout', '10', int, 'CUSTOM_FORM_ENTRIES'))
+
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
         for checkbox in self.settings_checkboxes:
@@ -482,9 +484,11 @@ class HandlerClass:
             self.w.PREFS_.putpref('last_loaded_file', self.last_loaded_program, str, 'BOOK_KEEPING')
         self.w.PREFS_.putpref('Tool to load', STATUS.get_current_tool(), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Work Height', self.w.lineEdit_work_height.text(), float, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Status Timeout', self.w.spinBox_duration.value(), int, 'CUSTOM_FORM_ENTRIES')
 
         # check for closing cleanup methods in imported utilities
         self.setup_utils.closing_cleanup__()
+        self.tool_db.closing_cleanup__()
 
     def init_widgets(self):
         self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
@@ -512,7 +516,6 @@ class HandlerClass:
             self.w["axistoolbutton_" + i].set_dialog_code('CALCULATOR')
         # disable mouse wheel events on comboboxes
         self.w.cmb_program_history.wheelEvent = lambda event: None
-        self.w.cmb_icon_select.wheelEvent = lambda event: None
         self.w.jogincrements_linear.wheelEvent = lambda event: None
         self.w.jogincrements_angular.wheelEvent = lambda event: None
         # turn off table grids
@@ -548,18 +551,6 @@ class HandlerClass:
             style = self.w[f'btn_{btn}'].style()
             icon = style.standardIcon(getattr(QStyle, self.icon_btns[btn]))
             self.w[f'btn_{btn}'].setIcon(icon)
-        # populate tool icon combobox
-        path = os.path.join(PATH.CONFIGPATH, "tool_icons")
-        self.w.cmb_icon_select.addItem('SELECT ICON')
-        if os.path.isdir(path):
-            icons = os.listdir(path)
-            icons.sort()
-            for item in icons:
-                if item.endswith(".png"):
-                    self.w.cmb_icon_select.addItem(item)
-        else:
-            LOG.info(f"No tool icons found in {path}")
-        self.w.cmb_icon_select.addItem("undefined")
         # spindle pause delay timer
         self.pause_timer.setSingleShot(True)
         self.pause_timer.timeout.connect(self.spindle_pause_timer)
@@ -600,7 +591,10 @@ class HandlerClass:
     def init_tooldb(self):
         from lib.tool_db import Tool_Database
         self.tool_db = Tool_Database(self.w, self)
+        self.w.layout_tooldb.addWidget(self.tool_db)
         self.db_helpfile = os.path.join(HELP, 'tooldb_help.html')
+        self.w.btn_export_table.pressed.connect(self.tool_db.export_table)
+        self.w.tabWidget_tools.currentChanged.connect(self.tabwidget_tools_changed)
         self.tool_db.hal_init()
 
     def init_probe(self):
@@ -649,7 +643,7 @@ class HandlerClass:
         if self.zlevel is None:
             self.w.btn_enable_comp.setEnabled(False)
         self.get_next_available()
-        self.tool_db.update_tools(self.tool_list)
+        self.tool_db.load_tool_table(self.tool_list)
 
     def init_about(self):
         self.about_dict = {'vfd'          : 'USING A VFD',
@@ -872,7 +866,6 @@ class HandlerClass:
         elif self.spindle_role == 'volts':
             volts = self.h['spindle-volts']
             if volts > self.max_spindle_volts:
-                print('Volts out of range')
                 self.w.spindle_power.setFormat('OUT OF RANGE')
                 self.w.spindle_power.setValue(0)
             else:
@@ -933,14 +926,16 @@ class HandlerClass:
         self.w.lineEdit_tool_in_spindle.setText(str(tool))
         LOG.debug(f"Tool changed to {self.current_tool}")
         self.tool_db.set_checked_tool(tool)
-        icon = self.tool_db.get_tool_data(tool, "ICON")
+        data = self.tool_db.get_tool_data(tool)
+        if data is None:
+            self.add_status("Failed to retrieve data from database", ERROR)
+            return
+        maxz, rtime, icon = data
         if icon is None or icon == "undefined":
             self.w.lbl_tool_image.setText("Image\nUndefined")
         else:
             icon_file = os.path.join(PATH.CONFIGPATH, 'tool_icons/' + icon)
             self.w.lbl_tool_image.setPixmap(QPixmap(icon_file))
-        maxz  = self.tool_db.get_tool_data(tool, "LENGTH")
-        rtime = self.tool_db.get_tool_data(tool, "TIME")
         text = "---" if maxz is None else str(maxz)
         self.w.lineEdit_max_depth.setText(text)
         text = "---" if rtime is None else f"{rtime:5.1f}"
@@ -1640,43 +1635,56 @@ class HandlerClass:
             self.do_file_copy()
                        
     # TOOL tab
+    def tabwidget_tools_changed(self, idx):
+        if idx == 0:
+            self.w.btn_add_tool.setEnabled(True)
+            self.w.btn_delete_tool.setEnabled(True)
+        else:
+            self.w.btn_add_tool.setEnabled(False)
+            self.w.btn_delete_tool.setEnabled(False)
+
     def btn_add_tool_pressed(self):
         if not STATUS.is_on_and_idle():
             self.add_status("Status must be ON and IDLE", WARNING)
             return
         array = [self.next_available, self.next_available, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 'New Tool']
         TOOL.ADD_TOOL(array)
-        self.add_status(f"Added tool {self.next_available}")
-        self.tool_db.add_tool(self.next_available)
+        if self.tool_db.add_tool(self.next_available) is True:
+            self.add_status(f"Added new tool {self.next_available}")
+        else:
+            self.add_status('Failed to add tool to database', WARNING)
         self.get_next_available()
 
     def btn_delete_tool_pressed(self):
-        if not STATUS.is_on_and_idle():
-            self.add_status("Status must be ON and IDLE", WARNING)
-            return
         tools = self.get_checked_tools()
         if not tools:
             self.add_status("No tool selected to delete", WARNING)
             return
         if tools[0] == self.current_tool:
-            ACTION.CALL_MDI('M61 Q0')
-        TOOL.DELETE_TOOLS(tools)
+            ACTION.CALL_MDI('M61 Q0', mode_return=True)
+        self.w.tooloffsetview.delete_tools()
         self.add_status(f"Deleted tool {tools[0]}")
-        self.tool_db.delete_tool(tools[0])
+        if not self.tool_db.delete_tool(tools[0]):
+            self.add_status(f'Failed to delete tool {tools[0]} from database', WARNING)
         self.get_next_available()
 
     def btn_load_tool_pressed(self):
-        tool = self.get_checked_tools()
-        if len(tool) > 1:
-            self.add_status("Select only 1 tool to load", ERROR)
-        elif tool:
-            ACTION.CALL_MDI_WAIT(f'M61 Q{tool[0]} G43', mode_return=True)
-            self.add_status(f"Tool {tool[0]} loaded")
-        else:
-            self.add_status("No tool selected", WARNING)
+        if self.w.tabWidget_tools.currentIndex() == 0:
+            tool = self.get_checked_tools()
+            if len(tool) > 1:
+                self.add_status("Select only 1 tool to load", ERROR)
+            elif tool:
+                ACTION.CALL_MDI_WAIT(f'M61 Q{tool[0]} G43', mode_return=True)
+                self.add_status(f"Tool {tool[0]} loaded")
+            else:
+                self.add_status("No tool selected", WARNING)
+        elif self.w.tabWidget_tools.currentIndex() == 1:
+            tool = self.tool_db.get_selected_tool()
+            ACTION.CALL_MDI_WAIT(f'M61 Q{tool} G43', mode_return=True)
+            self.add_status(f"Tool {tool} loaded")
 
-    def btn_enable_edit_clicked(self, state):
-        self.tool_db.set_edit_enable(state)
+    def btn_unload_tool_pressed(self):
+        ACTION.CALL_MDI_WAIT(f'M61 Q{0} G43', mode_return=True)
 
     def show_db_help_page(self):
         self.setup_utils.show_help_page(self.db_helpfile)
@@ -1768,6 +1776,9 @@ class HandlerClass:
         self.w.lineEdit_sensor_height.setReadOnly(not self.w.chk_auto_toolsensor.isChecked())
         self.w.lineEdit_gauge_height.setReadOnly(not self.w.chk_manual_toolsensor.isChecked())
 
+    def status_duration_changed(self, value):
+        self.status_timeout = int(value * 1000)
+
     #####################
     # GENERAL FUNCTIONS #
     #####################
@@ -1780,11 +1791,37 @@ class HandlerClass:
             new_list = self.tool_list
             old_tno = list(set(old_list) - set(new_list))
             new_tno = list(set(new_list) - set(old_list))
-            if len(new_tno) > 0:
-                self.tool_db.update_tool_no(old_tno[0], new_tno[0])
-        elif col == 15 or col == 19:
-            self.tool_db.update_tool_data(row, col)
+            self.tool_number_changed(old_tno, new_tno)
+        elif col in (7, 15, 19):
+            array = TOOL.GET_TOOL_ARRAY()
+            line = array[row]
+            if not self.tool_db.update_tool_data(line[0], (line[4], line[11], line[15])):
+                self.add_status('Failed to update tool data to database', WARNING)
 
+    def tool_number_changed(self, old_tno, new_tno):
+        # no duplicate tools
+        if len(old_tno) > 0 and len(new_tno) > 0:
+            if self.tool_db.update_tool_no(old_tno[0], new_tno[0]) is True:
+                self.add_status(f'Changed database tool {old_tno[0]} to {new_tno[0]}')
+            else:
+                self.add_status('Failed to change tool number in database', WARNING)
+        # there are duplicate tools in the old list
+        elif len(old_tno) == 0 and len(new_tno) > 0:
+            array = [new_tno[0], new_tno[0], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 'New Tool']
+            TOOL.ADD_TOOL(array)
+            if self.tool_db.add_tool(new_tno[0]) is True:
+                self.add_status(f'Added tool {new_tno[0]} to database')
+            else:
+                self.add_status(f'Failed to add tool {new_tno[0]} to database', WARNING)
+        # there are duplicate tools in the new list
+        elif len(old_tno) > 0 and len(new_tno) == 0:
+            if self.tool_db.delete_tool(old_tno[0]):
+                self.add_status(f'Deleted tool {old_tno[0]} from database')
+            else:
+                self.add_status(f'Failed to delete tool {tools[0]} from database', WARNING)
+        else:
+           pass
+            
     def get_checked_tools(self):
         checked = self.w.tooloffsetview.get_checked_list()
         if checked: self.tool_db.set_checked_tool(checked[0])
@@ -1888,17 +1925,17 @@ class HandlerClass:
         if level == WARNING:
             self.w.statusbar.setStyleSheet(f"color: {WARNING_COLOR};")
             message = 'WARNING: ' + message
-            self.w.statusbar.showMessage(message, 10000)
+            self.w.statusbar.showMessage(message, self.status_timeout)
             self.stat_warnings += 1
             self.w.lbl_stat_warnings.setText(f'{self.stat_warnings}')
         elif level == ERROR:
             self.w.statusbar.setStyleSheet(f"color: {ERROR_COLOR};")
             message = 'ERROR: ' + message
-            self.w.statusbar.showMessage(message, 10000)
+            self.w.statusbar.showMessage(message, self.status_timeout)
             self.stat_errors += 1
             self.w.lbl_stat_errors.setText(f'{self.stat_errors}')
         else:
-            self.w.statusbar.showMessage(message)
+            self.w.statusbar.showMessage(message, self.status_timeout)
             self.w.statusbar.setStyleSheet(self.statusbar_style)
         if not message == "" and noLog is False:
             STATUS.emit('update-machine-log', message, 'TIME')
@@ -1962,8 +1999,12 @@ class HandlerClass:
                 rtime = self.w.lineEdit_runtime.text().split(':')
                 mtime = (float(rtime[0]) * 60) + float(rtime[1]) + (float(rtime[2]) / 60)
                 self.tool_db.update_tool_time(self.current_tool, mtime)
-                rtime = self.tool_db.get_tool_data(self.current_tool, "TIME")
-                text = "---" if rtime is None else f"{rtime:5.1f}"
+                data = self.tool_db.get_tool_data(self.current_tool)
+                if data is None:
+                    text = "---"
+                else:
+                    rtime = data[1]
+                    text = f"{rtime:5.1f}"
                 self.w.lineEdit_acc_time.setText(text)
 
     #####################
