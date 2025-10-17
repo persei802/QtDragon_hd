@@ -43,6 +43,7 @@ PATH = Path()
 QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
+STYLES = os.path.join(PATH.HANDLERDIR, 'style_rc')
 VERSION = '2.1.9'
 
 # constants for main pages
@@ -702,14 +703,14 @@ class HandlerClass:
 
     def init_adjustments(self):
         # modify the status adjustment bars to have custom icons
-        icon = QIcon(os.path.join(IMAGES, 'arrow_left.png'))
+        icon = QIcon(os.path.join(STYLES, 'arrow_left.png'))
         icon_size = 24
         for item in self.adj_list:
             btn = self.w[f"adj_{item}"].tb_down
             btn.setArrowType(Qt.NoArrow)
             btn.setIcon(icon)
             btn.setIconSize(QSize(icon_size, icon_size))
-        icon = QIcon(os.path.join(IMAGES, 'arrow_right.png'))
+        icon = QIcon(os.path.join(STYLES, 'arrow_right.png'))
         for item in self.adj_list:
             btn = self.w[f"adj_{item}"].tb_up
             btn.setArrowType(Qt.NoArrow)

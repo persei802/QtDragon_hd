@@ -232,7 +232,7 @@ QTreeView::item:pressed {
 
 /** Main Window **/
 QMainWindow {
-  background: url("qtdragon/images/dark_metal.png");
+  background: url("qtdragon/style_rc/dark_metal.png");
 }
 
 /** Menus **/
@@ -335,13 +335,13 @@ QPushButton#btn_home_all[homed=false] {
 
 #action_machine_on {
   background: none;
-  background-image: url("qtdragon/images/machine_off.png");
+  background-image: url("qtdragon/style_rc/machine_off.png");
   border: none;
 }
 
 #action_machine_on:checked {
   background: none;
-  background-image: url("qtdragon/images/machine_on.png");
+  background-image: url("qtdragon/style_rc/machine_on.png");
   border: none;
 }
 
