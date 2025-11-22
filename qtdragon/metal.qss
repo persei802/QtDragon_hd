@@ -1,10 +1,8 @@
 
-/* 
-    WARNING! File created programmatically by qtsass.
-    All changes made in this file will be lost!
-*/
+/* Metal.qss */
+
 QMainWindow {
-  background-image: url("qtdragon/images/brushed_metal.png");
+  background-image: url("qtdragon/style_rc/brushed_metal.png");
 }
 
 /* Checkbox */
@@ -59,12 +57,12 @@ QComboBox::item:selected {
 }
 
 QComboBox::down-arrow {
-  image: url("qtdragon/images/arrow_down.png");
+  image: url("qtdragon/style_rc/arrow_down.png");
 }
 
 /* Dialog */
 QDialog {
-  background-image: url("qtdragon/images/brushed_metal.png");
+  background-image: url("qtdragon/style_rc/brushed_metal.png");
 }
 
 ToolDialog QPushButton, AboutDialog QPushButton {
@@ -245,13 +243,13 @@ QPushButton#btn_home_all[homed=false] {
 
 #action_machine_on {
   background: none;
-  background-image: url("qtdragon/images/machine_off.png");
+  background-image: url("qtdragon/style_rc/machine_off.png");
   border: none;
 }
 
 #action_machine_on:checked {
   background: none;
-  background-image: url("qtdragon/images/machine_on.png");
+  background-image: url("qtdragon/style_rc/machine_on.png");
   border: none;
 }
 

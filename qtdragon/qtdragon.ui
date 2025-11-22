@@ -2437,7 +2437,7 @@ color: black;</string>
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="qtdragon.qrc">
+                       <iconset>
                         <normaloff>:/images/images/arrow_up.png</normaloff>:/images/images/arrow_up.png</iconset>
                       </property>
                       <property name="iconSize">
@@ -2475,7 +2475,7 @@ color: black;</string>
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="qtdragon.qrc">
+                       <iconset>
                         <normaloff>:/images/images/arrow_down.png</normaloff>:/images/images/arrow_down.png</iconset>
                       </property>
                       <property name="iconSize">
@@ -2513,7 +2513,7 @@ color: black;</string>
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="qtdragon.qrc">
+                       <iconset>
                         <normaloff>:/images/images/arrow_left.png</normaloff>:/images/images/arrow_left.png</iconset>
                       </property>
                       <property name="iconSize">
@@ -2542,7 +2542,7 @@ color: black;</string>
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="qtdragon.qrc">
+                       <iconset>
                         <normaloff>:/images/images/arrow_right.png</normaloff>:/images/images/arrow_right.png</iconset>
                       </property>
                       <property name="iconSize">
@@ -2753,7 +2753,7 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>7</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -6979,7 +6979,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>08:33:01 AM</string>
+                       <string>10:35:34 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -11338,7 +11338,7 @@ ACTIVE</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
@@ -11460,7 +11460,7 @@ ACTIVE</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
@@ -11582,7 +11582,7 @@ ACTIVE</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
@@ -11986,7 +11986,7 @@ BLOCK</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="indicator_status_option" stdset="0">
                   <bool>true</bool>
@@ -12003,51 +12003,6 @@ BLOCK</string>
                  </property>
                  <property name="block_delete_action" stdset="0">
                   <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="PushButton" name="btn_pause_spindle">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>When enabled, pausing the program will cause the spindle to lift and stop spinning.</string>
-                 </property>
-                 <property name="text">
-                  <string>SPINDLE
-PAUSE</string>
-                 </property>
-                 <property name="checkable">
-                  <bool>true</bool>
-                 </property>
-                 <property name="pin_name" stdset="0">
-                  <string/>
-                 </property>
-                 <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
-                 </property>
-                 <property name="indicator_HAL_pin_option" stdset="0">
-                  <bool>false</bool>
-                 </property>
-                 <property name="indicator_status_option" stdset="0">
-                  <bool>true</bool>
-                 </property>
-                 <property name="on_color" stdset="0">
-                  <color>
-                   <red>0</red>
-                   <green>255</green>
-                   <blue>0</blue>
-                  </color>
-                 </property>
-                 <property name="is_paused_status" stdset="0">
-                  <bool>true</bool>
-                 </property>
-                 <property name="pin_type" stdset="0">
-                  <enum>PushButton::BIT</enum>
                  </property>
                 </widget>
                </item>
@@ -12090,7 +12045,7 @@ PAUSE</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="indicator_status_option" stdset="0">
                   <bool>true</bool>
@@ -12180,7 +12135,7 @@ STOP</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="on_color" stdset="0">
                   <color>
@@ -12304,7 +12259,7 @@ STOP</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="doubleIndicator" stdset="0">
                   <bool>false</bool>
@@ -12369,8 +12324,28 @@ OFF</string>
                  </property>
                 </widget>
                </item>
+               <item row="4" column="0">
+                <widget class="QPushButton" name="btn_pause_spindle">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string>When enabled, pausing the program will cause the spindle to lift and stop spinning.</string>
+                 </property>
+                 <property name="text">
+                  <string>SPINDLE
+PAUSE</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
                <item row="4" column="1">
-                <widget class="PushButton" name="btn_enable_comp">
+                <widget class="QPushButton" name="btn_enable_comp">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -12386,16 +12361,6 @@ ENABLE</string>
                  </property>
                  <property name="checkable">
                   <bool>true</bool>
-                 </property>
-                 <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
-                 </property>
-                 <property name="on_color" stdset="0">
-                  <color>
-                   <red>0</red>
-                   <green>255</green>
-                   <blue>0</blue>
-                  </color>
                  </property>
                 </widget>
                </item>
@@ -14675,80 +14640,6 @@ HOME</string>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="3">
-                 <widget class="PushButton" name="btn_laser_on">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>Toggle laser crosshairs</string>
-                  </property>
-                  <property name="text">
-                   <string>LASER
-OFF</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                  <property name="flat">
-                   <bool>false</bool>
-                  </property>
-                  <property name="indicator_option" stdset="0">
-                   <bool>true</bool>
-                  </property>
-                  <property name="checked_state_text_option" stdset="0">
-                   <bool>true</bool>
-                  </property>
-                  <property name="python_command_option" stdset="0">
-                   <bool>true</bool>
-                  </property>
-                  <property name="on_color" stdset="0">
-                   <color>
-                    <red>0</red>
-                    <green>255</green>
-                    <blue>0</blue>
-                   </color>
-                  </property>
-                  <property name="indicator_size" stdset="0">
-                   <double>0.300000000000000</double>
-                  </property>
-                  <property name="true_state_string" stdset="0">
-                   <string>LASER
-ON</string>
-                  </property>
-                  <property name="false_state_string" stdset="0">
-                   <string>LASER
-OFF</string>
-                  </property>
-                  <property name="true_python_cmd_string" stdset="0">
-                   <string>INSTANCE.btn_ref_laser.setEnabled(True)</string>
-                  </property>
-                  <property name="false_python_cmd_string" stdset="0">
-                   <string>INSTANCE.btn_ref_laser.setEnabled(False)</string>
-                  </property>
-                  <property name="pin_type" stdset="0">
-                   <enum>PushButton::BIT</enum>
-                  </property>
-                 </widget>
-                </item>
                 <item row="5" column="4">
                  <widget class="QPushButton" name="btn_ref_laser">
                   <property name="sizePolicy">
@@ -14985,6 +14876,49 @@ WCS</string>
                   </property>
                   <property name="autoExclusive">
                    <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="3">
+                 <widget class="PushButton" name="btn_laser_on">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>90</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>LASER
+OFF</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="pin_name" stdset="0">
+                   <string>btn_laser_on</string>
+                  </property>
+                  <property name="checked_state_text_option" stdset="0">
+                   <bool>true</bool>
+                  </property>
+                  <property name="true_state_string" stdset="0">
+                   <string>LASER
+ON</string>
+                  </property>
+                  <property name="false_state_string" stdset="0">
+                   <string>LASER
+OFF</string>
                   </property>
                  </widget>
                 </item>
@@ -15790,7 +15724,7 @@ WCS</string>
                     <string>at_speed_rev</string>
                    </property>
                    <property name="indicator_option" stdset="0">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                    <property name="indicator_HAL_pin_option" stdset="0">
                     <bool>false</bool>
@@ -15955,7 +15889,7 @@ WCS</string>
                     <string>at_speed_fwd</string>
                    </property>
                    <property name="indicator_option" stdset="0">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                    <property name="indicator_HAL_pin_option" stdset="0">
                     <bool>false</bool>
@@ -16444,13 +16378,13 @@ WCS</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="mdi_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="mdi_buttonGroup"/>
-  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>

@@ -1,8 +1,6 @@
 
-/* 
-    WARNING! File created programmatically by qtsass.
-    All changes made in this file will be lost!
-*/
+/* Carbonite.qss */
+
 /** Tab Widgets **/
 QTabWidget {
   border: none;
@@ -194,26 +192,17 @@ DROLabel[isHomed=false] {
 /** GCode Viewer **/
 EditorBase {
   qproperty-styleColorMarginBackground: #303030;
-  qproperty-styleColorMarginText: #00aaff;
-  /* margin line numbers */
+  qproperty-styleColorMarginText: #00aaff;  /* margin line numbers */
   qproperty-styleFontMargin: 10pt "Lato Heavy";
   qproperty-styleColorBackground: #202020;
-  qproperty-styleColor0: #f0f0f0;
-  /* digit characters */
-  qproperty-styleColor1: #00ff00;
-  /* comments */
-  qproperty-styleColor2: #f0f0f0;
-  /* alphabetic characters */
-  qproperty-styleColor3: #e0e0e0;
-  /* assignment characters */
-  qproperty-styleColor4: #f0f0f0;
-  /* value characters */
-  qproperty-styleColor5: #00e0e0;
-  /* axis characters */
-  qproperty-styleColor6: #e0e0e0;
-  /* ? characters */
-  qproperty-styleColor7: #00e0e0;
-  /* M and F characters */
+  qproperty-styleColor0: #f0f0f0;  /* digit characters */
+  qproperty-styleColor1: #00ff00;  /* comments */
+  qproperty-styleColor2: #f0f0f0;  /* alphabetic characters */
+  qproperty-styleColor3: #e0e0e0;  /* assignment characters */
+  qproperty-styleColor4: #f0f0f0;  /* value characters */
+  qproperty-styleColor5: #00e0e0;  /* axis characters */
+  qproperty-styleColor6: #e0e0e0;  /* ? characters */
+  qproperty-styleColor7: #00e0e0;  /* M and F characters */
   qproperty-styleFont0: 10pt "Lato Heavy";
   qproperty-styleFont1: 10pt "Lato Heavy";
   qproperty-styleFont2: 10pt "Lato Heavy";
@@ -222,8 +211,7 @@ EditorBase {
   qproperty-styleFont5: 10pt "Lato Heavy";
   qproperty-styleFont6: 10pt "Lato Heavy";
   qproperty-styleFont7: 10pt "Lato Heavy";
-  qproperty-styleColorSelectionBackground: #00aaff;
-  /* selection background */
+  qproperty-styleColorSelectionBackground: #00aaff;  /* selection background */
 }
 
 /** Radio buttons **/

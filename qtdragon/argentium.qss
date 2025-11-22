@@ -1,8 +1,6 @@
 
-/* 
-    WARNING! File created programmatically by qtsass.
-    All changes made in this file will be lost!
-*/
+/* Argentium.qss */
+
 /** Tab Widgets **/
 QTabWidget {
   border: none;
@@ -89,11 +87,11 @@ QGroupBox::indicator {
 }
 
 QGroupBox::indicator:unchecked {
-  image: url("qtdragon/images/unchecked.png");
+  image: url("qtdragon/style_rc/unchecked.png");
 }
 
 QGroupBox::indicator:checked {
-  image: url("qtdragon/images/checked.png");
+  image: url("qtdragon/style_rc/checked.png");
 }
 
 /** Dialogs **/
@@ -218,26 +216,17 @@ QStatusBar {
 /** GCode Viewer **/
 EditorBase {
   qproperty-styleColorMarginBackground: #303030;
-  qproperty-styleColorMarginText: #00aaff;
-  /* margin line numbers */
+  qproperty-styleColorMarginText: #00aaff;  /* margin line numbers */
   qproperty-styleFontMargin: 10pt "Lato Heavy";
   qproperty-styleColorBackground: #202020;
-  qproperty-styleColor0: #F0F0F0;
-  /* digit characters */
-  qproperty-styleColor1: #00ff00;
-  /* comments */
-  qproperty-styleColor2: #F0F0F0;
-  /* alphabetic characters */
-  qproperty-styleColor3: #e0e0e0;
-  /* assignment characters */
-  qproperty-styleColor4: #F0F0F0;
-  /* value characters */
-  qproperty-styleColor5: #00e0e0;
-  /* axis characters */
-  qproperty-styleColor6: #e0e0e0;
-  /* ? characters */
-  qproperty-styleColor7: #00e0e0;
-  /* M and F characters */
+  qproperty-styleColor0: #F0F0F0;  /* digit characters */
+  qproperty-styleColor1: #00ff00;  /* comments */
+  qproperty-styleColor2: #F0F0F0;  /* alphabetic characters */
+  qproperty-styleColor3: #e0e0e0;  /* assignment characters */
+  qproperty-styleColor4: #F0F0F0;  /* value characters */
+  qproperty-styleColor5: #00e0e0;  /* axis characters */
+  qproperty-styleColor6: #e0e0e0;  /* ? characters */
+  qproperty-styleColor7: #00e0e0;  /* M and F characters */
   qproperty-styleFont0: 10pt "Lato Heavy";
   qproperty-styleFont1: 10pt "Lato Heavy";
   qproperty-styleFont2: 10pt "Lato Heavy";
@@ -246,8 +235,7 @@ EditorBase {
   qproperty-styleFont5: 10pt "Lato Heavy";
   qproperty-styleFont6: 10pt "Lato Heavy";
   qproperty-styleFont7: 10pt "Lato Heavy";
-  qproperty-styleColorSelectionBackground: #00aaff;
-  /* selection background */
+  qproperty-styleColorSelectionBackground: #00aaff;  /* selection background */
 }
 
 /** Radio buttons **/
@@ -272,7 +260,7 @@ QRadioButton::indicator:unchecked {
 }
 
 QRadioButton::indicator:checked {
-  image: url(qtdragon/images/checked.png);
+  image: url(qtdragon/style_rc/checked.png);
 }
 
 /** Tableviews **/
@@ -376,7 +364,7 @@ QComboBox::item:selected {
 }
 
 QComboBox::down-arrow {
-  image: url("qtdragon/images/arrow_down.png");
+  image: url("qtdragon/style_rc/arrow_down.png");
 }
 
 /** Scrollbars **/
@@ -398,7 +386,7 @@ QScrollBar::add-line:horizontal {
   subcontrol-position: right;
   subcontrol-origin: margin;
   width: 30px;
-  image: url("qtdragon/images/arrow_right.png");
+  image: url("qtdragon/style_rc/arrow_right.png");
 }
 
 QScrollBar::sub-line:horizontal {
@@ -406,7 +394,7 @@ QScrollBar::sub-line:horizontal {
   subcontrol-position: left;
   subcontrol-origin: margin;
   width: 30px;
-  image: url("qtdragon/images/arrow_left.png");
+  image: url("qtdragon/style_rc/arrow_left.png");
 }
 
 QScrollBar:vertical {
@@ -427,7 +415,7 @@ QScrollBar::sub-line:vertical {
   subcontrol-position: top;
   subcontrol-origin: margin;
   height: 30px;
-  image: url("qtdragon/images/arrow_up.png");
+  image: url("qtdragon/style_rc/arrow_up.png");
 }
 
 QScrollBar::add-line:vertical {
@@ -435,7 +423,7 @@ QScrollBar::add-line:vertical {
   subcontrol-position: bottom;
   subcontrol-origin: margin;
   height: 30px;
-  image: url("qtdragon/images/arrow_down.png");
+  image: url("qtdragon/style_rc/arrow_down.png");
 }
 
 /** Main Window **/
@@ -606,11 +594,11 @@ QCheckBox::indicator {
 }
 
 QCheckBox::indicator:unchecked {
-  image: url("qtdragon/images/unchecked.png");
+  image: url("qtdragon/style_rc/unchecked.png");
 }
 
 QCheckBox::indicator:checked {
-  image: url("qtdragon/images/checked.png");
+  image: url("qtdragon/style_rc/checked.png");
 }
 
 /* QStackedWidget */
