@@ -34,7 +34,7 @@ INFO = Info()
 PATH = Path()
 TOOL = Tool()
 LOG = logger.getLogger(__name__)
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 VERSION = '1.6'
 DB_NAME = 'tool_database.db'
@@ -627,42 +627,19 @@ class Tool_Database(QWidget):
         return (record['length'], record['time'], record['icon'])
 
     def export_table(self):
-        tool_table = TOOL.GET_TOOL_ARRAY()
-        headers = ["Tool", "Pocket"]
-        for i in INFO.AVAILABLE_AXES:
-            headers.append(i)
-        headers.append("Diameter")
-        headers.append("Comment")
-        html = '''<html>
-        <head>
-        <title>QtDragon Tool Table</title>
-        <style>
-        table, th, td {
-            border: 1px solid black;
-        }
-        </style>
-        </head>
-        <table>
-        <caption>QtDragon Tool Table</caption>
-        <thead>\n'''
-        html += '<tr>'
-        for hdr in headers:
-            html += f'<td><center>{hdr}</center></td>'
-        html += '</tr></thead>'
-        html += '<tbody>\n'
-        for row in tool_table:
-            html += '<tr>'
-            html += f'<td>{row[0]}</td>'
-            html += f'<td>{row[1]}</td>'
-            html += f'<td>{row[2]:.3f}</td>'
-            html += f'<td>{row[3]:.3f}</td>'
-            html += f'<td>{row[4]:.3f}</td>'
-            if "A" in headers:
-                html += f'<td>{row[5]:.3f}</td>'
-            html += f'<td>{row[11]:.3f}</td>'
-            html += f'<td>{row[15]}</td></tr>\n'
-        html += '</tbody></table>\n'
-        html += '</html>\n'
+        query = QSqlQuery("SELECT * FROM tools")
+        html = "<table border='1' style='border-collapse: collapse;'>\n"
+        header = []
+        rec = query.record()
+        for i in range(rec.count()):
+            header.append(f"<th>{rec.fieldName(i)}</th>")
+        html += "  <tr>" + "".join(header) + "</tr>\n"
+        while query.next():
+            row_html = []
+            for i in range(rec.count()):
+                row_html.append(f"<td>{query.value(i)}</td>")
+            html += "  <tr>" + "".join(row_html) + "</tr>\n"
+        html += "</table>"
         self.html = html
         mess = {'NAME': 'SAVE',
                 'ID': '_tooldb_',
@@ -679,7 +656,7 @@ class Tool_Database(QWidget):
         if record is None: return
         ptime = record['time']
         if ptime is not None:
-            total_time = ptime + time
+            total_time = round(ptime + time, 3)
             self.lineEdit_time_in_spindle.setText(self.min_to_hms(total_time))
             self.agent.update_tool_time(tno, total_time)
 
