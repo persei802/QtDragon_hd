@@ -151,16 +151,17 @@ class CustomMacros(QWidget):
     def spin_value_changed(self, value):
         self[f'lbl_macro{self.old_value}'].setStyleSheet('')
         self.old_value = value
-        self[f'lbl_macro{value}'].setStyleSheet("border: 1px solid cyan;")
         self.lineEdit_cmd1.clear()
         self.lineEdit_cmd2.clear()
         self.lineEdit_cmd3.clear()
         self.lineEdit_text.clear()
         if value in self.h.macros_defined:
+            self[f'lbl_macro{value}'].setStyleSheet("border: 1px solid red;")
             key = self.w[f'btn_macro{value}'].property('ini_mdi_key')
             text = INFO.get_ini_mdi_command(key)
             self.btn_apply.setEnabled(False)
         else:
+            self[f'lbl_macro{value}'].setStyleSheet("border: 1px solid cyan;")
             text = self.w[f'btn_macro{value}'].get_command_text()
             self.btn_apply.setEnabled(True)
         cmds = text.split(';')
