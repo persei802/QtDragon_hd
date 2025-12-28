@@ -181,7 +181,6 @@ class SqlAgent(QObject):
         item = QTreeWidgetItem(self.tree, [group])
         item.setData(0, Qt.UserRole, 'category')
         item.setFlags(item.flags() & ~Qt.ItemIsDragEnabled)
-#        item.setFont(0, QFont('Lato', 12))
         item.setExpanded(True)
         self.root_items[group] = item
 
@@ -201,7 +200,6 @@ class SqlAgent(QObject):
             new_item.setData(0, tno_role, tno)
             new_item.setData(0, name_role, name)
             new_item.setData(0, group_role, group)
-#            new_item.setFont(0, QFont('Lato', 11))
             self.item_dict[tno] = new_item
 
     def remove_tree_item(self, tno):
@@ -623,8 +621,7 @@ class Tool_Database(QWidget):
 
     def get_tool_data(self, tno):
         record = self.agent.get_tool_data(tno)
-        if record is None: return None
-        return (record['length'], record['time'], record['icon'])
+        return record
 
     def export_table(self):
         query = QSqlQuery("SELECT * FROM tools")
