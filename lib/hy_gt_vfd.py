@@ -126,8 +126,9 @@ def init_serial():
 def init_pins():
     h.newpin('speed-cmd', hal.HAL_FLOAT, hal.HAL_IN)
     h.newpin('speed-fb', hal.HAL_FLOAT, hal.HAL_OUT)
+    h.newpin('speed-rps', hal.HAL_FLOAT, hal.HAL_OUT)
     h.newpin('spindle-on', hal.HAL_BIT, hal.HAL_IN)
-    h.newpin('spindle-inhibit', hal.HAL_BIT, hal.HAL_IN)
+    h.newpin('forward', hal.HAL_BIT, hal.HAL_IN)
     h.newpin('reverse', hal.HAL_BIT, hal.HAL_IN)
     h.newpin('at-speed', hal.HAL_BIT, hal.HAL_OUT)
     h.newpin('output-current', hal.HAL_FLOAT, hal.HAL_OUT)
@@ -139,33 +140,35 @@ def init_pins():
 
 def set_motor_on():
     global motor_is_on, retries
-    if motor_is_on is False:
-        motor_is_on = True
-        error = True
-        direction = 2 if h['reverse'] else 1
-        for i in range(retries):
-            time.sleep(delay)
-            req = vfd.write_register(0x1000, direction, slave = slave)
-            if not req.isError():
-                error = False
-                break
-        if error is True:
-            print("Motor On: Error writing to register 0x1000")
+    if motor_is_on: return
+    motor_is_on = True
+    error = True
+    direction = 2 if h['reverse'] else 1
+    for i in range(retries):
+        time.sleep(delay)
+        req = vfd.write_register(0x1000, direction, slave = slave)
+        if not req.isError():
+            error = False
+            break
+    if error is True:
+        h['modbus-errors'] += 1
+        print("Motor On: Error writing to register 0x1000")
 
 def set_motor_off():
     global motor_is_on, retries
-    if motor_is_on is True:
-        motor_is_on = False
-        h['at-speed'] = False
-        error = True
-        for i in range(retries):
-            time.sleep(delay)
-            req = vfd.write_register(0x1000, 5, slave = slave)
-            if not req.isError():
-                error = False
-                break
-        if error is True:
-            print("Motor Off: Error writing to register 0x1000")
+    if not motor_is_on: return
+    motor_is_on = False
+    h['at-speed'] = False
+    error = True
+    for i in range(retries):
+        time.sleep(delay)
+        req = vfd.write_register(0x1000, 5, slave = slave)
+        if not req.isError():
+            error = False
+            break
+    if error is True:
+        h['modbus-errors'] += 1
+        print("Motor Off: Error writing to register 0x1000")
 
 # Set spindle speed as percentage of maximum speed
 def set_motor_speed():
@@ -187,6 +190,7 @@ def set_motor_speed():
             error = False
             break
     if error is True:
+        h['modbus-errors'] += 1
         print("Error writing to register 0x2000")
 
 def read_mb_register(addr):
@@ -219,6 +223,7 @@ def get_vfd_data():
     data = read_mb_register(0x3005)
     if data is not None:
         h['speed-fb'] = data
+        h['speed-rps'] = data / 60
     data = read_mb_register(0x5000)
     if data is not None:
         h['fault-info-code'] = data
@@ -260,7 +265,7 @@ try:
                 LOG.info("State : VFD RUNNING")
                 prevState = currentState
             get_vfd_data()
-            if h['spindle-inhibit'] is True:
+            if not h['forward'] and not h['reverse']:
                 set_motor_off()
             elif h['spindle-on'] is True:
                 set_motor_on()
