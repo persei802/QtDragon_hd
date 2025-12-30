@@ -93,3 +93,9 @@ Sep. 10/25 v 2.1.9
     - complete overhaul of tool database function
     - added statusbar timeout option in SETTINGS page
     
+Dec. 24/29 v 2.2.0
+    - fixed issue with get_tool_data, return entire dictionary instead of single item
+    - added indicators to mode and program buttons to indicate actual machine state
+    - no need to disable spindle pause button in AUTO mode
+    - spindle override adjuster should not adjust spindle gauge threshold level
+    
