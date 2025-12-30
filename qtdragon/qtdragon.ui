@@ -6979,7 +6979,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>10:35:34 AM</string>
+                       <string>09:02:08 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -11326,19 +11326,19 @@ ACTIVE</string>
                   <string>MAN</string>
                  </property>
                  <property name="checkable">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="checked">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="autoExclusive">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
@@ -11347,20 +11347,20 @@ ACTIVE</string>
                   <bool>true</bool>
                  </property>
                  <property name="python_command_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="on_color" stdset="0">
                   <color>
                    <red>0</red>
-                   <green>255</green>
-                   <blue>0</blue>
+                   <green>170</green>
+                   <blue>255</blue>
                   </color>
                  </property>
                  <property name="shape_option" stdset="0">
                   <number>0</number>
                  </property>
                  <property name="indicator_size" stdset="0">
-                  <double>0.200000000000000</double>
+                  <double>0.300000000000000</double>
                  </property>
                  <property name="right_edge_offset" stdset="0">
                   <number>0</number>
@@ -11375,6 +11375,12 @@ ACTIVE</string>
                   <string/>
                  </property>
                  <property name="is_manual_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="isOnSensitive" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="isIdleSensitive" stdset="0">
                   <bool>true</bool>
                  </property>
                  <property name="manual_action" stdset="0">
@@ -11419,9 +11425,6 @@ ACTIVE</string>
                  <property name="alt_textTemplate" stdset="0">
                   <string>%1.2f mm</string>
                  </property>
-                 <attribute name="buttonGroup">
-                  <string notr="true">mode_buttonGroup</string>
-                 </attribute>
                 </widget>
                </item>
                <item>
@@ -11451,38 +11454,45 @@ ACTIVE</string>
                   <string>MDI</string>
                  </property>
                  <property name="checkable">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="autoExclusive">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_status_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="python_command_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="on_color" stdset="0">
                   <color>
                    <red>0</red>
-                   <green>255</green>
-                   <blue>0</blue>
+                   <green>170</green>
+                   <blue>255</blue>
                   </color>
                  </property>
                  <property name="shape_option" stdset="0">
                   <number>0</number>
                  </property>
+                 <property name="off_color" stdset="0">
+                  <color>
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </property>
                  <property name="indicator_size" stdset="0">
-                  <double>0.200000000000000</double>
+                  <double>0.300000000000000</double>
                  </property>
                  <property name="right_edge_offset" stdset="0">
                   <number>0</number>
@@ -11497,6 +11507,12 @@ ACTIVE</string>
                   <string/>
                  </property>
                  <property name="is_mdi_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="isOnSensitive" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="isIdleSensitive" stdset="0">
                   <bool>true</bool>
                  </property>
                  <property name="mdi_action" stdset="0">
@@ -11541,9 +11557,6 @@ ACTIVE</string>
                  <property name="alt_textTemplate" stdset="0">
                   <string>%1.2f mm</string>
                  </property>
-                 <attribute name="buttonGroup">
-                  <string notr="true">mode_buttonGroup</string>
-                 </attribute>
                 </widget>
                </item>
                <item>
@@ -11573,16 +11586,16 @@ ACTIVE</string>
                   <string>AUTO</string>
                  </property>
                  <property name="checkable">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="autoExclusive">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
@@ -11591,20 +11604,20 @@ ACTIVE</string>
                   <bool>true</bool>
                  </property>
                  <property name="python_command_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="on_color" stdset="0">
                   <color>
                    <red>0</red>
-                   <green>255</green>
-                   <blue>0</blue>
+                   <green>170</green>
+                   <blue>255</blue>
                   </color>
                  </property>
                  <property name="shape_option" stdset="0">
                   <number>0</number>
                  </property>
                  <property name="indicator_size" stdset="0">
-                  <double>0.200000000000000</double>
+                  <double>0.300000000000000</double>
                  </property>
                  <property name="right_edge_offset" stdset="0">
                   <number>0</number>
@@ -11619,6 +11632,12 @@ ACTIVE</string>
                   <string/>
                  </property>
                  <property name="is_auto_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="isOnSensitive" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="isIdleSensitive" stdset="0">
                   <bool>true</bool>
                  </property>
                  <property name="auto_action" stdset="0">
@@ -11663,9 +11682,6 @@ ACTIVE</string>
                  <property name="alt_textTemplate" stdset="0">
                   <string>%1.2f mm</string>
                  </property>
-                 <attribute name="buttonGroup">
-                  <string notr="true">mode_buttonGroup</string>
-                 </attribute>
                 </widget>
                </item>
               </layout>
@@ -11980,13 +11996,13 @@ BLOCK</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="indicator_status_option" stdset="0">
                   <bool>true</bool>
@@ -11994,11 +12010,14 @@ BLOCK</string>
                  <property name="on_color" stdset="0">
                   <color>
                    <red>0</red>
-                   <green>255</green>
-                   <blue>0</blue>
+                   <green>170</green>
+                   <blue>255</blue>
                   </color>
                  </property>
                  <property name="is_block_delete_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="isIdleSensitive" stdset="0">
                   <bool>true</bool>
                  </property>
                  <property name="block_delete_action" stdset="0">
@@ -12036,7 +12055,7 @@ BLOCK</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="checked">
                   <bool>false</bool>
@@ -12045,7 +12064,7 @@ BLOCK</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="indicator_status_option" stdset="0">
                   <bool>true</bool>
@@ -12056,8 +12075,8 @@ BLOCK</string>
                  <property name="on_color" stdset="0">
                   <color>
                    <red>0</red>
-                   <green>255</green>
-                   <blue>0</blue>
+                   <green>170</green>
+                   <blue>255</blue>
                   </color>
                  </property>
                  <property name="true_state_string" stdset="0">
@@ -12129,22 +12148,28 @@ STOP</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
+                 </property>
+                 <property name="indicator_status_option" stdset="0">
+                  <bool>true</bool>
                  </property>
                  <property name="on_color" stdset="0">
                   <color>
                    <red>0</red>
-                   <green>255</green>
-                   <blue>0</blue>
+                   <green>170</green>
+                   <blue>255</blue>
                   </color>
                  </property>
                  <property name="is_optional_stop_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="isIdleSensitive" stdset="0">
                   <bool>true</bool>
                  </property>
                  <property name="optional_stop_action" stdset="0">
@@ -12250,7 +12275,7 @@ STOP</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="checked">
                   <bool>false</bool>
@@ -12259,7 +12284,7 @@ STOP</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="doubleIndicator" stdset="0">
                   <bool>false</bool>
@@ -12273,8 +12298,8 @@ STOP</string>
                  <property name="on_color" stdset="0">
                   <color>
                    <red>0</red>
-                   <green>255</green>
-                   <blue>0</blue>
+                   <green>170</green>
+                   <blue>255</blue>
                   </color>
                  </property>
                  <property name="true_state_string" stdset="0">
@@ -14181,6 +14206,9 @@ ALL</string>
                   <property name="axis_letter" stdset="0">
                    <string>Z</string>
                   </property>
+                  <property name="homed" stdset="0">
+                   <bool>false</bool>
+                  </property>
                  </widget>
                 </item>
                 <item row="2" column="5">
@@ -14228,6 +14256,9 @@ ALL</string>
                   <property name="axis_letter" stdset="0">
                    <string>Y</string>
                   </property>
+                  <property name="homed" stdset="0">
+                   <bool>false</bool>
+                  </property>
                  </widget>
                 </item>
                 <item row="1" column="5">
@@ -14274,6 +14305,9 @@ ALL</string>
                   </property>
                   <property name="axis_letter" stdset="0">
                    <string>X</string>
+                  </property>
+                  <property name="homed" stdset="0">
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -14745,6 +14779,9 @@ CAMERA</string>
                   </property>
                   <property name="axis_letter" stdset="0">
                    <string>A</string>
+                  </property>
+                  <property name="homed" stdset="0">
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -15721,10 +15758,10 @@ OFF</string>
                     <bool>false</bool>
                    </property>
                    <property name="pin_name" stdset="0">
-                    <string>at_speed_rev</string>
+                    <string>spindle_rev</string>
                    </property>
                    <property name="indicator_option" stdset="0">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="indicator_HAL_pin_option" stdset="0">
                     <bool>false</bool>
@@ -15735,8 +15772,8 @@ OFF</string>
                    <property name="on_color" stdset="0">
                     <color>
                      <red>0</red>
-                     <green>255</green>
-                     <blue>0</blue>
+                     <green>170</green>
+                     <blue>255</blue>
                     </color>
                    </property>
                    <property name="shape_option" stdset="0">
@@ -15744,7 +15781,7 @@ OFF</string>
                    </property>
                    <property name="off_color" stdset="0">
                     <color>
-                     <red>255</red>
+                     <red>0</red>
                      <green>0</green>
                      <blue>0</blue>
                     </color>
@@ -15804,7 +15841,7 @@ OFF</string>
                     <bool>false</bool>
                    </property>
                    <property name="pin_name" stdset="0">
-                    <string>spindle_inhibit</string>
+                    <string>spindle_stop</string>
                    </property>
                    <property name="indicator_option" stdset="0">
                     <bool>false</bool>
@@ -15886,10 +15923,10 @@ OFF</string>
                     <bool>false</bool>
                    </property>
                    <property name="pin_name" stdset="0">
-                    <string>at_speed_fwd</string>
+                    <string>spindle_fwd</string>
                    </property>
                    <property name="indicator_option" stdset="0">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="indicator_HAL_pin_option" stdset="0">
                     <bool>false</bool>
@@ -15900,8 +15937,8 @@ OFF</string>
                    <property name="on_color" stdset="0">
                     <color>
                      <red>0</red>
-                     <green>255</green>
-                     <blue>0</blue>
+                     <green>170</green>
+                     <blue>255</blue>
                     </color>
                    </property>
                    <property name="shape_option" stdset="0">
@@ -15909,7 +15946,7 @@ OFF</string>
                    </property>
                    <property name="off_color" stdset="0">
                     <color>
-                     <red>255</red>
+                     <red>0</red>
                      <green>0</green>
                      <blue>0</blue>
                     </color>
@@ -16380,7 +16417,6 @@ OFF</string>
  <buttongroups>
   <buttongroup name="mdi_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
