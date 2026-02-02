@@ -145,9 +145,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self['lineEdit_' + i].setValidator(self.valid)
 
         self.event_filter = EventFilter(self)
-        line_list = self.parm_list
-        line_list.remove('cal_offset')
-#        line_list[self.parm_list.index('cal_offset')] = 'probe_tool'
+        line_list = self.parm_list[:-1]
         for line in line_list:
             self[f'lineEdit_{line}'].installEventFilter(self.event_filter)
         self.lineEdit_probe_tool.installEventFilter(self.event_filter)
@@ -201,7 +199,6 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                 newobj = self.event_filter.findBack()
                 self.event_filter.show_calc(newobj, True)
         elif code and name == self.tool_code:
-#            obj.setStyleSheet(self.default_style)
             if rtn is not None:
                 obj.setText(str(int(rtn)))
                 self.load_probe_pressed()
@@ -266,7 +263,6 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.parent.add_status(text, WARNING)
         elif "ERROR" in line:
             text = line.replace("ERROR", "")
-            #print(line)
             STATUS.unblock_error_polling()
             self.parent.add_status(text, WARNING)
         elif "INFO" in line:
@@ -287,6 +283,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                 text = line.replace("HISTORY", "")
                 self.parent.add_status(text, WARNING)
             else:
+                STATUS.emit('update-machine-log', line, 'TIME')
                 self.parent.add_status("Probe history updated to machine log")
         elif "DEBUG" in line:
             pass
@@ -472,7 +469,6 @@ class HelpPage(QtWidgets.QWidget):
             file.open(QFile.ReadOnly)
             html = file.readAll()
             html = str(html, encoding='utf8')
-#            html = html.replace("../images/widgets/","{}/widgets/".format(INFO.IMAGE_PATH))
             self.text_edit.setHtml(html)
         except Exception as e:
             self.text_edit.setHtml(f'''
