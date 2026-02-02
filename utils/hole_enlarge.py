@@ -295,12 +295,15 @@ class Hole_Enlarge(QWidget):
             info = TOOL.GET_TOOL_INFO(self.tool)
             dia = info[11]
             self.lineEdit_tool_dia.setText(f"{dia:8.3f}")
-            rpm = self.tool_db.get_tool_data(self.tool, "RPM")
+            data = self.tool_db.get_tool_data(self.tool)
+            if data is None:
+                self.h.add_status("Failed to retrieve data from database", ERROR)
+                return
+            rpm = int(data['rpm'])
+            feed = int(data['feed'])
             self.lineEdit_spindle.setText(str(rpm))
-            feed = self.tool_db.get_tool_data(self.tool, "FEED")
             self.lineEdit_feed.setText(str(feed))
             self.lineEdit_tool.setStyleSheet(self.default_style)
-        self.validate()
 
     def calculate_program(self, fname):
         comment = self.lineEdit_comment.text()
