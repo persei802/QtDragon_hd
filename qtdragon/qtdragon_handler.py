@@ -645,6 +645,7 @@ class HandlerClass:
             self.w.btn_enable_comp.setEnabled(False)
         self.get_next_available()
         self.tool_db.load_tool_table(self.tool_list)
+        self.w.lineEdit_num_tools.setText(self.tool_db.get_tool_count())
 
     def init_about(self):
         self.about_dict = {'vfd'          : 'USING A VFD',
@@ -1629,6 +1630,7 @@ class HandlerClass:
         array = [self.next_available, self.next_available, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 'New Tool']
         TOOL.ADD_TOOL(array)
         if self.tool_db.add_tool(self.next_available) is True:
+            self.w.lineEdit_num_tools.setText(self.tool_db.get_tool_count())
             self.add_status(f"Added new tool {self.next_available}")
         else:
             self.add_status('Failed to add tool to database', WARNING)
@@ -1643,7 +1645,9 @@ class HandlerClass:
             ACTION.CALL_MDI('M61 Q0', mode_return=True)
         self.w.tooloffsetview.delete_tools()
         self.add_status(f"Deleted tool {tools[0]}")
-        if not self.tool_db.delete_tool(tools[0]):
+        if self.tool_db.delete_tool(tools[0]) is True:
+            self.w.lineEdit_num_tools.setText(self.tool_db.get_tool_count())
+        else:
             self.add_status(f'Failed to delete tool {tools[0]} from database', WARNING)
         self.get_next_available()
 
@@ -1789,12 +1793,14 @@ class HandlerClass:
             array = [new_tno[0], new_tno[0], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 'New Tool']
             TOOL.ADD_TOOL(array)
             if self.tool_db.add_tool(new_tno[0]) is True:
+                self.w.lineEdit_num_tools.setText(self.tool_db.get_tool_count())
                 self.add_status(f'Added tool {new_tno[0]} to database')
             else:
                 self.add_status(f'Failed to add tool {new_tno[0]} to database', WARNING)
         # there are duplicate tools in the new list
         elif len(old_tno) > 0 and len(new_tno) == 0:
-            if self.tool_db.delete_tool(old_tno[0]):
+            if self.tool_db.delete_tool(old_tno[0]) is True:
+                self.w.lineEdit_num_tools.setText(self.tool_db.get_tool_count())
                 self.add_status(f'Deleted tool {old_tno[0]} from database')
             else:
                 self.add_status(f'Failed to delete tool {tools[0]} from database', WARNING)

@@ -33,7 +33,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>QT Dragon 2.1</string>
+   <string>QT Dragon 2.2</string>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -2753,7 +2753,7 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>0</number>
+                <number>3</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -5642,7 +5642,7 @@ G5X</string>
                   <number>4</number>
                  </property>
                  <property name="topMargin">
-                  <number>9</number>
+                  <number>0</number>
                  </property>
                  <property name="rightMargin">
                   <number>4</number>
@@ -5656,7 +5656,7 @@ G5X</string>
                     <enum>QTabWidget::Rounded</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>1</number>
                    </property>
                    <widget class="QWidget" name="tab_offsets">
                     <attribute name="title">
@@ -5733,7 +5733,7 @@ G5X</string>
                    </property>
                    <layout class="QHBoxLayout" name="horizontalLayout_54">
                     <property name="spacing">
-                     <number>8</number>
+                     <number>6</number>
                     </property>
                     <property name="leftMargin">
                      <number>0</number>
@@ -5894,6 +5894,58 @@ TABLE</string>
                     </item>
                     <item>
                      <spacer name="horizontalSpacer_4">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="lbl_num_tools">
+                      <property name="text">
+                       <string>NUMBER
+OF TOOLS</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="lineEdit_num_tools">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>60</width>
+                        <height>30</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>60</width>
+                        <height>30</height>
+                       </size>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_2">
                       <property name="orientation">
                        <enum>Qt::Horizontal</enum>
                       </property>
@@ -6273,13 +6325,13 @@ TO FILE</string>
                   <number>4</number>
                  </property>
                  <property name="leftMargin">
-                  <number>0</number>
+                  <number>4</number>
                  </property>
                  <property name="topMargin">
                   <number>0</number>
                  </property>
                  <property name="rightMargin">
-                  <number>0</number>
+                  <number>4</number>
                  </property>
                  <property name="bottomMargin">
                   <number>0</number>
@@ -6979,7 +7031,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>09:02:08 AM</string>
+                       <string>02:48:56 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -7610,7 +7662,7 @@ SCOPE</string>
                        </sizepolicy>
                       </property>
                       <property name="currentIndex">
-                       <number>0</number>
+                       <number>2</number>
                       </property>
                       <property name="usesScrollButtons">
                        <bool>false</bool>
@@ -11326,19 +11378,19 @@ ACTIVE</string>
                   <string>MAN</string>
                  </property>
                  <property name="checkable">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="checked">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="autoExclusive">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
@@ -11454,16 +11506,16 @@ ACTIVE</string>
                   <string>MDI</string>
                  </property>
                  <property name="checkable">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="autoExclusive">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
@@ -11586,16 +11638,16 @@ ACTIVE</string>
                   <string>AUTO</string>
                  </property>
                  <property name="checkable">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="autoExclusive">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
@@ -11996,13 +12048,16 @@ BLOCK</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>false</bool>
+                  <bool>true</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="indicator_status_option" stdset="0">
                   <bool>true</bool>
@@ -12055,7 +12110,7 @@ BLOCK</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="checked">
                   <bool>false</bool>
@@ -12064,7 +12119,7 @@ BLOCK</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="indicator_status_option" stdset="0">
                   <bool>true</bool>
@@ -12148,13 +12203,16 @@ STOP</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>false</bool>
+                  <bool>true</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
                  </property>
                  <property name="flat">
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="indicator_status_option" stdset="0">
                   <bool>true</bool>
@@ -12275,7 +12333,7 @@ STOP</string>
                   </size>
                  </property>
                  <property name="checkable">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="checked">
                   <bool>false</bool>
@@ -12284,7 +12342,7 @@ STOP</string>
                   <bool>false</bool>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="doubleIndicator" stdset="0">
                   <bool>false</bool>
@@ -15737,6 +15795,9 @@ OFF</string>
                      <height>40</height>
                     </size>
                    </property>
+                   <property name="text">
+                    <string>REV</string>
+                   </property>
                    <property name="icon">
                     <iconset>
                      <normalon>:/images/images/spindle_rev.png</normalon>
@@ -15744,15 +15805,18 @@ OFF</string>
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>30</width>
-                     <height>30</height>
+                     <width>24</width>
+                     <height>24</height>
                     </size>
                    </property>
                    <property name="checkable">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="autoRepeat">
                     <bool>false</bool>
+                   </property>
+                   <property name="autoExclusive">
+                    <bool>true</bool>
                    </property>
                    <property name="flat">
                     <bool>false</bool>
@@ -15761,7 +15825,7 @@ OFF</string>
                     <string>spindle_rev</string>
                    </property>
                    <property name="indicator_option" stdset="0">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                    <property name="indicator_HAL_pin_option" stdset="0">
                     <bool>false</bool>
@@ -15830,12 +15894,18 @@ OFF</string>
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>20</width>
-                     <height>20</height>
+                     <width>24</width>
+                     <height>24</height>
                     </size>
                    </property>
                    <property name="checkable">
-                    <bool>false</bool>
+                    <bool>true</bool>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                   <property name="autoExclusive">
+                    <bool>true</bool>
                    </property>
                    <property name="flat">
                     <bool>false</bool>
@@ -15902,6 +15972,9 @@ OFF</string>
                      <height>40</height>
                     </size>
                    </property>
+                   <property name="text">
+                    <string>FWD</string>
+                   </property>
                    <property name="icon">
                     <iconset>
                      <normalon>:/images/images/spindle_fwd.png</normalon>
@@ -15909,15 +15982,18 @@ OFF</string>
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>30</width>
-                     <height>30</height>
+                     <width>24</width>
+                     <height>24</height>
                     </size>
                    </property>
                    <property name="checkable">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="autoRepeat">
                     <bool>false</bool>
+                   </property>
+                   <property name="autoExclusive">
+                    <bool>true</bool>
                    </property>
                    <property name="flat">
                     <bool>false</bool>
@@ -15926,7 +16002,7 @@ OFF</string>
                     <string>spindle_fwd</string>
                    </property>
                    <property name="indicator_option" stdset="0">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                    <property name="indicator_HAL_pin_option" stdset="0">
                     <bool>false</bool>
@@ -16415,12 +16491,12 @@ OFF</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mdi_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mdi_buttonGroup"/>
  </buttongroups>
 </ui>
