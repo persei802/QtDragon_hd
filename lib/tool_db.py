@@ -454,7 +454,7 @@ class Tool_Database(QWidget):
             self.agent.delete_tool(tno)
         # create the treeview
         self.agent.build_tree()
-        self.lineEdit_tool_count.setText(self.agent.get_tool_count())
+#        self.lineEdit_tool_count.setText(self.agent.get_tool_count())
 
     def update_tool_no(self, old, new):
         old_exists = self.agent.tool_exists(old)
@@ -475,7 +475,7 @@ class Tool_Database(QWidget):
         if self.agent.tool_exists(tno): return False
         if self.agent.add_tool(tno, 0.0, 0.0, 'New Tool'):
             self.agent.insert_tree_item(tno, 'New Tool', 'Misc')
-            self.lineEdit_tool_count.setText(self.agent.get_tool_count())
+#            self.lineEdit_tool_count.setText(self.agent.get_tool_count())
             return True
         return False
 
@@ -484,7 +484,7 @@ class Tool_Database(QWidget):
         if self.agent.delete_tool(tno):
             # now remove the tree items
             self.agent.remove_tree_item(tno)
-            self.lineEdit_tool_count.setText(self.agent.get_tool_count())
+#            self.lineEdit_tool_count.setText(self.agent.get_tool_count())
             return True
         return False
 
@@ -552,7 +552,7 @@ class Tool_Database(QWidget):
             self.old_geometry = tool_geometry
             tno = item.data(0, tno_role)
             self.agent.update_tool(tno, tool_geometry[1:])
-            self.lineEdit_tool_count.setText(self.agent.get_tool_count())
+#            self.lineEdit_tool_count.setText(self.agent.get_tool_count())
 
     def display_tool_icon(self):
         icon = self.cmb_icon.currentText()
@@ -618,6 +618,9 @@ class Tool_Database(QWidget):
 
     def get_selected_tool(self):
         return self.selected_tool
+
+    def get_tool_count(self):
+        return self.agent.get_tool_count()
 
     def get_tool_data(self, tno):
         record = self.agent.get_tool_data(tno)
