@@ -62,6 +62,7 @@ class Spindle_Warmup(QtWidgets.QWidget):
         self.start_rpm = 0
         self.final_rpm = 0
         self.interval = 0.0
+        self.geometry = None
         self.minimum_speed = INFO.MIN_SPINDLE_SPEED
         self.maximum_speed = INFO.MAX_SPINDLE_SPEED
         # Load the widgets UI file:
@@ -218,14 +219,24 @@ class Spindle_Warmup(QtWidgets.QWidget):
         self.preview.draw_graph(time, speed)
 
     def create_gcode(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self,"Save to file","","All Files (*);;ngc Files (*.ngc)", options=options)
-        if fileName:
+        dialog = QFileDialog(self)
+        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setDirectory(os.path.expanduser('~/linuxcnc/nc_files'))
+        dialog.setNameFilters(["ngc Files (*.ngc)", "All Files (*)"])
+        dialog.setDefaultSuffix("ngc")
+        for le in dialog.findChildren(QLineEdit):
+            le.setCompleter(None)
+        if self.geometry:
+            dialog.restoreGeometry(self.geometry)
+        if dialog.exec_():
+            self.geometry = dialog.saveGeometry()
+            fileName = dialog.selectedFiles()[0]
             self.calculate_program(fileName)
-            self.h.add_status(f"{fileName} successfully created")
+            self.h.add_status(f"Program successfully saved to {fileName}")
         else:
-            print("Program creation aborted")
+            self.h.add_status("Program creation aborted")
 
     def calculate_program(self, fname):
         comment = self.lineEdit_comment.text()

@@ -503,6 +503,9 @@
             <height>30</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>Use the FILE page to load a gcode program to be probed.</string>
+          </property>
           <property name="readOnly">
            <bool>true</bool>
           </property>

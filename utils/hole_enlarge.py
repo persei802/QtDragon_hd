@@ -15,7 +15,7 @@ import os
 import tempfile
 import atexit
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtWidgets import QFileDialog, QWidget
+from PyQt5.QtWidgets import QFileDialog, QLineEdit, QWidget
 from qtvcp.core import Info, Status, Action, Tool, Path
 from lib.preview import Preview
 from lib.event_filter import EventFilter
@@ -41,6 +41,7 @@ class Hole_Enlarge(QWidget):
         self.kbd_code = 'KEYBOARD'
         self.tool_code = 'TOOLCHOOSER'
         self.default_style = ''
+        self.geometry = None
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         self.units_text = ""
         self.angle_inc = 4
@@ -142,14 +143,22 @@ class Hole_Enlarge(QWidget):
 
     def create_program(self):
         if not self.validate(): return
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        sub_path = INFO.SUB_PATH_LIST
-        _dir = os.path.expanduser(sub_path[0])
-        fileName, _ = QFileDialog.getSaveFileName(self,"Save to file",_dir,"All Files (*);;ngc Files (*.ngc)", options=options)
-        if fileName:
+        dialog = QFileDialog(self)
+        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setDirectory(os.path.expanduser('~/linuxcnc/nc_files'))
+        dialog.setNameFilters(["ngc Files (*.ngc)", "All Files (*)"])
+        dialog.setDefaultSuffix("ngc")
+        for le in dialog.findChildren(QLineEdit):
+            le.setCompleter(None)
+        if self.geometry:
+            dialog.restoreGeometry(self.geometry)
+        if dialog.exec_():
+            self.geometry = dialog.saveGeometry()
+            fileName = dialog.selectedFiles()[0]
             self.calculate_program(fileName)
-            self.h.add_status(f"{fileName} successfully created")
+            self.h.add_status(f"Program successfully saved to {fileName}")
         else:
             self.h.add_status("Program creation aborted")
 

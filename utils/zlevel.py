@@ -21,7 +21,7 @@ import shutil
 from lib.event_filter import EventFilter
 
 from PyQt5 import QtGui, QtWidgets, uic
-from PyQt5.QtWidgets import QWidget, QFileDialog
+from PyQt5.QtWidgets import QWidget, QFileDialog, QLineEdit
 from qtvcp.core import Status, Action, Info, Path
 
 INFO = Info()
@@ -45,6 +45,7 @@ class ZLevel(QWidget):
         self.kbd_code = 'KEYBOARD'
         self.tool_code= 'TOOLCHOOSER'
         self.default_style = ''
+        self.geometry = None
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'zlevel.ui')
@@ -146,9 +147,6 @@ class ZLevel(QWidget):
             obj.setStyleSheet(self.default_style)
             if rtn is not None:
                 obj.setText(str(int(rtn)))
-        elif code and name == 'SAVE':
-            if rtn is not None:
-                self.parse_saveName(rtn)
         elif code and name == 'LOAD':
             if rtn is not None:
                 self.parse_comp_file(rtn)
@@ -161,15 +159,23 @@ class ZLevel(QWidget):
         elif fname == '':
             self.h.add_status('No gcode file was loaded', WARNING)
         else:
-            mess = {'NAME': 'SAVE',
-                    'ID': '_zlevel_',
-                    'TITLE': 'Save Program as',
-                    'DIRECTORY': os.path.dirname(fname),
-                    'FILENAME': os.path.basename(fname),
-                    'EXTENSIONS': 'Gcode Files (*.ngc *.nc);;',
-                    'GEONAME': '__file_save'}
-#                    'OVERLAY': False}
-            ACTION.CALL_DIALOG(mess)
+            dialog = QFileDialog(self)
+            dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+            dialog.setAcceptMode(QFileDialog.AcceptSave)
+            dialog.setFileMode(QFileDialog.AnyFile)
+            dialog.setDirectory(os.path.expanduser('~/linuxcnc/nc_files'))
+            dialog.setNameFilters(["ngc Files (*.ngc)", "All Files (*)"])
+            dialog.setDefaultSuffix("ngc")
+            for le in dialog.findChildren(QLineEdit):
+                le.setCompleter(None)
+            if self.geometry:
+                dialog.restoreGeometry(self.geometry)
+            if dialog.exec_():
+                self.geometry = dialog.saveGeometry()
+                fileName = dialog.selectedFiles()[0]
+                self.parse_saveName(fileName)
+            else:
+                self.h.add_status("Save GCode aborted")
 
     def parse_saveName(self, fname):
         dname = os.path.dirname(fname)
@@ -177,7 +183,7 @@ class ZLevel(QWidget):
         if not bname.startswith('probe'):
             fname = os.path.join(dname, 'probe_' + bname)
         if fname.endswith('.ngc'):
-            self.lineEdit_gcode_program.setText(fname)
+#            self.lineEdit_gcode_program.setText(fname)
             self.probe_filename = fname.replace(".ngc", ".txt")
             self.calculate_gcode(fname)
             self.h.add_status(f"Program successfully saved to {fname}")

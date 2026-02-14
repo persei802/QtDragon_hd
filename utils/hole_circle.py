@@ -20,7 +20,7 @@ from lib.event_filter import EventFilter
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QPoint, QPointF, QLine, QRect, QFile, Qt, QEvent
-from PyQt5.QtWidgets import QFileDialog, QHeaderView
+from PyQt5.QtWidgets import QFileDialog, QLineEdit, QHeaderView
 from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 
 from qtvcp.core import Info, Status, Action, Path
@@ -112,6 +112,7 @@ class Hole_Circle(QtWidgets.QWidget):
         self.h = self.parent.parent
         self.dialog_code = 'CALCULATOR'
         self.kbd_code = 'KEYBOARD'
+        self.geometry = None
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         self.helpfile = 'hole_circle_help.html'
         # Load the widgets UI file:
@@ -124,6 +125,7 @@ class Hole_Circle(QtWidgets.QWidget):
         self.layout_preview.addWidget(self.preview)
 
         # Initial values
+        self.tool_code = 'TOOLCHOOSER'
         self._tmp = None
         self.rpm = 0
         self.num_holes = 0
@@ -136,9 +138,9 @@ class Hole_Circle(QtWidgets.QWidget):
         self.min_rpm = INFO.get_safe_int("DISPLAY", "MIN_SPINDLE_0_SPEED")
         self.max_rpm = INFO.get_safe_int("DISPLAY", "MAX_SPINDLE_0_SPEED")
         self.red_border = "border: 2px solid red;"
-        self.parm_list = ["spindle", "num_holes", "first", "radius", "safe_z", "start_height", "depth", "drill_feed"]
+        self.parm_list = ["tool", "num_holes", "first", "radius", "safe_z", "start_height", "depth", "drill_feed", "spindle"]
         # set valid input formats for lineEdits
-        self.lineEdit_spindle.setValidator(QtGui.QIntValidator(0, 99999))
+        self.lineEdit_tool.setValidator(QtGui.QIntValidator(0, 99999))
         self.lineEdit_num_holes.setValidator(QtGui.QIntValidator(0, 99))
         self.lineEdit_radius.setValidator(QtGui.QDoubleValidator(0, 999, 3))
         self.lineEdit_first.setValidator(QtGui.QDoubleValidator(-999, 999, 3))
@@ -146,6 +148,7 @@ class Hole_Circle(QtWidgets.QWidget):
         self.lineEdit_start_height.setValidator(QtGui.QDoubleValidator(0, 99, 3))
         self.lineEdit_depth.setValidator(QtGui.QDoubleValidator(0, 99, 3))
         self.lineEdit_drill_feed.setValidator(QtGui.QIntValidator(0, 999))
+        self.lineEdit_spindle.setValidator(QtGui.QIntValidator(0, 99999))
         # setup event filter to catch focus_in events
         self.event_filter = EventFilter(self)
         for line in self.parm_list:
@@ -154,6 +157,7 @@ class Hole_Circle(QtWidgets.QWidget):
         self.event_filter.set_line_list(self.parm_list)
         self.event_filter.set_kbd_list('comment')
         self.event_filter.set_parms(('_hole_circle_', True))
+        self.event_filter.set_tool_list('tool')
         # setup report table headers
         self.model = QtGui.QStandardItemModel(4, 4)
         self.model.setHorizontalHeaderLabels(['Hole', 'Angle', 'X', 'Y'])
@@ -163,7 +167,7 @@ class Hole_Circle(QtWidgets.QWidget):
         # signal connections
         self.chk_units.stateChanged.connect(lambda state: self.units_changed(state))
         self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
-        self.btn_create.clicked.connect(self.create_program)
+        self.btn_save.clicked.connect(self.save_program)
         self.btn_send.clicked.connect(self.send_program)
         self.btn_help.pressed.connect(self.show_help)
 
@@ -203,6 +207,9 @@ class Hole_Circle(QtWidgets.QWidget):
             obj.setStyleSheet(self.default_style)
             if rtn is not None:
                 obj.setText(rtn)
+        elif code and name == self.tool_code:
+            if rtn is not None:
+                obj.setText(str(int(rtn)))
 
     def units_changed(self, mode):
         text = "MM" if mode else "IN"
@@ -308,15 +315,25 @@ class Hole_Circle(QtWidgets.QWidget):
             valid = False
         return valid
 
-    def create_program(self):
+    def save_program(self):
         if not self.validate(): return
         self.show_preview()
         self.clear_model()
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self,"Save to file","","All Files (*);;ngc Files (*.ngc)", options=options)
-        if fileName:
-            self.calculate_toolpath(fileName)
+        dialog = QFileDialog(self)
+        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setDirectory(os.path.expanduser('~/linuxcnc/nc_files'))
+        dialog.setNameFilters(["ngc Files (*.ngc)", "All Files (*)"])
+        dialog.setDefaultSuffix("ngc")
+        for le in dialog.findChildren(QLineEdit):
+            le.setCompleter(None)
+        if self.geometry:
+            dialog.restoreGeometry(self.geometry)
+        if dialog.exec_():
+            self.geometry = dialog.saveGeometry()
+            fileName = dialog.selectedFiles()[0]
+            self.calculate_program(fileName)
             self.h.add_status(f"Program successfully saved to {fileName}")
         else:
             self.h.add_status("Program creation aborted")
@@ -326,11 +343,11 @@ class Hole_Circle(QtWidgets.QWidget):
         self.show_preview()
         self.clear_model()
         filename = self.make_temp()
-        self.calculate_toolpath(filename)
+        self.calculate_program(filename)
         ACTION.OPEN_PROGRAM(filename)
         self.h.add_status("Program successfully sent to Linuxcnc")
 
-    def calculate_toolpath(self, fname):
+    def calculate_program(self, fname):
         comment = self.lineEdit_comment.text()
         unit_code = 'G21' if self.chk_units.isChecked() else 'G20'
         units_text = 'Metric' if self.chk_units.isChecked() else 'Imperial'
@@ -351,6 +368,7 @@ class Hole_Circle(QtWidgets.QWidget):
             self.next_line("M7")
         if self.chk_flood.isChecked():
             self.next_line("M8")
+        self.next_line(f'M6 T{self.lineEdit_tool.text()}')
         self.next_line(f"G0 Z{self.safe_z}")
         self.next_line("G0 X0.0 Y0.0")
         self.next_line(f"S{self.rpm} M3")

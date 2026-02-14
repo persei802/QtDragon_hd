@@ -17,7 +17,7 @@ import atexit
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFileDialog, QWidget
+from PyQt5.QtWidgets import QFileDialog, QLineEdit, QWidget
 
 from qtvcp.core import Info, Status, Action, Path, Tool
 from qtvcp import logger
@@ -50,6 +50,7 @@ class Facing(QWidget):
         self.kbd_code = 'KEYBOARD'
         self.tool_code = 'TOOLCHOOSER'
         self.default_style = ''
+        self.geometry = None
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'facing.ui')
@@ -160,12 +161,6 @@ class Facing(QWidget):
             if rtn is not None:
                 obj.setText(str(int(rtn)))
                 self.load_tool()
-        elif code and name == 'SAVE':
-            if rtn is None: return
-            if self.calculate_program(rtn):
-                self.h.add_status(f"Program successfully saved to {rtn}")
-            else:
-                self.h.add_status("Could not calculate program toolpath", WARNING)
 
     def units_changed(self, state):
         text = "MM" if state else "IN"
@@ -348,15 +343,24 @@ class Facing(QWidget):
 
     def create_program(self):
         if not self.validate(): return
-        mess = {'NAME': 'SAVE',
-                'ID': '_facing_',
-                'TITLE': 'Save Program as',
-                'FILENAME': '',
-                'EXTENSIONS': 'Gcode Files (*.ngc *.nc);;',
-                'GEONAME': '__file_save',
-                'OVERLAY': False}
-        LOG.debug(f'message sent:{mess}')
-        ACTION.CALL_DIALOG(mess)
+        dialog = QFileDialog(self)
+        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setDirectory(os.path.expanduser('~/linuxcnc/nc_files'))
+        dialog.setNameFilters(["ngc Files (*.ngc)", "All Files (*)"])
+        dialog.setDefaultSuffix("ngc")
+        for le in dialog.findChildren(QLineEdit):
+            le.setCompleter(None)
+        if self.geometry:
+            dialog.restoreGeometry(self.geometry)
+        if dialog.exec_():
+            self.geometry = dialog.saveGeometry()
+            fileName = dialog.selectedFiles()[0]
+            self.calculate_program(fileName)
+            self.h.add_status(f"Program successfully saved to {fileName}")
+        else:
+            self.h.add_status("Program creation aborted")
 
     def send_program(self):
         if not self.validate(): return
