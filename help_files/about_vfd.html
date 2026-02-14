@@ -48,6 +48,10 @@ If no optional arguments are included when loading the hy_gt_vfd HAL module, the
     <li>baud    - 38400 bits/sec</li>
     <li>slave   - 1</li>
 </ul>
-
+<p>If the spindle does not run, check the console for error messages about permission errors for /dev/ttyUSB0. If these occur,
+it is likely that you need to add your username to the dialout group.
+</p>
+<div class="code-block">sudo usermod -aG your_user_name dialout</div>
+<p>Then logout and log back in.</p>
 </body>
 </html>
