@@ -257,7 +257,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::StrongFocus</enum>
+          <enum>Qt::ClickFocus</enum>
          </property>
          <property name="maxLength">
           <number>20</number>
@@ -284,6 +284,9 @@
            <height>30</height>
           </size>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::ClickFocus</enum>
+         </property>
          <property name="maxLength">
           <number>20</number>
          </property>
@@ -309,6 +312,9 @@
            <height>30</height>
           </size>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::ClickFocus</enum>
+         </property>
          <property name="maxLength">
           <number>20</number>
          </property>
@@ -333,6 +339,9 @@
            <width>16777215</width>
            <height>30</height>
           </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::ClickFocus</enum>
          </property>
         </widget>
        </item>
@@ -423,19 +432,6 @@
 Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
       </widget>
-     </item>
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
      </item>
      <item>
       <widget class="QCheckBox" name="chk_use_keyboard">
@@ -683,9 +679,6 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        <property name="frameShape">
         <enum>QFrame::Box</enum>
        </property>
-       <property name="text">
-        <string/>
-       </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -707,9 +700,6 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
        <property name="frameShape">
         <enum>QFrame::Box</enum>
-       </property>
-       <property name="text">
-        <string/>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

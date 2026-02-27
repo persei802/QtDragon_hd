@@ -42,7 +42,6 @@ class Facing(QWidget):
     def __init__(self, parent=None):
         super(Facing, self).__init__()
         self.parent = parent
-        self.tool_db = self.parent.tool_db
         self.h = self.parent.parent
         self.calculate_pass = None
         self.helpfile = 'facing_help.html'
@@ -309,16 +308,8 @@ class Facing(QWidget):
             info = TOOL.GET_TOOL_INFO(self.tool)
             dia = info[11]
             self.lineEdit_tool_diameter.setText(f"{dia:8.3f}")
-            data = self.tool_db.get_tool_data(self.tool)
-            if data is None:
-                self.h.add_status("Failed to retrieve data from database", ERROR)
-                return
-            rpm = data['rpm']
-            self.lineEdit_spindle.setText(str(rpm))
-            feed = data['feed']
-            self.lineEdit_xy_feedrate.setText(str(feed))
             self.lineEdit_tool_num.setStyleSheet(self.default_style)
-            ACTION.CALL_MDI(f"M61 Q{self.tool}")
+            ACTION.CALL_MDI(f"M61 Q{self.tool} G43")
         else:
             self.h.add_status("Invalid tool number specified", WARNING)
             self.lineEdit_tool_num.setStyleSheet(self.red_border)

@@ -32,6 +32,7 @@ class CustomMacros(QWidget):
         self.w = self.parent.w # reference to handler widgets
         self.kbd_code = 'KEYBOARD'
         self.old_value = 0
+        self.custom_macros = list()
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'custom_macros.ui')
         try:
@@ -67,30 +68,34 @@ class CustomMacros(QWidget):
 
     def closing_cleanup__(self):
         # save all custom macros to qtdragon.pref file
-        for i in range(20):
-            if i in self.h.macros_defined: continue
-            if self[f'lbl_macro{i}'].text() != '':
-                self.spinbox.setValue(i)
-                text = self.assemble_command()
-                self.w.PREFS_.putpref(str(i), text, str, 'CUSTOM_MACROS')
+        for key in self.custom_macros:
+            self.spinbox.setValue(key)
+            text = self.assemble_command()
+            self.w.PREFS_.putpref(str(key), text, str, 'CUSTOM_MACROS')
 
     def prefill_labels(self):
         # prefill INI macro labels
         for i in self.h.macros_defined:
-            text = self.w[f'btn_macro{i}'].text()
-            self[f'lbl_macro{i}'].setText(text)
+            self[f'lbl_macro{i}'].setText(self.w[f'btn_macro{i}'].text())
+            cmds = self.w[f'btn_macro{i}'].get_command_text()
+            for cmd in cmds:
+                self[f'lbl_macro{i}'].setText(cmd)
         # prefill custom macro labels
         if self.w.PREFS_:
             macro_list = self.w.PREFS_.getall('CUSTOM_MACROS')
             for key in macro_list:
+                self.custom_macros.append(key)
                 text = macro_list[key]
                 line = text.split(',')
-                cmds = line[0].split(';')
+                cmds = line[0]
                 lbl = line[1]
-                for i in range(len(cmds)):
-                    self[f'lineEdit_cmd{i+1}'].setText(cmds[i])
-                self.lineEdit_text.setText(lbl)
-                self.apply_command(int(key))
+                tip = cmds.replace(';','\n')
+                tooltip = f'MDI CMD MACRO{key}:\n{tip}'
+                self[f'lbl_macro{key}'].setText(lbl)
+                self.w[f'btn_macro{key}'].set_mdi_command(True)
+                self.w[f'btn_macro{key}'].set_command_text(cmds)
+                self.w[f'btn_macro{key}'].setText(lbl)
+                self.w[f'btn_macro{key}'].setToolTip(tooltip)
 
     def dialog_return(self, w, message):
         rtn = message['RETURN']
@@ -103,8 +108,8 @@ class CustomMacros(QWidget):
             if rtn is not None:
                 obj.setText(rtn)
 
-    def apply_command(self, index=None):
-        i = self.spinbox.value() if index is None else index
+    def apply_command(self):
+        i = self.spinbox.value()
         line = self.assemble_command()
         if line is None:
             self.w[f'btn_macro{i}'].set_mdi_command(False)
@@ -119,7 +124,7 @@ class CustomMacros(QWidget):
             text = line.split(',')
             cmd = text[0]
             tip = cmd.replace(';','\n')
-            lbl = text[1].replace(' ','\n')
+            lbl = text[1]
             tooltip = f'MDI CMD MACRO{i}:\n{tip}'
             self[f'lbl_macro{i}'].setText(lbl)
             self.w[f'btn_macro{i}'].set_mdi_command(True)
@@ -136,38 +141,38 @@ class CustomMacros(QWidget):
 
     def assemble_command(self):
         cmd1 = self.lineEdit_cmd1.text()
-        if cmd1 == '': return None
+        if not cmd1: return None
         cmd2 = self.lineEdit_cmd2.text()
-        if cmd2 == '':
-            command = cmd1 + ',' + self.lineEdit_text.text()
+        if not cmd2:
+            command = f'{cmd1},{self.lineEdit_text.text()}'
             return command
         cmd3 = self.lineEdit_cmd3.text()
-        if cmd3 == '':
-            command = cmd1 + ';' + cmd2 + ',' + self.lineEdit_text.text()
+        if not cmd3:
+            command = f'{cmd1};{cmd2},{self.lineEdit_text.text()}'
             return command
-        command = cmd1 + ';' + cmd2 + ';' + cmd3 + ',' + self.lineEdit_text.text()
+        command = f'{cmd1};{cmd2};{cmd3},{self.lineEdit_text.text()}'
         return command
 
-    def spin_value_changed(self, value):
+    def spin_value_changed(self, idx):
         self[f'lbl_macro{self.old_value}'].setStyleSheet('')
-        self.old_value = value
+        self.old_value = idx
         self.lineEdit_cmd1.clear()
         self.lineEdit_cmd2.clear()
         self.lineEdit_cmd3.clear()
         self.lineEdit_text.clear()
-        if value in self.h.macros_defined:
-            self[f'lbl_macro{value}'].setStyleSheet("border: 1px solid red;")
-            key = self.w[f'btn_macro{value}'].property('ini_mdi_key')
+        if idx in self.h.macros_defined:
+            self[f'lbl_macro{idx}'].setStyleSheet("border: 1px solid red;")
+            key = self.w[f'btn_macro{idx}'].property('ini_mdi_key')
             text = INFO.get_ini_mdi_command(key)
             self.btn_apply.setEnabled(False)
         else:
-            self[f'lbl_macro{value}'].setStyleSheet("border: 1px solid cyan;")
-            text = self.w[f'btn_macro{value}'].get_command_text()
+            self[f'lbl_macro{idx}'].setStyleSheet("border: 1px solid cyan;")
+            text = self.w[f'btn_macro{idx}'].get_command_text()
             self.btn_apply.setEnabled(True)
         cmds = text.split(';')
         for i in range(len(cmds)):
             self[f'lineEdit_cmd{i+1}'].setText(cmds[i])
-        self.lineEdit_text.setText(self.w[f'btn_macro{value}'].text())
+        self.lineEdit_text.setText(self.w[f'btn_macro{idx}'].text())
 
     # required code for subscriptable objects
     def __getitem__(self, item):

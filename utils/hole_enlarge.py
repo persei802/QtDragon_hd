@@ -34,7 +34,6 @@ class Hole_Enlarge(QWidget):
     def __init__(self, parent=None):
         super(Hole_Enlarge, self).__init__()
         self.parent = parent
-        self.tool_db = self.parent.tool_db
         self.h = self.parent.parent
         self.helpfile = 'hole_enlarge_help.html'
         self.dialog_code = 'CALCULATOR'
@@ -140,6 +139,23 @@ class Hole_Enlarge(QWidget):
             if rtn is not None:
                 obj.setText(str(int(rtn)))
                 self.load_tool()
+
+    def load_tool(self):
+        #check for valid tool and populate dia
+        try:
+            self.tool = int(self.lineEdit_tool.text())
+        except:
+            self.tool = 0
+        if self.tool > 0:
+            info = TOOL.GET_TOOL_INFO(self.tool)
+            dia = info[11]
+            self.lineEdit_tool_dia.setText(f"{dia:8.3f}")
+            self.lineEdit_tool.setStyleSheet(self.default_style)
+            ACTION.CALL_MDI(f"M61 Q{self.tool} G43")
+        else:
+            self.h.add_status("Invalid tool number specified", WARNING)
+            self.lineEdit_tool.setStyleSheet(self.red_border)
+        self.validate()
 
     def create_program(self):
         if not self.validate(): return
@@ -292,27 +308,6 @@ class Hole_Enlarge(QWidget):
             self.h.add_status(f"{fileName} successfully created")
         else:
             print("Program creation aborted")
-
-    def load_tool(self):
-        #check for valid tool and populate rpm, dia and feed parameters
-        try:
-            self.tool = int(self.lineEdit_tool.text())
-        except:
-            self.tool = 0
-
-        if self.tool > 0:
-            info = TOOL.GET_TOOL_INFO(self.tool)
-            dia = info[11]
-            self.lineEdit_tool_dia.setText(f"{dia:8.3f}")
-            data = self.tool_db.get_tool_data(self.tool)
-            if data is None:
-                self.h.add_status("Failed to retrieve data from database", ERROR)
-                return
-            rpm = int(data['rpm'])
-            feed = int(data['feed'])
-            self.lineEdit_spindle.setText(str(rpm))
-            self.lineEdit_feed.setText(str(feed))
-            self.lineEdit_tool.setStyleSheet(self.default_style)
 
     def calculate_program(self, fname):
         comment = self.lineEdit_comment.text()
