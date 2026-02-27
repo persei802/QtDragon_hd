@@ -2753,7 +2753,7 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>3</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -5656,7 +5656,7 @@ G5X</string>
                     <enum>QTabWidget::Rounded</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>1</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="tab_offsets">
                     <attribute name="title">
@@ -5936,6 +5936,9 @@ OF TOOLS</string>
                         <height>30</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::NoFocus</enum>
+                      </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
                       </property>
@@ -5987,6 +5990,9 @@ AVAILABLE</string>
                         <width>60</width>
                         <height>30</height>
                        </size>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::NoFocus</enum>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -7031,7 +7037,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>02:48:56 PM</string>
+                       <string>11:48:09 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -7662,7 +7668,7 @@ SCOPE</string>
                        </sizepolicy>
                       </property>
                       <property name="currentIndex">
-                       <number>2</number>
+                       <number>0</number>
                       </property>
                       <property name="usesScrollButtons">
                        <bool>false</bool>
@@ -10522,6 +10528,9 @@ SCOPE</string>
                       <height>30</height>
                      </size>
                     </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::NoFocus</enum>
+                    </property>
                     <property name="maxLength">
                      <number>8</number>
                     </property>
@@ -12556,6 +12565,9 @@ ENABLE</string>
                    <height>16777215</height>
                   </size>
                  </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
                  <property name="lineWidth">
                   <number>0</number>
                  </property>
@@ -12566,7 +12578,7 @@ ENABLE</string>
                   <pixmap>../../../../.designer/tool_icons/not_found.png</pixmap>
                  </property>
                  <property name="scaledContents">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -12593,20 +12605,11 @@ ENABLE</string>
                   </property>
                   <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_31">
-                    <property name="spacing">
-                     <number>4</number>
-                    </property>
                     <property name="topMargin">
                      <number>0</number>
                     </property>
                     <item>
-                     <widget class="QLabel" name="label_28">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
+                     <widget class="QLabel" name="lbl_tool_in_spindle">
                       <property name="minimumSize">
                        <size>
                         <width>40</width>
@@ -12622,9 +12625,6 @@ ENABLE</string>
                       <property name="text">
                        <string>TOOL IN
 SPINDLE</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -12650,6 +12650,12 @@ SPINDLE</string>
                       </property>
                       <property name="focusPolicy">
                        <enum>Qt::ClickFocus</enum>
+                      </property>
+                      <property name="acceptDrops">
+                       <bool>false</bool>
+                      </property>
+                      <property name="toolTip">
+                       <string>Tool in spindle</string>
                       </property>
                       <property name="maxLength">
                        <number>5</number>
@@ -12783,7 +12789,7 @@ SPINDLE</string>
                        <string>Z Offset</string>
                       </property>
                       <property name="text">
-                       <string>ZOFF</string>
+                       <string>TLO</string>
                       </property>
                      </widget>
                     </item>
@@ -16129,6 +16135,9 @@ OFF</string>
                      <height>30</height>
                     </size>
                    </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::NoFocus</enum>
+                   </property>
                    <property name="toolTip">
                     <string>Modbus Error Count</string>
                    </property>
@@ -16203,6 +16212,9 @@ OFF</string>
                      <width>60</width>
                      <height>30</height>
                     </size>
+                   </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::NoFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>VFD Fault Code</string>
@@ -16491,12 +16503,12 @@ OFF</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mdi_buttonGroup"/>
  </buttongroups>
 </ui>

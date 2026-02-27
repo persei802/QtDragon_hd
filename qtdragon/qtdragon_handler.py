@@ -44,7 +44,7 @@ QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
 STYLES = os.path.join(PATH.HANDLERDIR, 'style_rc')
-VERSION = '2.2.0'
+VERSION = '2.2.1'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -330,14 +330,14 @@ class HandlerClass:
     def initialized__(self):
         self.init_pins()
         self.init_preferences()
+        self.init_macros()
         self.init_tooldb()
+        self.init_utils()
         self.init_widgets()
         self.init_gcode_editor()
         self.init_file_manager()
         self.init_probe()
         self.init_mdi_panel()
-        self.init_macros()
-        self.init_utils()
         self.init_about()
         self.init_adjustments()
         self.init_event_filter()
@@ -591,12 +591,15 @@ class HandlerClass:
 
     def init_tooldb(self):
         from lib.tool_db import Tool_Database
-        self.tool_db = Tool_Database(self.w, self)
+        self.tool_db = Tool_Database(self)
         self.w.layout_tooldb.addWidget(self.tool_db)
         self.db_helpfile = os.path.join(HELP, 'tooldb_help.html')
         self.w.btn_export_table.pressed.connect(self.tool_db.export_table)
+        self.w.tabWidget_tools.setCurrentIndex(0)
         self.w.tabWidget_tools.currentChanged.connect(self.tabwidget_tools_changed)
         self.tool_db.hal_init()
+        self.tool_db.load_tool_table(self.tool_list)
+        self.w.lineEdit_num_tools.setText(self.tool_db.get_tool_count())
 
     def init_probe(self):
         probe = INFO.get_error_safe_setting('PROBE', 'USE_PROBE', 'none').lower()
@@ -644,8 +647,6 @@ class HandlerClass:
         if self.zlevel is None:
             self.w.btn_enable_comp.setEnabled(False)
         self.get_next_available()
-        self.tool_db.load_tool_table(self.tool_list)
-        self.w.lineEdit_num_tools.setText(self.tool_db.get_tool_count())
 
     def init_about(self):
         self.about_dict = {'vfd'          : 'USING A VFD',
@@ -838,7 +839,7 @@ class HandlerClass:
             self.w.lineEdit_tool_in_spindle.setText(str(self.current_tool))
         else:
             self.current_tool = tool
-            ACTION.CALL_MDI_WAIT(f'M61 Q{tool}', mode_return=True)
+            ACTION.CALL_MDI_WAIT(f'M61 Q{tool} G43', mode_return=True)
         self.w.lineEdit_tool_in_spindle.clearFocus()
 
     def spindle_role_changed(self, role):
@@ -911,7 +912,6 @@ class HandlerClass:
         self.current_tool = tool
         self.w.lineEdit_tool_in_spindle.setText(str(tool))
         LOG.debug(f"Tool changed to {self.current_tool}")
-        self.tool_db.set_checked_tool(tool)
         data = self.tool_db.get_tool_data(tool)
         if data is None:
             self.add_status("Failed to retrieve data from database", ERROR)
@@ -1642,7 +1642,7 @@ class HandlerClass:
             self.add_status("No tool selected to delete", WARNING)
             return
         if tools[0] == self.current_tool:
-            ACTION.CALL_MDI('M61 Q0', mode_return=True)
+            ACTION.CALL_MDI('M61 Q0 G43', mode_return=True)
         self.w.tooloffsetview.delete_tools()
         self.add_status(f"Deleted tool {tools[0]}")
         if self.tool_db.delete_tool(tools[0]) is True:
@@ -1663,6 +1663,9 @@ class HandlerClass:
                 self.add_status("No tool selected", WARNING)
         elif self.w.tabWidget_tools.currentIndex() == 1:
             tool = self.tool_db.get_selected_tool()
+            if tool is None:
+                self.add_status('No tool selected in the database', WARNING)
+                return
             ACTION.CALL_MDI_WAIT(f'M61 Q{tool} G43', mode_return=True)
             self.add_status(f"Tool {tool} loaded")
 
@@ -1778,7 +1781,7 @@ class HandlerClass:
         elif col in (7, 15, 19):
             array = TOOL.GET_TOOL_ARRAY()
             line = array[row]
-            if not self.tool_db.update_tool_data(line[0], (line[4], line[11], line[15])):
+            if not self.tool_db.update_tool_table(line[0], (line[4], line[11], line[15])):
                 self.add_status('Failed to update tool data to database', WARNING)
 
     def tool_number_changed(self, old_tno, new_tno):
@@ -1809,7 +1812,6 @@ class HandlerClass:
             
     def get_checked_tools(self):
         checked = self.w.tooloffsetview.get_checked_list()
-        if checked: self.tool_db.set_checked_tool(checked[0])
         return checked
 
     def get_next_available(self):
