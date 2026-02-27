@@ -14,35 +14,22 @@
     font-size: 12pt;
 }
 </style>
-<h1>BASIC PROBE EXAMPLE</h1>
-<center><img src="help_files/images/back_right_corner_inside.png" alt="back right corner inside"></center>
-<p>Demo of inside corner probing using the top right button in Basic Probe Inside Measurements tab.</p>
-<p>While all probe entries must be correct, the most important settings to change for each probe sequence are:</p>
+<h1>TOOL LENGTH OFFSETS</h1>
+<p>Tool length offset (TLO) can be done by manually measuring each tool and entering that value into the tool table or by using the
+Basic Probe Tool Measure utility. With this method, an electronic tool sensor must be used.</p>
+<p>The basic principle of this utility is that each tool has a length relative to a reference tool. The reference tool could be the 
+spindle nose, or some other tool, so long as it is the shortest tool. Probe distances are measured from the Z axis homed position in
+machine coordinates. The sequence of steps to measure tool offsets are as follows:</p>
 <ul>
-    <li>STEP OFF - distance away from edge before rough probing</li>
-    <li>Z CLEARANCE  - distance from probe to top of material</li>
-    <li>EXTRA DEPTH  - distance to lower probe from top of material</li>
-    <li>EDGE WIDTH   - distance along edge wall (away from corner) to start probing</li>
+    <li>Position the spindle at the tool sensor location and move Z up to Z0 in machine coordinates (G53)</li>
+    <li>Load the spindle with the reference tool, which should be designated tool number 0 or use the spindle with no tool installed.</li>
+    <li>Press MEASURE TOOL. A status message will show a warning about tool 0 being used as a reference measurement. This is normal.</li>
+    <li>Once the Probe signal is triggered, the probed value is entered into the tool measure diagram.</li>
+    <li>Now insert a tool to be measured and press MEASURE TOOL again.</li>
+    <li>The probed value will be subtracted from the reference value and entered into the tool table.</li>
 </ul>
-<p>NOTE : These distances are always to be set in 'machine units' (mm for metric machine, inch for imperial machine)</p>
-<p>Manually set the probe at the intersection of the edges (ie corner) of material as described by the purple dot on the button.
- Set it to Z CLEARANCE above the top of material. These can be done by eye.</p>
-<p>Set EXTRA DEPTH to a value that you want the probe to go below the <b>top</b>top of material. (So the probe will move from it's start position down
- Z Clearance + Extra Depth distance)</p>
-<p>Set STEP OFF to a value that definitely gives clearance from the wall so that when the probe goes down, it doesn't hit anything.</p>
-<p>Set EDGE WIDTH to a value that describes the distance measured from the corner, along the wall to where you wish to probe. This edge distance will be used
- along the X wall and then the Y wall.</p>
-<p>Sequence after pressing the probe button:</p>
-<ul>
-    <li>rapid to EDGE WIDTH distance away from corner at the same time moving STEP OFF away from edge. So this is a slightly diagonal move.</li>
-    <li>move probe down by Z CLEARANCE + EXTRA DEPTH + PROBE DIA (probe tip diameter)</li>
-    <li>probe wall twice (rough and fine)</li>
-    <li>move diagonally to the other wall as set by EDGE WIDTH and STEP OFF</li>
-    <li>probe wall twice  (rough and fine)</li>
-    <li>raise probe up by Z CLEARANCE + EXTRA DEPTH + PROBE DIA (returns to starting height)</li>
-    <li>rapid back to calculated corner</li>
-    <li>if auto zero button is enabled, set X and Y of the current user system to zero</li>
-</ul>
-<p></p>
+<p>NOTE : This procedure will result in negative numbers for tool length offsets. This is the safest way because if tool offsets are
+inadvertantly applied with G43, the spindle will raise by that amount instead of lowering, potentially diving into the workpiece. This also
+assumes that the Z axis homed position is at the top end of spindle travel and not on the machine bed.</p>
 </body>
 </html>
