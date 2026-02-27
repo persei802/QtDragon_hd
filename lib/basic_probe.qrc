@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="basic_probe_icons">
+    <file>basic_probe_icons/Tool_measure.png</file>
     <file>basic_probe_icons/back_edge_angle.png</file>
     <file>basic_probe_icons/back_left_corner_angle.png</file>
     <file>basic_probe_icons/back_left_corner_inside.png</file>

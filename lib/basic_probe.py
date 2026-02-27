@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2020  Chris Morley <chrisinnanaimo@hotmail.com>
 # Copyright (c) 2020  Jim Sloot <persei802@gmail.com>
-#
+# Tool Measure code added 2026 by Jim Sloot
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -19,10 +19,15 @@
 import sys
 import os
 import json
-
-from .event_filter import EventFilter
+import hal
+try:
+    from .event_filter import EventFilter
+except ImportError:
+    from lib.event_filter import EventFilter
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QProcess, QEvent, QObject, QRegExp, QFile, Qt
-from PyQt5 import QtGui, QtWidgets, uic
+from PyQt5.QtWidgets import QWidget, QLineEdit, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit
+from PyQt5 import QtGui, uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info, Path, Tool
 from qtvcp import logger
@@ -47,14 +52,30 @@ WARNING =  1
 ERROR = 2
 
 
-class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
+class BasicProbe(QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(BasicProbe, self).__init__()
         self.parent = parent
         self.dialog_code = 'CALCULATOR'
         self.tool_code = 'TOOLCHOOSER'
+        self.tool_diameter = None
+        self.tool_number = None
+        self.probe_number = -1
         self.default_style = ''
+        self.debug_mode = False
         self.regex = ''
+
+        # tool measure data
+        self.z_max_clear = 0
+        self.ts_x = 0
+        self.ts_y = 0
+        self.ts_z = 0
+        self.ts_max = 0
+        self.ts_tool = 0
+        self.ts_diam = 16
+        self.ts_zero = 0
+        self.ts_tlo = 0
+
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         try:
             self.tool_db = self.parent.tool_db
@@ -64,6 +85,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc = None
         self.test_mode = False
         self.help = HelpPage()
+        
         self.probe_settings = []
         self.setMinimumSize(600, 420)
         # load the widgets ui file
@@ -73,18 +95,21 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         except AttributeError as e:
             LOG.critical(e)
 
+        if not self.debug_mode:
+            self.btn_probe.hide()
         self.probe_page_list = ['OUTSIDE MEASUREMENTS',
                                 'INSIDE MEASUREMENTS',
                                 'ANGLE MEASUREMENTS',
                                 'BOSS AND POCKET',
                                 'RIDGE AND VALLEY',
-                                'CALIBRATION']
+                                'CALIBRATION',
+                                'TOOL MEASURE']
 
         # populate probe page combobox
         self.cmb_probe_select.clear()
         self.cmb_probe_select.addItems(self.probe_page_list)
         self.cmb_probe_select.wheelEvent = lambda event: None
-
+        self.btn_measure_tool.hide()
         self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta']
 
         #create parameter dictionary
@@ -97,6 +122,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                           'probe_vel',
                           'extra_depth',
                           'latch_return_dist',
+                          'ts_height',
                           'max_travel',
                           'max_z',
                           'xy_clearance',
@@ -117,7 +143,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                           'cal_offset']
 
         # signal connections
-        self.cmb_probe_select.activated.connect(lambda index: self.stackedWidget_probe_buttons.setCurrentIndex(index))
+        self.cmb_probe_select.activated.connect(lambda index: self.probe_select_changed(index))
         self.lineEdit_extra_depth.editingFinished.connect(self.get_probe_max_depth)
         self.lineEdit_max_z.editingFinished.connect(self.get_probe_max_depth)
         self.outside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
@@ -129,8 +155,11 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.clear_buttonGroup.buttonClicked.connect(self.clear_results_clicked)
         self.btn_load_probe.pressed.connect(self.load_probe_pressed)
         self.btn_probe_help.pressed.connect(self.probe_help_pressed)
-
+        self.btn_measure_tool.pressed.connect(self.measure_tool)
         self.stackedWidget_probe_buttons.setCurrentIndex(0)
+        if self.debug_mode:
+            self.btn_probe.pressed.connect(self.test_probe)
+            self.btn_probe.released.connect(self.test_probe)
 
         # define validators for all lineEdit widgets
         # this only works when directly typing into a lineEdit
@@ -160,25 +189,43 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('state_off', lambda w: self.setEnabled(False))
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
+        STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
 
         # must directly initialize
         self.statuslabel_motiontype.hal_init()
 
         if self.PREFS_:
-            self.probe_settings = self.groupBox_parameters.findChildren(QtWidgets.QLineEdit)
+            self.probe_settings = self.groupBox_parameters.findChildren(QLineEdit)
             for probe in self.probe_settings:
-                probe.setText(self.PREFS_.getpref(probe.objectName(), '10', str, 'PROBE OPTIONS'))
+                probe.setText(self.PREFS_.getpref(probe.objectName(), '10', str, 'BASIC_PROBE_OPTIONS'))
+            self.ts_zero = (self.PREFS_.getpref('zero_reference', '0.0', float, 'BASIC_PROBE_OPTIONS'))
+            self.lineEdit_ts_zero.setText(f'{abs(self.ts_zero):.3f}')
+
+        # data for tool measure routine
+        self.ts_x = float(self.parent.w.lineEdit_sensor_x.text())
+        self.ts_y = float(self.parent.w.lineEdit_sensor_y.text())
+        self.ts_z = float(self.parent.w.lineEdit_sensor_height.text())
+        self.ts_max = float(self.lineEdit_max_z.text())
+        self.tool_block_height = self.parent.w.lineEdit_work_height.text()
+        self.tool_probe_height = self.parent.w.lineEdit_sensor_height.text()
+        self.lineEdit_ts_height.setText(self.tool_probe_height) 
 
         self.default_style = self.lineEdit_probe_diam.styleSheet()
+        oldname = self.HAL_GCOMP_.comp.getprefix()
+        self.HAL_GCOMP_.comp.setprefix('qtbasicprobe')
+        self.probe_out = self.HAL_GCOMP_.newpin("probe-out", hal.HAL_BIT, hal.HAL_OUT)
+        self.HAL_GCOMP_.comp.setprefix(oldname)
 
     def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving Basic Probe data to preference file.')
             for probe in self.probe_settings:
-                self.PREFS_.putpref(probe.objectName(), probe.text(), str, 'PROBE OPTIONS')
+                self.PREFS_.putpref(probe.objectName(), probe.text(), str, 'BASIC_PROBE_OPTIONS')
+            self.PREFS_.putpref('zero_reference', str(self.ts_zero), str, 'BASIC_PROBE_OPTIONS')
         if self.proc is not None: self.proc.terminate()
 
+# STATUS messages
     def dialog_return(self, w, message):
         rtn = message['RETURN']
         name = message.get('NAME')
@@ -202,6 +249,14 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             if rtn is not None:
                 obj.setText(str(int(rtn)))
                 self.load_probe_pressed()
+
+    def _tool_info(self, data):
+        if data.id != -1:
+            self.tool_diameter = data.diameter
+            self.tool_number = data.id
+            return
+        self.tool_diameter = None
+        self.tool_number = None
 
     def set_test_mode(self):
         self.test_mode = True
@@ -294,13 +349,16 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def load_probe_pressed(self):
         try:
             tool =  int(self.lineEdit_probe_tool.text())
-            if tool > 0:
-                info = TOOL.GET_TOOL_INFO(tool)
-                dia = info[11]
-                self.lineEdit_probe_diam.setText(f"{dia:8.3f}")
-                ACTION.CALL_MDI_WAIT(f'M61 Q{tool}', mode_return=True)
-            else:
-                self.parent.add_status("Invalid probe tool specified", WARNING)
+            self.ts_tool = tool
+            info = TOOL.GET_TOOL_INFO(tool)
+            tlo = info[4]
+            dia = info[11]
+            self.lineEdit_ts_tlo.setText(f"{abs(tlo):8.3f}")
+            self.lineEdit_probe_diam.setText(f"{dia:8.3f}")
+            self.btn_measure_tool.setText(f'MEASURE\nTOOL {tool}')
+            ACTION.CALL_MDI_WAIT(f'M61 Q{tool}', mode_return=True)
+            if tool == 0:
+                self.parent.add_status("Tool 0 loaded - using as reference tool", WARNING)
         except:
             self.parent.add_status("Invalid probe tool specified", WARNING)
 
@@ -359,6 +417,11 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.get_parms()
         self.start_probe(cmd)
 
+    def measure_tool(self):
+        cmd = 'probe_down'
+        self.get_parms()
+        self.start_probe(cmd)
+
     def clear_results_clicked(self, button):
         cmd = button.property('clear')
         if cmd in dir(self): self[cmd]()
@@ -384,11 +447,22 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.status_a.setText('0')
 
 # Helper functions
+    def test_probe(self):
+        if self.btn_probe.isDown():
+            self.probe_out.set(True)
+        else:
+            self.probe_out.set(False)
+
+    def probe_select_changed(self, index):
+        self.stackedWidget_probe_buttons.setCurrentIndex(index)
+        self.btn_measure_tool.setVisible(self.cmb_probe_select.currentText() == 'TOOL MEASURE')
+
     def get_probe_max_depth(self):
-        if not self.tool_db is None:
+        if self.tool_db is not None:
             probe_tool = int(self.lineEdit_probe_tool.text())
             extra_depth = float(self.lineEdit_extra_depth.text())
-            tool  = float(self.tool_db.get_tool_data(probe_tool, "LENGTH"))
+            data = self.tool_db.get_tool_data(probe_tool)
+            tool = data['length']
             maxz = float(self.lineEdit_max_z.text())
             depth = maxz + extra_depth
             if depth > tool:
@@ -399,11 +473,35 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         for key in ['allow_auto_zero', 'allow_auto_skew', 'cal_avg_error', 'cal_x_error', 'cal_y_error']:
             val = '1' if self[key].isChecked() else '0'
             self.send_dict.update( {key: val} )
+        # add on tool measure data
+        for key in ['ts_diam','z_max_clear','ts_x','ts_y','ts_z','ts_max','tool_diameter','tool_number']:
+            val = str(self[key])
+            if val == 'NONE': val = None
+            self.send_dict.update( {key: val} )
+        self.send_dict['tool_block_height'] = self.tool_block_height
+        self.send_dict['tool_probe_height'] = self.tool_probe_height
 
     def show_results(self, line):
         for key in self.status_list:
-            self['status_' + key].setText(line[key])
+            if key != 'None':
+                self['status_' + key].setText(line[key])
+            else:
+                self['status_' + key].setText('')
         self.lineEdit_cal_offset.setText(line['offset'])
+        if line['z'] != 'None':
+            val = float(line['z'])
+            if self.ts_tool == 0:
+                self.ts_zero = val
+                self.lineEdit_ts_zero.setText(f'{abs(self.ts_zero):.3f}')
+            else:
+                self.ts_tlo = self.ts_zero - val
+                self.lineEdit_ts_tlo.setText(f'{abs(self.ts_tlo):.3f}')
+                ACTION.CALL_MDI(f'G10 L1 P{self.ts_tool} Z{self.ts_tlo}')
+                self.parent.add_status(f'Set tool length offset for tool {self.ts_tool}')
+                # have to do this here because data_changed is not emitted with a G10
+                if self.tool_db is not None:
+                    data = TOOL.GET_TOOL_INFO(self.ts_tool)
+                    self.tool_db.update_tool_table(data[0], (data[4], data[11], data[15]))
 
     ##############################
     # required class boiler code #
@@ -415,17 +513,19 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         return setattr(self, item, value)
 
 
-class HelpPage(QtWidgets.QWidget):
+class HelpPage(QWidget):
     def __init__(self, parent=None):
         super(HelpPage, self).__init__()
         self.setMinimumWidth(600)
         self.setMinimumHeight(600)
+        self.gm = None
         self.setWindowTitle("BasicProbe Help")
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        self.num_pages = 0
+        for fn in os.listdir(HELP):
+            if fn.startswith('basic_help') and fn.endswith('.html'):
+                self.num_pages += 1
 
-        self.helpPages = ['basic_help.html','basic_help1.html','basic_help2.html',
-                          'basic_help3.html','basic_help4.html','basic_help5.html',
-                          'basic_help6.html', 'basic_help7.html','basic_help8.html']
         self.currentHelpPage = 0
         self.build_widget()
         self.update_help_page()
@@ -435,20 +535,21 @@ class HelpPage(QtWidgets.QWidget):
         self.btn_next.pressed.connect(self.help_next_pressed)
 
     def build_widget(self):
-        main_layout = QtWidgets.QVBoxLayout()
-        btn_box = QtWidgets.QHBoxLayout()
-        self.btn_prev = QtWidgets.QPushButton('PREV')
-        self.btn_next = QtWidgets.QPushButton('NEXT')
-        self.btn_close = QtWidgets.QPushButton('CLOSE')
+        main_layout = QVBoxLayout()
+        btn_box = QHBoxLayout()
+        self.btn_prev = QPushButton('PREV')
+        self.btn_next = QPushButton('NEXT')
+        self.btn_close = QPushButton('CLOSE')
         btn_box.addWidget(self.btn_prev)
         btn_box.addWidget(self.btn_next)
         btn_box.addWidget(self.btn_close)
-        self.text_edit = QtWidgets.QTextEdit('Basic Probe Help')
+        self.text_edit = QTextEdit('Basic Probe Help')
         main_layout.addWidget(self.text_edit)
         main_layout.addLayout(btn_box)
         self.setLayout(main_layout)
 
     def help_close_pressed(self):
+        self.gm = self.geometry()
         self.hide()
 
     def help_prev_pressed(self):
@@ -457,13 +558,18 @@ class HelpPage(QtWidgets.QWidget):
         self.update_help_page()
 
     def help_next_pressed(self):
-        if self.currentHelpPage == len(self.helpPages) - 1: return
+        if self.currentHelpPage == self.num_pages - 1: return
         self.currentHelpPage += 1
         self.update_help_page()
 
+    def showEvent(self, event):
+        if self.gm is not None:
+            self.setGeometry(self.gm)
+        super().showEvent(event)
+
     def update_help_page(self):
         try:
-            pagePath = os.path.join(HELP, self.helpPages[self.currentHelpPage])
+            pagePath = os.path.join(HELP, f'basic_help{self.currentHelpPage}.html')
             if not os.path.exists(pagePath): raise Exception(f"Missing File: {pagePath}") 
             file = QFile(pagePath)
             file.open(QFile.ReadOnly)
