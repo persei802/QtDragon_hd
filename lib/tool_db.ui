@@ -6,14 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1106</width>
-    <height>548</height>
+    <width>1081</width>
+    <height>642</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0">
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,0">
    <property name="spacing">
     <number>4</number>
    </property>
@@ -32,7 +38,7 @@
    <item>
     <widget class="QGroupBox" name="grp_tree">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -61,11 +67,17 @@
       </property>
       <item>
        <widget class="ToolTree" name="treeWidget">
+        <property name="autoScrollMargin">
+         <number>48</number>
+        </property>
         <property name="dragEnabled">
          <bool>true</bool>
         </property>
         <property name="dragDropMode">
          <enum>QAbstractItemView::InternalMove</enum>
+        </property>
+        <property name="defaultDropAction">
+         <enum>Qt::MoveAction</enum>
         </property>
         <property name="indentation">
          <number>30</number>
@@ -86,19 +98,56 @@
         </column>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="chk_expand_all">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>EXPAND ALL ITEMS</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="grp_geometry">
+    <widget class="QGroupBox" name="grp_tool_data">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="minimumSize">
+      <size>
+       <width>360</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>360</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="title">
-      <string>TOOL GEOMETRY</string>
+      <string>TOOL DATA</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -121,17 +170,20 @@
       </property>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <property name="spacing">
+         <number>4</number>
+        </property>
         <item>
          <widget class="QLabel" name="lbl_part_number">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
@@ -163,23 +215,86 @@
             <height>30</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="minimumSize">
+           <size>
+            <width>140</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>TOOL GROUP</string>
+          </property>
+          <property name="indent">
+           <number>30</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cmb_group">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Type new group name and press Enter. Right click for context menu.</string>
+          </property>
          </widget>
         </item>
        </layout>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_13">
+        <property name="spacing">
+         <number>4</number>
+        </property>
         <item>
          <widget class="QLabel" name="lbl_tool_no">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
@@ -226,115 +341,42 @@
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="lbl_tool_group">
+         <widget class="QLabel" name="label_3">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>0</width>
             <height>30</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>150</width>
+            <width>16777215</width>
             <height>30</height>
            </size>
           </property>
           <property name="text">
-           <string>TOOL GROUP</string>
-          </property>
-          <property name="indent">
-           <number>30</number>
+           <string/>
           </property>
          </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="cmb_toolGroup">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>120</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>120</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="toolTip">
-           <string>Tool group to show in the treeview</string>
-          </property>
-          <property name="editable">
-           <bool>false</bool>
-          </property>
-          <property name="insertPolicy">
-           <enum>QComboBox::NoInsert</enum>
-          </property>
-          <property name="placeholderText">
-           <string>GROUP</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_10">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <property name="spacing">
+         <number>4</number>
+        </property>
         <item>
          <widget class="QLabel" name="lbl_tlo">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
@@ -401,38 +443,28 @@
            <string>MM</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignCenter</set>
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
           </property>
          </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_8">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <property name="spacing">
+         <number>4</number>
+        </property>
         <item>
          <widget class="QLabel" name="lbl_diameter">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
@@ -496,97 +528,17 @@
            <string>MM</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignCenter</set>
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
           </property>
          </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_7">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetDefaultConstraint</enum>
-        </property>
-        <item>
-         <widget class="QLabel" name="lbl_flutes">
-          <property name="minimumSize">
-           <size>
-            <width>150</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>150</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>NUM FLUTES</string>
-          </property>
-          <property name="indent">
-           <number>30</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="spinBox_flutes">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>100</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <property name="maximum">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_15">
+        <property name="spacing">
+         <number>4</number>
+        </property>
         <property name="topMargin">
          <number>0</number>
         </property>
@@ -594,13 +546,13 @@
          <widget class="QLabel" name="lbl_flute_length">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
@@ -632,6 +584,9 @@
             <height>30</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
@@ -655,43 +610,36 @@
            <string>MM</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignCenter</set>
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
           </property>
          </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_9">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_10">
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="sizeConstraint">
+         <enum>QLayout::SetDefaultConstraint</enum>
+        </property>
         <item>
-         <widget class="QLabel" name="lbl_spindle">
+         <widget class="QLabel" name="lbl_flutes">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
           <property name="text">
-           <string>SPINDLE</string>
+           <string>NUM FLUTES</string>
           </property>
           <property name="indent">
            <number>30</number>
@@ -699,7 +647,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_rpm">
+         <widget class="QLineEdit" name="lineEdit_num_flutes">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -718,8 +666,8 @@
             <height>30</height>
            </size>
           </property>
-          <property name="toolTip">
-           <string>Recommended spindle speed</string>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -727,7 +675,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="lbl_spindle_rpm">
+         <widget class="QLabel" name="label">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -741,130 +689,28 @@
            </size>
           </property>
           <property name="text">
-           <string>RPM</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
+           <string/>
           </property>
          </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_6">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_11">
-        <item>
-         <widget class="QLabel" name="lbl_feedrate">
-          <property name="minimumSize">
-           <size>
-            <width>150</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>150</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>FEED RATE</string>
-          </property>
-          <property name="indent">
-           <number>30</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="lineEdit_feedrate">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>100</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Recommended feed rate</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="lbl_feedrate_unit">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>MM/MIN</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_7">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="spacing">
+         <number>4</number>
+        </property>
         <item>
          <widget class="QLabel" name="lbl_tis">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>150</width>
+            <width>140</width>
             <height>30</height>
            </size>
           </property>
@@ -896,6 +742,9 @@
             <height>30</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
           <property name="toolTip">
            <string>Total accumulated running time of tool</string>
           </property>
@@ -905,24 +754,437 @@
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
+         <widget class="QLabel" name="label_2">
+          <property name="minimumSize">
            <size>
-            <width>40</width>
-            <height>20</height>
+            <width>0</width>
+            <height>30</height>
            </size>
           </property>
-         </spacer>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
       <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lbl_material">
+          <property name="minimumSize">
+           <size>
+            <width>140</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>MATERIAL</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+          <property name="indent">
+           <number>30</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cmb_material">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Type new material name and press Enter. Right click for context menu.</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lbl_spindle">
+          <property name="minimumSize">
+           <size>
+            <width>140</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>SPINDLE</string>
+          </property>
+          <property name="indent">
+           <number>30</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_rpm">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>Recommended spindle speed</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_spindle_rpm">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>RPM</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_11">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lbl_feedrate">
+          <property name="minimumSize">
+           <size>
+            <width>140</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>FEED RATE</string>
+          </property>
+          <property name="indent">
+           <number>30</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_feedrate">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>Recommended feed rate</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_feedrate_unit">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>MM/MIN</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lbl_stepover">
+          <property name="minimumSize">
+           <size>
+            <width>140</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>STEPOVER</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+          <property name="indent">
+           <number>30</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_stepover">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>Recommended stepover</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_stepover_unit">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>MM</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_12">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lbl_depth">
+          <property name="minimumSize">
+           <size>
+            <width>140</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>DEPTH OF CUT</string>
+          </property>
+          <property name="indent">
+           <number>30</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_depth">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>Recommended depth of cut</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_depth_unit">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>MM</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QCheckBox" name="chk_use_calc">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -935,7 +1197,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
+          <width>360</width>
           <height>30</height>
          </size>
         </property>
@@ -953,7 +1215,7 @@
    <item>
     <widget class="QGroupBox" name="grp_icon">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -970,7 +1232,7 @@
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,1,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,1,0">
       <property name="spacing">
        <number>4</number>
       </property>
@@ -989,7 +1251,7 @@
       <item>
        <widget class="QComboBox" name="cmb_icon">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -1005,6 +1267,12 @@
           <width>16777215</width>
           <height>30</height>
          </size>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::NoContextMenu</enum>
+        </property>
+        <property name="toolTip">
+         <string>Select image for currently selected tool</string>
         </property>
         <property name="placeholderText">
          <string>SELECT ICON</string>
@@ -1034,9 +1302,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_update">
+       <widget class="QPushButton" name="btn_update_tool">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -1052,37 +1320,15 @@
           <width>16777215</width>
           <height>40</height>
          </size>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::NoContextMenu</enum>
         </property>
         <property name="toolTip">
-         <string>Save all data to database</string>
+         <string>Write tool data to database</string>
         </property>
         <property name="text">
-         <string>UPDATE</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="chk_auto_update">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>ENABLE AUTO UPDATE</string>
+         <string>UPDATE TOOL DATA</string>
         </property>
        </widget>
       </item>
