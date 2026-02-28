@@ -317,7 +317,7 @@ class SqlAgent(QObject):
         if query.numRowsAffected() == 0:
             LOG.debug(f'Add tool {tno} conflict')
             return None
-        return query.lastInsertId()
+        return True
 
     def delete_tool(self, tno):
         query = QSqlQuery("DELETE FROM tools WHERE TOOL=?")
@@ -632,11 +632,13 @@ class Tool_Database(QWidget):
         for line in tool_table:
             tools.append(line[0])
             if line[0] in db_list: continue
-            tool_no = self.agent.add_tool_to_table(group_id, line[0], line[4], line[11], line[15])
-            self.agent.create_tool_item(group_id, line[0], line[15])
+            LOG.debug(f'Adding tool {line[0]}')
+            if self.agent.add_tool_to_table(group_id, line[0], line[4], line[11], line[15]):
+                self.agent.create_tool_item(group_id, line[0], line[15])
         # look for tools to delete
         for tno in db_list:
             if tno in tools: continue
+            LOG.debug(f'Deleting tool {tno}')
             self.delete_tool(tno)
         LOG.info("Successfully built tool tree")
 
@@ -800,8 +802,7 @@ class Tool_Database(QWidget):
     def add_tool(self, tno=None):
         if tno is None: tno = -99
         group_id = self.agent.get_group_id('Misc')
-        tool_no = self.agent.add_tool_to_table(group_id, tno, 0.0, 0.0, 'New Tool')
-        if tool_no:
+        if self.agent.add_tool_to_table(group_id, tno, 0.0, 0.0, 'New Tool'):
             tool_item = self.agent.create_tool_item(group_id, tno, 'New Tool')
             return True
         return False
