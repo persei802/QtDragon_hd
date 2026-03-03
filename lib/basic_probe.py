@@ -142,7 +142,17 @@ class BasicProbe(QWidget, _HalWidgetBase):
                           'cal_y_width',
                           'cal_offset']
 
+        self.event_filter = EventFilter(self)
+        line_list = self.parm_list[:-1]
+        for line in line_list:
+            self[f'lineEdit_{line}'].installEventFilter(self.event_filter)
+        self.lineEdit_probe_tool.installEventFilter(self.event_filter)
+        self.event_filter.set_line_list(line_list)
+        self.event_filter.set_tool_list('probe_tool')
+        self.event_filter.set_parms(('_basicprobe_', True))
+
         # signal connections
+        self.chk_use_calculator.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         self.cmb_probe_select.activated.connect(lambda index: self.probe_select_changed(index))
         self.lineEdit_extra_depth.editingFinished.connect(self.get_probe_max_depth)
         self.lineEdit_max_z.editingFinished.connect(self.get_probe_max_depth)
@@ -172,15 +182,6 @@ class BasicProbe(QWidget, _HalWidgetBase):
         self.lineEdit_probe_tool.setValidator(QtGui.QRegExpValidator(regex))
         for i in self.parm_list:
             self['lineEdit_' + i].setValidator(self.valid)
-
-        self.event_filter = EventFilter(self)
-        line_list = self.parm_list[:-1]
-        for line in line_list:
-            self[f'lineEdit_{line}'].installEventFilter(self.event_filter)
-        self.lineEdit_probe_tool.installEventFilter(self.event_filter)
-        self.event_filter.set_line_list(line_list)
-        self.event_filter.set_tool_list('probe_tool')
-        self.event_filter.set_parms(('_basicprobe_', True))
 
     def _hal_init(self):
         def homed_on_status():
@@ -491,11 +492,11 @@ class BasicProbe(QWidget, _HalWidgetBase):
         if line['z'] != 'None':
             val = float(line['z'])
             if self.ts_tool == 0:
-                self.ts_zero = val
-                self.lineEdit_ts_zero.setText(f'{abs(self.ts_zero):.3f}')
+                self.ts_zero = abs(val)
+                self.lineEdit_ts_zero.setText(f'{self.ts_zero:.3f}')
             else:
-                self.ts_tlo = self.ts_zero - val
-                self.lineEdit_ts_tlo.setText(f'{abs(self.ts_tlo):.3f}')
+                self.ts_tlo = self.ts_zero - abs(val)
+                self.lineEdit_ts_tlo.setText(f'{self.ts_tlo:.3f}')
                 ACTION.CALL_MDI(f'G10 L1 P{self.ts_tool} Z{self.ts_tlo}')
                 self.parent.add_status(f'Set tool length offset for tool {self.ts_tool}')
                 # have to do this here because data_changed is not emitted with a G10

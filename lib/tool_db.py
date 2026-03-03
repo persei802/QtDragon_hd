@@ -766,7 +766,11 @@ class Tool_Database(QWidget):
 
 ## callbacks from STATUS
     def set_selected_item(self, tool_no):
-        item = self.agent.tool_items[tool_no]
+        try:
+            item = self.agent.tool_items[tool_no]
+        except KeyError:
+            LOG.debug("Tool items not created yet")
+            return
         self.treeWidget.setCurrentItem(item)
         self.on_item_clicked(item, 0)
 
