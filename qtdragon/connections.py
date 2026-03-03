@@ -58,7 +58,6 @@ class Connections():
         self.w.chk_override_limits.stateChanged.connect(lambda state: self.parent.override_limits_changed(state))
         self.w.chk_use_camera.stateChanged.connect(lambda state: self.parent.use_camera_changed(state))
         self.w.chk_use_mdi_keyboard.stateChanged.connect(lambda state: self.w.mdi_keyboard.setVisible(state))
-        self.w.chk_use_basic_calculator.stateChanged.connect(lambda state: self.parent.chk_use_basic_calc(state))
         self.w.chk_use_handler_calculator.stateChanged.connect(lambda state: self.parent.event_filter.set_dialog_mode(state))
         self.w.chk_touchplate.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
         self.w.chk_manual_toolsensor.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))

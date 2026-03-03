@@ -348,7 +348,6 @@ class HandlerClass:
         self.w.preset_buttonGroup.buttonClicked.connect(self.preset_jograte)
         self.use_mpg_changed(self.w.chk_use_mpg.isChecked())
         self.use_camera_changed(self.w.chk_use_camera.isChecked())
-        self.chk_use_basic_calc(self.w.chk_use_basic_calculator.isChecked())
         self.touchoff_changed(True)
         # determine if A axis widgets should be visible or not
         if not "A" in self.axis_list:
@@ -619,7 +618,6 @@ class HandlerClass:
         else:
             LOG.info("No valid probe widget specified")
             self.w.btn_probe.hide()
-            self.w.chk_use_basic_calculator.hide()
             self.w.chk_inhibit_spindle.hide()
             self.w.probe_offset.hide()
             return
@@ -1734,11 +1732,6 @@ class HandlerClass:
         if not state:
             self.w.btn_cycle_start.setText('  CYCLE START')
             self.start_line = 1
-
-    def chk_use_basic_calc(self, state):
-        if self.probe is None: return
-        if self.probe.objectName() == 'basicprobe':
-            self.probe.set_calc_mode(state)
 
     def touchoff_changed(self, state):
         if not state: return
