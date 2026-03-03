@@ -28,8 +28,10 @@ machine coordinates. The sequence of steps to measure tool offsets are as follow
     <li>Now insert a tool to be measured and press MEASURE TOOL again.</li>
     <li>The probed value will be subtracted from the reference value and entered into the tool table.</li>
 </ul>
-<p>NOTE : This procedure will result in negative numbers for tool length offsets. This is the safest way because if tool offsets are
-inadvertantly applied with G43, the spindle will raise by that amount instead of lowering, potentially diving into the workpiece. This also
-assumes that the Z axis homed position is at the top end of spindle travel and not on the machine bed.</p>
+<p>NOTE : This procedure will result in positive numbers for tool length offsets because it is calculated by subtracting the distance
+the measured tool travelled from the distance the reference tool travelled. This is the safest way because if tool offsets are
+inadvertantly applied with G43, the Z0 plane raises by that amount instead of lowering. If the spindle is then directed to travel to
+Z0, it could dive into the workpiece or the machine table. This also assumes that the Z axis homed position is at the top end of
+spindle travel.</p>
 </body>
 </html>
