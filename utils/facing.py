@@ -12,10 +12,9 @@
 # GNU General Public License for more details.
 import os
 import numpy as np
-import tempfile
-import atexit
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt5 import uic
+from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog, QLineEdit, QWidget
 
@@ -24,6 +23,8 @@ from qtvcp import logger
 
 from lib.preview import Preview
 from lib.event_filter import EventFilter
+
+from utils.utils_base import Common
 
 LOG = logger.getLogger(__name__)
 LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -38,16 +39,13 @@ IMAGES = os.path.join(PATH.CONFIGPATH, 'qtdragon/images')
 WARNING = 1
 
 
-class Facing(QWidget):
+class Facing(QWidget, Common):
     def __init__(self, parent=None):
         super(Facing, self).__init__()
         self.parent = parent
         self.h = self.parent.parent
         self.calculate_pass = None
         self.helpfile = 'facing_help.html'
-        self.dialog_code = 'CALCULATOR'
-        self.kbd_code = 'KEYBOARD'
-        self.tool_code = 'TOOLCHOOSER'
         self.default_style = ''
         self.geometry = None
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
@@ -58,64 +56,46 @@ class Facing(QWidget):
         except AttributeError as e:
             self.h.add_status(e, WARNING)
 
-        # Initial values
-        self.rpm = INFO.get_error_safe_setting("DISPLAY", "DEFAULT_SPINDLE_0_SPEED", 500)
-        self.min_x = INFO.get_safe_float("AXIS_X", "MIN_LIMIT")
-        self.max_x = INFO.get_safe_float("AXIS_X", "MAX_LIMIT")
-        self.min_y = INFO.get_safe_float("AXIS_Y", "MIN_LIMIT")
-        self.max_y = INFO.get_safe_float("AXIS_Y", "MAX_LIMIT")
-        self.min_rpm = INFO.get_safe_int("DISPLAY", "MIN_SPINDLE_0_SPEED")
-        self.max_rpm = INFO.get_safe_int("DISPLAY", "MAX_SPINDLE_0_SPEED")
-        self.max_feed = INFO.get_safe_int("DISPLAY", "MAX_LINEAR_VELOCITY") * 60
-        self.size_x = 0.0
-        self.size_y = 0.0
-        self.tool = 0
-        self.xy_feedrate = 0
-        self.z_feedrate = 0
-        self.stepover = 0.0
-        self.tool_dia = 0.0
-        self.safe_z = 0.0
-        self.stepdown = 0.0
-        self.zlevel = 0.0
-        self.zfinal = 0.0
-        self.valid = True
-        self.red_border = "border: 2px solid red;"
-        self.parm_list = ["size_x", "size_y", "tool_diameter", "spindle", "xy_feedrate", "z_feedrate",
-                          "stepover", "safe_z", "start_z", "last_z", "stepdown"]
+        self.float_inputs = ['diameter', 'size_x', 'size_y', 'stepover', 'stepdown', 'safe_z', 'start_z', 'last_z']
+        self.int_inputs = ['tool', 'xy_feedrate', 'z_feedrate', 'spindle']
+
         self.preview = Preview()
         self.layout_preview.addWidget(self.preview)
 
         # set valid input formats for lineEdits
-        self.lineEdit_tool_num.setValidator(QtGui.QIntValidator(1, 99))
-        self.lineEdit_tool_diameter.setValidator(QtGui.QDoubleValidator(0, 999, 3))
-        self.lineEdit_spindle.setValidator(QtGui.QIntValidator(0, 99999))
-        self.lineEdit_xy_feedrate.setValidator(QtGui.QIntValidator(0, 9999))
-        self.lineEdit_z_feedrate.setValidator(QtGui.QIntValidator(0, 9999))
-        self.lineEdit_safe_z.setValidator(QtGui.QDoubleValidator(0, 9999, 3))
-        self.lineEdit_start_z.setValidator(QtGui.QDoubleValidator(-9999, 9999, 3))
-        self.lineEdit_last_z.setValidator(QtGui.QDoubleValidator(-9999, 9999, 3))
-        self.lineEdit_stepover.setValidator(QtGui.QDoubleValidator(0, 99, 3))
-        self.lineEdit_stepdown.setValidator(QtGui.QDoubleValidator(0, 99, 3))
-        self.lineEdit_size_x.setValidator(QtGui.QDoubleValidator(0, 9999, 3))
-        self.lineEdit_size_y.setValidator(QtGui.QDoubleValidator(0, 9999, 3))
+        self.lineEdit_tool.setValidator(QIntValidator(1, 99))
+        self.lineEdit_diameter.setValidator(QDoubleValidator(0, 999, 3))
+        self.lineEdit_spindle.setValidator(QIntValidator(0, 99999))
+        self.lineEdit_xy_feedrate.setValidator(QIntValidator(0, 9999))
+        self.lineEdit_z_feedrate.setValidator(QIntValidator(0, 9999))
+        self.lineEdit_safe_z.setValidator(QDoubleValidator(0, 9999, 3))
+        self.lineEdit_start_z.setValidator(QDoubleValidator(-9999, 9999, 3))
+        self.lineEdit_last_z.setValidator(QDoubleValidator(-9999, 9999, 3))
+        self.lineEdit_stepover.setValidator(QDoubleValidator(0, 99, 3))
+        self.lineEdit_stepdown.setValidator(QDoubleValidator(0, 99, 3))
+        self.lineEdit_size_x.setValidator(QDoubleValidator(0, 9999, 3))
+        self.lineEdit_size_y.setValidator(QDoubleValidator(0, 9999, 3))
 
-        # setup event filter to catch focus_in events
+        # setup event filters to catch focus_in events
         self.event_filter = EventFilter(self)
-        for line in self.parm_list:
-            self[f'lineEdit_{line}'].installEventFilter(self.event_filter)
-        self.lineEdit_tool_num.installEventFilter(self.event_filter)
+        parm_list = []
+        for val in self.float_inputs:
+            parm_list.append(val)
+            self[f'lineEdit_{val}'].installEventFilter(self.event_filter)
+        for val in self.int_inputs:
+            parm_list.append(val)
+            self[f'lineEdit_{val}'].installEventFilter(self.event_filter)
         self.lineEdit_comment.installEventFilter(self.event_filter)
-        self.event_filter.set_line_list(self.parm_list)
+        self.event_filter.set_line_list(parm_list)
         self.event_filter.set_kbd_list('comment')
-        self.event_filter.set_tool_list('tool_num')
+        self.event_filter.set_tool_list('tool')
         self.event_filter.set_parms(('_facing_', True))
 
         # signal connections
         self.chk_units.stateChanged.connect(lambda state: self.units_changed(state))
         self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
-        self.lineEdit_tool_num.editingFinished.connect(self.load_tool)
-        self.btn_preview.pressed.connect(self.preview_program)
-        self.btn_create.pressed.connect(self.create_program)
+        self.lineEdit_tool.editingFinished.connect(self.load_tool)
+        self.btn_save.pressed.connect(self.save_program)
         self.btn_send.pressed.connect(self.send_program)
         self.btn_help.pressed.connect(self.show_help)
 
@@ -127,7 +107,7 @@ class Facing(QWidget):
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
-        self.default_style = self.lineEdit_tool_num.styleSheet()
+        self.default_style = self.lineEdit_tool.styleSheet()
         self.chk_units.setChecked(True)
 
     def dialog_return(self, w, message):
@@ -159,168 +139,55 @@ class Facing(QWidget):
             obj.setStyleSheet(self.default_style)
             if rtn is not None:
                 obj.setText(str(int(rtn)))
-                self.load_tool()
+                self.load_tool(rtn)
 
     def units_changed(self, state):
         text = "MM" if state else "IN"
         chk_text = 'METRIC' if state else 'IMPERIAL'
         self.chk_units.setText(chk_text)
-        self.lbl_feed_unit.setText(text + "/MIN")
-        self.lbl_tool_unit.setText(text)
+        self.lbl_feed_xy_unit.setText(text + "/MIN")
+        self.lbl_feed_z_unit.setText(text + "/MIN")
+        self.lbl_diameter_unit.setText(text)
         self.lbl_safe_z_unit.setText(text)
-        self.lbl_z_unit.setText(text)
+        self.lbl_first_unit.setText(text)
+        self.lbl_last_unit.setText(text)
         self.lbl_stepover_unit.setText(text)
         self.lbl_stepdown_unit.setText(text)
         self.lbl_size_unit.setText(text)
 
     def validate(self):
-        valid = True
-        blank = "Input field cannot be blank"
-        for item in self.parm_list:
-            self['lineEdit_' + item].setStyleSheet(self.default_style)
-        # check tool number
-        try:
-            self.tool = int(self.lineEdit_tool_num.text())
-            if self.tool <= 0:
-                self.lineEdit_tool_num.setStyleSheet(self.red_border)
-                self.h.add_status("Error - Tool Number must be > 0", WARNING)
-                valid = False
-        except:
-            self.lineEdit_tool_num.setStyleSheet(self.red_border)
-            valid = False
-        # check for valid size
-        try:
-            self.size_x = float(self.lineEdit_size_x.text())
-            self.size_y = float(self.lineEdit_size_y.text())
-            if self.size_x > (self.max_x - self.min_x):
-                self.h.add_status("X size greater than limits", WARNING)
-                self.lineEdit_size_x.setStyleSheet(self.red_border)
-                valid = False
-            if self.size_y > (self.max_y - self.min_y):
-                self.h.add_status("Y size greater than limits", WARNING)
-                self.lineEdit_size_y.setStyleSheet(self.red_border)
-                valid = False
-        except:
-            self.h.add_status(blank, WARNING)
-            self.lineEdit_size_x.setStyleSheet(self.red_border)
-            self.lineEdit_size_y.setStyleSheet(self.red_border)
-            valid = False
-        # check for valid spindle rpm
-        try:
-            self.rpm = int(self.lineEdit_spindle.text())
-            if self.rpm < self.min_rpm or self.rpm > self.max_rpm:
-                self.h.add_status(f"Spindle RPM must be between {self.min_rpm} and {self.max_rpm}", WARNING)
-                self.lineEdit_spindle.setStyleSheet(self.red_border)
-                valid = False
-        except:
-            self.h.add_status(blank, WARNING)
-            self.lineEdit_spindle.setStyleSheet(self.red_border)
-            valid = False
-        # check for valid xy feedrate
-        try:
-            self.xy_feedrate = float(self.lineEdit_xy_feedrate.text())
-            if self.xy_feedrate <= 0 or self.xy_feedrate > self.max_feed:
-                self.h.add_status(f"XY Feedrate must be > 0 and < {self.max_feed}", WARNING)
-                self.lineEdit_xy_feedrate.setStyleSheet(self.red_border)
-                valid = False
-        except:
-            self.h.add_status(blank, WARNING)
-            self.lineEdit_xy_feedrate.setStyleSheet(self.red_border)
-            valid = False
-        # check for valid z feedrate
-        try:
-            self.z_feedrate = float(self.lineEdit_z_feedrate.text())
-            if self.z_feedrate <= 0 or self.z_feedrate > self.max_feed:
-                self.h.add_status(f"Z Feedrate must be > 0 and < {self.max_feed}", WARNING)
-                self.lineEdit_z_feedrate.setStyleSheet(self.red_border)
-                valid = False
-        except:
-            self.h.add_status(blank, WARNING)
-            self.lineEdit_z_feedrate.setStyleSheet(self.red_border)
-            valid = False
-        # check for valid safe_z level
-        try:
-            self.safe_z = float(self.lineEdit_safe_z.text())
-            if self.safe_z <= 0.0:
-                self.h.add_status("Safe Z height should be > 0", WARNING)
-                self.lineEdit_safe_z.setStyleSheet(self.red_border)
-                valid = False
-        except:
-            self.h.add_status(blank, WARNING)
-            self.lineEdit_safe_z.setStyleSheet(self.red_border)
-            valid = False
-        # check for valid tool diameter
-        try:
-            self.tool_dia = float(self.lineEdit_tool_diameter.text())
-            if self.tool_dia <= 0.0:
-                self.h.add_status("Tool diameter must be > 0", WARNING)
-                self.lineEdit_tool_diameter.setStyleSheet(self.red_border)
-                valid = False
-        except:
-            self.h.add_status(blank, WARNING)
-            self.lineEdit_tool_diameter.setStyleSheet(self.red_border)
-            valid = False
-        # check for valid stepover
-        try:
-            self.stepover = float(self.lineEdit_stepover.text())
-            if self.stepover == 0 \
-            or self.stepover > self.tool_dia \
-            or (self.stepover * 2) > min(self.size_x, self.size_y):
-                self.h.add_status("Stepover should be > 0 and < tool diameter", WARNING)
-                self.lineEdit_stepover.setStyleSheet(self.red_border)
-                valid = False
-        except:
-            self.h.add_status(blank, WARNING)
-            self.lineEdit_stepover.setStyleSheet(self.red_border)
-            valid = False
-        # check for valid stepdown
-        try:
-            self.stepdown = float(self.lineEdit_stepdown.text())
-            if self.stepdown <= 0:
-                self.h.add_status("Stepdown must be > 0 even if using only 1 pass", WARNING)
-                self.lineEdit_stepdown.setStyleSheet(self.red_border)
-                valid = False
-        except:
-            self.h.add_status(blank, WARNING)
-            self.lineEdit_stepdown.setStyleSheet(self.red_border)
-            valid = False
-        # check for first and last z levels
-        try:
-            self.zlevel = float(self.lineEdit_start_z.text())
-            self.zfinal = float(self.lineEdit_last_z.text())
-            if self.zfinal > self.zlevel:
-                self.h.add_status("Final Z level must be <= start Z level", WARNING)
-                self.lineEdit_last_z.setStyleSheet(self.red_border)
-                valid = False
-        except:
-            self.h.add_status(blank, WARNING)
+        if not self.check_float_blanks(self.float_inputs): return False
+        if not self.check_int_blanks(self.int_inputs): return False
+        # additional checks
+        for val in self.float_inputs[:-2]:
+            if self[val] <= 0.0:
+                self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
+                self.h.add_status(f'{val} must be > 0', WARNING)
+                return False
+        for val in ['xy_feedrate', 'z_feedrate']:
+            if self[val] <= 0:
+                self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
+                self.h.add_status(f'{val} must be > 0', WARNING)
+                return False
+        if self.xy_feedrate > self.max_feed:
+            self.lineEdit_xy_feed.setStyleSheet(self.red_border)
+            self.h.add_status(f'Feedrate must be less than {self.max_feed}', WARNING)
+            return False
+        if self.last_z > self.start_z:
             self.lineEdit_last_z.setStyleSheet(self.red_border)
-            valid = False
-        return valid
+            self.h.add_status('Start height must be greater than last height', WARNING)
+            return False
+        if self.stepover > self.diameter:
+            self.lineEdit_stepover.setStyleSheet(self.red_border)
+            self.h.add_status('Stepover must be less than tool diameter', WARNING)
+            return False
+        if not (self.min_rpm <= self.spindle <= self.max_rpm):
+            self.lineEdit_spindle.setStyleSheet(self.red_border)
+            self.h.add_status(f'Spindle RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
+            return False
+        return True
 
-    def load_tool(self):
-        #check for valid tool and populate rpm, dia and feed parameters
-        try:
-            self.tool = int(self.lineEdit_tool_num.text())
-        except:
-            self.tool = 0
-        if self.tool > 0:
-            info = TOOL.GET_TOOL_INFO(self.tool)
-            dia = info[11]
-            self.lineEdit_tool_diameter.setText(f"{dia:8.3f}")
-            self.lineEdit_tool_num.setStyleSheet(self.default_style)
-            ACTION.CALL_MDI(f"M61 Q{self.tool} G43")
-        else:
-            self.h.add_status("Invalid tool number specified", WARNING)
-            self.lineEdit_tool_num.setStyleSheet(self.red_border)
-        self.validate()
-
-    def preview_program(self):
-        if not self.validate(): return
-        filename = self.make_temp()
-        if not self.calculate_program(filename):
-            self.h.add_status("Could not calculate program toolpath", WARNING)
-            return
+    def preview_program(self, filename):
         try:
             result = self.preview.load_program(filename)
             if result:
@@ -332,8 +199,11 @@ class Facing(QWidget):
         except Exception as e:
             self.h.add_status(f'Error loading program - {e}', WARNING)
 
-    def create_program(self):
+    def save_program(self):
         if not self.validate(): return
+        if not self.calculate_program():
+            self.h.add_status('Unable to calculate program', ERROR)
+            return
         dialog = QFileDialog(self)
         dialog.setOption(QFileDialog.DontUseNativeDialog, True)
         dialog.setAcceptMode(QFileDialog.AcceptSave)
@@ -348,34 +218,47 @@ class Facing(QWidget):
         if dialog.exec_():
             self.geometry = dialog.saveGeometry()
             fileName = dialog.selectedFiles()[0]
-            self.calculate_program(fileName)
-            self.h.add_status(f"Program successfully saved to {fileName}")
+            if self.gcode:
+                with open(fileName, 'w') as f:
+                    f.write('\n'.join(self.gcode))
+                self.preview_program(fileName)
+                self.h.add_status(f"Program saved to {fileName}")
         else:
-            self.h.add_status("Program creation aborted")
+            self.h.add_status("Program save cancelled")
 
     def send_program(self):
         if not self.validate(): return
-        filename = self.make_temp()
-        if self.calculate_program(filename):
-            ACTION.OPEN_PROGRAM(filename)
-            self.h.add_status("Program successfully sent to Linuxcnc")
-        else:
-            self.h.add_status("Could not calculate program toolpath", WARNING)
+        if not self.calculate_program():
+            self.h.add_status('Unable to calculate program', ERROR)
+            return
+        filename = self.make_temp('facing')
+        with open(filename, 'w') as f:
+            f.write('\n'.join(self.gcode))
+        self.preview_program(filename)
+        ACTION.OPEN_PROGRAM(filename)
+        self.h.add_status("Program sent to Linuxcnc")
 
-    def calculate_program(self, fname):
+    def load_tool(self, tool=None):
+        if tool is None:
+            tool = int(self.lineEdit_tool.text())
+        info = TOOL.GET_TOOL_INFO(tool)
+        if info:
+            self.lineEdit_diameter.setText(str(info[11]))
+            self.lineEdit_tool_info.setText(info[15])
+
+    def calculate_program(self):
+        self.gcode = []
         passes = 0
         comment = self.lineEdit_comment.text()
         unit_code = 'G21' if self.chk_units.isChecked() else 'G20'
         units_text = 'Metric' if self.chk_units.isChecked() else 'Imperial'
         self.line_num = 5
-        self.file = open(fname, 'w')
         # opening preamble
-        self.file.write("%\n")
-        self.file.write(f"({comment})\n")
-        self.file.write(f"(**NOTE - All units are {units_text})\n")
-        self.file.write(f"(Area: X {self.size_x} by Y {self.size_y})\n")
-        self.file.write(f"({self.tool_dia} Tool Diameter with {self.stepover} Stepover)\n")
-        self.file.write("\n")
+        self.gcode.append("%")
+        self.gcode.append(f"({comment})")
+        self.gcode.append(f"(**NOTE - All units are {units_text})")
+        self.gcode.append(f"(Area: X {self.size_x} by Y {self.size_y})")
+        self.gcode.append(f"(Tool Diameter {self.diameter} with Stepover {self.stepover})\n")
         self.next_line(f"G40 G49 G64 P0.03 M6 T{self.tool}")
         self.next_line("G17")
         self.next_line(unit_code)
@@ -383,7 +266,7 @@ class Facing(QWidget):
             self.next_line("M7")
         if self.chk_flood.isChecked():
             self.next_line("M8")
-        self.next_line(f"S{self.rpm} M3")
+        self.next_line(f"S{self.spindle} M3")
         if self.rbtn_raster_0.isChecked():
             self.calculate_pass = self.raster_0
         elif self.rbtn_raster_45.isChecked():
@@ -391,39 +274,35 @@ class Facing(QWidget):
         elif self.rbtn_raster_90.isChecked():
             self.calculate_pass = self.raster_90
         else:
-            self.file.write("(Unable to determine raster direction)\n")
+            self.gcode.append("(Unable to determine raster direction)")
             return False
+        zlevel = self.start_z
         last_pass = False
         # start facing passes
         while True:
             passes += 1
-            self.file.write(f"(Pass {passes})\n")
-            if self.zlevel <= self.zfinal:
-                self.zlevel = self.zfinal
+            self.gcode.append(f"(Pass {passes})")
+            if zlevel <= self.last_z:
+                zlevel = self.last_z
                 last_pass = True
             self.next_line(f"G0 Z{self.safe_z}")
             self.next_line("G0 X0.0 Y0.0")
-            self.next_line(f"G1 Z{self.zlevel} F{self.z_feedrate}")
+            self.next_line(f"G1 Z{zlevel:.3f} F{self.z_feedrate}")
             self.calculate_pass()
             if last_pass is True: break
-            self.zlevel -= self.stepdown
+            zlevel -= self.stepdown
         # final profile
         if self.chk_profile.isChecked():
-            self.file.write("(Profile pass)\n")
+            self.gcode.append("(Profile pass)")
             self.next_line(f"G0 Z{self.safe_z}")
             self.next_line("G0 X0.0 Y0.0")
-            self.next_line(f"G1 Z{self.zfinal} F{self.z_feedrate}")
+            self.next_line(f"G1 Z{self.last_z} F{self.z_feedrate}")
             self.next_line(f"G1 X{self.size_x} F{self.xy_feedrate}")
             self.next_line(f"G1 Y{self.size_y}")
             self.next_line("G1 X0")
             self.next_line("G1 Y0")
         # closing section
-        self.next_line(f"G0 Z{self.safe_z}")
-        self.next_line("M9")
-        self.next_line("M5")
-        self.next_line("M2")
-        self.file.write("%\n")
-        self.file.close()
+        self.post_amble()
         return True
 
     def raster_0(self):
@@ -532,17 +411,12 @@ class Facing(QWidget):
             self.next_line(f"Y{next_y}")
 
     def next_line(self, text):
-        self.file.write(f"N{self.line_num} " + text + "\n")
+        self.gcode.append(f"N{self.line_num} {text}")
         self.line_num += 5
 
     def show_help(self):
         fname = os.path.join(HELP, self.helpfile)
         self.parent.show_help_page(fname)
-
-    def make_temp(self):
-        fd, path = tempfile.mkstemp(prefix='facing', suffix='.ngc')
-        atexit.register(lambda: os.remove(path))
-        return path
 
     # required code for subscriptable objects
     def __getitem__(self, item):

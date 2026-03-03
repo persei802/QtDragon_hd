@@ -140,6 +140,9 @@
                 <height>16777215</height>
                </size>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="toolTip">
                <string>Program starting RPM</string>
               </property>
@@ -259,6 +262,9 @@
                 <width>80</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
               </property>
               <property name="toolTip">
                <string>Program ending RPM</string>
@@ -383,6 +389,9 @@
                 <height>16777215</height>
                </size>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="toolTip">
                <string>Total program duration in minutes</string>
               </property>
@@ -505,6 +514,9 @@
                 <width>80</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
               </property>
               <property name="toolTip">
                <string>Number of program steps</string>
@@ -676,6 +688,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="toolTip">
                <string/>
               </property>
@@ -734,35 +749,6 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QPushButton" name="btn_create">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>Create program and save to file</string>
-             </property>
-             <property name="text">
-              <string>SAVE AS
-PROGRAM</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QPushButton" name="btn_send">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -788,6 +774,35 @@ PROGRAM</string>
              <property name="text">
               <string>SEND TO
 LINUXCNC</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_save">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Create program and save to file</string>
+             </property>
+             <property name="text">
+              <string>SAVE AS
+PROGRAM</string>
              </property>
             </widget>
            </item>

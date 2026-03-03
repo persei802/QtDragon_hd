@@ -13,15 +13,15 @@
 
 import sys
 import os
-import tempfile
-import atexit
 import pyqtgraph as pg
 
 from lib.event_filter import EventFilter
+from utils.utils_base import Common
 
-from PyQt5 import QtGui, QtWidgets, uic
 from pyqtgraph import PlotWidget, plot
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5 import uic
+from PyQt5.QtGui import QColor, QIntValidator
+from PyQt5.QtWidgets import QWidget, QFileDialog, QLineEdit
 from qtvcp.core import Info, Action, Path, Status
 
 INFO = Info()
@@ -36,9 +36,9 @@ class Graph(pg.PlotWidget):
     def __init__(self):
         super(Graph, self).__init__()
         styles = {'color':'#FFFFFF', 'font-size':'12px'}
-        self.setBackground(QtGui.QColor('#404040'))
+        self.setBackground(QColor('#404040'))
         self.pen = pg.mkPen(color=(255, 0, 0), width=2)
-        self.setTitle("Spindle Warmup Profile", color=QtGui.QColor('#FFFFFF'), size='14pt')
+        self.setTitle("Spindle Warmup Profile", color=QColor('#FFFFFF'), size='14pt')
         self.setLabel('left', 'Speed (RPM)', **styles)
         self.setLabel('bottom', 'Time (MIN)', **styles)
         self.showGrid(x=True, y=True)
@@ -47,24 +47,14 @@ class Graph(pg.PlotWidget):
         self.plot(x, y, pen=self.pen)
 
 
-class Spindle_Warmup(QtWidgets.QWidget):
+class Spindle_Warmup(QWidget, Common):
     def __init__(self, parent=None):
         super(Spindle_Warmup, self).__init__()
         self.parent = parent
         self.h = self.parent.parent
-        self.dialog_code = 'CALCULATOR'
-        self.kbd_code = 'KEYBOARD'
-        self.default_style = ''
-        self.red_border = "border: 2px solid red;"
         self.line_num = 0
         self.rpm = []
-        self.steps = []
-        self.start_rpm = 0
-        self.final_rpm = 0
-        self.interval = 0.0
         self.geometry = None
-        self.minimum_speed = INFO.MIN_SPINDLE_SPEED
-        self.maximum_speed = INFO.MAX_SPINDLE_SPEED
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'spindle_warmup.ui')
         try:
@@ -74,25 +64,26 @@ class Spindle_Warmup(QtWidgets.QWidget):
         self.preview = Graph()
         self.layout_graph.addWidget(self.preview)
 
-        self.lineEdit_start.setValidator(QtGui.QIntValidator(0, 99999))
-        self.lineEdit_final.setValidator(QtGui.QIntValidator(0, 99999))
-        self.lineEdit_duration.setValidator(QtGui.QIntValidator(1, 999))
-        self.lineEdit_steps.setValidator(QtGui.QIntValidator(1, 99))
+        self.inputs = ['start', 'final', 'duration', 'steps']
+
+        self.lineEdit_start.setValidator(QIntValidator(0, 99999))
+        self.lineEdit_final.setValidator(QIntValidator(0, 99999))
+        self.lineEdit_duration.setValidator(QIntValidator(1, 999))
+        self.lineEdit_steps.setValidator(QIntValidator(1, 99))
 
         # setup event filter to catch focus_in events
         self.event_filter = EventFilter(self)
-        line_list = ['start', 'final', 'duration', 'steps']
-        for line in line_list:
+        for line in self.inputs:
             self[f'lineEdit_{line}'].installEventFilter(self.event_filter)
         self.lineEdit_comment.installEventFilter(self.event_filter)
-        self.event_filter.set_line_list(line_list)
+        self.event_filter.set_line_list(self.inputs)
         self.event_filter.set_kbd_list('comment')
         self.event_filter.set_parms(('_warmup_', True))
 
         # signal connections
         self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
-        self.btn_create.clicked.connect(self.create_program)
-        self.btn_send.clicked.connect(self.send_program)
+        self.btn_send.pressed.connect(self.send_program)
+        self.btn_save.pressed.connect(self.save_program)
 
     def _hal_init(self):
         def homed_on_status():
@@ -128,88 +119,37 @@ class Spindle_Warmup(QtWidgets.QWidget):
             if rtn is not None:
                 obj.setText(rtn)
 
-    def create_program(self):
-        if not self.validate(): return
-        self.create_points()
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        sub_path = INFO.SUB_PATH_LIST
-        _dir = os.path.expanduser(sub_path[0])
-        fileName, _ = QFileDialog.getSaveFileName(self,"Save to file",_dir,"All Files (*);;ngc Files (*.ngc)", options=options)
-        if fileName:
-            self.calculate_program(fileName)
-            self.h.add_status(f"{fileName} successfully created")
-        else:
-            self.h.add_status("Program creation aborted")
-
-    def send_program(self):
-        if not self.validate(): return
-        self.create_points()
-        filename = self.make_temp()[1]
-        self.calculate_program(filename)
-        ACTION.OPEN_PROGRAM(filename)
-        self.h.add_status("Spindle warmup program sent to Linuxcnc")
-
     def validate(self):
-        valid = True
-        blank = "Input field cannot be blank"
-        for item in ["steps", "duration", "start", "final"]:
-            self['lineEdit_' + item].setStyleSheet(self.default_style)
-        try:
-            self.steps = int(self.lineEdit_steps.text())
-            if self.steps < 2:
-                self.lineEdit_steps.setStyleSheet(self.red_border)
-                self.h.add_status("Error - Number of steps must be >= 2", WARNING)
-                valid = False
-        except:
-            self.h.add_status(blank, WARNING)
+        if not self.check_int_blanks(self.inputs): return False
+        # additional checks
+        if self.steps < 2:
             self.lineEdit_steps.setStyleSheet(self.red_border)
-            valid = False
-
-        try:
-            self.duration = float(self.lineEdit_duration.text())
-            if self.duration < 1:
-                self.lineEdit_duration.setStyleSheet(self.red_border)
-                self.h.add_status("Warmup duration must be >= 1", WARNING)
-                valid = False
-        except:
-            self.h.add_status(blank, WARNING)
+            self.h.add_status("Number of steps must be >= 2", WARNING)
+            return False
+        if self.duration < 1:
             self.lineEdit_duration.setStyleSheet(self.red_border)
-            valid = False
-
-        try:
-            self.start_rpm = int(self.lineEdit_start.text())
-            if self.start_rpm < self.minimum_speed:
-                self.h.add_status("Start RPM adjusted to minimum spindle speed", WARNING)
-                self.lineEdit_start.setText(str(self.minimum_speed))
-                self.start_rpm = self.minimum_speed
-        except:
-            self.h.add_status(blank, WARNING)
+            self.h.add_status("Warmup duration must be >= 1", WARNING)
+            return False
+        if not (self.min_rpm <= self.start <= self.max_rpm):
             self.lineEdit_start.setStyleSheet(self.red_border)
-            valid = False
-
-        try:
-            self.final_rpm = int(self.lineEdit_final.text())
-            if self.final_rpm > self.maximum_speed:
-                self.h.add_status("Final RPM adjusted to maximum spindle speed", WARNING)
-                self.lineEdit_final.setText(str(self.maximum_speed))
-                self.final_rpm = self.maximum_speed
-        except:
-            self.h.add_status(blank, WARNING)
+            self.h.add_status(f'Start RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
+            return False
+        if not (self.min_rpm <= self.final <= self.max_rpm):
             self.lineEdit_final.setStyleSheet(self.red_border)
-            valid = False
-        return valid
+            self.h.add_status(f'Final RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
+            return False
+        return True
 
     def create_points(self):
         self.rpm = []
         speed = []
         time = []
         self.interval = float(self.duration/self.steps)
-        speed_step = int((self.final_rpm - self.start_rpm)/(self.steps - 1))
+        speed_step = int((self.final - self.start)/(self.steps - 1))
         for i in range(self.steps):
             current_time = self.interval * i
             next_time = self.interval * (i + 1)
-            current_speed =  (speed_step * i) + self.start_rpm
+            current_speed =  (speed_step * i) + self.start
             time.append(current_time)
             time.append(next_time)
             speed.append(current_speed)
@@ -218,7 +158,20 @@ class Spindle_Warmup(QtWidgets.QWidget):
         self.preview.clear()
         self.preview.draw_graph(time, speed)
 
-    def create_gcode(self):
+    def send_program(self):
+        if not self.validate(): return
+        self.create_points()
+        self.calculate_program()
+        filename = self.make_temp('spindle_warmup')
+        with open(filename, 'w') as f:
+            f.write('\n'.join(self.gcode))
+        ACTION.OPEN_PROGRAM(filename)
+        self.h.add_status("Spindle warmup program sent to Linuxcnc")
+
+    def save_program(self):
+        if not self.validate(): return
+        self.create_points()
+        self.calculate_program()
         dialog = QFileDialog(self)
         dialog.setOption(QFileDialog.DontUseNativeDialog, True)
         dialog.setAcceptMode(QFileDialog.AcceptSave)
@@ -233,20 +186,21 @@ class Spindle_Warmup(QtWidgets.QWidget):
         if dialog.exec_():
             self.geometry = dialog.saveGeometry()
             fileName = dialog.selectedFiles()[0]
-            self.calculate_program(fileName)
-            self.h.add_status(f"Program successfully saved to {fileName}")
+            if self.gcode:
+                with open(fileName, 'w') as f:
+                    f.write('\n'.join(self.gcode))
+                self.h.add_status(f"Program saved to {fileName}")
         else:
-            self.h.add_status("Program creation aborted")
+            self.h.add_status("Program save cancelled")
 
-    def calculate_program(self, fname):
+    def calculate_program(self):
+        self.gcode = []
         comment = self.lineEdit_comment.text()
         self.line_num = 5
-        self.file = open(fname, 'w')
         # opening preamble
-        self.file.write("%\n")
-        self.file.write(f"({comment})\n")
-        self.file.write(f"(Warm up duration is {self.duration} minutes in {self.steps} steps)\n")
-        self.file.write("\n")
+        self.gcode.append("%")
+        self.gcode.append(f"({comment})")
+        self.gcode.append(f"(Warm up duration is {self.duration} minutes in {self.steps} steps)")
         self.next_line("G40 G49 G64 P0.03")
         self.next_line("G17")
         if self.chk_mist.isChecked():
@@ -259,17 +213,11 @@ class Spindle_Warmup(QtWidgets.QWidget):
         self.next_line("M9")
         self.next_line("M5")
         self.next_line("M2")
-        self.file.write("%\n")
-        self.file.close()
+        self.gcode.append("%")
 
     def next_line(self, text):
-        self.file.write(f"N{self.line_num} " + text + "\n")
+        self.gcode.append(f"N{self.line_num} {text}")
         self.line_num += 5
-
-    def make_temp(self):
-        _tmp = tempfile.mkstemp(prefix='spindle_warmup', suffix='.ngc')
-        atexit.register(lambda: os.remove(_tmp[1]))
-        return _tmp
 
     # required code for subscriptable objects
     def __getitem__(self, item):

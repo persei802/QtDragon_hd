@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1110</width>
+    <width>1035</width>
     <height>571</height>
    </rect>
   </property>
@@ -105,14 +105,23 @@
            </property>
            <item>
             <widget class="QLabel" name="lbl_tool_num">
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
-               <width>160</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
              <property name="text">
               <string>TOOL</string>
+             </property>
+             <property name="indent">
+              <number>8</number>
              </property>
             </widget>
            </item>
@@ -132,9 +141,12 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>60</width>
                <height>30</height>
               </size>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
              </property>
              <property name="text">
               <string>1</string>
@@ -148,21 +160,24 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_2">
+            <widget class="QLineEdit" name="lineEdit_tool_info">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimumSize">
               <size>
-               <width>60</width>
-               <height>0</height>
+               <width>0</width>
+               <height>30</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>60</width>
-               <height>16777215</height>
+               <width>16777215</width>
+               <height>30</height>
               </size>
-             </property>
-             <property name="text">
-              <string/>
              </property>
             </widget>
            </item>
@@ -193,6 +208,9 @@
              <property name="text">
               <string>NUMBER OF LOOPS</string>
              </property>
+             <property name="indent">
+              <number>8</number>
+             </property>
             </widget>
            </item>
            <item>
@@ -215,6 +233,9 @@
                <height>30</height>
               </size>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
              <property name="text">
               <string>2</string>
              </property>
@@ -236,7 +257,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>60</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -275,6 +296,9 @@
              <property name="text">
               <string>TOOL DIAMETER</string>
              </property>
+             <property name="indent">
+              <number>8</number>
+             </property>
             </widget>
            </item>
            <item>
@@ -297,6 +321,9 @@
                <height>30</height>
               </size>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
              <property name="text">
               <string>6</string>
              </property>
@@ -318,7 +345,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>60</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -326,7 +353,10 @@
               <string>MM</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="indent">
+              <number>8</number>
              </property>
             </widget>
            </item>
@@ -360,6 +390,9 @@
              <property name="text">
               <string>START DIAMETER</string>
              </property>
+             <property name="indent">
+              <number>8</number>
+             </property>
             </widget>
            </item>
            <item>
@@ -382,6 +415,9 @@
                <height>30</height>
               </size>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
              <property name="text">
               <string>90</string>
              </property>
@@ -403,7 +439,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>60</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -411,7 +447,10 @@
               <string>MM</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="indent">
+              <number>8</number>
              </property>
             </widget>
            </item>
@@ -445,6 +484,9 @@
              <property name="text">
               <string>FINAL DIAMETER</string>
              </property>
+             <property name="indent">
+              <number>8</number>
+             </property>
             </widget>
            </item>
            <item>
@@ -467,6 +509,9 @@
                <height>30</height>
               </size>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
              <property name="text">
               <string>100</string>
              </property>
@@ -488,7 +533,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>60</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -496,7 +541,10 @@
               <string>MM</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="indent">
+              <number>8</number>
              </property>
             </widget>
            </item>
@@ -527,6 +575,9 @@
              <property name="text">
               <string>CUT DEPTH</string>
              </property>
+             <property name="indent">
+              <number>8</number>
+             </property>
             </widget>
            </item>
            <item>
@@ -549,6 +600,9 @@
                <height>30</height>
               </size>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
              <property name="text">
               <string>1</string>
              </property>
@@ -570,7 +624,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>60</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -578,7 +632,10 @@
               <string>MM</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="indent">
+              <number>8</number>
              </property>
             </widget>
            </item>
@@ -609,10 +666,13 @@
              <property name="text">
               <string>Z SAFE TRAVEL</string>
              </property>
+             <property name="indent">
+              <number>8</number>
+             </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit_z_safe">
+            <widget class="QLineEdit" name="lineEdit_safe_z">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -631,6 +691,9 @@
                <height>30</height>
               </size>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
              <property name="text">
               <string>10</string>
              </property>
@@ -643,7 +706,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="lbl_z_safe_unit">
+            <widget class="QLabel" name="lbl_safe_z_unit">
              <property name="minimumSize">
               <size>
                <width>60</width>
@@ -652,7 +715,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>60</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -660,7 +723,10 @@
               <string>MM</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="indent">
+              <number>8</number>
              </property>
             </widget>
            </item>
@@ -691,6 +757,9 @@
              <property name="text">
               <string>FEEDRATE</string>
              </property>
+             <property name="indent">
+              <number>8</number>
+             </property>
             </widget>
            </item>
            <item>
@@ -713,6 +782,9 @@
                <height>30</height>
               </size>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
              <property name="text">
               <string>1000</string>
              </property>
@@ -734,7 +806,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>60</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -742,7 +814,10 @@
               <string>MM/MIN</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="indent">
+              <number>8</number>
              </property>
             </widget>
            </item>
@@ -773,6 +848,9 @@
              <property name="text">
               <string>SPINDLE SPEED</string>
              </property>
+             <property name="indent">
+              <number>8</number>
+             </property>
             </widget>
            </item>
            <item>
@@ -795,6 +873,9 @@
                <height>30</height>
               </size>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
              <property name="text">
               <string>8000</string>
              </property>
@@ -816,7 +897,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>60</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -824,7 +905,10 @@
               <string>RPM</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="indent">
+              <number>8</number>
              </property>
             </widget>
            </item>
@@ -1002,6 +1086,9 @@
               <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
+              <property name="indent">
+               <number>8</number>
+              </property>
              </widget>
             </item>
             <item>
@@ -1070,61 +1157,6 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QPushButton" name="btn_preview">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>PREVIEW
-PROGRAM</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btn_create">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>Create program and save to file</string>
-             </property>
-             <property name="text">
-              <string>SAVE AS
-PROGRAM</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QPushButton" name="btn_send">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1150,6 +1182,35 @@ PROGRAM</string>
              <property name="text">
               <string>SEND TO
 LINUXCNC</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_save">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Create program and save to file</string>
+             </property>
+             <property name="text">
+              <string>SAVE AS
+PROGRAM</string>
              </property>
             </widget>
            </item>

@@ -183,6 +183,9 @@
             <height>30</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
           <property name="text">
            <string>100</string>
           </property>
@@ -213,6 +216,9 @@
             <width>70</width>
             <height>30</height>
            </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
           </property>
           <property name="text">
            <string>100</string>
@@ -281,6 +287,9 @@
             <height>30</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
           <property name="text">
            <string>3</string>
           </property>
@@ -311,6 +320,9 @@
             <width>70</width>
             <height>30</height>
            </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
           </property>
           <property name="text">
            <string>3</string>
@@ -503,6 +515,9 @@
             <height>30</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
           <property name="toolTip">
            <string>Use the FILE page to load a gcode program to be probed.</string>
           </property>
@@ -559,6 +574,9 @@
             <width>80</width>
             <height>30</height>
            </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
           </property>
           <property name="maxLength">
            <number>8</number>
@@ -647,35 +665,6 @@
          <number>8</number>
         </property>
         <item>
-         <widget class="QPushButton" name="btn_save_gcode">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Save probing program to file</string>
-          </property>
-          <property name="text">
-           <string>SAVE AS
-PROGRAM</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="btn_send_gcode">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -701,6 +690,35 @@ PROGRAM</string>
           <property name="text">
            <string>SEND TO
 LINUXCNC</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_save_gcode">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Save probing program to file</string>
+          </property>
+          <property name="text">
+           <string>SAVE AS
+PROGRAM</string>
           </property>
          </widget>
         </item>
@@ -973,6 +991,9 @@ MAP</string>
             <height>30</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="maxLength">
            <number>10</number>
           </property>
@@ -1004,6 +1025,9 @@ MAP</string>
             <height>30</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="maxLength">
            <number>10</number>
           </property>
@@ -1034,6 +1058,9 @@ MAP</string>
             <width>80</width>
             <height>30</height>
            </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
           </property>
           <property name="maxLength">
            <number>10</number>

@@ -32,7 +32,7 @@ class CustomMacros(QWidget):
         self.w = self.parent.w # reference to handler widgets
         self.kbd_code = 'KEYBOARD'
         self.old_value = 0
-        self.custom_macros = list()
+        self.custom_macros = []
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'custom_macros.ui')
         try:
@@ -69,9 +69,9 @@ class CustomMacros(QWidget):
     def closing_cleanup__(self):
         # save all custom macros to qtdragon.pref file
         for key in self.custom_macros:
-            self.spinbox.setValue(key)
+            self.spinbox.setValue(int(key))
             text = self.assemble_command()
-            self.w.PREFS_.putpref(str(key), text, str, 'CUSTOM_MACROS')
+            self.w.PREFS_.putpref(key, text, str, 'CUSTOM_MACROS')
 
     def prefill_labels(self):
         # prefill INI macro labels
@@ -88,7 +88,7 @@ class CustomMacros(QWidget):
                 text = macro_list[key]
                 line = text.split(',')
                 cmds = line[0]
-                lbl = line[1]
+                lbl = line[1].replace(r'\n', '\n')
                 tip = cmds.replace(';','\n')
                 tooltip = f'MDI CMD MACRO{key}:\n{tip}'
                 self[f'lbl_macro{key}'].setText(lbl)
@@ -124,7 +124,7 @@ class CustomMacros(QWidget):
             text = line.split(',')
             cmd = text[0]
             tip = cmd.replace(';','\n')
-            lbl = text[1]
+            lbl = text[1].replace(r'\n', '\n')
             tooltip = f'MDI CMD MACRO{i}:\n{tip}'
             self[f'lbl_macro{i}'].setText(lbl)
             self.w[f'btn_macro{i}'].set_mdi_command(True)
@@ -140,17 +140,18 @@ class CustomMacros(QWidget):
         self.lineEdit_text.clear()
 
     def assemble_command(self):
+        text = self.lineEdit_text.text()
         cmd1 = self.lineEdit_cmd1.text()
         if not cmd1: return None
         cmd2 = self.lineEdit_cmd2.text()
         if not cmd2:
-            command = f'{cmd1},{self.lineEdit_text.text()}'
+            command = f'{cmd1},{text}'
             return command
         cmd3 = self.lineEdit_cmd3.text()
         if not cmd3:
-            command = f'{cmd1};{cmd2},{self.lineEdit_text.text()}'
+            command = f'{cmd1};{cmd2},{text}'
             return command
-        command = f'{cmd1};{cmd2};{cmd3},{self.lineEdit_text.text()}'
+        command = f'{cmd1};{cmd2};{cmd3},{text}'
         return command
 
     def spin_value_changed(self, idx):
