@@ -21,12 +21,17 @@ Basic Probe Tool Measure utility. With this method, an electronic tool sensor mu
 spindle nose, or some other tool, so long as it is the shortest tool. Probe distances are measured from the Z axis homed position in
 machine coordinates. The sequence of steps to measure tool offsets are as follows:</p>
 <ul>
+    <li>Select TOOL MEASURE from the probe routines selector.</li>
     <li>Position the spindle at the tool sensor location and move Z up to Z0 in machine coordinates (G53)</li>
-    <li>Load the spindle with the reference tool, which should be designated tool number 0 or use the spindle with no tool installed.</li>
-    <li>Press MEASURE TOOL. A status message will show a warning about tool 0 being used as a reference measurement. This is normal.</li>
-    <li>Once the Probe signal is triggered, the probed value is entered into the tool measure diagram.</li>
+    <li>Load the spindle with the reference tool or use the spindle with no tool installed.</li>
+    <li>Enter that tool number into the REFERENCE TOOL field. </li>
+    <li>Press the LOAD TOOL button. This sets the current tool in the spindle as the reference tool.</li>
+    <li>Press MEASURE TOOL and select the tool corresponding to the reference tool from the Tool Chooser dialog.</li>
+    <li>Once the Probe signal is triggered, the refence value is entered into the tool measure diagram.</li>
     <li>Now insert a tool to be measured and press MEASURE TOOL again.</li>
-    <li>The probed value will be subtracted from the reference value and entered into the tool table.</li>
+    <li>Once the probe signal is triggered, the tool length offset is calculated and entered into the tool table.</li>
+    <li>** Do not change the REFERENCE TOOL input field or press LOAD TOOL again or it will be used as the reference tool instead of 
+    a tool to be measured.</li>
 </ul>
 <p>NOTE : This procedure will result in positive numbers for tool length offsets because it is calculated by subtracting the distance
 the measured tool travelled from the distance the reference tool travelled. This is the safest way because if tool offsets are

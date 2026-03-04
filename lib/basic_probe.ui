@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1138</width>
-    <height>620</height>
+    <width>998</width>
+    <height>652</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -88,7 +88,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
-           <widget class="QLabel" name="label_56">
+           <widget class="QLabel" name="lbl_probe_tool">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -1184,29 +1184,61 @@ TYPE</string>
          </layout>
         </item>
         <item>
-         <widget class="QCheckBox" name="chk_use_calculator">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>USE CALCULATOR FOR DATA INPUT</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_13">
+          <item>
+           <widget class="QCheckBox" name="chk_use_calculator">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>USE CALCULATOR FOR DATA INPUT</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_measure_tool">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Press to select tool to measure</string>
+            </property>
+            <property name="text">
+             <string>MEASURE TOOL OFFSET</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -4162,32 +4194,6 @@ HELP</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btn_measure_tool">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>120</width>
-         <height>50</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>50</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>MEASURE
-TOOL</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QComboBox" name="cmb_probe_select">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -4197,13 +4203,13 @@ TOOL</string>
        </property>
        <property name="minimumSize">
         <size>
-         <width>350</width>
+         <width>0</width>
          <height>50</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>350</width>
+         <width>16777215</width>
          <height>50</height>
         </size>
        </property>
@@ -5288,12 +5294,12 @@ TEST</string>
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="cal_buttonGroup"/>
-  <buttongroup name="outside_buttonGroup"/>
-  <buttongroup name="boss_pocket_buttonGroup"/>
-  <buttongroup name="clear_buttonGroup"/>
-  <buttongroup name="inside_buttonGroup"/>
-  <buttongroup name="skew_buttonGroup"/>
   <buttongroup name="ridge_valley_buttonGroup"/>
+  <buttongroup name="cal_buttonGroup"/>
+  <buttongroup name="boss_pocket_buttonGroup"/>
+  <buttongroup name="skew_buttonGroup"/>
+  <buttongroup name="clear_buttonGroup"/>
+  <buttongroup name="outside_buttonGroup"/>
+  <buttongroup name="inside_buttonGroup"/>
  </buttongroups>
 </ui>

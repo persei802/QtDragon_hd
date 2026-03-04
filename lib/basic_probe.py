@@ -62,9 +62,7 @@ class BasicProbe(QWidget, _HalWidgetBase):
         self.tool_number = None
         self.probe_number = -1
         self.default_style = ''
-        self.debug_mode = False
         self.regex = ''
-
         # tool measure data
         self.z_max_clear = 0
         self.ts_x = 0
@@ -75,6 +73,7 @@ class BasicProbe(QWidget, _HalWidgetBase):
         self.ts_diam = 16
         self.ts_zero = 0
         self.ts_tlo = 0
+        self.debug_mode = LOG.getEffectiveLevel()
 
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         try:
@@ -95,7 +94,7 @@ class BasicProbe(QWidget, _HalWidgetBase):
         except AttributeError as e:
             LOG.critical(e)
 
-        if not self.debug_mode:
+        if self.debug_mode != 10:
             self.btn_probe.hide()
         self.probe_page_list = ['OUTSIDE MEASUREMENTS',
                                 'INSIDE MEASUREMENTS',
@@ -110,7 +109,7 @@ class BasicProbe(QWidget, _HalWidgetBase):
         self.cmb_probe_select.addItems(self.probe_page_list)
         self.cmb_probe_select.wheelEvent = lambda event: None
         self.btn_measure_tool.hide()
-        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta']
+        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta', 'th', 'bh']
 
         #create parameter dictionary
         self.send_dict = {}
@@ -165,9 +164,9 @@ class BasicProbe(QWidget, _HalWidgetBase):
         self.clear_buttonGroup.buttonClicked.connect(self.clear_results_clicked)
         self.btn_load_probe.pressed.connect(self.load_probe_pressed)
         self.btn_probe_help.pressed.connect(self.probe_help_pressed)
-        self.btn_measure_tool.pressed.connect(self.measure_tool)
+        self.btn_measure_tool.pressed.connect(self.get_tool_to_measure)
         self.stackedWidget_probe_buttons.setCurrentIndex(0)
-        if self.debug_mode:
+        if self.debug_mode == 10:
             self.btn_probe.pressed.connect(self.test_probe)
             self.btn_probe.released.connect(self.test_probe)
 
@@ -250,6 +249,10 @@ class BasicProbe(QWidget, _HalWidgetBase):
             if rtn is not None:
                 obj.setText(str(int(rtn)))
                 self.load_probe_pressed()
+        elif message.get('ID') == 'tool_measure' and name == self.tool_code:
+            if rtn is not None:
+                self.ts_tool = int(rtn)
+                self.measure_tool()
 
     def _tool_info(self, data):
         if data.id != -1:
@@ -348,20 +351,14 @@ class BasicProbe(QWidget, _HalWidgetBase):
 
 # Main button handler routines
     def load_probe_pressed(self):
-        try:
-            tool =  int(self.lineEdit_probe_tool.text())
+        tool =  self.lineEdit_probe_tool.text()
+        if tool:
+            tool = int(tool)
             self.ts_tool = tool
             info = TOOL.GET_TOOL_INFO(tool)
-            tlo = info[4]
-            dia = info[11]
-            self.lineEdit_ts_tlo.setText(f"{abs(tlo):8.3f}")
-            self.lineEdit_probe_diam.setText(f"{dia:8.3f}")
-            self.btn_measure_tool.setText(f'MEASURE\nTOOL {tool}')
-            ACTION.CALL_MDI_WAIT(f'M61 Q{tool}', mode_return=True)
-            if tool == 0:
-                self.parent.add_status("Tool 0 loaded - using as reference tool", WARNING)
-        except:
-            self.parent.add_status("Invalid probe tool specified", WARNING)
+            self.lineEdit_ts_tlo.setText(f"{info[4]:8.3f}")
+            self.lineEdit_probe_diam.setText(f"{info[11]:8.3f}")
+            ACTION.CALL_MDI_WAIT(f'M61 Q{tool} G49', mode_return=True)
 
     def probe_help_pressed(self):
         self.help.show()
@@ -418,8 +415,15 @@ class BasicProbe(QWidget, _HalWidgetBase):
         self.get_parms()
         self.start_probe(cmd)
 
+    def get_tool_to_measure(self):
+        mess = {'NAME' : self.tool_code,
+                'ID' : 'tool_measure',
+                'GEONAME': '__toolchooser',
+                'OBJECT': self.btn_measure_tool}
+        ACTION.CALL_DIALOG(mess)
+        
     def measure_tool(self):
-        cmd = 'probe_down'
+        cmd = 'probe_ts_z'
         self.get_parms()
         self.start_probe(cmd)
 
@@ -456,7 +460,12 @@ class BasicProbe(QWidget, _HalWidgetBase):
 
     def probe_select_changed(self, index):
         self.stackedWidget_probe_buttons.setCurrentIndex(index)
-        self.btn_measure_tool.setVisible(self.cmb_probe_select.currentText() == 'TOOL MEASURE')
+        if self.cmb_probe_select.currentText() == 'TOOL MEASURE':
+            self.btn_measure_tool.setVisible(True)
+            self.lbl_probe_tool.setText('REFERENCE\nTOOL')
+        else:
+            self.btn_measure_tool.setVisible(False)
+            self.lbl_probe_tool.setText('PROBE\nTOOL')
 
     def get_probe_max_depth(self):
         if self.tool_db is not None:
@@ -484,25 +493,27 @@ class BasicProbe(QWidget, _HalWidgetBase):
 
     def show_results(self, line):
         for key in self.status_list:
-            if key != 'None':
+            if key in ['th', 'bh']:
+                if key == 'th' and line[key] != 'None':
+                    val = float(line[key])
+                    if self.ts_tool == int(self.lineEdit_probe_tool.text()):
+                        self.ts_zero = abs(val)
+                        self.lineEdit_ts_zero.setText(f'{self.ts_zero:.3f}')
+                        self.parent.add_status(f'Set reference tool {self.ts_tool} to value {self.ts_zero}')
+                    else:
+                        self.ts_tlo = self.ts_zero - abs(val)
+                        self.lineEdit_ts_tlo.setText(f'{self.ts_tlo:.3f}')
+                        ACTION.CALL_MDI(f'G10 L1 P{self.ts_tool} Z{self.ts_tlo:.3f}')
+                        self.parent.add_status(f'Set tool length offset for tool {self.ts_tool} to {self.ts_tlo:.3f}')
+                        # have to do this here because tool table data_changed is not emitted with a G10
+                        if self.tool_db is not None:
+                            data = TOOL.GET_TOOL_INFO(self.ts_tool)
+                            self.tool_db.update_tool_table(data[0], (data[4], data[11], data[15]))
+                    ACTION.CALL_MDI('G53 G0 Z0')
+            elif line[key] != 'None':
                 self['status_' + key].setText(line[key])
             else:
                 self['status_' + key].setText('')
-        self.lineEdit_cal_offset.setText(line['offset'])
-        if line['z'] != 'None':
-            val = float(line['z'])
-            if self.ts_tool == 0:
-                self.ts_zero = abs(val)
-                self.lineEdit_ts_zero.setText(f'{self.ts_zero:.3f}')
-            else:
-                self.ts_tlo = self.ts_zero - abs(val)
-                self.lineEdit_ts_tlo.setText(f'{self.ts_tlo:.3f}')
-                ACTION.CALL_MDI(f'G10 L1 P{self.ts_tool} Z{self.ts_tlo}')
-                self.parent.add_status(f'Set tool length offset for tool {self.ts_tool}')
-                # have to do this here because data_changed is not emitted with a G10
-                if self.tool_db is not None:
-                    data = TOOL.GET_TOOL_INFO(self.ts_tool)
-                    self.tool_db.update_tool_table(data[0], (data[4], data[11], data[15]))
 
     ##############################
     # required class boiler code #
