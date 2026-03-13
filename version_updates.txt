@@ -103,3 +103,6 @@ Mar. 1/26 v 2.2.1
     - added material specific data for tool database
     - added tool length offset measurement to basic probe
     
+Mar. 13/26 v 2.2.2
+    - continuous update of tool time in spindle while a program is running
+    
