@@ -827,13 +827,7 @@ class Tool_Database(QWidget):
         return self.agent.update_tool_number(old, new)
 
     def update_tool_time(self, tno, time):
-        record = self.agent.get_tool_data(tno)
-        if record is None: return
-        ptime = record['time']
-        if ptime is not None:
-            total_time = round(ptime + time, 3)
-            self.lineEdit_time_in_spindle.setText(self.min_to_hms(total_time))
-            self.update_tool_data(tno)
+        return self.agent.update_tool_time(tno, time)
 
     def get_selected_tool(self):
         selected_item = self.treeWidget.currentItem()

@@ -44,7 +44,7 @@ QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
 STYLES = os.path.join(PATH.HANDLERDIR, 'style_rc')
-VERSION = '2.2.1'
+VERSION = '2.2.2'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -246,6 +246,7 @@ class HandlerClass:
         self.filemanager = None
         self.deleteFile = None
         self.current_tool = 0
+        self.pgm_start_time = 0.0
         self.tool_list = []
         self.next_available = 0
         self.start_line = 0
@@ -332,8 +333,8 @@ class HandlerClass:
         self.init_preferences()
         self.init_macros()
         self.init_tooldb()
-        self.init_utils()
         self.init_widgets()
+        self.init_utils()
         self.init_gcode_editor()
         self.init_file_manager()
         self.init_probe()
@@ -405,9 +406,6 @@ class HandlerClass:
         QHAL.newpin("eoffset-count", Qhal.HAL_S32, Qhal.HAL_OUT)
         pin = QHAL.newpin("eoffset-value", Qhal.HAL_FLOAT, Qhal.HAL_IN)
         pin.value_changed.connect(self.eoffset_value_changed)
-        pin = QHAL.newpin("map-ready", Qhal.HAL_BIT, Qhal.HAL_IN)
-        pin.value_changed.connect(self.map_ready_changed)
-        QHAL.newpin("comp-on", Qhal.HAL_BIT, Qhal.HAL_OUT)
         # MPG axis select pins
         pin = QHAL.newpin("axis-select-x", Qhal.HAL_BIT, Qhal.HAL_IN)
         pin.value_changed.connect(self.show_selected_axis)
@@ -884,13 +882,6 @@ class HandlerClass:
         else:
             self.w.lineEdit_eoffset.setText(f"{data:.3f}")
 
-    def map_ready_changed(self, state):
-        if state:
-            try:
-                self.zlevel.map_ready()
-            except Exception as e:
-                self.add_status(f"Map ready - {e}", WARNING)
-            
     def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
         self.w.systemtoolbutton.setText(sys)
@@ -924,8 +915,8 @@ class HandlerClass:
             self.w.lbl_tool_image.setPixmap(QPixmap(icon_file))
         text = "---" if maxz is None else str(maxz)
         self.w.lineEdit_max_depth.setText(text)
-        text = "---" if rtime is None else f"{rtime:5.1f}"
-        self.w.lineEdit_acc_time.setText(text)
+        self.pgm_start_time = rtime
+        self.w.lineEdit_acc_time.setText(f'{rtime:.1f}')
 
     def file_loaded(self, filename):
         if filename is not None:
@@ -989,6 +980,9 @@ class HandlerClass:
         minutes = self.h['runtime-minutes']
         seconds = self.h['runtime-seconds']
         self.w.lineEdit_runtime.setText(f"{hours:02d}:{minutes:02d}:{seconds:02d}")
+        run_minutes = (hours * 60) + minutes + (seconds / 60)
+        tis_minutes = run_minutes + self.pgm_start_time
+        self.w.lineEdit_acc_time.setText(f'{tis_minutes:.1f}')
 
     def pause_changed(self, state):
         if not STATUS.is_auto_mode(): return
@@ -1176,6 +1170,10 @@ class HandlerClass:
         self.w.btn_pause.setEnabled(True)
         self.add_status("Program manually aborted")
         ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
+        if self.current_tool > 0:
+            tis = float(self.w.lineEdit_acc_time.text())
+            if self.tool_db.update_tool_time(self.current_tool, tis) is None:
+                self.add_satus(f'Update tool {self.current_tool} time in spindle error', WARNING)
 
     def btn_pause_pressed(self):
         if STATUS.is_on_and_idle(): return
@@ -1222,23 +1220,19 @@ class HandlerClass:
 
     def btn_enable_comp_clicked(self, state):
         if state:
-            fname = self.zlevel.get_map()
+            fname = self.zlevel.get_map(True)
             if fname is None:
-                self.add_status("No map file loaded - go to UTILS -> ZLEVEL and load a map file", WARNING)
-                self.w.btn_enable_comp.setChecked(False)
-                return
-            if not os.path.isfile(fname):
-                self.add_status(f"No such file - {fname}", WARNING)
-                self.w.btn_enable_comp.setChecked(False)
+                self.add_status(f"No compensation file for {self.current_loaded_program}", WARNING)
+                self.w.btn_enable_comp.setText("Z COMP\nDISABLED")
                 return
             if not QHAL.hal.component_exists("compensate"):
                 self.add_status("Z level compensation HAL component not loaded", ERROR)
-                self.w.btn_enable_comp.setChecked(False)
+                self.w.btn_enable_comp.setText("Z COMP\nDISABLED")
                 return
-            self.h['comp-on'] = True
             self.add_status(f"Z level compensation ON using {fname}")
+            self.w.btn_enable_comp.setText("Z COMP\nENABLED")
         else:
-            self.h['comp-on'] = False
+            self.zlevel.get_map(False)
             self.h['eoffset-count'] = 0
             self.add_status("Z level compensation OFF")
             if not self.w.btn_pause_spindle.isChecked():
@@ -1975,16 +1969,9 @@ class HandlerClass:
             self.h['runtime-start'] = False
             self.add_status(f"Run timer stopped at {self.w.lineEdit_runtime.text()}")
             if self.current_tool > 0:
-                rtime = self.w.lineEdit_runtime.text().split(':')
-                mtime = (float(rtime[0]) * 60) + float(rtime[1]) + (float(rtime[2]) / 60)
-                self.tool_db.update_tool_time(self.current_tool, mtime)
-                data = self.tool_db.get_tool_data(self.current_tool)
-                if data is None:
-                    text = "---"
-                else:
-                    rtime = data['time']
-                    text = f"{rtime:5.1f}"
-                self.w.lineEdit_acc_time.setText(text)
+                tis = float(self.w.lineEdit_acc_time.text())
+                if self.tool_db.update_tool_time(self.current_tool, tis) is None:
+                    self.add_satus(f'Update tool {self.current_tool} time in spindle error', WARNING)
 
     #####################
     # KEY BINDING CALLS #
