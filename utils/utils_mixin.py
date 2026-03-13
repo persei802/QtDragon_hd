@@ -15,6 +15,8 @@ import tempfile
 import atexit
 
 from qtvcp.core import Info
+from PyQt5.QtWidgets import QFileDialog, QLineEdit
+
 INFO = Info()
 
 class Common():
@@ -56,6 +58,23 @@ class Common():
             self[name] = int(text)
             widget.setStyleSheet(self.default_style)
         return True
+
+    def save_program_file(self, parent, caption, directory, filter):
+        dialog = QFileDialog(parent, caption, directory, filter)
+        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setDefaultSuffix("ngc")
+        for le in dialog.findChildren(QLineEdit):
+            le.setCompleter(None)
+        if self.geometry:
+            dialog.restoreGeometry(self.geometry)
+        if dialog.exec():
+            self.geometry = dialog.saveGeometry()
+            files = dialog.selectedFiles()
+            if files:
+                return files[0], dialog.selectedNameFilter()
+        return '', ''
 
     def make_temp(self, pname):
         fd, path = tempfile.mkstemp(prefix=pname, suffix='.ngc')

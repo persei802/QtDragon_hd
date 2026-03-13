@@ -125,6 +125,9 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="text">
                <string>1</string>
               </property>
@@ -203,6 +206,9 @@
                 <width>70</width>
                 <height>30</height>
                </size>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
               </property>
               <property name="text">
                <string>4</string>
@@ -411,6 +417,9 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="toolTip">
                <string/>
               </property>
@@ -505,6 +514,9 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="text">
                <string>50</string>
               </property>
@@ -596,6 +608,9 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="text">
                <string>10</string>
               </property>
@@ -680,6 +695,9 @@
                 <width>70</width>
                 <height>30</height>
                </size>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
               </property>
               <property name="text">
                <string>2</string>
@@ -769,6 +787,9 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="text">
                <string>2</string>
               </property>
@@ -850,6 +871,9 @@
                 <width>70</width>
                 <height>30</height>
                </size>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
               </property>
               <property name="text">
                <string>100</string>
@@ -936,6 +960,9 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="text">
                <string>8000</string>
               </property>
@@ -1008,6 +1035,9 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="text">
                <string>IMPERIAL</string>
               </property>
@@ -1033,6 +1063,9 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="text">
                <string>FLOOD</string>
               </property>
@@ -1057,6 +1090,9 @@
                 <width>16777215</width>
                 <height>30</height>
                </size>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
               </property>
               <property name="text">
                <string>MIST</string>
@@ -1118,6 +1154,9 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="toolTip">
                <string/>
               </property>
@@ -1163,6 +1202,9 @@
               <width>16777215</width>
               <height>30</height>
              </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::ClickFocus</enum>
             </property>
             <property name="text">
              <string>USE CALCULATOR DIALOG FOR INPUT</string>

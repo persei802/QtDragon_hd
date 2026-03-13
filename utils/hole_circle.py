@@ -15,7 +15,7 @@ import os
 import math
 
 from lib.event_filter import EventFilter
-from utils.utils_base import Common
+from utils.utils_mixin import Common
 
 from PyQt5 import uic
 from PyQt5.QtCore import QPoint, QPointF, QLine, QRect, QFile, Qt, QEvent
@@ -220,20 +220,11 @@ class Hole_Circle(QWidget, Common):
     def save_program(self):
         if not self.validate(): return
         self.calculate_program()
-        dialog = QFileDialog(self)
-        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-        dialog.setAcceptMode(QFileDialog.AcceptSave)
-        dialog.setFileMode(QFileDialog.AnyFile)
-        dialog.setDirectory(os.path.expanduser('~/linuxcnc/nc_files'))
-        dialog.setNameFilters(["ngc Files (*.ngc)", "All Files (*)"])
-        dialog.setDefaultSuffix("ngc")
-        for le in dialog.findChildren(QLineEdit):
-            le.setCompleter(None)
-        if self.geometry:
-            dialog.restoreGeometry(self.geometry)
-        if dialog.exec_():
-            self.geometry = dialog.saveGeometry()
-            fileName = dialog.selectedFiles()[0]
+        caption = 'Save Hole Circle Program'
+        _dir = os.path.expanduser('~/linuxcnc/nc_files')
+        _filter = 'ngc Files (*.ngc)'
+        fileName, _ = self.save_program_file(self, caption, _dir, _filter)
+        if fileName:
             if self.gcode:
                 with open(fileName, 'w') as f:
                     f.write('\n'.join(self.gcode))

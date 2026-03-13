@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import QFileDialog, QLineEdit, QWidget
 from qtvcp.core import Info, Status, Action, Tool, Path
 from lib.preview import Preview
 from lib.event_filter import EventFilter
-from utils.utils_base import Common
+from utils.utils_mixin import Common
 
 INFO = Info()
 PATH = Path()
@@ -38,7 +38,7 @@ class Hole_Enlarge(QWidget, Common):
         self.helpfile = 'hole_enlarge_help.html'
         self.geometry = None
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
-        self.units_text = ""
+        self.unit_text = ""
         self.angle_inc = 4
         self.line_num = 0
         self.preview = Preview()
@@ -52,6 +52,8 @@ class Hole_Enlarge(QWidget, Common):
 
         self.float_inputs = ['tool_dia', 'start_dia', 'final_dia', 'cut_depth', 'safe_z']
         self.int_inputs = ['tool', 'spindle', 'feed', 'loops']
+
+        self.set_unit_labels()
 
         self.layout_preview.addWidget(self.preview)
         self.lineEdit_tool.setValidator(QIntValidator(1, 9999))
@@ -82,7 +84,6 @@ class Hole_Enlarge(QWidget, Common):
         # signal connections
         self.lineEdit_tool.editingFinished.connect(self.load_tool)
         self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
-        self.chk_units.stateChanged.connect(lambda state: self.units_changed(state))
         self.chk_direction.stateChanged.connect(lambda state: self.direction_changed(state))
         self.btn_save.pressed.connect(self.save_program)
         self.btn_send.pressed.connect(self.send_program)
@@ -96,7 +97,7 @@ class Hole_Enlarge(QWidget, Common):
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
-        self.chk_units.setChecked(True)
+        self.default_style = self.lineEdit_tool.styleSheet()
 
     def dialog_return(self, w, message):
         rtn = message['RETURN']
@@ -142,20 +143,11 @@ class Hole_Enlarge(QWidget, Common):
         if not self.calculate_program():
             self.h.add_status('Unable to calculate program', ERROR)
             return
-        dialog = QFileDialog(self)
-        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-        dialog.setAcceptMode(QFileDialog.AcceptSave)
-        dialog.setFileMode(QFileDialog.AnyFile)
-        dialog.setDirectory(os.path.expanduser('~/linuxcnc/nc_files'))
-        dialog.setNameFilters(["ngc Files (*.ngc)", "All Files (*)"])
-        dialog.setDefaultSuffix("ngc")
-        for le in dialog.findChildren(QLineEdit):
-            le.setCompleter(None)
-        if self.geometry:
-            dialog.restoreGeometry(self.geometry)
-        if dialog.exec_():
-            self.geometry = dialog.saveGeometry()
-            fileName = dialog.selectedFiles()[0]
+        caption = 'Save Hole Enlarge Program'
+        _dir = os.path.expanduser('~/linuxcnc/nc_files')
+        _filter = 'ngc Files (*.ngc)'
+        fileName, _ = self.save_program_file(self, caption, _dir, _filter)
+        if fileName:
             if self.gcode:
                 with open(fileName, 'w') as f:
                     f.write('\n'.join(self.gcode))
@@ -212,8 +204,9 @@ class Hole_Enlarge(QWidget, Common):
 
     def calculate_program(self):
         self.gcode = []
+        unit_text = 'Metric' if INFO.MACHINE_IS_METRIC else 'Imperial'
         comment = self.lineEdit_comment.text()
-        unit_code = 'G21' if self.chk_units.isChecked() else 'G20'
+        unit_code = 'G21' if INFO.MACHINE_IS_METRIC else 'G20'
         self.line_num = 5
         # opening preamble
         self.gcode.append("%")
@@ -221,7 +214,7 @@ class Hole_Enlarge(QWidget, Common):
         self.gcode.append(f"(Start diameter is {self.start_dia})")
         self.gcode.append(f"(Final diameter is {self.final_dia})")
         self.gcode.append(f"(Depth of cut is {self.cut_depth})")
-        self.gcode.append(f"({self.units_text})\n")
+        self.gcode.append(f"(All units are {unit_text})\n")
         self.next_line(f"G40 G49 G64 P0.03 M6 T{self.tool}")
         self.next_line("G17")
         self.next_line(unit_code)
@@ -252,17 +245,11 @@ class Hole_Enlarge(QWidget, Common):
         self.post_amble()
         return True
 
-    def units_changed(self, state):
-        text = "MM" if state else "IN"
-        chk_text = 'METRIC' if state else 'IMPERIAL'
-        self.chk_units.setText(chk_text)
-        self.lbl_feed_unit.setText(text + "/MIN")
-        self.lbl_tool_dia_unit.setText(text)
-        self.lbl_start_dia_unit.setText(text)
-        self.lbl_final_dia_unit.setText(text)
-        self.lbl_cut_depth_unit.setText(text)
-        self.lbl_safe_z_unit.setText(text)
-        self.units_text = (f"**NOTE - All units are in {text}")
+    def set_unit_labels(self):
+        unit = "MM" if INFO.MACHINE_IS_METRIC else "IN"
+        self.lbl_feed_unit.setText(unit + "/MIN")
+        for val in ['tool_dia', 'start_dia', 'final_dia', 'cut_depth', 'safe_z']:
+            self[f'lbl_{val}_unit'].setText(unit)
         
     def direction_changed(self, state):
         text = "CCW" if state else "CW"

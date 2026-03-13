@@ -16,9 +16,12 @@ import os
 import linuxcnc
 import json
 
-from PyQt5 import QtGui, QtWidgets, uic
+from PyQt5 import uic
+from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtWidgets import QWidget, QApplication
 from qtvcp.core import Info, Status, Action, Path
 from lib.event_filter import EventFilter
+from utils.utils_mixin import Common
 
 INFO = Info()
 STATUS = Status()
@@ -30,7 +33,7 @@ HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 WARNING = 1
 
 
-class Auto_Measure(QtWidgets.QWidget):
+class Auto_Measure(QWidget, Common):
     def __init__(self, parent=None):
         super(Auto_Measure, self).__init__()
         self.parent = parent
@@ -40,13 +43,14 @@ class Auto_Measure(QtWidgets.QWidget):
         self.helpfile = 'height_measure_help.html'
         self.stat = linuxcnc.stat()
         self.send_dict = {}
-        self.red_border = "border: 2px solid red;"
-        self.line_list = ['pos_x1', 'pos_y1', 'pos_z1', 'pos_x2', 'pos_y2', 'pos_z2']
-        self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
+        self.line_list = ['pos_x1', 'pos_y1', 'pos_z1', 'pos_x2', 'pos_y2', 'pos_z2',
+                          'search_vel', 'probe_vel', 'max_probe', 'retract', 'zsafe']
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
+            self.tmpl = '.3f'
+            self.valid = QDoubleValidator(-999.999, 999.999, 3)
         else:
-            self.valid = QtGui.QDoubleValidator(-999.9999, 999.9999, 4)
+            self.tmpl = '.4f'
+            self.valid = QDoubleValidator(-999.9999, 999.9999, 4)
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'auto_height.ui')
         try:
@@ -58,8 +62,7 @@ class Auto_Measure(QtWidgets.QWidget):
         for i in self.line_list:
             self['lineEdit_' + i].setValidator(self.valid)
         # set units according to machine type
-        unit = 'MM' if INFO.MACHINE_IS_METRIC else 'IN'
-        self.lbl_height_unit.setText(unit)
+        self.set_unit_labels()
         # setup event filter to catch focus_in events
         self.event_filter = EventFilter(self)
         for line in self.line_list:
@@ -85,7 +88,7 @@ class Auto_Measure(QtWidgets.QWidget):
         self.btn_start.clicked.connect(self.start)
         self.btn_help.pressed.connect(self.show_help)
 
-        self.default_style = self.w.lineEdit_search_vel.styleSheet()
+        self.default_style = self.lineEdit_search_vel.styleSheet()
         
     def dialog_return(self, w, message):
         rtn = message['RETURN']
@@ -133,11 +136,11 @@ class Auto_Measure(QtWidgets.QWidget):
     def start(self):
         if not self.validate(): return
         self.h.add_status("Auto height measurement started")
-        self.send_dict['search_vel'] = self.w.lineEdit_search_vel.text()
-        self.send_dict['probe_vel'] = self.w.lineEdit_probe_vel.text()
-        self.send_dict['max_probe'] = self.w.lineEdit_max_probe.text()
-        self.send_dict['retract_distance'] = self.w.lineEdit_retract.text()
-        self.send_dict['z_safe_travel'] = self.w.lineEdit_zsafe.text()
+        self.send_dict['search_vel'] = self.lineEdit_search_vel.text()
+        self.send_dict['probe_vel'] = self.lineEdit_probe_vel.text()
+        self.send_dict['max_probe'] = self.lineEdit_max_probe.text()
+        self.send_dict['retract_distance'] = self.lineEdit_retract.text()
+        self.send_dict['z_safe_travel'] = self.lineEdit_zsafe.text()
 
         self.send_dict['pos_x1'] = self.lineEdit_pos_x1.text()
         self.send_dict['pos_y1'] = self.lineEdit_pos_y1.text()
@@ -152,68 +155,25 @@ class Auto_Measure(QtWidgets.QWidget):
             self.h.add_status("Autoheight routine is already running", WARNING)
 
     def validate(self):
-        valid = True
-        # restore normal border colors
-        for item in ["zsafe", "search_vel", "probe_vel", "max_probe"]:
-            if self.w['lineEdit_' + item].styleSheet() == self.red_border:
-                self.w['lineEdit_' + item].setStyleSheet(self.default_style)
-        # check search velocity
-        try:
-            if float(self.w.lineEdit_search_vel.text()) <= 0.0:
-                self.w.lineEdit_search_vel.setStyleSheet(self.red_border)
-                self.h.add_status("Search velocity must be greater than 0.0", WARNING)
-                valid = False
-        except:
-            self.w.lineEdit_search_vel.setStyleSheet(self.red_border)
-            valid = False
-        # check probe velocity
-        try:
-            if float(self.w.lineEdit_probe_vel.text()) <= 0.0:
-                self.w.lineEdit_probe_vel.setStyleSheet(self.red_border)
-                self.h.add_status("Probe velocity must be greater than 0.0", WARNING)
-                valid = False
-        except:
-            self.w.lineEdit_probe_vel.setStyleSheet(self.red_border)
-            valid = False
-        # check max probe distance
-        try:
-            if float(self.w.lineEdit_max_probe.text()) <= 0.0:
-                self.w.lineEdit_max_probe.setStyleSheet(self.red_border)
-                self.h.add_status("Max probe must be greater than 0.0", WARNING)
-                valid = False
-        except:
-            self.w.lineEdit_max_probe.setStyleSheet(self.red_border)
-            valid = False
-        # check retract distance
-        try:
-            if float(self.w.lineEdit_retract.text()) <= 0.0:
-                self.w.lineEdit_retract.setStyleSheet(self.red_border)
-                self.h.add_status("Retract distance must be greater than 0.0", WARNING)
-                valid = False
-            elif float(self.w.lineEdit_retract.text()) > float(self.w.lineEdit_max_probe.text()):
-                self.w.lineEdit_retract.setStyleSheet(self.red_border)
-                self.h.add_status("Retract distance must be less than max_probe", WARNING)
-                valid = False
-        except:
-            self.w.lineEdit_retract.setStyleSheet(self.red_border)
-            valid = False
-        # check z safe height
-        try:
-            safe = float(self.w.lineEdit_zsafe.text())
-            z1 = float(self.lineEdit_pos_z1.text())
-            z2 = float(self.lineEdit_pos_z2.text())
-            if safe <= z1 or z2 > z1:
-                if safe <= z1:
-                    error = "Z Safe height must be > than P1 Z height"
-                else:
-                    error = "P1 Z height must be >= P2 Z height"
-                self.w.lineEdit_zsafe.setStyleSheet(self.red_border)
-                self.h.add_status(error, WARNING)
-                valid = False
-        except:
-            self.w.lineEdit_zsafe.setStyleSheet(self.red_border)
-            valid = False
-        return valid
+        # check for blanks
+        if not self.check_float_blanks(self.line_list): return False
+        # check for zeroes
+        for val in ['search_vel', 'probe_vel', 'max_probe', 'retract', 'zsafe']:
+            if self[val] <= 0.0:
+                self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
+                self.h.add_status(f'{val} must be > 0', WARNING)
+                return False
+        # additional checks
+        if self.retract > self.max_probe:
+            self.lineEdit_retract.setStyleSheet(self.red_border)
+            self.h.add_status(f'Retract distance must be < {self.max_probe}', WARNING)
+            return False
+        _max = max(self.pos_z1, self.pos_z2)
+        if self.zsafe <= _max:
+            self.lineEdit_zsafe.setStyleSheet(self.red_border)
+            self.h.add_status(f'Z Safe height must be > {_max}', WARNING)
+            return False
+        return True
 
     def show_help(self):
         fname = os.path.join(HELP, self.helpfile)
@@ -230,6 +190,13 @@ class Auto_Measure(QtWidgets.QWidget):
     def autoheight_error(self, data):
         self.h.add_status(data, WARNING)
 
+    def set_unit_labels(self):
+        unit = 'MM' if INFO.MACHINE_IS_METRIC else 'IN'
+        for val in ['search', 'probe']:
+            self[f'lbl_{val}_unit'].setText(f'{unit}/MIN')
+        for val in ['max_probe', 'retract', 'zsafe', 'height']:
+            self[f'lbl_{val}_unit'].setText(unit)
+
 # required code for subscriptable iteration
     def __getitem__(self, item):
         return getattr(self, item)
@@ -238,7 +205,7 @@ class Auto_Measure(QtWidgets.QWidget):
 
 # for standalone testing
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     w = Auto_Measure()
     w.show()
     sys.exit( app.exec_() )

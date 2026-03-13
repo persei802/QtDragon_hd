@@ -16,7 +16,7 @@ import numpy as np
 from PyQt5 import uic
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFileDialog, QLineEdit, QWidget
+from PyQt5.QtWidgets import QWidget
 
 from qtvcp.core import Info, Status, Action, Path, Tool
 from qtvcp import logger
@@ -24,7 +24,7 @@ from qtvcp import logger
 from lib.preview import Preview
 from lib.event_filter import EventFilter
 
-from utils.utils_base import Common
+from utils.utils_mixin import Common
 
 LOG = logger.getLogger(__name__)
 LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -92,7 +92,6 @@ class Facing(QWidget, Common):
         self.event_filter.set_parms(('_facing_', True))
 
         # signal connections
-        self.chk_units.stateChanged.connect(lambda state: self.units_changed(state))
         self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         self.lineEdit_tool.editingFinished.connect(self.load_tool)
         self.btn_save.pressed.connect(self.save_program)
@@ -108,7 +107,6 @@ class Facing(QWidget, Common):
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         self.default_style = self.lineEdit_tool.styleSheet()
-        self.chk_units.setChecked(True)
 
     def dialog_return(self, w, message):
         rtn = message['RETURN']
@@ -141,19 +139,12 @@ class Facing(QWidget, Common):
                 obj.setText(str(int(rtn)))
                 self.load_tool(rtn)
 
-    def units_changed(self, state):
-        text = "MM" if state else "IN"
-        chk_text = 'METRIC' if state else 'IMPERIAL'
-        self.chk_units.setText(chk_text)
-        self.lbl_feed_xy_unit.setText(text + "/MIN")
-        self.lbl_feed_z_unit.setText(text + "/MIN")
-        self.lbl_diameter_unit.setText(text)
-        self.lbl_safe_z_unit.setText(text)
-        self.lbl_first_unit.setText(text)
-        self.lbl_last_unit.setText(text)
-        self.lbl_stepover_unit.setText(text)
-        self.lbl_stepdown_unit.setText(text)
-        self.lbl_size_unit.setText(text)
+    def set_unit_labels(self):
+        unit = "MM" if state else "IN"
+        self.lbl_feed_xy_unit.setText(unit + "/MIN")
+        self.lbl_feed_z_unit.setText(unit + "/MIN")
+        for val in ['diameter', 'safe_z', 'first', 'last', 'stepover', 'stepdown', 'size']:
+            self[f'lbl_{val}_unit'].setText(unit)
 
     def validate(self):
         if not self.check_float_blanks(self.float_inputs): return False
@@ -204,25 +195,18 @@ class Facing(QWidget, Common):
         if not self.calculate_program():
             self.h.add_status('Unable to calculate program', ERROR)
             return
-        dialog = QFileDialog(self)
-        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-        dialog.setAcceptMode(QFileDialog.AcceptSave)
-        dialog.setFileMode(QFileDialog.AnyFile)
-        dialog.setDirectory(os.path.expanduser('~/linuxcnc/nc_files'))
-        dialog.setNameFilters(["ngc Files (*.ngc)", "All Files (*)"])
-        dialog.setDefaultSuffix("ngc")
-        for le in dialog.findChildren(QLineEdit):
-            le.setCompleter(None)
-        if self.geometry:
-            dialog.restoreGeometry(self.geometry)
-        if dialog.exec_():
-            self.geometry = dialog.saveGeometry()
-            fileName = dialog.selectedFiles()[0]
+        caption = 'Save Facing Program'
+        _dir = os.path.expanduser('~/linuxcnc/nc_files')
+        _filter = 'ngc Files (*.ngc)'
+        fileName, _ = self.save_program_file(self, caption, _dir, _filter)
+        if fileName:
             if self.gcode:
                 with open(fileName, 'w') as f:
                     f.write('\n'.join(self.gcode))
                 self.preview_program(fileName)
                 self.h.add_status(f"Program saved to {fileName}")
+            else:
+                self.h.add_status("No gcode data to save", WARNING)
         else:
             self.h.add_status("Program save cancelled")
 
@@ -250,8 +234,8 @@ class Facing(QWidget, Common):
         self.gcode = []
         passes = 0
         comment = self.lineEdit_comment.text()
-        unit_code = 'G21' if self.chk_units.isChecked() else 'G20'
-        units_text = 'Metric' if self.chk_units.isChecked() else 'Imperial'
+        unit_code = 'G21' if INFO.MACHINE_IS_METRIC else 'G20'
+        units_text = 'Metric' if INFO.MACHINE_IS_METRIC else 'Imperial'
         self.line_num = 5
         # opening preamble
         self.gcode.append("%")

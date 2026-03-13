@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 Jim Sloot (persei802@gmail.com)
+# Copyright (c) 2026 Jim Sloot (persei802@gmail.com)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,33 +12,122 @@
 # GNU General Public License for more details.
 import sys
 import os
+import mmap
 import re
 import math
-import tempfile
-import atexit
-import shutil
+import hal
+import struct
+import numpy as np
+import matplotlib as mpl
 
 from lib.event_filter import EventFilter
+from utils.utils_mixin import Common
 
-from PyQt5 import QtGui, QtWidgets, uic
-from PyQt5.QtWidgets import QWidget, QFileDialog, QLineEdit
-from qtvcp.core import Status, Action, Info, Path
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+
+from PyQt5 import uic
+from PyQt5.QtGui import QIntValidator, QDoubleValidator
+from PyQt5.QtWidgets import QWidget, QApplication
+
+from qtvcp.core import Status, Action, Info, Path, Qhal
 
 INFO = Info()
 STATUS = Status()
 ACTION = Action()
 PATH = Path()
+QHAL = Qhal()
 HERE = os.path.dirname(os.path.abspath(__file__))
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 WARNING = 1
+ERROR = 2
+SHM_PATH = '/dev/shm/linuxcnc_surface_map'
+MAX_NX = 200
+MAX_NY = 200
+HEADER_SIZE = 44
+GRID_SIZE = MAX_NX * MAX_NY * 8
+TOTAL_SIZE = HEADER_SIZE + GRID_SIZE
 
 
-class ZLevel(QWidget):
+class SurfaceMap(FigureCanvas):
+    def __init__(self, parent=None):
+        self.figure = Figure()
+        super().__init__(self.figure)
+        self.canvas = FigureCanvas(self.figure)
+        self.canvas.setFocusPolicy(False)
+        self.ax3d = self.figure.add_subplot(111, projection='3d')
+        self.ax3d.mouse_init = lambda *args, **kwargs: None
+        self.ax3d.set_navigate(False)
+
+    def plot(self, data):
+        X, Y, Z = data
+        self.ax3d.clear()
+        self.ax3d.plot_surface(X, Y, Z, cmap='viridis')
+        self.ax3d.set_xlabel('X Axis')
+        self.ax3d.set_ylabel('Y Axis')
+        self.ax3d.set_zlabel('Z Deviation')
+        self.draw()
+
+    def clear_plot(self):
+        self.ax3d.clear()
+        self.draw()
+
+class HeatMap(FigureCanvas):
+    def __init__(self, parent=None):
+        self.figure = Figure()
+        super().__init__(self.figure)
+        self.canvas = FigureCanvas(self.figure)
+        self.canvas.setFocusPolicy(False)
+        self.ax2d = self.figure.add_subplot(111)
+        self.ax2d.set_navigate(False)
+        self.cbar = None
+
+    def plot(self, data):
+        X, Y, Z = data
+        self.ax2d.clear()
+        if self.cbar:
+            self.cbar.remove()
+        c = self.ax2d.contourf(X, Y, Z, 50)
+        self.cbar = self.figure.colorbar(c, ax=self.ax2d)
+        self.ax2d.set_xlabel("X Axis")
+        self.ax2d.set_ylabel("Y Axis")
+        self.draw()
+
+    def clear_plot(self):
+        self.ax2d.clear()
+        if self.cbar:
+            self.cbar.remove()
+            self.cbar = None
+        self.draw()
+
+class ContourMap(FigureCanvas):
+    def __init__(self, parent=None):
+        self.figure = Figure()
+        super().__init__(self.figure)
+        self.canvas = FigureCanvas(self.figure)
+        self.canvas.setFocusPolicy(False)
+        self.ax2d = self.figure.add_subplot(111)
+        self.ax2d.set_navigate(False)
+
+    def plot(self, data):
+        X, Y, Z = data
+        self.ax2d.clear()
+        levels = np.arange(np.min(Z), np.max(Z), 0.5)
+        self.contours = self.ax2d.contour(X, Y, Z, levels=8, colors='white')
+        self.ax2d.clabel(self.contours, inline=True, fontsize=8)
+        self.draw()
+
+    def clear_plot(self):
+        self.ax2d.clear()
+        self.draw()
+
+
+class ZLevel(QWidget, Common):
     def __init__(self, parent=None):
         super(ZLevel, self).__init__()
         self.parent = parent         # reference to setup_utils
-        self.w = self.parent.w       # reference to designer widgets
         self.h = self.parent.parent  # reference to handler file
+        self.shm = None
         self.user_path = os.path.expanduser('~/linuxcnc/nc_files')
         self.helpfile = 'zlevel_help.html'
         self.dialog_code = 'CALCULATOR'
@@ -55,40 +144,40 @@ class ZLevel(QWidget):
             print("Error: ", e)
 
         # Initial values
-        self._tmp = None
-        self.size_x = 0
-        self.size_y = 0
-        self.x_steps = 0
-        self.y_steps = 0
-        self.probe_tool = 0
-        self.probe_vel = 0
-        self.z_safe = 0
-        self.max_probe = 0
-        self.start_height = 0
-        self.probe_filename = ""
-        self.comp_file = None
-        self.red_border = "border: 2px solid red;"
+        self.probe_results = None
         self.help_text = []
-        self.parm_list = ['size_x', 'size_y', 'steps_x', 'steps_y']
+
+        self.int_inputs = ['size_x', 'size_y', 'steps_x', 'steps_y', 'probe_tool', 'probe_vel']
+        self.float_inputs = ['z_safe', 'max_probe', 'start_height']
+        # quickest way to initialize variables
+        self.set_unit_labels()
+        self.validate()
         # list of zero reference locations
         self.reference = ["top-left", "top-right", "center", "bottom-left", "bottom-right"]
-        # set valid input formats for lineEdits
-        self.lineEdit_size_x.setValidator(QtGui.QIntValidator(0, 9999))
-        self.lineEdit_size_y.setValidator(QtGui.QIntValidator(0, 9999))
-        self.lineEdit_steps_x.setValidator(QtGui.QIntValidator(0, 100))
-        self.lineEdit_steps_y.setValidator(QtGui.QIntValidator(0, 100))
-        self.lineEdit_probe_tool.setValidator(QtGui.QIntValidator(0, 100))
-        units = "MM" if INFO.MACHINE_IS_METRIC else "IN"
-        self.lbl_probe_area_unit.setText(units)
-
+        # set validators for lineEdits
+        self.lineEdit_size_x.setValidator(QIntValidator(0, 9999))
+        self.lineEdit_size_y.setValidator(QIntValidator(0, 9999))
+        self.lineEdit_steps_x.setValidator(QIntValidator(0, 100))
+        self.lineEdit_steps_y.setValidator(QIntValidator(0, 100))
+        self.lineEdit_probe_tool.setValidator(QIntValidator(1, 100))
+        self.lineEdit_probe_vel.setValidator(QIntValidator(0, 9999))
+        self.lineEdit_z_safe.setValidator(QDoubleValidator(0, 999, 3))
+        self.lineEdit_max_probe.setValidator(QDoubleValidator(0, 999, 3))
+        self.lineEdit_start_height.setValidator(QDoubleValidator(0, 999, 3))
+        
         # setup event filter to catch focus_in events
         self.event_filter = EventFilter(self)
-        for line in self.parm_list:
+        parm_list = []
+        for line in self.int_inputs:
             self[f'lineEdit_{line}'].installEventFilter(self.event_filter)
-        self.lineEdit_probe_tool.installEventFilter(self.event_filter)
+            parm_list.append(line)
+        for line in self.float_inputs:
+            self[f'lineEdit_{line}'].installEventFilter(self.event_filter)
+            parm_list.append(line)
+        self.lineEdit_gcode_program.installEventFilter(self.event_filter)
         self.lineEdit_comment.installEventFilter(self.event_filter)
-        self.event_filter.set_line_list(self.parm_list)
-        self.event_filter.set_kbd_list('comment')
+        self.event_filter.set_line_list(parm_list)
+        self.event_filter.set_kbd_list(['gcode_program', 'comment'])
         self.event_filter.set_tool_list('probe_tool')
         self.event_filter.set_parms(('_zlevel_', True))
 
@@ -96,8 +185,22 @@ class ZLevel(QWidget):
         self.cmb_zero_ref.addItems(self.reference)
         self.cmb_zero_ref.setCurrentIndex(2)
 
-        # display default height map if available
-        self.map_ready()
+        # signal connections
+        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
+        self.rbtn_steps.clicked.connect(lambda state: self.steps_changed(state))
+        self.rbtn_offset.clicked.connect(lambda state: self.steps_changed(state))
+        self.btn_save_gcode.pressed.connect(self.save_gcode)
+        self.btn_help.pressed.connect(self.show_help)
+        # setup compensation map objects
+        mpl.rcParams.update({'text.color': '#f0f0f0', 'axes.labelcolor': '#f0f0f0', 'axes.edgecolor': '#f0f0f0'})
+        mpl.rcParams.update({'xtick.color': '#f0f0f0', 'ytick.color': '#f0f0f0'})
+        mpl.rcParams.update({'axes.facecolor': '#303030', 'figure.facecolor': '#303030'})
+        self.canvas1 = SurfaceMap()
+        self.canvas2 = HeatMap()
+        self.canvas3 = ContourMap()
+        self.layout_surface.addWidget(self.canvas1)
+        self.layout_heatmap.addWidget(self.canvas2)
+        self.layout_contour.addWidget(self.canvas3)
 
     def _hal_init(self):
         def homed_on_status():
@@ -107,17 +210,23 @@ class ZLevel(QWidget):
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
-        STATUS.connect('file-loaded', lambda w, fname: self.lineEdit_gcode_program.setText(fname))
+        STATUS.connect('file-loaded', lambda w, fname: self.program_loaded(fname))
 
-        # signal connections
-        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
-        self.btn_save_gcode.pressed.connect(self.save_gcode)
-        self.btn_send_gcode.pressed.connect(self.send_gcode)
-        self.btn_load_comp.pressed.connect(self.load_comp_file)
-        self.btn_help.pressed.connect(self.show_help)
+        self.default_style = self.lineEdit_size_x.styleSheet()
+        QHAL.comp.setprefix('zlevel')
+        self.comp_enable = QHAL.newpin("enable", hal.HAL_BIT, hal.HAL_OUT)
+        self.comp_enable.set(False)
 
-        self.default_style = self.w.lineEdit_search_vel.styleSheet()
+        # create shared memory structure
+        self.shm = self.create_or_open_shm()
 
+    def closing_cleanup__(self):
+        try:
+            os.remove(SHM_PATH)
+        except FileNotFoundError:
+            pass
+
+## Calls from STATUS
     def dialog_return(self, w, message):
         rtn = message['RETURN']
         name = message.get('NAME')
@@ -128,8 +237,13 @@ class ZLevel(QWidget):
         if code and name == self.dialog_code:
             obj.setStyleSheet(self.default_style)
             if rtn is not None:
-                if obj.objectName().replace('lineEdit_', '') in ['steps_x', 'steps_y', 'probe_tool']:
+                if obj.objectName().replace('lineEdit_', '') in ['probe_tool', 'size_x', 'size_y']:
                     obj.setText(str(int(rtn)))
+                elif obj.objectName().replace('lineEdit_', '') in ['steps_x', 'steps_y']:
+                    if obj.validator() == QIntValidator:
+                        obj.setText(str(int(rtn)))
+                    else:
+                        obj.setText(f'{rtn:{self.tmpl}}')
                 else:
                     obj.setText(f'{rtn:{self.tmpl}}')
             # request for next input widget from linelist
@@ -147,75 +261,201 @@ class ZLevel(QWidget):
             obj.setStyleSheet(self.default_style)
             if rtn is not None:
                 obj.setText(str(int(rtn)))
-        elif code and name == 'LOAD':
-            if rtn is not None:
-                self.parse_comp_file(rtn)
 
+    def program_loaded(self, fname):
+        self.probe_results = None
+        self.canvas1.clear_plot()
+        self.canvas2.clear_plot()
+        self.canvas3.clear_plot()
+        path = os.path.dirname(fname)
+        base = os.path.basename(fname)
+        if base.startswith('probe_'):
+            probe_results = os.path.join(path, base.replace('ngc', 'txt'))
+        else:
+            probe_results = os.path.join(path, f"probe_{base.replace('ngc', 'txt')}")
+        self.lineEdit_gcode_program.setText(fname)
+        if os.path.isfile(probe_results):
+            self.lbl_probe_data.setText(f'Probe result data found in {probe_results}')
+            self.probe_results = probe_results
+            # create probe points file and plot maps
+            points = self.load_probe_file(probe_results)
+            plane = self.fit_plane(points)
+            comp_map = self.generate_map(points, plane)
+            grid = self.build_grid(comp_map)
+            if points is not None:
+                self.write_shared_memory(grid)
+                data = self.get_plot_data(comp_map)
+                self.canvas1.plot(data)
+                self.canvas2.plot(data)
+                self.canvas3.plot(data)
+        else:
+            self.lbl_probe_data.setText('No probe result file found')
+
+## Calls from widgets
     def save_gcode(self):
         if not self.validate(): return
-        fname = self.lineEdit_gcode_program.text()
-        if fname.startswith('/tmp'):
-            self.h.add_status("Cannot save temporary files", WARNING)
-        elif fname == '':
-            self.h.add_status('No gcode file was loaded', WARNING)
+        if not self.calculate_steps(): return
+        pre = self.lineEdit_gcode_program.text()
+        caption = 'Save Probe Program'
+        _dir = os.path.expanduser('~/linuxcnc/nc_files')
+        _dir = f'{_dir}/{pre}'
+        _filter = "ngc Files (*.ngc)"
+        fname, _ = self.save_program_file(self, caption, _dir, _filter)
+        if fname:
+            path = os.path.dirname(fname)
+            program = os.path.basename(fname)
+            if not program.startswith('probe_'):
+                program = 'probe_' + program
+            base, ext = os.path.splitext(program)
+            if ext != '.ngc':
+                program = base + '.ngc'
+            probe = program.replace('ngc', 'txt')
+            probe_name = os.path.join(path, probe)
+            saveFile = os.path.join(path, program)
+            self.calculate_gcode(saveFile, probe_name)
+            ACTION.OPEN_PROGRAM(saveFile)
+            self.h.add_status(f'Saved probe program to {saveFile}')
         else:
-            dialog = QFileDialog(self)
-            dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-            dialog.setAcceptMode(QFileDialog.AcceptSave)
-            dialog.setFileMode(QFileDialog.AnyFile)
-            dialog.setDirectory(os.path.expanduser('~/linuxcnc/nc_files'))
-            dialog.setNameFilters(["ngc Files (*.ngc)", "All Files (*)"])
-            dialog.setDefaultSuffix("ngc")
-            for le in dialog.findChildren(QLineEdit):
-                le.setCompleter(None)
-            if self.geometry:
-                dialog.restoreGeometry(self.geometry)
-            if dialog.exec_():
-                self.geometry = dialog.saveGeometry()
-                fileName = dialog.selectedFiles()[0]
-                self.parse_saveName(fileName)
-            else:
-                self.h.add_status("Save GCode aborted")
+            self.h.add_status('Probe program save cancelled')
 
-    def parse_saveName(self, fname):
-        dname = os.path.dirname(fname)
-        bname = os.path.basename(fname)
-        if not bname.startswith('probe'):
-            fname = os.path.join(dname, 'probe_' + bname)
-        if fname.endswith('.ngc'):
-#            self.lineEdit_gcode_program.setText(fname)
-            self.probe_filename = fname.replace(".ngc", ".txt")
-            self.calculate_gcode(fname)
-            self.h.add_status(f"Program successfully saved to {fname}")
-        else:
-            self.h.add_status("Invalid filename specified", WARNING)
+    def steps_changed(self, state):
+        if state and self.sender() == self.rbtn_offset:
+            self.lineEdit_steps_x.setValidator(QDoubleValidator(0, 999, 3))
+            self.lineEdit_steps_y.setValidator(QDoubleValidator(0, 999, 3))
+        elif state and self.sender() == self.rbtn_steps:
+            self.lineEdit_steps_x.setValidator(QIntValidator(2, 999))
+            self.lineEdit_steps_y.setValidator(QIntValidator(2, 999))
 
-    def parse_comp_file(self, fname):
-        if fname.endswith('.txt'):
-            self.comp_file = fname
-            self.lbl_height_map.setText("Toggle ZCOMP ENABLE to ON to generate new height map")
-            self.lbl_comp_file.setText(os.path.basename(fname))
-            # there's no way to send filenames to the compensation module
-            # so use a hard coded filename that it knows about
-            dst = os.path.join(self.user_path, "probe_points.txt")
+    def calculate_steps(self):
+        self.size_x = int(self.lineEdit_size_x.text())
+        self.size_y = int(self.lineEdit_size_y.text())
+        if self.rbtn_offset.isChecked():
+            # steps based on offset
+            self.x_inc = float(self.lineEdit_steps_x.text())
+            self.y_inc = float(self.lineEdit_steps_y.text())
             try:
-                shutil.copy(fname, dst)
-                self.h.add_status(f"Copied compensation file {fname} to {dst}")
-            except Exception as e:
-                self.h.add_status(f'{e}', WARNING)
-            self.get_maxz()
+                self.steps_x = int(self.size_x / self.x_inc) + 1
+                self.steps_y = int(self.size_y / self.y_inc) + 1
+            except ZeroDivisionError as e:
+                self.h.add_status(e, ERROR)
+                return False
         else:
-            self.h.add_status(f"Invalid compensation file {fname}", WARNING)
+            # steps based on number
+            self.steps_x = int(self.lineEdit_steps_x.text())
+            self.steps_y = int(self.lineEdit_steps_y.text())
+            try:
+                self.x_inc = self.size_x / (self.steps_x - 1)
+                self.y_inc = self.size_y / (self.steps_y - 1)
+            except ZeroDivisionError as e:
+                self.h.add_status(e, ERROR)
+                return False
+        return True
 
-    def send_gcode(self):
-        if not self.validate(): return
-        fname = self.make_temp()[1]
-        self.probe_filename = os.path.join(self.user_path, "probe_temp.txt")
-        self.calculate_gcode(fname)
-        ACTION.OPEN_PROGRAM(fname)
-        self.h.add_status("Program successfully sent to Linuxcnc")
+    def show_help(self):
+        fname = os.path.join(HELP, self.helpfile)
+        self.parent.show_help_page(fname)
 
-    def calculate_gcode(self, fname):
+## Helper functions
+    def create_or_open_shm(self):
+        fd = os.open(SHM_PATH, os.O_CREAT | os.O_RDWR)
+        os.ftruncate(fd, TOTAL_SIZE)
+        shm = mmap.mmap(fd, TOTAL_SIZE, mmap.MAP_SHARED, mmap.PROT_WRITE | mmap.PROT_READ)
+        os.close(fd)
+        return shm
+
+    def load_probe_file(self, fname):
+        try:
+            data = np.loadtxt(fname, dtype = float, delimiter = " ", usecols = (0, 1, 2))
+        except Error as e:
+            self.h.add_status(f'Unable to read surface map data', ERROR)
+            return None
+        return data
+
+    def get_plot_data(self, map_data):
+        pts = []
+        for parts in map_data:
+            x = float(parts[0])
+            y = float(parts[1])
+            z = float(parts[2])
+            pts.append((x, y, z))
+        data = np.array(pts)
+        x = np.round(data[:, 0], 1)
+        y = np.round(data[:, 1], 1)
+        z = np.round(data[:, 2], 3)
+        x_unique = np.unique(x)
+        y_unique = np.unique(y)
+        X,Y = np.meshgrid(x_unique, y_unique)
+        Z = z.reshape(len(y_unique), len(x_unique))
+        return (X, Y, Z)
+
+    def fit_plane(self, points):
+        X = points[:,0]
+        Y = points[:,1]
+        Z = points[:,2]
+        A = np.c_[X, Y, np.ones(len(X))]
+        C, _, _, _ = np.linalg.lstsq(A, Z, rcond=None)
+        a, b, c = C
+        return a, b, c
+    
+    def generate_map(self, points, plane):
+        a, b, c = plane
+        result = []
+        for x, y, z in points:
+            plane_z = a*x + b*y + c
+            deviation = z - plane_z
+            result.append((x, y, deviation))
+        return result
+
+    def build_grid(self, points):
+        pts = np.array(points)
+        xs = np.unique(pts[:,0])
+        ys = np.unique(pts[:,1])
+        nx = len(xs)
+        ny = len(ys)
+        zgrid = np.zeros((nx, ny))
+        x_index = {x:i for i,x in enumerate(xs)}
+        y_index = {y:i for i,y in enumerate(ys)}
+        for x,y,z in pts:
+            ix = x_index[x]
+            iy = y_index[y]
+            zgrid[ix,iy] = z
+        xmin = xs.min()
+        xmax = xs.max()
+        ymin = ys.min()
+        ymax = ys.max()
+        return {
+            "nx": nx,
+            "ny": ny,
+            "xmin": xmin,
+            "xmax": xmax,
+            "ymin": ymin,
+            "ymax": ymax,
+            "zgrid": zgrid}
+
+    def write_shared_memory(self, grid):
+        nx = grid["nx"]
+        ny = grid["ny"]
+        xmin = grid["xmin"]
+        xmax = grid["xmax"]
+        ymin = grid["ymin"]
+        ymax = grid["ymax"]
+        zgrid = grid["zgrid"]
+
+        version = struct.unpack_from("I", self.shm, 0)[0]
+        version = (version + 1) | 1
+        struct.pack_into("I", self.shm, 0, version)
+        struct.pack_into("I", self.shm, 4, nx)
+        struct.pack_into("I", self.shm, 8, ny)
+        struct.pack_into("d", self.shm, 12, xmin)
+        struct.pack_into("d", self.shm, 20, xmax)
+        struct.pack_into("d", self.shm, 28, ymin)
+        struct.pack_into("d", self.shm, 36, ymax)
+        z_bytes = np.zeros(MAX_NX*MAX_NY, dtype=np.float64)
+        z_bytes[:nx*ny] = zgrid.ravel()
+        self.shm[HEADER_SIZE:HEADER_SIZE + (MAX_NX * MAX_NY * 8)] = z_bytes.tobytes()
+        struct.pack_into("I", self.shm, 0, version + 1)
+
+    def calculate_gcode(self, fname, pname):
         # get start point
         zref = self.cmb_zero_ref.currentIndex()
         if zref == 2:
@@ -224,16 +464,13 @@ class ZLevel(QWidget):
         else:
             x_start = 0 if zref == 0 or zref == 3 else -self.size_x
             y_start = 0 if zref == 3 or zref == 4 else -self.size_y
-        # calculate increments
-        x_inc = self.size_x / (self.x_steps - 1)
-        y_inc = self.size_y / (self.y_steps - 1)
         # opening preamble
         self.line_num = 5
         self.file = open(fname, 'w')
         self.file.write("%\n")
         self.file.write(f"({self.lineEdit_comment.text()})\n")
         self.file.write(f"(Area: X {self.size_x} by Y {self.size_y})\n")
-        self.file.write(f"(Steps: X {self.x_steps} by Y {self.y_steps})\n")
+        self.file.write(f"(Steps: X {self.steps_x} by Y {self.steps_y})\n")
         self.file.write(f"(Safe Z travel height {self.z_safe})\n")
         self.file.write(f"(XY Zero point is {self.reference[zref]})\n")
         self.next_line("G17 G40 G49 G64 G90 P0.03")
@@ -241,13 +478,13 @@ class ZLevel(QWidget):
         self.next_line(f"M6 T{self.probe_tool}")
         self.next_line(f"G0 Z{self.z_safe}")
         # main section
-        self.next_line(f"(PROBEOPEN {self.probe_filename})")
+        self.next_line(f"(PROBEOPEN {pname})")
         self.next_line("#100 = 0")
-        self.next_line(f"O100 while [#100 LT {self.y_steps}]")
-        self.next_line(f"  G0 Y[{y_start} + {y_inc:.3f} * #100]")
+        self.next_line(f"O100 while [#100 LE {self.steps_y - 1}]")
+        self.next_line(f"  G0 Y[{y_start} + {self.y_inc:.3f} * #100]")
         self.next_line("  #200 = 0")
-        self.next_line(f"  O200 while [#200 LT {self.x_steps}]")
-        self.next_line(f"    G0 X[{x_start} + {x_inc:.3f} * #200]")
+        self.next_line(f"  O200 while [#200 LE {self.steps_x - 1}]")
+        self.next_line(f"    G0 X[{x_start} + {self.x_inc:.3f} * #200]")
         self.next_line(f"    G0 Z{self.start_height}")
         self.next_line(f"    G38.2 Z-{self.max_probe} F{self.probe_vel}")
         self.next_line(f"    G0 Z{self.z_safe}")
@@ -262,139 +499,51 @@ class ZLevel(QWidget):
         self.file.close()
 
     def validate(self):
-        valid = True
-        # restore normal border colors
-        for item in ["size_x", "size_y", "steps_x", "steps_y", "probe_tool"]:
-            if self['lineEdit_' + item].styleSheet() == self.red_border:
-                self['lineEdit_' + item].setStyleSheet(self.default_style)
-        for item in ["zsafe", "probe_vel", "max_probe", "start_height"]:
-            if self.w['lineEdit_' + item].styleSheet() == self.red_border:
-                self.w['lineEdit_' + item].setStyleSheet(self.default_style)
-        # check array size parameter
-        try:
-            self.size_x = float(self.lineEdit_size_x.text())
-            if self.size_x <= 0:
-                self.lineEdit_size_x.setStyleSheet(self.red_border)
-                self.h.add_status("Size X must be > 0", WARNING)
-                valid = False
-        except:
-            self.lineEdit_size_x.setStyleSheet(self.red_border)
-            valid = False
-        try:
-            self.size_y = float(self.lineEdit_size_y.text())
-            if self.size_y <= 0:
-                self.lineEdit_size_y.setStyleSheet(self.red_border)
-                self.h.add_status("Size Y must be > 0", WARNING)
-                valid = False
-        except:
-            self.lineEdit_size_y.setStyleSheet(self.red_border)
-            valid = False
-        # check array steps parameter
-        try:
-            self.x_steps = int(self.lineEdit_steps_x.text())
-            if self.x_steps < 2:
-                self.lineEdit_steps_x.setStyleSheet(self.red_border)
-                self.h.add_status("Steps X must be >= 2", WARNING)
-                valid = False
-        except:
+        if not self.check_int_blanks(self.int_inputs): return False
+        if not self.check_float_blanks(self.float_inputs): return False
+        for val in self.int_inputs:
+            if self[val] <= 0:
+                self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
+                self.h.add_status(f'{val} must be > 0', WARNING)
+                return False
+        for val in self.float_inputs:
+            if self[val] <= 0.0:
+                self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
+                self.h.add_status(f'{val} must be > 0.0', WARNING)
+                return False
+        if self.steps_x < 2 or self.steps_x > MAX_NX:
             self.lineEdit_steps_x.setStyleSheet(self.red_border)
-            valid = False
-        try:
-            self.y_steps = int(self.lineEdit_steps_y.text())
-            if self.y_steps < 2:
-                self.lineEdit_steps_y.setStyleSheet(self.red_border)
-                self.h.add_status("Steps Y must be >= 2", WARNING)
-                valid = False
-        except:
+            self.h.add_status(f"Steps X must be between 2 and {MAX_NX}", WARNING)
+            return False
+        if self.steps_y < 2 or self.steps_y > MAX_NY:
             self.lineEdit_steps_y.setStyleSheet(self.red_border)
-            valid = False
-        # check probe tool number
-        try:
-            self.probe_tool = int(self.lineEdit_probe_tool.text())
-            if self.probe_tool <= 0:
-                self.lineEdit_probe_tool.setStyleSheet(self.red_border)
-                self.h.add_status("Probe tool number must be > 0", WARNING)
-                valid = False
-        except:
-            self.lineEdit_probe_tool.setStyleSheet(self.red_border)
-            valid = False
-        # check z safe parameter
-        try:
-            self.z_safe = float(self.w.lineEdit_zsafe.text())
-            if self.z_safe <= 0.0:
-                self.w.lineEdit_zsafe.setStyleSheet(self.red_border)
-                self.h.add_status("Z safe height must be > 0", WARNING)
-                valid = False
-        except:
-            self.w.lineEdit_zsafe.setStyleSheet(self.red_border)
-            valid = False
-        # check probe velocity
-        try:
-            self.probe_vel = float(self.w.lineEdit_probe_vel.text())
-            if self.probe_vel <= 0.0:
-                self.h.add_status("Slow probing sequence will be skipped", WARNING)
-        except:
-            self.w.lineEdit_probe_vel.setStyleSheet(self.red_border)
-            valid = False
-        # check max probe distance
-        try:
-            self.max_probe = float(self.w.lineEdit_max_probe.text())
-            if self.max_probe <= 0.0:
-                self.w.lineEdit_max_probe.setStyleSheet(self.red_border)
-                self.h.add_status("Max probe distance must be > 0", WARNING)
-                valid = False
-        except:
-            self.w.lineEdit_max_probe.setStyleSheet(self.red_border)
-            valid = False
-        # check Z probe start height
-        try:
-            self.start_height = float(self.w.lineEdit_start_height.text())
-            if self.start_height <= 0:
-                self.w.lineEdit_start_height.setStyleSheet(self.red_border)
-                self.h.add_status("Start height must be > 0", WARNING)
-                valid = False
-        except:
-            self.w.lineEdit_start_height.setStyleSheet(self.red_border)
-            valid = False
-        return valid
+            self.h.add_status(f"Steps Y must be between 2 and {MAX_NY}", WARNING)
+            return False
+        self.lineEdit_gcode_program.setStyleSheet(self.default_style)
+        if not self.lineEdit_gcode_program.text():
+            self.lineEdit_gcode_program.setStyleSheet(self.red_border)
+            return False
+        return True
 
     def next_line(self, text):
         self.file.write(f"N{self.line_num} " + text + "\n")
         self.line_num += 5
 
-    def map_ready(self):
-        fname = os.path.join(self.user_path, "height_map.png")
-        if os.path.isfile(fname):
-            self.lbl_height_map.setPixmap(QtGui.QPixmap(fname))
-        else:
-            self.lbl_height_map.setText("Height Map not available")
-        
-    def load_comp_file(self):
-        mess = {'NAME': 'LOAD',
-                'ID': '_zlevel_',
-                'TITLE': 'Load Compensation File',
-                'FILENAME': '',
-                'EXTENSIONS': 'Text Files (*.txt);;',
-                'GEONAME': '__file_load',
-                'OVERLAY': False}
-        ACTION.CALL_DIALOG(mess)
+    def set_unit_labels(self):
+        unit = "MM" if INFO.MACHINE_IS_METRIC else "IN"
+        self.lbl_probe_area_unit.setText(unit)
+        self.lbl_probe_vel_unit.setText(f'{unit}/MIN')
+        self.lbl_z_safe_unit.setText(unit)
+        self.lbl_start_height_unit.setText(unit)
+        self.lbl_max_probe_unit.setText(unit)
 
-    def get_maxz(self):
-        zmax = -999.0
-        high = (0, 0, zmax)
-        with open(self.comp_file, 'r') as file:
-            lines = file.readlines()
-        for line in lines:
-            axis = line.split(" ")
-            if float(axis[2]) > zmax:
-                zmax = float(axis[2])
-                high = (float(axis[0]), float(axis[1]), float(axis[2]))
-        self.lineEdit_X.setText(f'{high[0]:.3f}')
-        self.lineEdit_Y.setText(f'{high[1]:.3f}')
-        self.lineEdit_Z.setText(f'{high[2]:.3f}')
-
-    def get_map(self):
-        return self.comp_file
+## Calls from handler
+    def get_map(self, state):
+        if state and self.probe_results is not None:
+            self.comp_enable.set(True)
+        elif not state:
+            self.comp_enable.set(False)
+        return self.probe_results
 
     def set_comp_area(self, data):
         units = data[2]
@@ -411,15 +560,6 @@ class ZLevel(QWidget):
         span_y = math.ceil(span_y)
         self.lineEdit_size_x.setText(str(span_x))
         self.lineEdit_size_y.setText(str(span_y))
-
-    def show_help(self):
-        fname = os.path.join(HELP, self.helpfile)
-        self.parent.show_help_page(fname)
-
-    def make_temp(self):
-        _tmp = tempfile.mkstemp(prefix='zlevel', suffix='.ngc')
-        atexit.register(lambda: os.remove(_tmp[1]))
-        return _tmp
 
     # required code for subscriptable objects
     def __getitem__(self, item):
