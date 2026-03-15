@@ -35,7 +35,7 @@ INFO = Info()
 PATH = Path()
 TOOL = Tool()
 LOG = logger.getLogger(__name__)
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 VERSION = '2.0'
 DB_NAME = 'tool_database.db'

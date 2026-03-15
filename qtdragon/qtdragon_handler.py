@@ -1173,7 +1173,7 @@ class HandlerClass:
         if self.current_tool > 0:
             tis = float(self.w.lineEdit_acc_time.text())
             if self.tool_db.update_tool_time(self.current_tool, tis) is None:
-                self.add_satus(f'Update tool {self.current_tool} time in spindle error', WARNING)
+                self.add_status(f'Update tool {self.current_tool} time in spindle error', WARNING)
 
     def btn_pause_pressed(self):
         if STATUS.is_on_and_idle(): return
