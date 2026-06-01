@@ -32,12 +32,14 @@ class Connections():
         self.w.btn_goto_sensor.clicked.connect(self.parent.btn_goto_location_clicked)
         self.w.btn_touchoff.pressed.connect(self.parent.btn_touchoff_pressed)
         # file page buttons
+        # some buttons use clicked instead of pressed because qtvcp dialogs suppress mouse release events
         self.w.btn_copy_right.pressed.connect(self.parent.copy_file)
         self.w.btn_copy_left.pressed.connect(self.parent.copy_file)
         self.w.btn_delete.pressed.connect(self.parent.delete_file)
-        self.w.btn_rename.pressed.connect(self.parent.rename_file)
+        self.w.btn_rename.clicked.connect(self.parent.rename_file)
         self.w.btn_load_file.pressed.connect(self.parent.load_file)
-        self.w.btn_new_folder.pressed.connect(self.parent.new_folder)
+        self.w.btn_new_file.clicked.connect(self.parent.new_file)
+        self.w.btn_new_folder.clicked.connect(self.parent.new_folder)
         self.w.btn_edit_gcode.pressed.connect(self.parent.edit_gcode)
         self.w.btn_clear_program_history.pressed.connect(lambda: self.w.cmb_program_history.clear())
         # tool page buttons
@@ -46,8 +48,6 @@ class Connections():
         self.w.btn_load_tool.pressed.connect(self.parent.btn_load_tool_pressed)
         self.w.btn_unload_tool.pressed.connect(self.parent.btn_unload_tool_pressed)
         self.w.btn_db_help.pressed.connect(self.parent.show_db_help_page)
-        # gcode viewer
-        self.w.btn_edit_gcode.clicked.connect(lambda state: self.parent.edit_gcode_changed(state))
         # graphic display buttons
         self.w.btn_alpha_mode.clicked.connect(lambda state: self.w.gcodegraphics.set_alpha_mode(state))
         self.w.btn_dimensions.clicked.connect(lambda state: self.parent.btn_dimensions_changed(state))

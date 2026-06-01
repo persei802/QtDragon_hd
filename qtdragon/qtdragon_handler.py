@@ -11,7 +11,6 @@
 # GNU General Public License for more details.
 
 import os
-import shutil
 import datetime
 import linuxcnc
 from send2trash import send2trash
@@ -19,8 +18,7 @@ from connections import Connections
 from lib.event_filter import EventFilter
 from PyQt5.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt, QUrl
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QIntValidator, QRegExpValidator, QFont, QColor, QIcon, QPixmap
-from PyQt5.QtWidgets import (QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QInputDialog, QMessageBox,
-                             QMenu, QAction, QToolButton)
+from PyQt5.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QMenu, QAction, QToolButton
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from qtvcp.widgets.gcode_editor import GcodeEditor, GcodeEditor as GCODE
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
@@ -44,7 +42,7 @@ QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
 STYLES = os.path.join(PATH.HANDLERDIR, 'style_rc')
-VERSION = '2.2.2'
+VERSION = '2.2.3'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -155,69 +153,6 @@ class WebPage(QWebEnginePage):
         return super().acceptNavigationRequest(url, navtype, mainframe)
 
 
-class Gcode_Editor(GcodeEditor):
-    def __init__(self, parent):
-        super(Gcode_Editor, self).__init__()
-        self.parent = parent
-        self.w = self.parent.w
-        self.active_file = None
-        self.editor.setCaretForegroundColor(Qt.yellow)
-        # instance patch the GcodeEditor actions
-        try:
-            self.newAction.triggered.disconnect()
-            self.openAction.triggered.disconnect()
-            self.saveAction.triggered.disconnect()
-            self.exitAction.triggered.disconnect()
-        except TypeError:
-            pass
-        self.newAction.triggered.connect(self.newCall)
-        self.openAction.triggered.connect(lambda: self.openCall(fname=None))
-        self.saveAction.triggered.connect(lambda: self.saveCall(fname=None))
-        self.exitAction.triggered.connect(self.exitCall)
-        # permanently set to editing mode
-        self.editMode()
-
-    def newCall(self):
-        self.active_file = None
-        self.new()
-
-    def openCall(self, fname=None):
-        if self.editor.isModified():
-            result = self.killCheck()
-            if not result: return
-        if fname is None:
-            self.getFileName()
-        else:
-            self.active_file = fname
-            self.editor.load_text(fname)
-            self.label.setText(f'  Editing {fname}')
-            self.parent.add_status(f"Opened gcode file {fname}")
-
-    def saveCall(self, fname=None):
-        if self.active_file is None:
-            self.getSaveFileName()
-        else:
-            saved = ACTION.SAVE_PROGRAM(self.editor.text(), self.active_file)
-            if saved is not None:
-                self.editor.setModified(False)
-                self.parent.add_status(f"Saved gcode file {self.active_file}")
-            
-    def exitCall(self):
-        if self.editor.isModified():
-            result = self.killCheck()
-            if not result: return
-        self.w.stackedWidget_file.setCurrentIndex(0)
-
-    def openReturn(self, fname):
-        self.openCall(fname)
-        self.editor.setModified(False)
-
-    def saveReturn(self, fname):
-        self.active_file = fname
-        saved = ACTION.SAVE_PROGRAM(self.editor.text(), fname)
-        if saved is not None:
-            self.editor.setModified(False)
-
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
@@ -283,21 +218,20 @@ class HandlerClass:
                           'reload'     : 'SP_BrowserReload',
                           'step'       : 'SP_ArrowForward',
                           'pause'      : 'SP_MediaPause',
-                          'stop'       : 'SP_MediaStop'}
+                          'stop'       : 'SP_MediaStop',
+                          'load_file'  : 'SP_MediaPlay'}
 
         self.adj_list = ['maxvel_ovr', 'rapid_ovr', 'feed_ovr', 'spindle_ovr']
 
         self.unit_label_list = ["zoffset_units", "retract_units", "zsafe_units", "touch_units", "max_probe_units",
                                 "start_height_units", "sensor_units", "gauge_units", "rotary_units", "mpg_units"]
 
-        self.unit_speed_list = ["search_vel_units", "probe_vel_units"]
-
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "retract", "max_probe", "start_height", "eoffset", "sensor_x", "sensor_y",
                               "zsafe", "probe_x", "probe_y", "rotary_height", "gauge_height", "spindle_raise"]
 
         self.axis_a_list = ["dro_axis_a", "lbl_max_angular", "lbl_max_angular_vel", "angular_increment",
-                            "action_zero_a", "btn_rewind_a", "action_home_a", "widget_angular_jog"]
+                            "action_zero_a", "btn_rewind_a", "action_home_a", "widget_angular_jog", "axis_a_height"]
 
         self.gcode_titles = ["GCODE", "MDI INPUT"]
 
@@ -354,7 +288,6 @@ class HandlerClass:
         if not "A" in self.axis_list:
             for item in self.axis_a_list:
                 self.w[item].hide()
-            self.w.axis_a_height.hide()
         # set validators for lineEdit widgets
         if INFO.MACHINE_IS_METRIC:
             regex = QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$')
@@ -372,7 +305,7 @@ class HandlerClass:
         self.w.lbl_machine_units.setText("METRIC" if INFO.MACHINE_IS_METRIC else "IMPERIAL")
         for i in self.unit_label_list:
             self.w['lbl_' + i].setText(self.machine_units)
-        for i in self.unit_speed_list:
+        for i in ["search_vel_units", "probe_vel_units"]:
             self.w['lbl_' + i].setText(self.machine_units + "/MIN")
         self.w.setWindowFlags(Qt.FramelessWindowHint)
         # instantiate color highlighter for machine log
@@ -511,7 +444,7 @@ class HandlerClass:
         self.w.gcode_viewer.readOnlyMode()
         # set calculator mode for menu buttons
         for i in ("x", "y", "z"):
-            self.w["axistoolbutton_" + i].set_dialog_code('CALCULATOR')
+            self.w["axistoolbutton_" + i].set_dialog_code(self.dialog_code)
         # disable mouse wheel events on comboboxes
         self.w.cmb_program_history.wheelEvent = lambda event: None
         self.w.jogincrements_linear.wheelEvent = lambda event: None
@@ -557,34 +490,30 @@ class HandlerClass:
         self.statusbar_style = self.w.statusbar.styleSheet()
 
     def init_gcode_editor(self):
-        self.gcode_editor = Gcode_Editor(self)
-        self.w.layout_gcode_editor.addWidget(self.gcode_editor)
+        self.w.gcodeeditor.editor.setCaretForegroundColor(Qt.yellow)
+        self.w.gcodeeditor.gCodeLexerAction.setVisible(False)
+        self.w.gcodeeditor.pythonLexerAction.setVisible(False)
+        # instance patch editor actions
+        self.w.gcodeeditor.exitAction.disconnect()
+        self.w.gcodeeditor.openReturn = self.openReturn
+        self.w.gcodeeditor.saveReturn = self.saveReturn
+        self.w.gcodeeditor.exitAction.triggered.connect(self.exitCall)
 
     def init_file_manager(self):
-        self.w.filemanager_media.table.setShowGrid(False)
-        self.w.filemanager_media.chk_restricted.setChecked(True)
-        self.w.filemanager_media.onMediaClicked()
-        self.w.filemanager_media.loadButton.hide()
-        self.w.filemanager_media.copy_control.hide()
+        self.w.filemanager_usb.table.setShowGrid(False)
+        self.w.filemanager_usb.chk_restricted.setChecked(True)
+        self.w.filemanager_usb.onMediaClicked()
+        self.w.filemanager_usb.loadButton.hide()
+        self.w.filemanager_usb.copy_control.hide()
         self.w.filemanager_user.table.setShowGrid(False)
         self.w.filemanager_user.chk_restricted.setChecked(True)
         self.w.filemanager_user.onUserClicked()
         self.w.filemanager_user.loadButton.hide()
         self.w.filemanager_user.copy_control.hide()
         self.w.filemanager_user.table.clicked.connect(lambda index: self.select_filemanager(True))
-        self.w.filemanager_media.table.clicked.connect(lambda index: self.select_filemanager(False))
+        self.w.filemanager_usb.table.clicked.connect(lambda index: self.select_filemanager(False))
         # set initial active file manager
         self.filemanager = self.w.filemanager_user
-        # create the input dialog for non keyboard input
-        self.input_dialog = QInputDialog()
-        self.input_dialog.setModal(False)
-        self.input_dialog.setWindowModality(Qt.NonModal)
-        self.input_dialog.accepted.connect(self.on_input_accepted)
-        # create message box for file control buttons
-        self.messagebox = QMessageBox()
-        self.messagebox.setWindowModality(Qt.NonModal)
-        self.messagebox.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
-        self.messagebox.buttonClicked.connect(self.do_file_copy)
 
     def init_tooldb(self):
         from lib.tool_db import Tool_Database
@@ -784,7 +713,9 @@ class HandlerClass:
         lower_code = bool(message.get('ID') == '_wait_to_lower_')
         handler_code = bool(message.get('ID') == '_handler_')
         delete_code = bool(message.get('ID') == '_delete_')
-        save_gcode_code = bool(message.get('ID') == '_save_gcode_')
+        rename_code = bool(message.get('ID') == '_rename_')
+        file_code = bool(message.get('ID') == '_new_file_')
+        folder_code = bool(message.get('ID') == '_new_folder_')
         if unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
             self.add_status("All axes unhomed")
@@ -798,16 +729,18 @@ class HandlerClass:
             self.pause_timer.start(1000)
         elif delete_code and name == 'MESSAGE':
             if rtn is True:
-                send2trash(self.deleteFile)
-                self.filemanager.textLine.clear()
-                self.add_status(f"{self.deleteFile} sent to Trash")
+                self.deleteReturn()
             else:
                 self.add_status(f"{self.deleteFile} not deleted")
-        elif save_gcode_code and name == 'SAVE':
+        elif rename_code and name == self.kbd_code:
             if rtn is None: return
-            saved = ACTION.SAVE_PROGRAM(self.w.gcodeeditor.editor.text(), rtn)
-            if saved is not None:
-                self.w.gcodeeditor.editor.setModified(False)
+            os.rename(self.source_file, rtn)
+        elif file_code and name == self.kbd_code:
+            if rtn is None: return
+            self.fileReturn(rtn)
+        elif folder_code and name == self.kbd_code:
+            if rtn is None: return
+            self.folderReturn(rtn)
         elif handler_code and name == self.dialog_code:
             obj.setStyleSheet(self.default_line_style)
             if rtn is None: return
@@ -925,6 +858,8 @@ class HandlerClass:
             self.last_loaded_program = filename
             self.current_loaded_program = filename
             self.w.lineEdit_runtime.setText("00:00:00")
+            self.w.cmb_program_history.addItem(filename)
+            self.w.cmb_program_history.setCurrentIndex(self.w.cmb_program_history.count() - 1)
         else:
             self.add_status("Filename not valid", WARNING)
 
@@ -960,8 +895,6 @@ class HandlerClass:
                 ACTION.CALL_MDI(command)
             if self.last_loaded_program is not None and self.w.chk_reload_program.isChecked():
                 if os.path.isfile(self.last_loaded_program):
-                    self.w.cmb_program_history.addItem(self.last_loaded_program)
-                    self.w.cmb_program_history.setCurrentIndex(self.w.cmb_program_history.count() - 1)
                     ACTION.OPEN_PROGRAM(self.last_loaded_program)
         ACTION.SET_MANUAL_MODE()
         self.w.manual_mode_button.setChecked(True)
@@ -1068,7 +1001,9 @@ class HandlerClass:
             self.w.btn_main.setChecked(True)
             self.w.groupBox_preview.setTitle(self.w.btn_main.property("title"))
             return
-        if index == TAB_PROBE:
+        if index == TAB_FILE:
+            self.w.stackedWidget_file.setCurrentIndex(0)
+        elif index == TAB_PROBE:
             spindle_inhibit = self.w.chk_inhibit_spindle.isChecked()
             ACTION.CALL_MDI_WAIT("M5", mode_return=True)
         elif index == TAB_UTILS:
@@ -1125,7 +1060,7 @@ class HandlerClass:
                     'MORE': "Program is already loaded. Reload?",
                     'NONBLOCKING': True,
                     'TYPE': 'YESNO'}
-            ACTION.CALL_DIALOG(mess)
+            STATUS.emit('dialog-request', mess)
         else:
             ACTION.OPEN_PROGRAM(filename)
 
@@ -1153,7 +1088,7 @@ class HandlerClass:
                     'MESSAGE' : info,
                     'LINE' : self.start_line,
                     'NONBLOCKING' : True}
-            ACTION.CALL_DIALOG(mess)
+            STATUS.emit('dialog-request', mess)
         self.add_status(f"Started {self.current_loaded_program} from line {self.start_line}")
         self.h['runtime-start'] = True
 
@@ -1210,7 +1145,7 @@ class HandlerClass:
                 'NONBLOCKING': True,
                 'MORE': info,
                 'TYPE': 'OK'}
-        ACTION.CALL_DIALOG(mess)
+        STATUS.emit('dialog-request', mess)
 
     def btn_pause_spindle_clicked(self, state):
         if not state and not self.w.btn_enable_comp.isChecked():
@@ -1297,9 +1232,9 @@ class HandlerClass:
     # TOOL frame
     def choose_tool(self):
         self.w.lineEdit_tool_in_spindle.clearFocus()
-        mess = {'NAME' : 'TOOLCHOOSER',
+        mess = {'NAME' : self.tool_code,
                 'ID' : '_toolchooser_'}
-        ACTION.CALL_DIALOG(mess)
+        STATUS.emit('dialog-request', mess)
 
     def btn_touchoff_pressed(self):
         if STATUS.get_current_tool() == 0:
@@ -1352,7 +1287,7 @@ class HandlerClass:
                     'MORE': "Unhome All Axes?",
                     'NONBLOCKING': True,
                     'TYPE': 'YESNO'}
-            ACTION.CALL_DIALOG(mess)
+            STATUS.emit('dialog-request', mess)
 
     def btn_rewind_clicked(self):
         stat = linuxcnc.stat()
@@ -1459,11 +1394,11 @@ class HandlerClass:
     # FILE tab
     def copy_file(self):
         if self.w.sender() == self.w.btn_copy_right:
-            source = self.w.filemanager_media.getCurrentSelected()
+            source = self.w.filemanager_usb.getCurrentSelected()
             target = self.w.filemanager_user.getCurrentSelected()
         elif self.w.sender() == self.w.btn_copy_left:
             source = self.w.filemanager_user.getCurrentSelected()
-            target = self.w.filemanager_media.getCurrentSelected()
+            target = self.w.filemanager_usb.getCurrentSelected()
         else:
             return
         if source[1] is False:
@@ -1474,19 +1409,9 @@ class HandlerClass:
             self.destination_file = os.path.join(os.path.dirname(target[0]), os.path.basename(source[0]))
         else:
             self.destination_file = os.path.join(target[0], os.path.basename(source[0]))
-
-        if os.path.isfile(self.destination_file) or os.path.isdir(self.destination_file):
-            self.messagebox.setWindowTitle('Copy File')
-            self.messagebox.setIcon(QMessageBox.Question)
-            self.messagebox.setText(f'{self.destination_file} exists - overwrite?')
-            self.messagebox.show()
-        else:
-            self.do_file_copy(self.messagebox.button(QMessageBox.Yes))
+        self.filemanager.copyChecks(self.source_file, self.destination_file)
 
     def load_file(self):
-        if self.w.btn_edit_gcode.isChecked():
-            self.add_status('Cannot load file while GCode editing is active', WARNING)
-            return
         fname = self.filemanager.getCurrentSelected()
         if fname[1] is False:
             self.add_status("Current selection is not a file", WARNING)
@@ -1497,8 +1422,6 @@ class HandlerClass:
             self.add_status(f"Unknown or invalid filename extension {file_extension}", WARNING)
             return
         if file_extension in ('.ngc', '.nc', '.tap'):
-            self.w.cmb_program_history.addItem(fname)
-            self.w.cmb_program_history.setCurrentIndex(self.w.cmb_program_history.count() - 1)
             ACTION.OPEN_PROGRAM(fname)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
             self.w.btn_main.setChecked(True)
@@ -1537,75 +1460,100 @@ class HandlerClass:
                 'MORE': info,
                 'TYPE': 'YESNO',
                 'NONBLOCKING': True}
-        ACTION.CALL_DIALOG(mess)
+        STATUS.emit('dialog-request', mess)
+
+    def deleteReturn(self):
+        try:
+            send2trash(self.deleteFile)
+            self.filemanager.textLine.clear()
+            self.add_status(f"{self.deleteFile} sent to Trash")
+        except Exception as e:
+            self.add_status(f"Delete file error: {e}", ERROR)
 
     def rename_file(self):
         fname = self.filemanager.getCurrentSelected()
         title = "Rename File" if fname[1] is True else "Rename Folder"
-        label = "File" if fname[1] is True else "Folder"
         self.source_file = fname[0]
-        self.input_dialog.setWindowTitle(title)
-        self.input_dialog.setLabelText(f"Enter New {label} Name")
-        self.input_dialog.setTextValue(self.source_file)
-        self.input_dialog.show()
+        mess = {'NAME': self.kbd_code,
+                'ID': '_rename_',
+                'PRELOAD': self.source_file,
+                'TITLE': title,
+                'NONBLOCKING': True,
+                'GEONAME': '__keyboard'}
+        STATUS.emit('dialog-request', mess)
+
+    def new_file(self):
+        fname = self.filemanager.getCurrentSelected()
+        if fname[1]:
+            preload = os.path.join(os.path.dirname(fname[0]), 'new.ngc')
+        else:
+            preload = os.path.join(fname[0], 'new.ngc')
+        mess = {'NAME': self.kbd_code,
+                'ID': '_new_file_',
+                'PRELOAD': preload,
+                'TITLE': 'Create New Empty File',
+                'NONBLOCKING': True,
+                'GEONAME': '__keyboard'}
+        STATUS.emit('dialog-request', mess)
+
+    def fileReturn(self, name):
+        with open(name, 'w'):
+            pass
+        self.add_status(f"File {name} created successfully")
 
     def new_folder(self):
-        current_dir = self.filemanager.getCurrentSelected()
-        if current_dir[1] is True:
-            current_path = os.path.dirname(current_dir[0])
+        fname = self.filemanager.getCurrentSelected()
+        if fname[1]:
+            preload = os.path.join(os.path.dirname(fname[0]), 'new_folder')
         else:
-            current_path = current_dir[0]
-        self.input_dialog.setWindowTitle("New Folder")
-        self.input_dialog.setLabelText("Enter New Folder Name")
-        self.input_dialog.setTextValue(current_path)
-        self.input_dialog.show()
+            preload = os.path.join(fname[0], 'new_folder')
+        mess = {'NAME': self.kbd_code,
+                'ID': '_new_folder_',
+                'PRELOAD': preload,
+                'TITLE': 'Create New Folder',
+                'NONBLOCKING': True,
+                'GEONAME': '__keyboard'}
+        STATUS.emit('dialog-request', mess)
+
+    def folderReturn(self, name):
+        try:
+            os.makedirs(name, exist_ok = False)
+            self.add_status(f"Folder {name} created successfully")
+        except Exception as e:
+            self.add_status(f"Folder create error: {e}", WARNING)
 
     def edit_gcode(self):
-        current_dir = self.filemanager.getCurrentSelected()
-        if current_dir[1] is True:
-            self.source_file = current_dir[0]
-        else:
-            self.add_status("Invalid file name", WARNING)
-            return
         self.w.stackedWidget_file.setCurrentIndex(1)
-        self.gcode_editor.editor.setModified(False)
-        self.gcode_editor.openCall(self.source_file)
+        self.w.gcodeeditor.editor.setModified(False)
+        self.w.gcodeeditor.editMode()
 
     def select_filemanager(self, state):
-        self.filemanager = self.w.filemanager_user if state else self.w.filemanager_media
+        self.filemanager = self.w.filemanager_user if state else self.w.filemanager_usb
 
-    def do_file_copy(self, btn):
-        if btn == self.messagebox.button(QMessageBox.No):
-            self.add_status(f"File {self.source_file} not copied")
-            return
-        try:
-            shutil.copy2(self.source_file, self.destination_file)
-            self.add_status(f"File {self.source_file} copied to {self.destination_file}")
-        except FileNotFoundError:
-            self.add_status(f"File {self.source_file} not found", ERROR)
-        except PermissionError:
-            self.add_status(f"Permission denied for {self.destination_file}", ERROR)
-        except Exception as e:
-            self.add_status(f"Copy file error: {e}", ERROR)
+    # GCode Editor override functions
+    def openReturn(self, fname):
+        filename, file_extension = os.path.splitext(fname)
+        if file_extension in ('.ngc', '.nc', '.tap'):
+            self.w.gcodeeditor.editor.load_text(fname)
+            self.w.gcodeeditor.label.setText(f'  Editing {fname}')
+            self.w.gcodeeditor.editor.setModified(False)
+        else:
+            self.add_status(f"{fname} is not a valid gcode file - not opened")
 
-    def on_input_accepted(self):
-        text = self.input_dialog.textValue()
-        if self.input_dialog.windowTitle() == "Rename File":
-            os.rename(self.source_file, text)
-            self.add_status(f"Renamed file {self.source_file} to {text}")
-        elif self.input_dialog.windowTitle() == "Rename Folder":
-            os.rename(self.source_file, text)
-            self.add_status(f"Renamed folder {self.source_file} to {text}")
-        elif self.input_dialog.windowTitle() == "New Folder":
-            try:
-                os.makedirs(text, exist_ok = False)
-                self.add_status(f"Folder {text} created successfully")
-            except Exception as e:
-                self.add_status(f"Folder create error: {e}", WARNING)
+    def saveReturn(self, fname):
+        saved = ACTION.SAVE_PROGRAM(self.w.gcodeeditor.editor.text(), fname)
+        if saved is not None:
+            self.w.gcodeeditor.editor.setModified(False)
 
-    def on_message_clicked(self, btn):
-            self.do_file_copy()
-                       
+    def exitCall(self):
+        exit_ok = True
+        if self.w.gcodeeditor.editor.isModified():
+            exit_ok = self.w.gcodeeditor.killCheck()
+        if exit_ok:
+            self.w.gcodeeditor.editor.setText('')
+            self.w.gcodeeditor.label.clear()
+            self.w.stackedWidget_file.setCurrentIndex(0)
+
     # TOOL tab
     def tabwidget_tools_changed(self, idx):
         if idx == 0:
@@ -1715,12 +1663,6 @@ class HandlerClass:
         self.w.btn_camera.setVisible(state)
         self.w.btn_ref_camera.setEnabled(state)
         self.w.camera_offset.setVisible(state)
-
-    def edit_gcode_changed(self, state):
-        if state:
-            self.w.gcode_viewer.editMode()
-        else:
-            self.w.gcode_viewer.readOnlyMode()
 
     def chk_run_from_line_changed(self, state):
         if not state:
@@ -1840,6 +1782,7 @@ class HandlerClass:
         self.w.lineEdit_max_amps.clearFocus()
 
     def show_selected_axis(self, obj):
+        if not STATUS.is_man_mode() or not STATUS.machine_is_on(): return
         if self.w.chk_use_mpg.isChecked():
             self.w.jog_xy.set_highlight('X', bool(self.h['axis-select-x'] is True))
             self.w.jog_xy.set_highlight('Y', bool(self.h['axis-select-y'] is True))
@@ -1971,7 +1914,7 @@ class HandlerClass:
             if self.current_tool > 0:
                 tis = float(self.w.lineEdit_acc_time.text())
                 if self.tool_db.update_tool_time(self.current_tool, tis) is None:
-                    self.add_satus(f'Update tool {self.current_tool} time in spindle error', WARNING)
+                    self.add_status(f'Update tool {self.current_tool} time in spindle error', WARNING)
 
     #####################
     # KEY BINDING CALLS #
@@ -2031,8 +1974,8 @@ class HandlerClass:
 
     def on_keycall_F4(self,event,state,shift,cntrl):
         if state:
-            mess = {'NAME':'CALCULATOR', 'TITLE':'Calculator', 'ID':'_calculator_'}
-            ACTION.CALL_DIALOG(mess)
+            mess = {'NAME':self.dialog_code, 'TITLE':'Calculator', 'ID':'_calculator_'}
+            STATUS.emit('dialog-request', mess)
 
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:

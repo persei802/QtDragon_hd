@@ -2753,7 +2753,7 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>7</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -4223,7 +4223,34 @@ P</string>
                       <number>0</number>
                      </property>
                      <item>
-                      <widget class="FileManager" name="filemanager_media"/>
+                      <widget class="QGroupBox" name="groupBox_usb">
+                       <property name="title">
+                        <string>USB FILES</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                       <layout class="QVBoxLayout" name="verticalLayout_26">
+                        <property name="spacing">
+                         <number>4</number>
+                        </property>
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="FileManager" name="filemanager_usb"/>
+                        </item>
+                       </layout>
+                      </widget>
                      </item>
                      <item>
                       <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -4464,6 +4491,35 @@ GCODE</string>
                         </widget>
                        </item>
                        <item>
+                        <widget class="QPushButton" name="btn_new_file">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Create new empty file in current directory</string>
+                         </property>
+                         <property name="text">
+                          <string>NEW
+FILE</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
                         <widget class="QPushButton" name="btn_new_folder">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -4496,6 +4552,19 @@ FOLDER</string>
                         </widget>
                        </item>
                        <item>
+                        <spacer name="verticalSpacer_7">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
                         <widget class="QPushButton" name="btn_clear_program_history">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -4524,23 +4593,37 @@ HISTORY</string>
                          </property>
                         </widget>
                        </item>
-                       <item>
-                        <spacer name="verticalSpacer_7">
-                         <property name="orientation">
-                          <enum>Qt::Vertical</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>20</width>
-                           <height>40</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
                       </layout>
                      </item>
                      <item>
-                      <widget class="FileManager" name="filemanager_user"/>
+                      <widget class="QGroupBox" name="groupBox_user">
+                       <property name="title">
+                        <string>USER FILES</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                       <layout class="QVBoxLayout" name="verticalLayout_31">
+                        <property name="spacing">
+                         <number>4</number>
+                        </property>
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="FileManager" name="filemanager_user"/>
+                        </item>
+                       </layout>
+                      </widget>
                      </item>
                     </layout>
                    </widget>
@@ -4561,6 +4644,19 @@ HISTORY</string>
                      <property name="bottomMargin">
                       <number>0</number>
                      </property>
+                     <item>
+                      <widget class="GcodeEditor" name="gcodeeditor">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="auto_show_mdi_status" stdset="0">
+                        <bool>false</bool>
+                       </property>
+                      </widget>
+                     </item>
                     </layout>
                    </widget>
                   </widget>
@@ -7037,7 +7133,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>03:04:34 PM</string>
+                       <string>02:55:48 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -16475,12 +16571,12 @@ OFF</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mdi_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mdi_buttonGroup"/>
  </buttongroups>
 </ui>
