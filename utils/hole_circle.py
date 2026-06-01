@@ -187,12 +187,12 @@ class Hole_Circle(QWidget, Common):
         self.event_filter.set_tool_list('tool')
         # signal connections
         self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
-        self.btn_save.pressed.connect(self.save_program)
-        self.btn_send.pressed.connect(self.send_program)
+        self.btn_save.pressed.connect(lambda: self.create_program('save'))
+        self.btn_send.pressed.connect(lambda: self.create_program('send'))
         self.btn_help.pressed.connect(self.show_help)
         self.btn_goto_hole.pressed.connect(self.goto_hole)
         self.report.hole_selected.connect(self.hole_selected)
-        self.tabWidget_hole_circle.currentChanged.connect(lambda index: self.btn_goto_hole.setEnabled(index))
+#        self.tabWidget_hole_circle.currentChanged.connect(lambda index: self.btn_goto_hole.setEnabled(index))
 
     def _hal_init(self):
         def homed_on_status():
@@ -253,33 +253,30 @@ class Hole_Circle(QWidget, Common):
         self.lbl_peck_unit.setText(text)
         self.lbl_drill_feed_unit.setText(text + '/MIN')
 
-    def save_program(self):
+    def create_program(self, mode):
         if not self.validate(): return
         self.generate_holes()
-        self.calculate_program()
-        caption = 'Save Hole Circle Program'
-        _dir = os.path.expanduser('~/linuxcnc/nc_files')
-        _filter = 'ngc Files (*.ngc)'
-        fileName, _ = self.save_program_file(self, caption, _dir, _filter)
-        if fileName:
-            if self.gcode:
-                with open(fileName, 'w') as f:
-                    f.write('\n'.join(self.gcode))
-                self.h.add_status(f"Program successfully saved to {fileName}")
-        else:
-            self.h.add_status("Program save cancelled", WARNING)
+        self.calculate_gcode()
+        if mode == 'send':
+            filename = self.make_temp('hole_circle')
+            with open(filename, 'w') as f:
+                f.write('\n'.join(self.gcode))
+            ACTION.OPEN_PROGRAM(filename)
+            self.h.add_status("Program sent to Linuxcnc")
+        elif mode == 'save':
+            caption = 'Save Hole Circle Program'
+            _dir = os.path.expanduser('~/linuxcnc/nc_files')
+            _filter = 'ngc Files (*.ngc)'
+            fileName, _ = self.save_program_file(self, caption, _dir, _filter)
+            if fileName:
+                if self.gcode:
+                    with open(fileName, 'w') as f:
+                        f.write('\n'.join(self.gcode))
+                    self.h.add_status(f"Program successfully saved to {fileName}")
+            else:
+                self.h.add_status("Program save cancelled", WARNING)
 
-    def send_program(self):
-        if not self.validate(): return
-        self.generate_holes()
-        self.calculate_program()
-        filename = self.make_temp('hole_circle')
-        with open(filename, 'w') as f:
-            f.write('\n'.join(self.gcode))
-        ACTION.OPEN_PROGRAM(filename)
-        self.h.add_status("Program sent to Linuxcnc")
-
-    def calculate_program(self):
+    def calculate_gcode(self):
         self.gcode = []
         comment = self.lineEdit_comment.text()
         unit_code = 'G21' if INFO.MACHINE_IS_METRIC else 'G20'
@@ -365,6 +362,7 @@ class Hole_Circle(QWidget, Common):
 
     def hole_selected(self, hole):
         num, x, y = hole
+        self.btn_goto_hole.setEnabled(True)
         self.btn_goto_hole.setText(f'GO TO HOLE {num}')
         self.btn_goto_hole.setProperty('pos_x', x)
         self.btn_goto_hole.setProperty('pos_y', y)

@@ -16,7 +16,6 @@ from PyQt5 import uic
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from PyQt5.QtWidgets import QFileDialog, QLineEdit, QWidget
 from qtvcp.core import Info, Status, Action, Tool, Path
-from lib.preview import Preview
 from lib.event_filter import EventFilter
 from utils.utils_mixin import Common
 
@@ -41,7 +40,6 @@ class Hole_Enlarge(QWidget, Common):
         self.unit_text = ""
         self.angle_inc = 4
         self.line_num = 0
-        self.preview = Preview()
 
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'hole_enlarge.ui')
@@ -50,13 +48,14 @@ class Hole_Enlarge(QWidget, Common):
         except AttributeError as e:
             print("Error: ", e)
 
-        self.float_inputs = ['tool_dia', 'start_dia', 'final_dia', 'cut_depth', 'safe_z']
+        self.float_inputs = ['tool_dia', 'center_x', 'center_y', 'start_dia', 'final_dia', 'cut_depth', 'safe_z']
         self.int_inputs = ['tool', 'spindle', 'feed', 'loops']
 
         self.set_unit_labels()
 
-        self.layout_preview.addWidget(self.preview)
         self.lineEdit_tool.setValidator(QIntValidator(1, 9999))
+        self.lineEdit_center_x.setValidator(QDoubleValidator(-9999.9, 9999.9, 3))
+        self.lineEdit_center_y.setValidator(QDoubleValidator(-9999.9, 9999.9, 3))
         self.lineEdit_spindle.setValidator(QIntValidator(0, 99999))
         self.lineEdit_feed.setValidator(QIntValidator(0, 9999))
         self.lineEdit_tool_dia.setValidator(QDoubleValidator(0, 99.9, 3))
@@ -85,8 +84,8 @@ class Hole_Enlarge(QWidget, Common):
         self.lineEdit_tool.editingFinished.connect(self.load_tool)
         self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         self.chk_direction.stateChanged.connect(lambda state: self.direction_changed(state))
-        self.btn_save.pressed.connect(self.save_program)
-        self.btn_send.pressed.connect(self.send_program)
+        self.btn_save.pressed.connect(lambda: self.create_program('save'))
+        self.btn_send.pressed.connect(lambda: self.create_program('send'))
         self.btn_help.pressed.connect(self.show_help)
 
     def _hal_init(self):
@@ -138,50 +137,37 @@ class Hole_Enlarge(QWidget, Common):
         self.lineEdit_tool_dia.setText(f"{info[11]:8.3f}")
         self.lineEdit_tool_info.setText(info[15])
 
-    def save_program(self):
+    def create_program(self, mode):
         if not self.validate(): return
-        if not self.calculate_program():
-            self.h.add_status('Unable to calculate program', ERROR)
+        if not self.calculate_gcode():
+            self.h.add_status('Unable to calculate gcode', ERROR)
             return
-        caption = 'Save Hole Enlarge Program'
-        _dir = os.path.expanduser('~/linuxcnc/nc_files')
-        _filter = 'ngc Files (*.ngc)'
-        fileName, _ = self.save_program_file(self, caption, _dir, _filter)
-        if fileName:
-            if self.gcode:
-                with open(fileName, 'w') as f:
-                    f.write('\n'.join(self.gcode))
-                self.preview_program(fileName)
-                self.h.add_status(f"Program saved to {fileName}")
-        else:
-            self.h.add_status("Program save cancelled")
-
-    def send_program(self):
-        if not self.validate(): return
-        if not self.calculate_program():
-            self.h.add_status('Unable to calculate program', ERROR)
-            return
-        filename = self.make_temp('hole_enlarge')
-        with open(filename, 'w') as f:
-            f.write('\n'.join(self.gcode))
-        self.preview_program(filename)
-        ACTION.OPEN_PROGRAM(filename)
-        self.h.add_status("Hole enlarge program sent to Linuxcnc")
-
-    def preview_program(self, filename):
-        result = self.preview.load_program(filename)
-        if result:
-            self.preview.set_path_points()
-            self.preview.update()
-        else:
-            self.h.add_status('Program preview failed', WARNING)
+        if mode == 'send':
+            filename = self.make_temp('hole_enlarge')
+            with open(filename, 'w') as f:
+                f.write('\n'.join(self.gcode))
+            ACTION.OPEN_PROGRAM(filename)
+            self.h.add_status("Hole enlarge program sent to Linuxcnc")
+        elif mode == 'save':
+            caption = 'Save Hole Enlarge Program'
+            _dir = os.path.expanduser('~/linuxcnc/nc_files')
+            _filter = 'ngc Files (*.ngc)'
+            fileName, _ = self.save_program_file(self, caption, _dir, _filter)
+            if fileName:
+                if self.gcode:
+                    with open(fileName, 'w') as f:
+                        f.write('\n'.join(self.gcode))
+                    self.h.add_status(f"Program saved to {fileName}")
+            else:
+                self.h.add_status("Program save cancelled")
 
     def validate(self):
         if not self.check_float_blanks(self.float_inputs): return False
         if not self.check_int_blanks(self.int_inputs): return False
         # additional checks
         for val in self.float_inputs:
-            if self[val] <= 0.0:
+            if val in ["center_x", "center_y"]: pass
+            elif self[val] <= 0.0:
                 self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
                 self.h.add_status(f"{val} must be > 0.0", WARNING)
                 return False
@@ -202,7 +188,7 @@ class Hole_Enlarge(QWidget, Common):
             return False
         return True
 
-    def calculate_program(self):
+    def calculate_gcode(self):
         self.gcode = []
         unit_text = 'Metric' if INFO.MACHINE_IS_METRIC else 'Imperial'
         comment = self.lineEdit_comment.text()
@@ -214,6 +200,7 @@ class Hole_Enlarge(QWidget, Common):
         self.gcode.append(f"(Start diameter is {self.start_dia})")
         self.gcode.append(f"(Final diameter is {self.final_dia})")
         self.gcode.append(f"(Depth of cut is {self.cut_depth})")
+        self.gcode.append(f"(Hole center at X{self.center_x} Y{self.center_y})")
         self.gcode.append(f"(All units are {unit_text})\n")
         self.next_line(f"G40 G49 G64 P0.03 M6 T{self.tool}")
         self.next_line("G17")
@@ -224,7 +211,9 @@ class Hole_Enlarge(QWidget, Common):
             self.next_line("M8")
         self.next_line(f"G0 Z{self.safe_z}")
         offset = (self.start_dia - self.tool_dia) / 2
-        self.next_line(f"G0 X{offset} Y0")
+        self.next_line(f"G0 X{self.center_x} Y{self.center_y}")
+        self.next_line("G92 X0 Y0")
+        self.next_line(f"G0 X{offset}")
         self.next_line(f"M3 S{self.spindle}")
         self.next_line("G91")
         self.next_line(f"G1 Z-{self.safe_z + self.cut_depth} F{self.feed / 2}")
@@ -238,10 +227,12 @@ class Hole_Enlarge(QWidget, Common):
         self.next_line(f"g91 g1 @{inc:8.4f} ^{angle}")
         self.next_line("o100 endrepeat")
         # final profile pass
+        self.next_line("G90")
         offset = (self.final_dia - self.tool_dia) / 2
         direction = "G3" if self.chk_direction.isChecked() else "G2"
         self.gcode.append("(Profile pass)")
-        self.next_line(f"{direction} I-{offset:8.4f} F{self.feed}")
+        self.next_line(f"{direction} I{-offset:8.4f} F{self.feed}")
+        self.next_line("G92.1")
         self.post_amble()
         return True
 

@@ -21,7 +21,6 @@ from PyQt5.QtWidgets import QWidget
 from qtvcp.core import Info, Status, Action, Path, Tool
 from qtvcp import logger
 
-from lib.preview import Preview
 from lib.event_filter import EventFilter
 
 from utils.utils_mixin import Common
@@ -59,9 +58,6 @@ class Facing(QWidget, Common):
         self.float_inputs = ['diameter', 'size_x', 'size_y', 'stepover', 'stepdown', 'safe_z', 'start_z', 'last_z']
         self.int_inputs = ['tool', 'xy_feedrate', 'z_feedrate', 'spindle']
 
-        self.preview = Preview()
-        self.layout_preview.addWidget(self.preview)
-
         # set valid input formats for lineEdits
         self.lineEdit_tool.setValidator(QIntValidator(1, 99))
         self.lineEdit_diameter.setValidator(QDoubleValidator(0, 999, 3))
@@ -94,8 +90,8 @@ class Facing(QWidget, Common):
         # signal connections
         self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         self.lineEdit_tool.editingFinished.connect(self.load_tool)
-        self.btn_save.pressed.connect(self.save_program)
-        self.btn_send.pressed.connect(self.send_program)
+        self.btn_save.pressed.connect(lambda: self.create_program('save'))
+        self.btn_send.pressed.connect(lambda: self.create_program('send'))
         self.btn_help.pressed.connect(self.show_help)
 
     def _hal_init(self):
@@ -178,49 +174,34 @@ class Facing(QWidget, Common):
             return False
         return True
 
-    def preview_program(self, filename):
-        try:
-            result = self.preview.load_program(filename)
-            if result:
-                self.preview.set_path_points()
-                self.preview.update()
-                self.h.add_status(f'Previewing file {filename}')
-            else:
-                self.h.add_status('Program preview failed', WARNING)
-        except Exception as e:
-            self.h.add_status(f'Error loading program - {e}', WARNING)
-
-    def save_program(self):
+    def create_program(self, mode):
         if not self.validate(): return
-        if not self.calculate_program():
-            self.h.add_status('Unable to calculate program', ERROR)
+        if not self.calculate_gcode():
+            self.h.add_status('Unable to calculate gcode', ERROR)
             return
-        caption = 'Save Facing Program'
-        _dir = os.path.expanduser('~/linuxcnc/nc_files')
-        _filter = 'ngc Files (*.ngc)'
-        fileName, _ = self.save_program_file(self, caption, _dir, _filter)
-        if fileName:
+        if mode == 'send':
+            filename = self.make_temp('facing')
             if self.gcode:
-                with open(fileName, 'w') as f:
+                with open(filename, 'w') as f:
                     f.write('\n'.join(self.gcode))
-                self.preview_program(fileName)
-                self.h.add_status(f"Program saved to {fileName}")
+                ACTION.OPEN_PROGRAM(filename)
+                self.h.add_status("Program sent to Linuxcnc")
             else:
                 self.h.add_status("No gcode data to save", WARNING)
-        else:
-            self.h.add_status("Program save cancelled")
-
-    def send_program(self):
-        if not self.validate(): return
-        if not self.calculate_program():
-            self.h.add_status('Unable to calculate program', ERROR)
-            return
-        filename = self.make_temp('facing')
-        with open(filename, 'w') as f:
-            f.write('\n'.join(self.gcode))
-        self.preview_program(filename)
-        ACTION.OPEN_PROGRAM(filename)
-        self.h.add_status("Program sent to Linuxcnc")
+        elif mode == 'save':
+            caption = 'Save Facing Program'
+            _dir = os.path.expanduser('~/linuxcnc/nc_files')
+            _filter = 'ngc Files (*.ngc)'
+            fileName, _ = self.save_program_file(self, caption, _dir, _filter)
+            if fileName:
+                if self.gcode:
+                    with open(fileName, 'w') as f:
+                        f.write('\n'.join(self.gcode))
+                    self.h.add_status(f"Program saved to {fileName}")
+                else:
+                    self.h.add_status("No gcode data to save", WARNING)
+            else:
+                self.h.add_status("Program save cancelled")
 
     def load_tool(self, tool=None):
         if tool is None:
@@ -230,7 +211,7 @@ class Facing(QWidget, Common):
             self.lineEdit_diameter.setText(str(info[11]))
             self.lineEdit_tool_info.setText(info[15])
 
-    def calculate_program(self):
+    def calculate_gcode(self):
         self.gcode = []
         passes = 0
         comment = self.lineEdit_comment.text()

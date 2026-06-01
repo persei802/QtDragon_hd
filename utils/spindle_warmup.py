@@ -82,8 +82,8 @@ class Spindle_Warmup(QWidget, Common):
 
         # signal connections
         self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
-        self.btn_send.pressed.connect(self.send_program)
-        self.btn_save.pressed.connect(self.save_program)
+        self.btn_send.pressed.connect(lambda: self.create_program('send'))
+        self.btn_save.pressed.connect(lambda: self.create_program('save'))
 
     def _hal_init(self):
         def homed_on_status():
@@ -158,33 +158,30 @@ class Spindle_Warmup(QWidget, Common):
         self.preview.clear()
         self.preview.draw_graph(time, speed)
 
-    def send_program(self):
+    def create_program(self, mode):
         if not self.validate(): return
         self.create_points()
-        self.calculate_program()
-        filename = self.make_temp('spindle_warmup')
-        with open(filename, 'w') as f:
-            f.write('\n'.join(self.gcode))
-        ACTION.OPEN_PROGRAM(filename)
-        self.h.add_status("Spindle warmup program sent to Linuxcnc")
+        self.calculate_gcode()
+        if mode == 'send':
+            filename = self.make_temp('spindle_warmup')
+            with open(filename, 'w') as f:
+                f.write('\n'.join(self.gcode))
+            ACTION.OPEN_PROGRAM(filename)
+            self.h.add_status("Spindle warmup program sent to Linuxcnc")
+        elif mode == 'save':
+            caption = 'Save Spindle Warmup Program'
+            _dir = os.path.expanduser('~/linuxcnc/nc_files')
+            _filter = 'ngc Files (*.ngc)'
+            fileName, _ = self.save_program_file(self, caption, _dir, _filter)
+            if fileName:
+                if self.gcode:
+                    with open(fileName, 'w') as f:
+                        f.write('\n'.join(self.gcode))
+                    self.h.add_status(f"Program saved to {fileName}")
+            else:
+                self.h.add_status("Program save cancelled")
 
-    def save_program(self):
-        if not self.validate(): return
-        self.create_points()
-        self.calculate_program()
-        caption = 'Save Spindle Warmup Program'
-        _dir = os.path.expanduser('~/linuxcnc/nc_files')
-        _filter = 'ngc Files (*.ngc)'
-        fileName, _ = self.save_program_file(self, caption, _dir, _filter)
-        if fileName:
-            if self.gcode:
-                with open(fileName, 'w') as f:
-                    f.write('\n'.join(self.gcode))
-                self.h.add_status(f"Program saved to {fileName}")
-        else:
-            self.h.add_status("Program save cancelled")
-
-    def calculate_program(self):
+    def calculate_gcode(self):
         self.gcode = []
         comment = self.lineEdit_comment.text()
         self.line_num = 5
