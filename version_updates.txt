@@ -105,4 +105,9 @@ Mar. 1/26 v 2.2.1
     
 Mar. 13/26 v 2.2.2
     - continuous update of tool time in spindle while a program is running
-    
+
+Jun. 1/26 v 2.2.3
+    - eliminated previews for facing and hole enlarge utilities
+    - gcode history combobox updated only by file_loaded status message
+    - deleted gcodeeditor class and replaced with gcodeeditor qt widget in ui file
+    - improved code for file manager widgets
