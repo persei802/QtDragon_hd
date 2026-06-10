@@ -557,7 +557,7 @@ class HandlerClass:
         
     def init_utils(self):
         from lib.setup_utils import Setup_Utils
-        self.setup_utils = Setup_Utils(self.w, self)
+        self.setup_utils = Setup_Utils(self)
         self.setup_utils.init_utils()
         self.util_list = self.setup_utils.get_util_list()
         # designer doesn't allow adding buttons not derived from QAbstractButton class
@@ -834,22 +834,7 @@ class HandlerClass:
         self.current_tool = tool
         self.w.lineEdit_tool_in_spindle.setText(str(tool))
         LOG.debug(f"Tool changed to {self.current_tool}")
-        data = self.tool_db.get_tool_data(tool)
-        if data is None:
-            self.add_status("Failed to retrieve data from database", ERROR)
-            return
-        maxz = data['length']
-        rtime = data['time']
-        icon = data['icon']
-        if icon is None or icon == "undefined":
-            self.w.lbl_tool_image.setText("Image\nUndefined")
-        else:
-            icon_file = os.path.join(PATH.CONFIGPATH, 'tool_icons/' + icon)
-            self.w.lbl_tool_image.setPixmap(QPixmap(icon_file))
-        text = "---" if maxz is None else str(maxz)
-        self.w.lineEdit_max_depth.setText(text)
-        self.pgm_start_time = rtime
-        self.w.lineEdit_acc_time.setText(f'{rtime:.1f}')
+        self.update_tool_info(tool)
 
     def file_loaded(self, filename):
         if filename is not None:
@@ -1526,6 +1511,8 @@ class HandlerClass:
         self.w.stackedWidget_file.setCurrentIndex(1)
         self.w.gcodeeditor.editor.setModified(False)
         self.w.gcodeeditor.editMode()
+        if self.current_loaded_program:
+            self.w.gcodeeditor.label.setText(f'  Editing {self.current_loaded_program}')
 
     def select_filemanager(self, state):
         self.filemanager = self.w.filemanager_user if state else self.w.filemanager_usb
@@ -1598,6 +1585,7 @@ class HandlerClass:
                 self.add_status("Select only 1 tool to load", ERROR)
             elif tool:
                 ACTION.CALL_MDI_WAIT(f'M61 Q{tool[0]} G43', mode_return=True)
+                self.update_tool_info(tool[0])
                 self.add_status(f"Tool {tool[0]} loaded")
             else:
                 self.add_status("No tool selected", WARNING)
@@ -1607,6 +1595,7 @@ class HandlerClass:
                 self.add_status('No tool selected in the database', WARNING)
                 return
             ACTION.CALL_MDI_WAIT(f'M61 Q{tool} G43', mode_return=True)
+            self.update_tool_info(tool)
             self.add_status(f"Tool {tool} loaded")
 
     def btn_unload_tool_pressed(self):
@@ -1739,6 +1728,24 @@ class HandlerClass:
         else:
            pass
             
+    def update_tool_info(self, tool):
+        data = self.tool_db.get_tool_data(tool)
+        if data is None:
+            self.add_status("Failed to retrieve data from database", ERROR)
+            return
+        maxz = data['length']
+        rtime = data['time']
+        icon = data['icon']
+        if icon is None or icon == "undefined":
+            self.w.lbl_tool_image.setText("Image\nUndefined")
+        else:
+            icon_file = os.path.join(PATH.CONFIGPATH, 'tool_icons/' + icon)
+            self.w.lbl_tool_image.setPixmap(QPixmap(icon_file))
+        text = "---" if maxz is None else str(maxz)
+        self.w.lineEdit_max_depth.setText(text)
+        self.pgm_start_time = rtime
+        self.w.lineEdit_acc_time.setText(f'{rtime:.1f}')
+
     def get_checked_tools(self):
         checked = self.w.tooloffsetview.get_checked_list()
         return checked
@@ -1866,6 +1873,7 @@ class HandlerClass:
         if self.zlevel is not None:
             self.w.btn_enable_comp.setEnabled(not state)
         self.w.btn_goto_sensor.setEnabled(not state)
+        self.w.btn_touchoff.setEnabled(not state)
         self.w.groupBox_jog_pads.setEnabled(not state)
         self.w.btn_cycle_start.setEnabled(state)
         self.w.lineEdit_spindle_raise.setReadOnly(state)
