@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1092</width>
-    <height>643</height>
+    <height>620</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -56,7 +56,7 @@
       </size>
      </property>
      <property name="title">
-      <string>PARAMETERS</string>
+      <string>PROBE FILE PARAMETERS</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -198,7 +198,7 @@
            </size>
           </property>
           <property name="text">
-           <string>PROBE AREA *</string>
+           <string>PROBE AREA</string>
           </property>
           <property name="indent">
            <number>8</number>
@@ -325,6 +325,9 @@
             <height>30</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>Define the number of steps per axis</string>
+          </property>
           <property name="text">
            <string>STEPS</string>
           </property>
@@ -346,6 +349,9 @@
             <width>83</width>
             <height>30</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>Define the spacing between the steps per axis</string>
           </property>
           <property name="text">
            <string>OFFSET</string>
@@ -452,7 +458,7 @@
            </size>
           </property>
           <property name="text">
-           <string>XY ZERO **</string>
+           <string>PROGRAM XY ZERO</string>
           </property>
           <property name="indent">
            <number>8</number>
@@ -500,9 +506,6 @@
             <width>16777215</width>
             <height>16777215</height>
            </size>
-          </property>
-          <property name="text">
-           <string/>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -945,6 +948,31 @@ COMMENT</string>
        </spacer>
       </item>
       <item>
+       <widget class="QCheckBox" name="chk_add_contours">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>ADD CONTOUR LINES TO SURFACE MAP</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="chk_use_calc">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -966,26 +994,6 @@ COMMENT</string>
         </property>
         <property name="text">
          <string>USE CALCULATOR DIALOG FOR INPUT</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="lbl_explain_area">
-        <property name="text">
-         <string>*   Array size of gcode to be compensated, rounded up to nearest integer.</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="lbl_explain_zero">
-        <property name="text">
-         <string>** Must match XY zero point of gcode program.</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -1054,7 +1062,7 @@ PROGRAM</string>
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0,0">
      <property name="spacing">
       <number>4</number>
      </property>
@@ -1062,77 +1070,11 @@ PROGRAM</string>
       <number>0</number>
      </property>
      <item>
-      <widget class="QTabWidget" name="tabWidget_zcomp">
-       <property name="currentIndex">
-        <number>0</number>
+      <layout class="QVBoxLayout" name="layout_surfacemap">
+       <property name="spacing">
+        <number>4</number>
        </property>
-       <widget class="QWidget" name="tab_surface">
-        <attribute name="title">
-         <string>SURFACE MAP</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="layout_surface">
-         <property name="spacing">
-          <number>4</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="tab_heatmap">
-        <attribute name="title">
-         <string>HEAT MAP</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="layout_heatmap">
-         <property name="spacing">
-          <number>4</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="tab_contour">
-        <attribute name="title">
-         <string>CONTOUR</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="layout_contour">
-         <property name="spacing">
-          <number>4</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-        </layout>
-       </widget>
-      </widget>
+      </layout>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -1161,7 +1103,7 @@ PROGRAM</string>
 PROGRAM</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          <set>Qt::AlignCenter</set>
          </property>
          <property name="indent">
           <number>8</number>
@@ -1169,7 +1111,7 @@ PROGRAM</string>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_gcode_program">
+        <widget class="QLineEdit" name="lineEdit_probe_program">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -1192,10 +1134,10 @@ PROGRAM</string>
           <enum>Qt::ClickFocus</enum>
          </property>
          <property name="toolTip">
-          <string>Use the FILE page to load a gcode program to be probed.</string>
+          <string>GCode program used to probe the loaded program.</string>
          </property>
          <property name="readOnly">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -1224,7 +1166,11 @@ PROGRAM</string>
           </size>
          </property>
          <property name="text">
-          <string>Probe Data:</string>
+          <string>PROBE
+RESULTS</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
          <property name="indent">
           <number>8</number>
@@ -1232,9 +1178,30 @@ PROGRAM</string>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="lbl_probe_data">
-         <property name="text">
-          <string/>
+        <widget class="QLineEdit" name="lineEdit_probe_result">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>The result of the probing program named above. Contains an array of XY coordinates with probed Z values.</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>

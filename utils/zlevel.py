@@ -12,23 +12,24 @@
 # GNU General Public License for more details.
 import sys
 import os
+os.environ["PYQTGRAPH_QT_LIB"] = "PyQt5"
 import mmap
 import re
 import math
 import hal
 import struct
-import numpy as np
-import matplotlib as mpl
 
 from lib.event_filter import EventFilter
 from utils.utils_mixin import Common
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-
 from PyQt5 import uic
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtCore import QRectF
+
+# IMPORTANT - do not import this before importing PyQt5 stuff
+import pyqtgraph as pg
+import numpy as np
 
 from qtvcp.core import Status, Action, Info, Path, Qhal
 
@@ -49,84 +50,58 @@ GRID_SIZE = MAX_NX * MAX_NY * 8
 TOTAL_SIZE = HEADER_SIZE + GRID_SIZE
 
 
-class SurfaceMap(FigureCanvas):
-    def __init__(self, parent=None):
-        self.figure = Figure()
-        super().__init__(self.figure)
-        self.canvas = FigureCanvas(self.figure)
-        self.canvas.setFocusPolicy(False)
-        self.ax3d = self.figure.add_subplot(111, projection='3d')
-        self.ax3d.mouse_init = lambda *args, **kwargs: None
-        self.ax3d.set_navigate(False)
+class SurfaceMap(QWidget):
+    def __init__(self, layout=None):
+        super().__init__()
 
-    def plot(self, data):
+        # View + image container
+        self.view = pg.GraphicsLayoutWidget()
+        self.img = pg.ImageItem()
+        self.plot = self.view.addPlot()
+        self.plot.setAspectLocked(True)
+        self.plot.addItem(self.img)
+        self.plot.enableAutoRange(False)
+        layout.addWidget(self.view)
+        self.cmap = pg.colormap.get('viridis')
+        self.contours = []
+
+    def plot_surface(self, data):
         X, Y, Z = data
-        self.ax3d.clear()
-        self.ax3d.plot_surface(X, Y, Z, cmap='viridis')
-        self.ax3d.set_xlabel('X Axis')
-        self.ax3d.set_ylabel('Y Axis')
-        self.ax3d.set_zlabel('Z Deviation')
-        self.draw()
+        Z = np.asarray(Z)
+        Z_img = Z.T
+        self.img.setImage(Z_img, autoLevels=False)
+        lut = self.cmap.getLookupTable(0.0, 1.0, 256)
+        self.img.setLookupTable(lut)
+
+        x_min, x_max = np.min(X), np.max(X)
+        y_min, y_max = np.min(Y), np.max(Y)
+
+        self.img.setRect(QRectF(x_min, y_min, x_max - x_min, y_max - y_min))
+        self.plot.setRange(xRange = (x_min, x_max), yRange = (y_min, y_max), padding=0)
+
+        self.img.setLevels([np.min(Z), np.max(Z)])
+
+    def add_contours(self, data):
+        X, Y, Z = data
+        zmin = Z.min()
+        zmax = Z.max()
+        levels = np.linspace(zmin, zmax, 10)
+        for level in levels:
+            curve = pg.IsocurveItem(data=Z.T, level=level, pen=(255, 255, 255, 150))
+            curve.setParentItem(self.img)
+            self.contours.append(curve)
 
     def clear_plot(self):
-        self.ax3d.clear()
-        self.draw()
-
-class HeatMap(FigureCanvas):
-    def __init__(self, parent=None):
-        self.figure = Figure()
-        super().__init__(self.figure)
-        self.canvas = FigureCanvas(self.figure)
-        self.canvas.setFocusPolicy(False)
-        self.ax2d = self.figure.add_subplot(111)
-        self.ax2d.set_navigate(False)
-        self.cbar = None
-
-    def plot(self, data):
-        X, Y, Z = data
-        self.ax2d.clear()
-        if self.cbar:
-            self.cbar.remove()
-        c = self.ax2d.contourf(X, Y, Z, 50)
-        self.cbar = self.figure.colorbar(c, ax=self.ax2d)
-        self.ax2d.set_xlabel("X Axis")
-        self.ax2d.set_ylabel("Y Axis")
-        self.draw()
-
-    def clear_plot(self):
-        self.ax2d.clear()
-        if self.cbar:
-            self.cbar.remove()
-            self.cbar = None
-        self.draw()
-
-class ContourMap(FigureCanvas):
-    def __init__(self, parent=None):
-        self.figure = Figure()
-        super().__init__(self.figure)
-        self.canvas = FigureCanvas(self.figure)
-        self.canvas.setFocusPolicy(False)
-        self.ax2d = self.figure.add_subplot(111)
-        self.ax2d.set_navigate(False)
-
-    def plot(self, data):
-        X, Y, Z = data
-        self.ax2d.clear()
-        levels = np.arange(np.min(Z), np.max(Z), 0.5)
-        self.contours = self.ax2d.contour(X, Y, Z, levels=8, colors='white')
-        self.ax2d.clabel(self.contours, inline=True, fontsize=8)
-        self.draw()
-
-    def clear_plot(self):
-        self.ax2d.clear()
-        self.draw()
+        for c in self.contours:
+            c.setParentItem(None)
+        self.contours.clear()
+        self.img.clear()
 
 
 class ZLevel(QWidget, Common):
     def __init__(self, parent=None):
         super(ZLevel, self).__init__()
-        self.parent = parent         # reference to setup_utils
-        self.h = self.parent.parent  # reference to handler file
+        self.parent = parent
         self.shm = None
         self.user_path = os.path.expanduser('~/linuxcnc/nc_files')
         self.helpfile = 'zlevel_help.html'
@@ -174,10 +149,10 @@ class ZLevel(QWidget, Common):
         for line in self.float_inputs:
             self[f'lineEdit_{line}'].installEventFilter(self.event_filter)
             parm_list.append(line)
-        self.lineEdit_gcode_program.installEventFilter(self.event_filter)
+        self.lineEdit_probe_program.installEventFilter(self.event_filter)
         self.lineEdit_comment.installEventFilter(self.event_filter)
         self.event_filter.set_line_list(parm_list)
-        self.event_filter.set_kbd_list(['gcode_program', 'comment'])
+        self.event_filter.set_kbd_list(['probe_program', 'comment'])
         self.event_filter.set_tool_list('probe_tool')
         self.event_filter.set_parms(('_zlevel_', True))
 
@@ -191,16 +166,7 @@ class ZLevel(QWidget, Common):
         self.rbtn_offset.clicked.connect(lambda state: self.steps_changed(state))
         self.btn_save_gcode.pressed.connect(self.save_gcode)
         self.btn_help.pressed.connect(self.show_help)
-        # setup compensation map objects
-        mpl.rcParams.update({'text.color': '#f0f0f0', 'axes.labelcolor': '#f0f0f0', 'axes.edgecolor': '#f0f0f0'})
-        mpl.rcParams.update({'xtick.color': '#f0f0f0', 'ytick.color': '#f0f0f0'})
-        mpl.rcParams.update({'axes.facecolor': '#303030', 'figure.facecolor': '#303030'})
-        self.canvas1 = SurfaceMap()
-        self.canvas2 = HeatMap()
-        self.canvas3 = ContourMap()
-        self.layout_surface.addWidget(self.canvas1)
-        self.layout_heatmap.addWidget(self.canvas2)
-        self.layout_contour.addWidget(self.canvas3)
+        self.surfaceMap = SurfaceMap(self.layout_surfacemap)
 
     def _hal_init(self):
         def homed_on_status():
@@ -263,19 +229,17 @@ class ZLevel(QWidget, Common):
                 obj.setText(str(int(rtn)))
 
     def program_loaded(self, fname):
+        self.surfaceMap.clear_plot()
         self.probe_results = None
-        self.canvas1.clear_plot()
-        self.canvas2.clear_plot()
-        self.canvas3.clear_plot()
         path = os.path.dirname(fname)
         base = os.path.basename(fname)
         if base.startswith('probe_'):
             probe_results = os.path.join(path, base.replace('ngc', 'txt'))
         else:
             probe_results = os.path.join(path, f"probe_{base.replace('ngc', 'txt')}")
-        self.lineEdit_gcode_program.setText(fname)
+        self.lineEdit_probe_program.setText(fname)
         if os.path.isfile(probe_results):
-            self.lbl_probe_data.setText(f'Probe result data found in {probe_results}')
+            self.lineEdit_probe_result.setText(probe_results)
             self.probe_results = probe_results
             # create probe points file and plot maps
             points = self.load_probe_file(probe_results)
@@ -285,17 +249,17 @@ class ZLevel(QWidget, Common):
             if points is not None:
                 self.write_shared_memory(grid)
                 data = self.get_plot_data(comp_map)
-                self.canvas1.plot(data)
-                self.canvas2.plot(data)
-                self.canvas3.plot(data)
+                self.surfaceMap.plot_surface(data)
+                if self.chk_add_contours.isChecked():
+                    self.surfaceMap.add_contours(data)
         else:
-            self.lbl_probe_data.setText('No probe result file found')
+            self.lineEdit_probe_result.setText('No probe result file found')
 
 ## Calls from widgets
     def save_gcode(self):
         if not self.validate(): return
         if not self.calculate_steps(): return
-        pre = self.lineEdit_gcode_program.text()
+        pre = self.lineEdit_probe_program.text()
         caption = 'Save Probe Program'
         _dir = os.path.expanduser('~/linuxcnc/nc_files')
         _dir = f'{_dir}/{pre}'
@@ -314,9 +278,9 @@ class ZLevel(QWidget, Common):
             saveFile = os.path.join(path, program)
             self.calculate_gcode(saveFile, probe_name)
             ACTION.OPEN_PROGRAM(saveFile)
-            self.h.add_status(f'Saved probe program to {saveFile}')
+            self.parent.add_status(f'Saved probe program to {saveFile}')
         else:
-            self.h.add_status('Probe program save cancelled')
+            self.parent.add_status('Probe program save cancelled')
 
     def steps_changed(self, state):
         if state and self.sender() == self.rbtn_offset:
@@ -337,7 +301,7 @@ class ZLevel(QWidget, Common):
                 self.steps_x = int(self.size_x / self.x_inc) + 1
                 self.steps_y = int(self.size_y / self.y_inc) + 1
             except ZeroDivisionError as e:
-                self.h.add_status(e, ERROR)
+                self.parent.add_status(e, ERROR)
                 return False
         else:
             # steps based on number
@@ -347,7 +311,7 @@ class ZLevel(QWidget, Common):
                 self.x_inc = self.size_x / (self.steps_x - 1)
                 self.y_inc = self.size_y / (self.steps_y - 1)
             except ZeroDivisionError as e:
-                self.h.add_status(e, ERROR)
+                self.parent.add_status(e, ERROR)
                 return False
         return True
 
@@ -363,11 +327,29 @@ class ZLevel(QWidget, Common):
         os.close(fd)
         return shm
 
+    def fit_plane(self, points):
+        X = points[:,0]
+        Y = points[:,1]
+        Z = points[:,2]
+        A = np.c_[X, Y, np.ones(len(X))]
+        C, _, _, _ = np.linalg.lstsq(A, Z, rcond=None)
+        a, b, c = C
+        return a, b, c
+    
+    def generate_map(self, points, plane):
+        a, b, c = plane
+        result = []
+        for x, y, z in points:
+            plane_z = a*x + b*y + c
+            deviation = z - plane_z
+            result.append((x, y, deviation))
+        return result
+
     def load_probe_file(self, fname):
         try:
             data = np.loadtxt(fname, dtype = float, delimiter = " ", usecols = (0, 1, 2))
         except Error as e:
-            self.h.add_status(f'Unable to read surface map data', ERROR)
+            self.parent.add_status(f'Unable to read surface map data', ERROR)
             return None
         return data
 
@@ -387,24 +369,6 @@ class ZLevel(QWidget, Common):
         X,Y = np.meshgrid(x_unique, y_unique)
         Z = z.reshape(len(y_unique), len(x_unique))
         return (X, Y, Z)
-
-    def fit_plane(self, points):
-        X = points[:,0]
-        Y = points[:,1]
-        Z = points[:,2]
-        A = np.c_[X, Y, np.ones(len(X))]
-        C, _, _, _ = np.linalg.lstsq(A, Z, rcond=None)
-        a, b, c = C
-        return a, b, c
-    
-    def generate_map(self, points, plane):
-        a, b, c = plane
-        result = []
-        for x, y, z in points:
-            plane_z = a*x + b*y + c
-            deviation = z - plane_z
-            result.append((x, y, deviation))
-        return result
 
     def build_grid(self, points):
         pts = np.array(points)
@@ -504,24 +468,24 @@ class ZLevel(QWidget, Common):
         for val in self.int_inputs:
             if self[val] <= 0:
                 self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
-                self.h.add_status(f'{val} must be > 0', WARNING)
+                self.parent.add_status(f'{val} must be > 0', WARNING)
                 return False
         for val in self.float_inputs:
             if self[val] <= 0.0:
                 self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
-                self.h.add_status(f'{val} must be > 0.0', WARNING)
+                self.parent.add_status(f'{val} must be > 0.0', WARNING)
                 return False
         if self.steps_x < 2 or self.steps_x > MAX_NX:
             self.lineEdit_steps_x.setStyleSheet(self.red_border)
-            self.h.add_status(f"Steps X must be between 2 and {MAX_NX}", WARNING)
+            self.parent.add_status(f"Steps X must be between 2 and {MAX_NX}", WARNING)
             return False
         if self.steps_y < 2 or self.steps_y > MAX_NY:
             self.lineEdit_steps_y.setStyleSheet(self.red_border)
-            self.h.add_status(f"Steps Y must be between 2 and {MAX_NY}", WARNING)
+            self.parent.add_status(f"Steps Y must be between 2 and {MAX_NY}", WARNING)
             return False
-        self.lineEdit_gcode_program.setStyleSheet(self.default_style)
-        if not self.lineEdit_gcode_program.text():
-            self.lineEdit_gcode_program.setStyleSheet(self.red_border)
+        self.lineEdit_probe_program.setStyleSheet(self.default_style)
+        if not self.lineEdit_probe_program.text():
+            self.lineEdit_probe_program.setStyleSheet(self.red_border)
             return False
         return True
 

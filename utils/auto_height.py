@@ -38,7 +38,6 @@ class Auto_Measure(QWidget, Common):
         super(Auto_Measure, self).__init__()
         self.parent = parent
         self.w = self.parent.w
-        self.h = self.parent.parent
         self.dialog_code = 'CALCULATOR'
         self.helpfile = 'height_measure_help.html'
         self.stat = linuxcnc.stat()
@@ -126,16 +125,16 @@ class Auto_Measure(QWidget, Common):
             self.lineEdit_pos_x1.setText(f"{xyz[0]:.3f}")
             self.lineEdit_pos_y1.setText(f"{xyz[1]:.3f}")
             self.lineEdit_pos_z1.setText(f"{xyz[2]:.3f}")
-            self.h.add_status("Workpiece Probe position 1 set")
+            self.parent.add_status("Workpiece Probe position 1 set")
         elif btn == "mp":
             self.lineEdit_pos_x2.setText(f"{xyz[0]:.3f}")
             self.lineEdit_pos_y2.setText(f"{xyz[1]:.3f}")
             self.lineEdit_pos_z2.setText(f"{xyz[2]:.3f}")
-            self.h.add_status("Machine Probe position 2 set")
+            self.parent.add_status("Machine Probe position 2 set")
 
     def start(self):
         if not self.validate(): return
-        self.h.add_status("Auto height measurement started")
+        self.parent.add_status("Auto height measurement started")
         self.send_dict['search_vel'] = self.lineEdit_search_vel.text()
         self.send_dict['probe_vel'] = self.lineEdit_probe_vel.text()
         self.send_dict['max_probe'] = self.lineEdit_max_probe.text()
@@ -152,7 +151,7 @@ class Auto_Measure(QWidget, Common):
 #        print("String to send ", string_to_send)
         rtn = ACTION.AUTO_HEIGHT(string_to_send, self.autoheight_return, self.autoheight_error)
         if rtn == 0:
-            self.h.add_status("Autoheight routine is already running", WARNING)
+            self.parent.add_status("Autoheight routine is already running", WARNING)
 
     def validate(self):
         # check for blanks
@@ -161,17 +160,17 @@ class Auto_Measure(QWidget, Common):
         for val in ['search_vel', 'probe_vel', 'max_probe', 'retract', 'zsafe']:
             if self[val] <= 0.0:
                 self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
-                self.h.add_status(f'{val} must be > 0', WARNING)
+                self.parent.add_status(f'{val} must be > 0', WARNING)
                 return False
         # additional checks
         if self.retract > self.max_probe:
             self.lineEdit_retract.setStyleSheet(self.red_border)
-            self.h.add_status(f'Retract distance must be < {self.max_probe}', WARNING)
+            self.parent.add_status(f'Retract distance must be < {self.max_probe}', WARNING)
             return False
         _max = max(self.pos_z1, self.pos_z2)
         if self.zsafe <= _max:
             self.lineEdit_zsafe.setStyleSheet(self.red_border)
-            self.h.add_status(f'Z Safe height must be > {_max}', WARNING)
+            self.parent.add_status(f'Z Safe height must be > {_max}', WARNING)
             return False
         return True
 
@@ -185,10 +184,10 @@ class Auto_Measure(QWidget, Common):
         self.lineEdit_height.setText(f"{diff:.3f}")
         if self.chk_autofill.isChecked():
             self.w.lineEdit_work_height.setText(f"{diff:.3f}")
-        self.h.add_status("Height measurement successfully completed")
+        self.parent.add_status("Height measurement successfully completed")
 
     def autoheight_error(self, data):
-        self.h.add_status(data, WARNING)
+        self.parent.add_status(data, WARNING)
 
     def set_unit_labels(self):
         unit = 'MM' if INFO.MACHINE_IS_METRIC else 'IN'

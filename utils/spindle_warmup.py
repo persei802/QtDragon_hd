@@ -13,16 +13,16 @@
 
 import sys
 import os
-import pyqtgraph as pg
-
+os.environ["PYQTGRAPH_QT_LIB"] = "PyQt5"
 from lib.event_filter import EventFilter
 from utils.utils_mixin import Common
 
-from pyqtgraph import PlotWidget, plot
 from PyQt5 import uic
 from PyQt5.QtGui import QColor, QIntValidator
 from PyQt5.QtWidgets import QWidget, QFileDialog, QLineEdit
 from qtvcp.core import Info, Action, Path, Status
+import pyqtgraph as pg
+from pyqtgraph import PlotWidget, plot
 
 INFO = Info()
 ACTION = Action()
@@ -51,7 +51,6 @@ class Spindle_Warmup(QWidget, Common):
     def __init__(self, parent=None):
         super(Spindle_Warmup, self).__init__()
         self.parent = parent
-        self.h = self.parent.parent
         self.line_num = 0
         self.rpm = []
         self.geometry = None
@@ -80,11 +79,6 @@ class Spindle_Warmup(QWidget, Common):
         self.event_filter.set_kbd_list('comment')
         self.event_filter.set_parms(('_warmup_', True))
 
-        # signal connections
-        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
-        self.btn_send.pressed.connect(lambda: self.create_program('send'))
-        self.btn_save.pressed.connect(lambda: self.create_program('save'))
-
     def _hal_init(self):
         def homed_on_status():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
@@ -93,6 +87,10 @@ class Spindle_Warmup(QWidget, Common):
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        # signal connections
+        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
+        self.btn_send.pressed.connect(lambda: self.create_program('send'))
+        self.btn_save.pressed.connect(lambda: self.create_program('save'))
 
         self.default_style = self.lineEdit_start.styleSheet()
 
@@ -124,19 +122,19 @@ class Spindle_Warmup(QWidget, Common):
         # additional checks
         if self.steps < 2:
             self.lineEdit_steps.setStyleSheet(self.red_border)
-            self.h.add_status("Number of steps must be >= 2", WARNING)
+            self.parent.add_status("Number of steps must be >= 2", WARNING)
             return False
         if self.duration < 1:
             self.lineEdit_duration.setStyleSheet(self.red_border)
-            self.h.add_status("Warmup duration must be >= 1", WARNING)
+            self.parent.add_status("Warmup duration must be >= 1", WARNING)
             return False
         if not (self.min_rpm <= self.start <= self.max_rpm):
             self.lineEdit_start.setStyleSheet(self.red_border)
-            self.h.add_status(f'Start RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
+            self.parent.add_status(f'Start RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
             return False
         if not (self.min_rpm <= self.final <= self.max_rpm):
             self.lineEdit_final.setStyleSheet(self.red_border)
-            self.h.add_status(f'Final RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
+            self.parent.add_status(f'Final RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
             return False
         return True
 
@@ -167,7 +165,7 @@ class Spindle_Warmup(QWidget, Common):
             with open(filename, 'w') as f:
                 f.write('\n'.join(self.gcode))
             ACTION.OPEN_PROGRAM(filename)
-            self.h.add_status("Spindle warmup program sent to Linuxcnc")
+            self.parent.add_status("Spindle warmup program sent to Linuxcnc")
         elif mode == 'save':
             caption = 'Save Spindle Warmup Program'
             _dir = os.path.expanduser('~/linuxcnc/nc_files')
@@ -177,9 +175,9 @@ class Spindle_Warmup(QWidget, Common):
                 if self.gcode:
                     with open(fileName, 'w') as f:
                         f.write('\n'.join(self.gcode))
-                    self.h.add_status(f"Program saved to {fileName}")
+                    self.parent.add_status(f"Program saved to {fileName}")
             else:
-                self.h.add_status("Program save cancelled")
+                self.parent.add_status("Program save cancelled")
 
     def calculate_gcode(self):
         self.gcode = []
@@ -214,9 +212,18 @@ class Spindle_Warmup(QWidget, Common):
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
+class Testing(object):
+    def __init__(self, parent=None):
+        super(Testing, self).__init__()
+
+    def add_status(self, msg, level=0):
+        print(msg)
+
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    w = Spindle_Warmup()
+    from PyQt5.QtWidgets import QApplication
+    app = QApplication(sys.argv)
+    p = Testing()
+    w = Spindle_Warmup(p)
     w.show()
     sys.exit( app.exec_() )
 

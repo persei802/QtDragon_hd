@@ -28,8 +28,8 @@ class CustomMacros(QWidget):
     def __init__(self, parent=None):
         super(CustomMacros, self).__init__()
         self.parent = parent #reference to setup_utils
-        self.h = self.parent.parent # reference to handler
-        self.w = self.parent.w # reference to handler widgets
+        self.h = parent.parent # reference to handler
+        self.w = parent.w # reference to handler widgets
         self.kbd_code = 'KEYBOARD'
         self.old_value = 0
         self.custom_macros = []
@@ -38,7 +38,7 @@ class CustomMacros(QWidget):
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
-            self.h.add_status(e, WARNING)
+            self.parent.add_status(e, WARNING)
         # install event filter to capture focus events for lineEdits
         self.event_filter = EventFilter(self)
         self.lineEdit_cmd1.installEventFilter(self.event_filter)

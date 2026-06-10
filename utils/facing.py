@@ -42,7 +42,6 @@ class Facing(QWidget, Common):
     def __init__(self, parent=None):
         super(Facing, self).__init__()
         self.parent = parent
-        self.h = self.parent.parent
         self.calculate_pass = None
         self.helpfile = 'facing_help.html'
         self.default_style = ''
@@ -53,7 +52,7 @@ class Facing(QWidget, Common):
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
-            self.h.add_status(e, WARNING)
+            self.parent.add_status(e, WARNING)
 
         self.float_inputs = ['diameter', 'size_x', 'size_y', 'stepover', 'stepdown', 'safe_z', 'start_z', 'last_z']
         self.int_inputs = ['tool', 'xy_feedrate', 'z_feedrate', 'spindle']
@@ -149,35 +148,35 @@ class Facing(QWidget, Common):
         for val in self.float_inputs[:-2]:
             if self[val] <= 0.0:
                 self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
-                self.h.add_status(f'{val} must be > 0', WARNING)
+                self.parent.add_status(f'{val} must be > 0', WARNING)
                 return False
         for val in ['xy_feedrate', 'z_feedrate']:
             if self[val] <= 0:
                 self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
-                self.h.add_status(f'{val} must be > 0', WARNING)
+                self.parent.add_status(f'{val} must be > 0', WARNING)
                 return False
         if self.xy_feedrate > self.max_feed:
             self.lineEdit_xy_feed.setStyleSheet(self.red_border)
-            self.h.add_status(f'Feedrate must be less than {self.max_feed}', WARNING)
+            self.parent.add_status(f'Feedrate must be less than {self.max_feed}', WARNING)
             return False
         if self.last_z > self.start_z:
             self.lineEdit_last_z.setStyleSheet(self.red_border)
-            self.h.add_status('Start height must be greater than last height', WARNING)
+            self.parent.add_status('Start height must be greater than last height', WARNING)
             return False
         if self.stepover > self.diameter:
             self.lineEdit_stepover.setStyleSheet(self.red_border)
-            self.h.add_status('Stepover must be less than tool diameter', WARNING)
+            self.parent.add_status('Stepover must be less than tool diameter', WARNING)
             return False
         if not (self.min_rpm <= self.spindle <= self.max_rpm):
             self.lineEdit_spindle.setStyleSheet(self.red_border)
-            self.h.add_status(f'Spindle RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
+            self.parent.add_status(f'Spindle RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
             return False
         return True
 
     def create_program(self, mode):
         if not self.validate(): return
         if not self.calculate_gcode():
-            self.h.add_status('Unable to calculate gcode', ERROR)
+            self.parent.add_status('Unable to calculate gcode', ERROR)
             return
         if mode == 'send':
             filename = self.make_temp('facing')
@@ -185,9 +184,9 @@ class Facing(QWidget, Common):
                 with open(filename, 'w') as f:
                     f.write('\n'.join(self.gcode))
                 ACTION.OPEN_PROGRAM(filename)
-                self.h.add_status("Program sent to Linuxcnc")
+                self.parent.add_status("Program sent to Linuxcnc")
             else:
-                self.h.add_status("No gcode data to save", WARNING)
+                self.parent.add_status("No gcode data to save", WARNING)
         elif mode == 'save':
             caption = 'Save Facing Program'
             _dir = os.path.expanduser('~/linuxcnc/nc_files')
@@ -197,11 +196,11 @@ class Facing(QWidget, Common):
                 if self.gcode:
                     with open(fileName, 'w') as f:
                         f.write('\n'.join(self.gcode))
-                    self.h.add_status(f"Program saved to {fileName}")
+                    self.parent.add_status(f"Program saved to {fileName}")
                 else:
-                    self.h.add_status("No gcode data to save", WARNING)
+                    self.parent.add_status("No gcode data to save", WARNING)
             else:
-                self.h.add_status("Program save cancelled")
+                self.parent.add_status("Program save cancelled")
 
     def load_tool(self, tool=None):
         if tool is None:
@@ -336,7 +335,7 @@ class Facing(QWidget, Common):
                 else:
                     self.next_line(f"Y{self.size_y}")
             else:
-                self.h.add_status("FATAL ERROR in Raster_45", WARNING)
+                self.parent.add_status("FATAL ERROR in Raster_45", WARNING)
                 return
             i += 1
             if i == len(array1 + 1): break
@@ -357,7 +356,7 @@ class Facing(QWidget, Common):
                 else:
                     self.next_line(f"X{self.size_x}")
             else:
-                self.h.add_status("FATAL ERROR", WARNING)
+                self.parent.add_status("FATAL ERROR", WARNING)
                 return
             i += 1
             if i == len(array1): break

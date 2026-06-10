@@ -33,7 +33,6 @@ class Hole_Enlarge(QWidget, Common):
     def __init__(self, parent=None):
         super(Hole_Enlarge, self).__init__()
         self.parent = parent
-        self.h = self.parent.parent
         self.helpfile = 'hole_enlarge_help.html'
         self.geometry = None
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
@@ -140,14 +139,14 @@ class Hole_Enlarge(QWidget, Common):
     def create_program(self, mode):
         if not self.validate(): return
         if not self.calculate_gcode():
-            self.h.add_status('Unable to calculate gcode', ERROR)
+            self.parent.add_status('Unable to calculate gcode', ERROR)
             return
         if mode == 'send':
             filename = self.make_temp('hole_enlarge')
             with open(filename, 'w') as f:
                 f.write('\n'.join(self.gcode))
             ACTION.OPEN_PROGRAM(filename)
-            self.h.add_status("Hole enlarge program sent to Linuxcnc")
+            self.parent.add_status("Hole enlarge program sent to Linuxcnc")
         elif mode == 'save':
             caption = 'Save Hole Enlarge Program'
             _dir = os.path.expanduser('~/linuxcnc/nc_files')
@@ -157,9 +156,9 @@ class Hole_Enlarge(QWidget, Common):
                 if self.gcode:
                     with open(fileName, 'w') as f:
                         f.write('\n'.join(self.gcode))
-                    self.h.add_status(f"Program saved to {fileName}")
+                    self.parent.add_status(f"Program saved to {fileName}")
             else:
-                self.h.add_status("Program save cancelled")
+                self.parent.add_status("Program save cancelled")
 
     def validate(self):
         if not self.check_float_blanks(self.float_inputs): return False
@@ -169,22 +168,22 @@ class Hole_Enlarge(QWidget, Common):
             if val in ["center_x", "center_y"]: pass
             elif self[val] <= 0.0:
                 self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
-                self.h.add_status(f"{val} must be > 0.0", WARNING)
+                self.parent.add_status(f"{val} must be > 0.0", WARNING)
                 return False
         if self.final_dia < self.start_dia:
             self.lineEdit_final_dia.setStyleSheet(self.red_border)
-            self.h.add_status("Final diameter must be > start diameter", WARNING)
+            self.parent.add_status("Final diameter must be > start diameter", WARNING)
         if self.loops <= 0:
             self.lineEdit_loops.setStyleSheet(self.red_border)
-            self.h.add_status("Number of loops must be > 0", WARNING)
+            self.parent.add_status("Number of loops must be > 0", WARNING)
             return False
         if self.feed <= 0:
             self.lineEdit_feed.setStyleSheet(self.red_border)
-            self.h.add_status("Feed rate must be > 0", WARNING)
+            self.parent.add_status("Feed rate must be > 0", WARNING)
             return False
         if not (self.min_rpm <= self.spindle <= self.max_rpm):
             self.lineEdit_spindle.setStyleSheet(self.red_border)
-            self.h.add_status(f'Spindle RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
+            self.parent.add_status(f'Spindle RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
             return False
         return True
 

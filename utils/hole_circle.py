@@ -135,7 +135,6 @@ class Hole_Circle(QWidget, Common):
     def __init__(self, parent=None):
         super(Hole_Circle, self).__init__()
         self.parent = parent
-        self.h = self.parent.parent
         self.geometry = None
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         self.helpfile = 'hole_circle_help.html'
@@ -262,7 +261,7 @@ class Hole_Circle(QWidget, Common):
             with open(filename, 'w') as f:
                 f.write('\n'.join(self.gcode))
             ACTION.OPEN_PROGRAM(filename)
-            self.h.add_status("Program sent to Linuxcnc")
+            self.parent.add_status("Program sent to Linuxcnc")
         elif mode == 'save':
             caption = 'Save Hole Circle Program'
             _dir = os.path.expanduser('~/linuxcnc/nc_files')
@@ -272,9 +271,9 @@ class Hole_Circle(QWidget, Common):
                 if self.gcode:
                     with open(fileName, 'w') as f:
                         f.write('\n'.join(self.gcode))
-                    self.h.add_status(f"Program successfully saved to {fileName}")
+                    self.parent.add_status(f"Program successfully saved to {fileName}")
             else:
-                self.h.add_status("Program save cancelled", WARNING)
+                self.parent.add_status("Program save cancelled", WARNING)
 
     def calculate_gcode(self):
         self.gcode = []
@@ -329,20 +328,20 @@ class Hole_Circle(QWidget, Common):
         for val in self.float_inputs[-4:]:
             if self[val] <= 0.0:
                 self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
-                self.h.add_status(f'{val} must be > 0', WARNING)
+                self.parent.add_status(f'{val} must be > 0', WARNING)
                 return False
         for val in ['num_holes', 'drill_feed']:
             if self[val] <= 0:
                 self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
-                self.h.add_status(f'{val} must be > 0', WARNING)
+                self.parent.add_status(f'{val} must be > 0', WARNING)
                 return False
         if not (self.min_rpm <= self.spindle <= self.max_rpm):
             self.lineEdit_spindle.setStyleSheet(self.red_border)
-            self.h.add_status(f'Spindle RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
+            self.parent.add_status(f'Spindle RPM must be between {self.min_rpm} and {self.max_rpm}', WARNING)
             return False
         if not (0.0 <= self.retract <= self.safe_z):
             self.lineEdit_retract.setStyleSheet(self.red_border)
-            self.h.add_status(f'Drill retract height must be between 0.0 and {self.safe_z}', WARNING)
+            self.parent.add_status(f'Drill retract height must be between 0.0 and {self.safe_z}', WARNING)
             return False
         # show preview
         self.preview.set_num_holes(self.num_holes)

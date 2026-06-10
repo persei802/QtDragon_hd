@@ -45,7 +45,7 @@ class Rapid_Rotary(QWidget):
     def __init__(self, parent=None):
         super(Rapid_Rotary, self).__init__()
         self.parent = parent
-        self.w = self.parent.w
+        self.w = parent.w
         self.units = 'MM'
         self.convert = None
         self.input_file = None

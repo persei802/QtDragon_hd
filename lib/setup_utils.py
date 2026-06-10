@@ -62,8 +62,8 @@ class ShowHelp(QObject):
         self.webview.load(url)
 
 class Setup_Utils():
-    def __init__(self, widgets, parent):
-        self.w = widgets
+    def __init__(self, parent):
+        self.w = parent.w
         self.parent = parent
         if self.parent is not None:
             self.tool_db = self.parent.tool_db
@@ -229,6 +229,10 @@ class Setup_Utils():
 
     def get_util_list(self):
         return self.util_list
+
+    # pass status message from utility to handler
+    def add_status(self, msg, level=None):
+        self.parent.add_status(msg, level)
 
     # required code for subscriptable objects
     def __getitem__(self, item):
