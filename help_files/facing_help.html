@@ -26,12 +26,13 @@ This means that the facing routine will not work in a pocket unless the tool dia
     <li>checks that the tool diameter > 0</li>
     <li>checks that stepover is not larger than tool diameter</li>
 </ul>
-<button>SAVE AS PROGRAM</button>
+<button>PREVIEW TOOLPATH</button>
 <ul>
     <li>checks for valid input fields</li>
-    <li>creates a gcode program according to the Raster setting</li>
-    <li>opens a dialog window to get a file to save to</li>
-    <li>invalid parameters are shown with a red border and the program will not be created</li>
+    <li>displays a toolpath preview without generating any gcode</li>
+    <li>the start point is marked with a green dot, the end point with a red dot</li>
+    <li>a final profile path is not shown even if that option is checked</li>
+    <li>a final profile is only shown when gcode is generated</li>
 </ul>
 <button>SEND TO LINUXCNC</button>
 <ul>
@@ -40,6 +41,13 @@ This means that the facing routine will not work in a pocket unless the tool dia
     <li>creates a temporary file and loads it to linuxcnc</li>
     <li>invalid parameters are shown with a red border and the program will not be created</li>
     <li>the temporary file is automatically deleted when Linuxcnc exits</li>
+</ul>
+<button>SAVE AS PROGRAM</button>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>creates a gcode program according to the Raster setting</li>
+    <li>opens a dialog window to get a file to save to</li>
+    <li>invalid parameters are shown with a red border and the program will not be created</li>
 </ul>
 </body>
 </html>

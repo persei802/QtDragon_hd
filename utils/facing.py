@@ -11,18 +11,16 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 import os
-import numpy as np
 
 from PyQt5 import uic
-from PyQt5.QtGui import QIntValidator, QDoubleValidator
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QIntValidator, QDoubleValidator, QPen, QBrush, QColor, QPainterPath
+from PyQt5.QtCore import Qt, QPointF, QLineF
+from PyQt5.QtWidgets import QWidget, QLineEdit, QGraphicsScene
 
 from qtvcp.core import Info, Status, Action, Path, Tool
 from qtvcp import logger
 
 from lib.event_filter import EventFilter
-
 from utils.utils_mixin import Common
 
 LOG = logger.getLogger(__name__)
@@ -34,9 +32,8 @@ PATH = Path()
 TOOL = Tool()
 HERE = os.path.dirname(os.path.abspath(__file__))
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
-IMAGES = os.path.join(PATH.CONFIGPATH, 'qtdragon/images')
 WARNING = 1
-
+ERROR = 2
 
 class Facing(QWidget, Common):
     def __init__(self, parent=None):
@@ -86,9 +83,19 @@ class Facing(QWidget, Common):
         self.event_filter.set_tool_list('tool')
         self.event_filter.set_parms(('_facing_', True))
 
+        # setup graphics preview
+        self.scene = QGraphicsScene()
+        self.facing_preview.setScene(self.scene)
+        self.facing_preview.scale(1, -1)
+        self.path = QPainterPath()
+        self.pen = QPen(Qt.yellow)
+        self.pen.setWidth(2)
+        self.pen.setCosmetic(True)
+
         # signal connections
         self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         self.lineEdit_tool.editingFinished.connect(self.load_tool)
+        self.btn_preview.pressed.connect(lambda: self.create_program('preview'))
         self.btn_save.pressed.connect(lambda: self.create_program('save'))
         self.btn_send.pressed.connect(lambda: self.create_program('send'))
         self.btn_help.pressed.connect(self.show_help)
@@ -102,6 +109,16 @@ class Facing(QWidget, Common):
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         self.default_style = self.lineEdit_tool.styleSheet()
+
+        if self.parent.w.PREFS_:
+            self.settings = self.frame_parameters.findChildren(QLineEdit)
+            for item in self.settings:
+                item.setText(self.parent.w.PREFS_.getpref(item.objectName(), '10', str, 'FACING_OPTIONS'))
+
+    def closing_cleanup__(self):
+        if self.parent.w.PREFS_:
+            for item in self.settings:
+                self.parent.w.PREFS_.putpref(item.objectName(), item.text(), str, 'FACING_OPTIONS')
 
     def dialog_return(self, w, message):
         rtn = message['RETURN']
@@ -150,6 +167,16 @@ class Facing(QWidget, Common):
                 self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
                 self.parent.add_status(f'{val} must be > 0', WARNING)
                 return False
+        max_width = self.max_x - self.min_x
+        max_height = self.max_y - self.min_y
+        if self.size_x > max_width:
+            self.lineEdit_size_x.setStyleSheet(self.red_border)
+            self.parent.add_status(f'Size of X must be < {max_width}', WARNING)
+            return False
+        if self.size_y > max_height:
+            self.lineEdit_size_y.setStyleSheet(self.red_border)
+            self.parent.add_status(f'Size of Y must be < {max_height}', WARNING)
+            return False
         for val in ['xy_feedrate', 'z_feedrate']:
             if self[val] <= 0:
                 self[f'lineEdit_{val}'].setStyleSheet(self.red_border)
@@ -175,12 +202,16 @@ class Facing(QWidget, Common):
 
     def create_program(self, mode):
         if not self.validate(): return
+        if mode == 'preview':
+            self.update_preview()
+            return
         if not self.calculate_gcode():
             self.parent.add_status('Unable to calculate gcode', ERROR)
             return
         if mode == 'send':
             filename = self.make_temp('facing')
             if self.gcode:
+                self.update_preview()
                 with open(filename, 'w') as f:
                     f.write('\n'.join(self.gcode))
                 ACTION.OPEN_PROGRAM(filename)
@@ -194,6 +225,7 @@ class Facing(QWidget, Common):
             fileName, _ = self.save_program_file(self, caption, _dir, _filter)
             if fileName:
                 if self.gcode:
+                    self.update_preview()
                     with open(fileName, 'w') as f:
                         f.write('\n'.join(self.gcode))
                     self.parent.add_status(f"Program saved to {fileName}")
@@ -269,6 +301,33 @@ class Facing(QWidget, Common):
         self.post_amble()
         return True
 
+    def calculate_points(self):
+        left = []
+        right = []
+        top = []
+        bottom = []
+        step = self.stepover * 1.4142
+        # calculate the points on the 4 sides
+        y = step
+        while y <= self.size_y:
+            left.append(QPointF(0.0, y))
+            y += step
+        x = y - self.size_y
+        while x <= self.size_x:
+            top.append(QPointF(x, self.size_y))
+            x += step
+        x = step
+        while x <= self.size_x:
+            bottom.append(QPointF(x, 0.0))
+            x += step
+        y = x - self.size_x
+        while y <= self.size_y:
+            right.append(QPointF(self.size_x, y))
+            y += step
+        start = left + top
+        end = bottom + right
+        return (start, end)
+
     def raster_0(self):
         i = 1
         x = (0.0, self.size_x)
@@ -277,89 +336,50 @@ class Facing(QWidget, Common):
         self.next_line(f"G1 X{next_x} F{self.xy_feedrate}")
         while next_y < self.size_y:
             i ^= 1
-            next_x = x[i]
             next_y = min(next_y + self.stepover, self.size_y)
+            next_x = x[i]
             self.next_line(f"Y{next_y}")
             self.next_line(f"X{next_x}")
 
     def raster_45(self):
-        # calculate coordinate arrays
-        ysteps = int(self.size_y // self.stepover)
-        xsteps = int(self.size_x // self.stepover)
-        left = np.empty(shape=(ysteps,2), dtype=float)
-        right = np.empty(shape=(ysteps,2), dtype=float)
-        bottom = np.empty(shape=(xsteps,2), dtype=float)
-        top = np.empty(shape=(xsteps,2), dtype=float)
-        ycoord = self.stepover
-        for i in range(ysteps):
-            left[i][0] = 0.0
-            left[i][1] = ycoord
-            ycoord += self.stepover
-        xcoord = ycoord - self.size_y
-        for i in range(xsteps):
-            top[i][0] = xcoord
-            top[i][1] = self.size_y
-            xcoord += self.stepover
-        xcoord = self.stepover
-        for i in range(xsteps):
-            bottom[i][0] = xcoord
-            bottom[i][1] = 0.0
-            xcoord += self.stepover
-        ycoord = xcoord - self.size_x
-        for i in range(ysteps):
-            right[i][0] = self.size_x
-            right[i][1] = ycoord
-            ycoord += self.stepover
-        # concatenate (left, top) and (bottom, right)
-        array1 = np.concatenate((left, top))
-        array2 = np.concatenate((bottom, right))
-        # move to start position
-        self.next_line(f"G1 Y{array1[0][1]} F{self.xy_feedrate}")
-        i = 0
+        start, end = self.calculate_points()
+        step = self.stepover * 1.4142
+        self.next_line(f"G1 Y{start[0].y()} F{self.xy_feedrate}")
         # calculate toolpath
+        i = 0
         while 1:
-            self.next_line(f"X{array2[i][0]} Y{array2[i][1]}")
-            if array2[i][1] == 0.0: # bottom row
-                if array2[i][0] == self.size_x: # bottom right corner
-                    self.next_line(f"Y{self.stepover}")
-                elif (array2[i][0] + self.stepover) <= self.size_x:
-                    self.next_line(f"G91 X{self.stepover}")
-                    self.next_line("G90")
-                else:
-                    self.next_line(f"X{self.size_x}")
-                    self.next_line(f"Y{right[0][1]}")
-            elif array2[i][0] == self.size_x: # right side
-                if (array2[i][1] + self.stepover) <= self.size_y:
-                    self.next_line(f"G91 Y{self.stepover}")
-                    self.next_line("G90")
-                else:
-                    self.next_line(f"Y{self.size_y}")
+            x = end[i].x()
+            y = end[i].y()
+            self.next_line(f"G1 X{x:.3f} Y{y:.3f}")
+            if y == 0.0: # bottom edge
+                if x + step > self.size_x:
+                    self.next_line(f"G1 X{self.size_x:.3f}")
+            elif x == self.size_x: # right edge
+                if y + step > self.size_y:
+                    self.next_line(f"G1 X{self.size_x:.3f} Y{self.size_y:.3f}")
+                    break
             else:
-                self.parent.add_status("FATAL ERROR in Raster_45", WARNING)
+                self.parent.add_status('Error computing toolpath preview', ERROR)
                 return
             i += 1
-            if i == len(array1 + 1): break
-            self.next_line(f"X{array1[i][0]} Y{array1[i][1]}")
-            if array1[i][0] == 0.0: # left side
-                if array1[i][1] == self.size_y: # top left corner
-                    self.next_line(f"X{self.stepover}")
-                elif (array1[i][1] + self.stepover) <= self.size_y:
-                    self.next_line(f"G91 Y{self.stepover}")
-                    self.next_line("G90")
-                else:
-                    self.next_line(f"Y{self.size_y}")
-                    self.next_line(f"X{top[0][0]}")
-            elif array1[i][1] == self.size_y: # top row
-                if (array1[i][0] + self.stepover) <= self.size_x:
-                    self.next_line(f"G91 X{self.stepover}")
-                    self.next_line("G90")
-                else:
-                    self.next_line(f"X{self.size_x}")
+            if i == len(start): break
+            self.next_line(f"G1 X{end[i].x():.3f} Y{end[i].y():.3f}")
+            x = start[i].x()
+            y = start[i].y()
+            self.next_line(f"G1 X{x:.3f} Y{y:.3f}")
+            if x == 0.0: # left edge
+                if y + step > self.size_y:
+                    self.next_line(f"G1 Y{self.size_y:.3f}")
+            elif y == self.size_y: # top edge
+                if x + step > self.size_x:
+                    self.next_line(f"G1 X{self.size_x:.3f} Y{self.size_y:.3f}")
+                    break
             else:
-                self.parent.add_status("FATAL ERROR", WARNING)
+                self.parent.add_status('Error computing toolpath preview', ERROR)
                 return
             i += 1
-            if i == len(array1): break
+            if i == len(start): break
+            self.next_line(f"G1 X{start[i].x():.3f} Y{start[i].y():.3f}")
 
     def raster_90(self):
         i = 1
@@ -373,6 +393,92 @@ class Facing(QWidget, Common):
             next_x = min(next_x + self.stepover, self.size_x)
             self.next_line(f"X{next_x}")
             self.next_line(f"Y{next_y}")
+
+    def update_preview(self):
+        if not self.validate(): return
+        if self.rbtn_raster_0.isChecked():
+            self.calculate_path = self.path_0
+        elif self.rbtn_raster_45.isChecked():
+            self.calculate_path = self.path_45
+        elif self.rbtn_raster_90.isChecked():
+            self.calculate_path = self.path_90
+        self.scene.clear()
+        self.calculate_path()
+        margin = 20
+        self.scene.setSceneRect(-margin, -margin, self.size_x + 2 * margin, self.size_y + 2 * margin)
+        self.facing_preview.fitInView(self.scene.sceneRect(), Qt.KeepAspectRatio)
+        self.scene.addPath(self.path, self.pen)
+        self.scene.addRect(-4.0, -4.0, 8.0, 8.0, QPen(Qt.green), QBrush(Qt.green))
+        end_point = self.path.currentPosition()
+        self.scene.addRect(end_point.x() - 4.0, end_point.y() - 4.0, 8.0, 8.0, QPen(Qt.red), QBrush(Qt.red))
+
+    def path_0(self):
+        i = 1
+        x = (0.0, self.size_x)
+        y = 0.0
+        self.path.clear()
+        self.path.moveTo(0.0, 0.0)
+        self.path.lineTo(x[i], 0.0)
+        while y < self.size_y:
+            y = min(y + self.stepover, self.size_y)
+            self.path.lineTo(x[i], y)
+            i ^= 1
+            self.path.lineTo(x[i], y)
+
+    def path_45(self):
+        start, end = self.calculate_points()
+        step = self.stepover * 1.4142
+        self.path.clear()
+        self.path.moveTo(0.0, 0.0)
+        # calculate toolpath
+        i = 0
+        self.path.lineTo(start[0])
+        while 1:
+            self.path.lineTo(end[i])
+            x = self.path.currentPosition().x()
+            y = self.path.currentPosition().y()
+            if y == 0.0: # bottom edge
+                if x + step > self.size_x:
+                    self.path.lineTo(self.size_x, 0.0)
+            elif x == self.size_x: # right edge
+                if y + step > self.size_y:
+                    self.path.lineTo(self.size_x, self.size_y)
+                    break
+            else:
+                self.parent.add_status('Error computing toolpath preview', ERROR)
+                return
+            i += 1
+            if i == len(start): break
+            self.path.lineTo(end[i])
+            self.path.lineTo(start[i])
+            x = self.path.currentPosition().x()
+            y = self.path.currentPosition().y()
+            if x == 0.0: # left edge
+                if y + step > self.size_y:
+                    self.path.lineTo(0.0, self.size_y)
+            elif y == self.size_y: # top edge
+                if x + step > self.size_x:
+                    self.path.lineTo(self.size_x, self.size_y)
+                    break
+            else:
+                self.parent.add_status('Error computing toolpath preview', ERROR)
+                return
+            i += 1
+            if i == len(start): break
+            self.path.lineTo(start[i])
+
+    def path_90(self):
+        i = 1
+        x = 0.0
+        y = (0.0, self.size_y)
+        self.path.clear()
+        self.path.moveTo(0.0, 0.0)
+        self.path.lineTo(0.0, y[i])
+        while x < self.size_x:
+            x = min(x + self.stepover, self.size_x)
+            self.path.lineTo(x, y[i])
+            i ^= 1
+            self.path.lineTo(x, y[i])
 
     def next_line(self, text):
         self.gcode.append(f"N{self.line_num} {text}")

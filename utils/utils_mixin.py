@@ -21,6 +21,10 @@ INFO = Info()
 
 class Common():
     def __init__(self):
+        self.max_x = INFO.get_safe_float("AXIS_X", "MAX_LIMIT")
+        self.min_x = INFO.get_safe_float("AXIS_X", "MIN_LIMIT")
+        self.max_y = INFO.get_safe_float("AXIS_Y", "MAX_LIMIT")
+        self.min_y = INFO.get_safe_float("AXIS_Y", "MIN_LIMIT")
         self.min_rpm = INFO.get_safe_int("DISPLAY", "MIN_SPINDLE_0_SPEED")
         self.max_rpm = INFO.get_safe_int("DISPLAY", "MAX_SPINDLE_0_SPEED")
         self.max_feed = INFO.get_safe_int("DISPLAY", "MAX_LINEAR_VELOCITY") * 60
