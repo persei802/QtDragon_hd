@@ -34,10 +34,15 @@ It uses a HAL non-realtime component which utilizes the external offsets feature
 <p>The input data parameters are checked and if found valid, a dialog box prompts for a save filename. The probe program is calculated
 and saved to the specified filename. If the returned save file name doesn't start with 'probe_', it is added. 
 When the file is loaded and run, it will produce a file with the same name but ending with <i>.txt</i>. This is the compensation
-data file and contains the probed values.</p>
-<button>SEND TO LINUXCNC</button>
-<p>The input parameters are checked and if found valid, a temporary file is created and loaded to Linuxcnc. If this file is run,
-it will produce a file in the users CONFIG directory called <i>probe_temp.txt</i></p>
+data file and contains the XY probe coordinates and the Z level at that location.</p>
+<h3>Surface Map</h3>
+<p>When a gcode program is loaded into linuxcnc, this module checks for a file of the same name
+prefixed with <i>probe_</i>. If found, the data is analyzed and a reference plane is calculated using
+a least squares algorithm. The reference plane is used to create a compensation map which is sent to
+the compensation subprogram via a shared memory structure and also to create a graphical surface map.
+The probed points and contour lines are overlayed on the surface map. Clicking on one of the points
+will show that points location and the probed Z value as well as the compensation amount that will be
+applied if Z Compensation is enabled.</p>
 <h3>Sample postgui HAL file for combined spindle raise and Z Level compensation</h3>
 <div class="code-block">
     <pre class="hal"># load a summing component for adding spindle lift and Z compensation</pre>

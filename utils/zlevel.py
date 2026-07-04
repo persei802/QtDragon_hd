@@ -23,13 +23,14 @@ from lib.event_filter import EventFilter
 from utils.utils_mixin import Common
 
 from PyQt5 import uic
-from PyQt5.QtGui import QIntValidator, QDoubleValidator
+from PyQt5.QtGui import QIntValidator, QDoubleValidator, QCursor
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import QRectF
 
 # IMPORTANT - do not import this before importing PyQt5 stuff
 import pyqtgraph as pg
 import numpy as np
+from scipy.ndimage import zoom
 
 from qtvcp.core import Status, Action, Info, Path, Qhal
 
@@ -51,9 +52,9 @@ TOTAL_SIZE = HEADER_SIZE + GRID_SIZE
 
 
 class SurfaceMap(QWidget):
-    def __init__(self, layout=None):
+    def __init__(self, layout=None, parent=None):
         super().__init__()
-
+        self.parent = parent
         # View + image container
         self.view = pg.GraphicsLayoutWidget()
         self.img = pg.ImageItem()
@@ -64,11 +65,42 @@ class SurfaceMap(QWidget):
         layout.addWidget(self.view)
         self.cmap = pg.colormap.get('viridis')
         self.contours = []
+        self.points = None
+
+        self.scatter = pg.ScatterPlotItem(
+            symbol = '+',
+            size = 8,
+            pen = None,
+            brush = pg.mkBrush(255, 255, 255, 200))
+
+        self.selected_scatter = pg.ScatterPlotItem(
+            symbol = '+',
+            size = 8,
+            pen = None,
+            brush = pg.mkBrush(255, 0, 0, 200))
+
+        self.high_marker = pg.ScatterPlotItem(
+            symbol = 't1',
+            size = 8,
+            pen = None,
+            brush = pg.mkBrush(0, 0, 255, 200))
+
+        self.low_marker = pg.ScatterPlotItem(
+            symbol = 't',
+            size = 8,
+            pen = None,
+            brush = pg.mkBrush(255, 0, 0, 200))
+
+        self.plot.addItem(self.scatter)
+        self.plot.addItem(self.selected_scatter)
+        self.plot.addItem(self.high_marker)
+        self.plot.addItem(self.low_marker)
+        self.scatter.sigClicked.connect(self.probePointClicked)
 
     def plot_surface(self, data):
         X, Y, Z = data
         Z = np.asarray(Z)
-        Z_img = Z.T
+        Z_img = zoom(Z.T, 5, order=3)
         self.img.setImage(Z_img, autoLevels=False)
         lut = self.cmap.getLookupTable(0.0, 1.0, 256)
         self.img.setLookupTable(lut)
@@ -86,17 +118,81 @@ class SurfaceMap(QWidget):
         zmin = Z.min()
         zmax = Z.max()
         levels = np.linspace(zmin, zmax, 10)
+        Z_img = zoom(Z.T, 5, order=3)
         for level in levels:
-            curve = pg.IsocurveItem(data=Z.T, level=level, pen=(255, 255, 255, 150))
+            curve = pg.IsocurveItem(data=Z_img, level=level, pen=(255, 255, 255, 150))
             curve.setParentItem(self.img)
             self.contours.append(curve)
+
+    def add_probe_points(self, data):
+        X, Y, Z = data
+        spots = []
+        rows, cols = Z.shape
+        max_row, max_col = np.unravel_index(np.argmax(Z), Z.shape)
+        min_row, min_col = np.unravel_index(np.argmin(Z), Z.shape)
+        max_index = np.argmax(Z)
+        min_index = np.argmin(Z)
+
+        self.parent.lbl_highest_x.setText(f"X: {self.points[max_index, 0]:.3f}")
+        self.parent.lbl_highest_y.setText(f"Y: {self.points[max_index, 1]:.3f}")
+        self.parent.lbl_highest_z.setText(f"Z: {self.points[max_index, 2]:.3f}")
+        self.parent.lbl_lowest_x.setText(f"X: {self.points[min_index, 0]:.3f}")
+        self.parent.lbl_lowest_y.setText(f"Y: {self.points[min_index, 1]:.3f}")
+        self.parent.lbl_lowest_z.setText(f"Z: {self.points[min_index, 2]:.3f}")
+
+        for j in range(rows):
+            for i in range(cols):
+                index = (j * cols) + i
+                spots.append({
+                    'pos': (X[j, i], Y[j, i]),
+                    'data': {
+                        'row': j,
+                        'col': i,
+                        'index': index,
+                        'z': Z[j, i]}
+                })
+
+        self.high_marker.setData(
+            x=[X[max_row, max_col]],
+            y=[Y[max_row, max_col]])
+
+        self.low_marker.setData(
+            x=[X[min_row, min_col]],
+            y=[Y[min_row, min_col]])
+
+        self.scatter.addPoints(spots)
+
+    def probePointClicked(self, plot, points, event):
+        info = points[0].data()
+        
+        row = info['row']
+        col = info['col']
+        index = info['index']
+        pos = points[0].pos()
+        selected_z = self.points[index, 2]
+        
+        self.selected_scatter.setData([pos.x()], [pos.y()])
+        self.selected_index = index
+
+        self.parent.lbl_selected_x.setText(f"X: {pos.x():.3f}")
+        self.parent.lbl_selected_y.setText(f"Y: {pos.y():.3f}")
+        self.parent.lbl_selected_z.setText(f"Z: {selected_z:.3f}")
+        self.parent.lbl_selected_row.setText(f"Row {row}")
+        self.parent.lbl_selected_col.setText(f"Col {col}")
+        self.parent.lbl_correction_z.setText(f"Z: {info['z']:.3f}")
+
+    def set_points(self, data):
+        self.points = data
 
     def clear_plot(self):
         for c in self.contours:
             c.setParentItem(None)
+        self.scatter.clear()
+        self.selected_scatter.clear()
+        self.high_marker.clear()
+        self.low_marker.clear()
         self.contours.clear()
         self.img.clear()
-
 
 class ZLevel(QWidget, Common):
     def __init__(self, parent=None):
@@ -149,7 +245,6 @@ class ZLevel(QWidget, Common):
         for line in self.float_inputs:
             self[f'lineEdit_{line}'].installEventFilter(self.event_filter)
             parm_list.append(line)
-        self.lineEdit_probe_program.installEventFilter(self.event_filter)
         self.lineEdit_comment.installEventFilter(self.event_filter)
         self.event_filter.set_line_list(parm_list)
         self.event_filter.set_kbd_list(['probe_program', 'comment'])
@@ -166,7 +261,9 @@ class ZLevel(QWidget, Common):
         self.rbtn_offset.clicked.connect(lambda state: self.steps_changed(state))
         self.btn_save_gcode.pressed.connect(self.save_gcode)
         self.btn_help.pressed.connect(self.show_help)
-        self.surfaceMap = SurfaceMap(self.layout_surfacemap)
+
+        # instantiate the surface map
+        self.surfaceMap = SurfaceMap(self.layout_surfacemap, self)
 
     def _hal_init(self):
         def homed_on_status():
@@ -231,18 +328,26 @@ class ZLevel(QWidget, Common):
     def program_loaded(self, fname):
         self.surfaceMap.clear_plot()
         self.probe_results = None
+        for label in ['highest', 'lowest', 'selected']:
+            self[f"lbl_{label}_x"].setText('---')
+            self[f"lbl_{label}_y"].setText('---')
+            self[f"lbl_{label}_z"].setText('---')
+        self.lbl_selected_row.setText('---')
+        self.lbl_selected_col.setText('---')
+        self.lbl_correction_z.setText('---')
         path = os.path.dirname(fname)
         base = os.path.basename(fname)
         if base.startswith('probe_'):
             probe_results = os.path.join(path, base.replace('ngc', 'txt'))
         else:
             probe_results = os.path.join(path, f"probe_{base.replace('ngc', 'txt')}")
-        self.lineEdit_probe_program.setText(fname)
+        self.lbl_probe_program.setText(fname)
         if os.path.isfile(probe_results):
-            self.lineEdit_probe_result.setText(probe_results)
+            self.lbl_probe_result.setText(probe_results)
             self.probe_results = probe_results
             # create probe points file and plot maps
             points = self.load_probe_file(probe_results)
+            self.surfaceMap.set_points(points)
             plane = self.fit_plane(points)
             comp_map = self.generate_map(points, plane)
             grid = self.build_grid(comp_map)
@@ -250,16 +355,16 @@ class ZLevel(QWidget, Common):
                 self.write_shared_memory(grid)
                 data = self.get_plot_data(comp_map)
                 self.surfaceMap.plot_surface(data)
-                if self.chk_add_contours.isChecked():
-                    self.surfaceMap.add_contours(data)
+                self.surfaceMap.add_probe_points(data)
+                self.surfaceMap.add_contours(data)
         else:
-            self.lineEdit_probe_result.setText('No probe result file found')
+            self.lbl_probe_result.setText('No probe result file found')
 
 ## Calls from widgets
     def save_gcode(self):
         if not self.validate(): return
         if not self.calculate_steps(): return
-        pre = self.lineEdit_probe_program.text()
+        pre = self.lbl_probe_program.text()
         caption = 'Save Probe Program'
         _dir = os.path.expanduser('~/linuxcnc/nc_files')
         _dir = f'{_dir}/{pre}'
@@ -482,10 +587,6 @@ class ZLevel(QWidget, Common):
         if self.steps_y < 2 or self.steps_y > MAX_NY:
             self.lineEdit_steps_y.setStyleSheet(self.red_border)
             self.parent.add_status(f"Steps Y must be between 2 and {MAX_NY}", WARNING)
-            return False
-        self.lineEdit_probe_program.setStyleSheet(self.default_style)
-        if not self.lineEdit_probe_program.text():
-            self.lineEdit_probe_program.setStyleSheet(self.red_border)
             return False
         return True
 
