@@ -15,8 +15,8 @@
 import sys
 import os
 from lib.event_filter import EventFilter
-from PyQt5 import uic
-from PyQt5.QtWidgets import QWidget
+from qtpy import uic
+from qtpy.QtWidgets import QWidget
 from qtvcp.core import Info, Status
 
 INFO = Info()
@@ -112,6 +112,7 @@ class CustomMacros(QWidget):
         i = self.spinbox.value()
         line = self.assemble_command()
         if line is None:
+            self.custom_macros.remove(str(i))
             self.w[f'btn_macro{i}'].set_mdi_command(False)
             self.w[f'btn_macro{i}'].set_command_text('')
             self.w[f'btn_macro{i}'].setText('')
@@ -121,6 +122,7 @@ class CustomMacros(QWidget):
             if self.w.PREFS_:
                 self.w.PREFS_.removepref(str(i), 'CUSTOM_MACROS')
         else:
+            self.custom_macros.append(str(i))
             text = line.split(',')
             cmd = text[0]
             tip = cmd.replace(';','\n')
