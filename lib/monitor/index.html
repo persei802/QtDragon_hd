@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>QtDragon Monitor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>QtDragon Monitor</h1>
+<table>
+<tr><td>State</td><td id="state"></td></tr>
+<tr><td>Program</td><td id="program"></td></tr>
+<tr><td>Progress</td><td id="progress"></td></tr>
+<tr><td>Spindle</td><td id="rpm"></td></tr>
+<tr><td>Feed</td><td id="feed"></td></tr>
+<tr><td>Tool</td><td id="tool"></td></tr>
+<tr><td>Runtime</td><td id="runtime"></td></tr>
+</table>
+<br>
+<button onclick="refreshStatus()">Refresh</button>
+<script src="app.js"></script>
+</body>
+</html>

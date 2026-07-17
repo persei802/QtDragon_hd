@@ -775,6 +775,58 @@
               <number>4</number>
              </property>
              <item>
+              <widget class="QComboBox" name="cmb_program_history">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::ClickFocus</enum>
+               </property>
+               <property name="toolTip">
+                <string>History of loaded programs</string>
+               </property>
+               <property name="editable">
+                <bool>false</bool>
+               </property>
+               <property name="currentText">
+                <string/>
+               </property>
+               <property name="maxVisibleItems">
+                <number>10</number>
+               </property>
+               <property name="maxCount">
+                <number>30</number>
+               </property>
+               <property name="insertPolicy">
+                <enum>QComboBox::InsertAtBottom</enum>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="placeholderText">
+                <string>No program loaded</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QStackedWidget" name="stackedWidget_gcode">
                <property name="lineWidth">
                 <number>0</number>
@@ -799,58 +851,6 @@
                  <property name="bottomMargin">
                   <number>0</number>
                  </property>
-                 <item>
-                  <widget class="QComboBox" name="cmb_program_history">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
-                   </property>
-                   <property name="toolTip">
-                    <string>History of loaded programs</string>
-                   </property>
-                   <property name="editable">
-                    <bool>false</bool>
-                   </property>
-                   <property name="currentText">
-                    <string/>
-                   </property>
-                   <property name="maxVisibleItems">
-                    <number>10</number>
-                   </property>
-                   <property name="maxCount">
-                    <number>30</number>
-                   </property>
-                   <property name="insertPolicy">
-                    <enum>QComboBox::InsertAtBottom</enum>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>24</width>
-                     <height>24</height>
-                    </size>
-                   </property>
-                   <property name="placeholderText">
-                    <string>No program loaded</string>
-                   </property>
-                  </widget>
-                 </item>
                  <item>
                   <widget class="GcodeEditor" name="gcode_viewer">
                    <property name="sizePolicy">
@@ -7133,7 +7133,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>02:55:48 PM</string>
+                       <string>05:32:16 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -16571,12 +16571,12 @@ OFF</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="mdi_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
   <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="mdi_buttonGroup"/>
  </buttongroups>
 </ui>

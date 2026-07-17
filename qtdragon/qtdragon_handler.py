@@ -11,6 +11,7 @@
 # GNU General Public License for more details.
 
 import os
+import threading
 import datetime
 import linuxcnc
 from send2trash import send2trash
@@ -42,7 +43,7 @@ QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
 STYLES = os.path.join(PATH.HANDLERDIR, 'style_rc')
-VERSION = '2.2.3'
+VERSION = '2.2.4'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -152,6 +153,20 @@ class WebPage(QWebEnginePage):
         if navtype == self.NavigationTypeLinkClicked: return False
         return super().acceptNavigationRequest(url, navtype, mainframe)
 
+
+class MonitorStatus:
+    def __init__(self, parent):
+        self.parent = parent
+        self.lock = threading.Lock()
+
+    def update(self, **kwargs):
+        with self.lock:
+            self.data.update(kwargs)
+
+    def get(self):
+        with self.lock:
+            status = self.parent.get_status()
+        return status
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
@@ -276,6 +291,7 @@ class HandlerClass:
         self.init_about()
         self.init_adjustments()
         self.init_event_filter()
+        self.init_web_server()
         # initialize widget states
         self.w.stackedWidget_gcode.setCurrentIndex(0)
         self.w.btn_dimensions.setChecked(True)
@@ -581,7 +597,8 @@ class HandlerClass:
                            'runfromline'  : 'RUN FROM LINE',
                            'stylesheets'  : 'STYLESHEETS',
                            'rotary_axis'  : 'ROTARY AXIS',
-                           'custom'       : 'CUSTOM PANELS'}
+                           'custom'       : 'CUSTOM PANELS',
+                           'status'       : 'REMOTE STATUS'}
         self.w.page_buttonGroup.addButton(self.w.btn_about)
         menu = QMenu(self.w.btn_about)
         for key, val in self.about_dict.items():
@@ -608,6 +625,12 @@ class HandlerClass:
         self.event_filter.set_tool_list('tool_in_spindle')
         self.event_filter.set_parms(('_handler_', False))
         self.event_filter.set_dialog_mode(self.w.chk_use_handler_calculator.isChecked())
+
+    def init_web_server(self):
+        from lib.monitor_server import MonitorServer
+        self.monitor_status = MonitorStatus(self)
+        self.monitor_server = MonitorServer(self.monitor_status, port=8080)
+        self.monitor_server.start()
 
     def init_macros(self):
         # macro buttons defined in INI under [MDI_COMMAND_LIST]
@@ -843,8 +866,12 @@ class HandlerClass:
             self.last_loaded_program = filename
             self.current_loaded_program = filename
             self.w.lineEdit_runtime.setText("00:00:00")
-            self.w.cmb_program_history.addItem(filename)
-            self.w.cmb_program_history.setCurrentIndex(self.w.cmb_program_history.count() - 1)
+            idx = self.w.cmb_program_history.findText(filename)
+            if idx == -1:
+                self.w.cmb_program_history.addItem(filename)
+                self.w.cmb_program_history.setCurrentIndex(self.w.cmb_program_history.count() - 1)
+            else:
+                self.w.cmb_program_history.setCurrentIndex(idx)
         else:
             self.add_status("Filename not valid", WARNING)
 
@@ -1889,7 +1916,7 @@ class HandlerClass:
         else:
             i = 1 if STATUS.is_mdi_mode() else 0
             self.w.stackedWidget_gcode.setCurrentIndex(i)
-            self.w.cmb_program_history.setEnabled(True)
+            self.w.cmb_program_history.setEnabled(i == 0)
 
     def enable_onoff(self, state):
         text = "ON" if state else "OFF"
@@ -1923,6 +1950,17 @@ class HandlerClass:
                 tis = float(self.w.lineEdit_acc_time.text())
                 if self.tool_db.update_tool_time(self.current_tool, tis) is None:
                     self.add_status(f'Update tool {self.current_tool} time in spindle error', WARNING)
+
+    def get_status(self):
+        status = {
+            "state": self.w.lbl_program_state.text(),
+            "program": self.current_loaded_program,
+            "progress": self.w.progressBar.value(),
+            "feed": self.w.lbl_feedrate.text(),
+            "rpm": self.h.hal.get_value('spindle.0.speed-out'),
+            "tool": self.current_tool,
+            "runtime": self.w.lineEdit_runtime.text()}
+        return status
 
     #####################
     # KEY BINDING CALLS #

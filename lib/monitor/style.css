@@ -1,0 +1,20 @@
+body {
+    background:#202020;
+    color:white;
+    font-family:Arial;
+    margin:30px;
+}
+
+table {
+    border-collapse:collapse;
+}
+
+td {
+    padding:10px 20px;
+    font-size:20px;
+}
+
+button {
+    font-size:24px;
+    padding:12px 40px;
+}
