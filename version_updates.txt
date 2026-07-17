@@ -111,3 +111,8 @@ Jun. 1/26 v 2.2.3
     - gcode history combobox updated only by file_loaded status message
     - deleted gcodeeditor class and replaced with gcodeeditor qt widget in ui file
     - improved code for file manager widgets
+
+Jul. 17/26 v 2.2.4
+    - added web server for remote monitoring
+    - do not add duplicate entries to program history combobox
+    
