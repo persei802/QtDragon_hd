@@ -43,7 +43,7 @@ QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
 STYLES = os.path.join(PATH.HANDLERDIR, 'style_rc')
-VERSION = '2.2.4'
+VERSION = '2.2.5'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -222,6 +222,7 @@ class HandlerClass:
         self.slow_jog_factor = 10
         self.reload_tool = 0
         self.last_loaded_program = ""
+        self.comp_enable = False
         self.current_loaded_program = None
         self.first_turnon = True
         self.macros_defined = list()
@@ -263,7 +264,7 @@ class HandlerClass:
         STATUS.connect('user-system-changed', lambda w, data: self.user_system_changed(data))
         STATUS.connect('metric-mode-changed', lambda w, mode: self.metric_mode_changed(mode))
         STATUS.connect('tool-in-spindle-changed', lambda w, tool: self.tool_changed(tool))
-        STATUS.connect('file-loaded', lambda w, filename: self.file_loaded(filename))
+        STATUS.connect('file-loaded', lambda w, filename: self.program_loaded(filename))
         STATUS.connect('all-homed', self.all_homed)
         STATUS.connect('not-all-homed', self.not_all_homed)
         STATUS.connect('program_pause_changed', lambda w, state: self.pause_changed(state))
@@ -355,6 +356,8 @@ class HandlerClass:
         QHAL.newpin("eoffset-count", Qhal.HAL_S32, Qhal.HAL_OUT)
         pin = QHAL.newpin("eoffset-value", Qhal.HAL_FLOAT, Qhal.HAL_IN)
         pin.value_changed.connect(self.eoffset_value_changed)
+        # Z level compensation
+        QHAL.newpin("comp_enable", Qhal.HAL_BIT, Qhal.HAL_OUT)
         # MPG axis select pins
         pin = QHAL.newpin("axis-select-x", Qhal.HAL_BIT, Qhal.HAL_IN)
         pin.value_changed.connect(self.show_selected_axis)
@@ -379,6 +382,7 @@ class HandlerClass:
 
         self.h['runtime-start'] = False
         self.h['runtime-pause'] = False
+        self.h['comp_enable'] = False
 
     def init_preferences(self):
         if not self.w.PREFS_:
@@ -572,9 +576,8 @@ class HandlerClass:
         self.w.mdi_keyboard.setVisible(self.w.chk_use_mdi_keyboard.isChecked())
         
     def init_utils(self):
-        from lib.setup_utils import Setup_Utils
+        from lib.plugin_manager import Setup_Utils
         self.setup_utils = Setup_Utils(self)
-        self.setup_utils.init_utils()
         self.util_list = self.setup_utils.get_util_list()
         # designer doesn't allow adding buttons not derived from QAbstractButton class
         self.w.page_buttonGroup.addButton(self.w.btn_utils)
@@ -585,6 +588,10 @@ class HandlerClass:
             menu.addAction(action)
         self.w.btn_utils.setMenu(menu)
         # if z level compensation wasn't installed, disable the button
+        if not QHAL.hal.component_exists("compensate"):
+            self.add_status("Z level compensation HAL component not loaded", ERROR)
+            self.w.btn_enable_comp.setText("Z COMP\nDISABLED")
+            self.w.btn_enable_comp.setEnabled(False)
         if self.zlevel is None:
             self.w.btn_enable_comp.setEnabled(False)
         self.get_next_available()
@@ -597,7 +604,6 @@ class HandlerClass:
                            'runfromline'  : 'RUN FROM LINE',
                            'stylesheets'  : 'STYLESHEETS',
                            'rotary_axis'  : 'ROTARY AXIS',
-                           'custom'       : 'CUSTOM PANELS',
                            'status'       : 'REMOTE STATUS'}
         self.w.page_buttonGroup.addButton(self.w.btn_about)
         menu = QMenu(self.w.btn_about)
@@ -859,7 +865,7 @@ class HandlerClass:
         LOG.debug(f"Tool changed to {self.current_tool}")
         self.update_tool_info(tool)
 
-    def file_loaded(self, filename):
+    def program_loaded(self, filename):
         if filename is not None:
             self.add_status(f"Loaded file {filename}")
             self.w.progressBar.reset()
@@ -872,6 +878,18 @@ class HandlerClass:
                 self.w.cmb_program_history.setCurrentIndex(self.w.cmb_program_history.count() - 1)
             else:
                 self.w.cmb_program_history.setCurrentIndex(idx)
+            if self.zlevel is not None:
+                # determine if loaded file is to be Z compensated
+                comp_file = self.zlevel.program_loaded(filename)
+                self.comp_enable = False if comp_file is None else True
+                if comp_file is None:
+                    self.add_status(f"No compensation file for {filename}", WARNING)
+                if self.w.btn_enable_comp.isChecked() and self.comp_enable:
+                    self.add_status(f"Z level compensation ON using {comp_file}")
+                    self.h['comp_enable'] = True
+                else:
+                    self.h['comp_enable'] = False
+                    self.h['eoffset-count'] = 0
         else:
             self.add_status("Filename not valid", WARNING)
 
@@ -1167,23 +1185,16 @@ class HandlerClass:
 
     def btn_enable_comp_clicked(self, state):
         if state:
-            fname = self.zlevel.get_map(True)
-            if fname is None:
-                self.add_status(f"No compensation file for {self.current_loaded_program}", WARNING)
-                self.w.btn_enable_comp.setText("Z COMP\nDISABLED")
-                return
-            if not QHAL.hal.component_exists("compensate"):
-                self.add_status("Z level compensation HAL component not loaded", ERROR)
-                self.w.btn_enable_comp.setText("Z COMP\nDISABLED")
-                return
-            self.add_status(f"Z level compensation ON using {fname}")
+            self.add_status(f"Z level compensation ENABLED")
             self.w.btn_enable_comp.setText("Z COMP\nENABLED")
+            self.h['comp_enable'] = self.comp_enable
         else:
-            self.zlevel.get_map(False)
-            self.h['eoffset-count'] = 0
-            self.add_status("Z level compensation OFF")
+            self.add_status("Z level compensation DISABLED")
             if not self.w.btn_pause_spindle.isChecked():
                 self.w.lineEdit_eoffset.setText("DISABLED")
+            self.w.btn_enable_comp.setText("Z COMP\nDISABLED")
+            self.h['comp_enable'] = False
+            self.h['eoffset-count'] = 0
 
     # jogging frame
     def jog_xy_pressed(self, btn):
