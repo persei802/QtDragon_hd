@@ -116,3 +116,9 @@ Jul. 17/26 v 2.2.4
     - added web server for remote monitoring
     - do not add duplicate entries to program history combobox
     
+Jul. 29/26 v 2.2.5
+    - converted setup_utils to plugin_manager, XML file no longer required
+    - added PLUGIN_INFO metadata to all plugin modules
+    - all plugin input parameter data now saved to a settings file
+    - added indicator to ZCOMP ENABLE button to indicate state of comp_enable HAL pin
+    - prepared all modules for migration to Qt6
