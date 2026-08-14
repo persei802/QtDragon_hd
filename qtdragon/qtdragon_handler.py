@@ -17,10 +17,11 @@ import linuxcnc
 from send2trash import send2trash
 from connections import Connections
 from lib.event_filter import EventFilter
-from PyQt5.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt, QUrl
-from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QIntValidator, QRegExpValidator, QFont, QColor, QIcon, QPixmap
-from PyQt5.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QMenu, QAction, QToolButton
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
+
+from qtpy.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt, QUrl
+from qtpy.QtGui import QSyntaxHighlighter, QTextCharFormat, QIntValidator, QRegExpValidator, QFont, QColor, QIcon, QPixmap
+from qtpy.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QMenu, QAction, QToolButton
+
 from qtvcp.widgets.gcode_editor import GcodeEditor, GcodeEditor as GCODE
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -43,7 +44,7 @@ QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
 STYLES = os.path.join(PATH.HANDLERDIR, 'style_rc')
-VERSION = '2.2.5'
+VERSION = '2.2.6'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -146,12 +147,6 @@ class MDIPanel(QWidget):
         if self.w.cmb_mdi_texts.currentIndex() <= 0: return
         self.mdiLine.setText(self.w.cmb_mdi_texts.currentText())
         self.w.cmb_mdi_texts.setCurrentIndex(0)
-
-# this class provides an overloaded function to disable navigation links
-class WebPage(QWebEnginePage):
-    def acceptNavigationRequest(self, url, navtype, mainframe):
-        if navtype == self.NavigationTypeLinkClicked: return False
-        return super().acceptNavigationRequest(url, navtype, mainframe)
 
 
 class MonitorStatus:
@@ -289,7 +284,6 @@ class HandlerClass:
         self.init_file_manager()
         self.init_probe()
         self.init_mdi_panel()
-        self.init_about()
         self.init_adjustments()
         self.init_event_filter()
         self.init_web_server()
@@ -315,8 +309,6 @@ class HandlerClass:
             self.w['lineEdit_' + val].setValidator(valid)
         self.w.lineEdit_spindle_raise.setValidator(QIntValidator(0, 99))
         self.w.lineEdit_max_power.setValidator(QIntValidator(0, 9999))
-        self.w.lineEdit_max_volts.setValidator(QIntValidator(0, 999))
-        self.w.lineEdit_max_amps.setValidator(QIntValidator(0, 99))
         self.w.lineEdit_tool_in_spindle.setValidator(QIntValidator(0, 99999))
         # set unit labels according to machine mode
         self.w.lbl_machine_units.setText("METRIC" if INFO.MACHINE_IS_METRIC else "IMPERIAL")
@@ -335,7 +327,6 @@ class HandlerClass:
         self.w.statusbar.messageChanged.connect(self.statusbar_changed)
         self.w.stackedWidget_gcode.currentChanged.connect(self.gcode_widget_changed)
         self.w.lineEdit_tool_in_spindle.returnPressed.connect(self.tool_edit_finished)
-        self.w.spindle_power.role_changed.connect(self.spindle_role_changed)
 
     #############################
     # SPECIAL FUNCTIONS SECTION #
@@ -410,8 +401,6 @@ class HandlerClass:
         for spindle in self.settings_spindle:
             spindle.setText(self.w.PREFS_.getpref(spindle.objectName(), '10', str, 'CUSTOM_FORM_ENTRIES'))
         self.max_spindle_power = int(self.w.lineEdit_max_power.text())
-        self.max_spindle_volts = int(self.w.lineEdit_max_volts.text())
-        self.max_spindle_amps = int(self.w.lineEdit_max_amps.text())
         # all remaining fields
         self.last_loaded_program = self.w.PREFS_.getpref('last_loaded_file', None, str,'BOOK_KEEPING')
         self.reload_tool = self.w.PREFS_.getpref('Tool to load', 0, int,'CUSTOM_FORM_ENTRIES')
@@ -450,8 +439,8 @@ class HandlerClass:
         self.w.adj_spindle_ovr.setValue(100)
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
-        self.w.lbl_home_x.setText(INFO.get_error_safe_setting('JOINT_0', 'HOME',"50"))
-        self.w.lbl_home_y.setText(INFO.get_error_safe_setting('JOINT_1', 'HOME',"50"))
+        self.w.lineEdit_home_x.setText(INFO.get_error_safe_setting('JOINT_0', 'HOME',"50"))
+        self.w.lineEdit_home_y.setText(INFO.get_error_safe_setting('JOINT_1', 'HOME',"50"))
         self.w.lbl_max_velocity.setText(f"{self.max_linear_velocity}")
         self.w.lbl_max_angular.setText(f"{self.max_angular_velocity}")
         self.w.lineEdit_min_rpm.setText(f"{self.min_spindle_rpm}")
@@ -550,14 +539,12 @@ class HandlerClass:
     def init_probe(self):
         probe = INFO.get_error_safe_setting('PROBE', 'USE_PROBE', 'none').lower()
         if probe == 'versaprobe':
-            LOG.info("Using Versa Probe")
             from qtvcp.widgets.versa_probe import VersaProbe
 #            from lib.versa_probe import VersaProbe
             self.probe = VersaProbe()
             self.probe.setObjectName('versaprobe')
             self.w.btn_probe.setProperty('title', 'VERSA PROBE')
         elif probe == 'basicprobe':
-            LOG.info("Using Basic Probe")
             from lib.basic_probe import BasicProbe
             self.probe = BasicProbe(self)
             self.probe.setObjectName('basicprobe')
@@ -595,27 +582,6 @@ class HandlerClass:
         if self.zlevel is None:
             self.w.btn_enable_comp.setEnabled(False)
         self.get_next_available()
-
-    def init_about(self):
-        self.about_dict = {'vfd'          : 'USING A VFD',
-                           'spindle_pause': 'SPINDLE PAUSE',
-                           'mpg'          : 'USING A MPG',
-                           'touchoff'     : 'TOOL TOUCHOFF',
-                           'runfromline'  : 'RUN FROM LINE',
-                           'stylesheets'  : 'STYLESHEETS',
-                           'rotary_axis'  : 'ROTARY AXIS',
-                           'status'       : 'REMOTE STATUS'}
-        self.w.page_buttonGroup.addButton(self.w.btn_about)
-        menu = QMenu(self.w.btn_about)
-        for key, val in self.about_dict.items():
-            action =  QAction(val, self.w.btn_about)
-            action.triggered.connect(lambda checked, t=key: self.update_about_button(t))
-            menu.addAction(action)
-        self.w.btn_about.setMenu(menu)
-        self.web_view_about = QWebEngineView()
-        self.web_page_about = WebPage()
-        self.web_view_about.setPage(self.web_page_about)
-        self.w.layout_about_pages.addWidget(self.web_view_about)
 
     def init_event_filter(self):
         self.default_line_style = self.w.lineEdit_work_height.styleSheet()
@@ -800,43 +766,15 @@ class HandlerClass:
             ACTION.CALL_MDI_WAIT(f'M61 Q{tool} G43', mode_return=True)
         self.w.lineEdit_tool_in_spindle.clearFocus()
 
-    def spindle_role_changed(self, role):
-        self.spindle_role = role
-        if role == 'power':
-            self.w.spindle_power.setMaximum(self.max_spindle_power)
-            self.w.spindle_power.setFormat("POWER %p%")
-        elif role == 'volts':
-            self.w.spindle_power.setMaximum(self.max_spindle_volts)
-        elif role == 'amps':
-            self.w.spindle_power.setMaximum(self.max_spindle_amps)
-        self.spindle_pwr_changed()
-
     def spindle_pwr_changed(self):
-        if self.spindle_role == 'power':
-            # V x I x PF x sqrt(3)
-            # this calculation assumes a power factor of 0.8
-            power = int(self.h['spindle-volts'] * self.h['spindle-amps'] * 1.386)
-            if power > self.max_spindle_power:
-                self.w.spindle_power.setFormat('OUT OF RANGE')
-                self.w.spindle_power.setValue(0)
-            else:
-                self.w.spindle_power.setValue(power)
-        elif self.spindle_role == 'volts':
-            volts = self.h['spindle-volts']
-            if volts > self.max_spindle_volts:
-                self.w.spindle_power.setFormat('OUT OF RANGE')
-                self.w.spindle_power.setValue(0)
-            else:
-                self.w.spindle_power.setFormat(f'{volts:.1f} VOLTS')
-                self.w.spindle_power.setValue(int(volts))
-        elif self.spindle_role == 'amps':
-            amps = self.h['spindle-amps']
-            if amps > self.max_spindle_amps:
-                self.w.spindle_power.setFormat('OUT OF RANGE')
-                self.w.spindle_power.setValue(0)
-            else:
-                self.w.spindle_power.setFormat(f'{amps:.1f} AMPS')
-                self.w.spindle_power.setValue(int(amps))
+        # V x I x PF x sqrt(3)
+        # this calculation assumes a power factor of 0.8
+        power = self.h['spindle-volts'] * self.h['spindle-amps'] * 1.386
+        pc = int((power / self.max_spindle_power) * 100)
+        if pc >= 100:
+            self.w.spindle_power.setValue(100)
+        else:
+            self.w.spindle_power.setValue(pc)
 
     def eoffset_value_changed(self, data):
         if not self.w.btn_pause_spindle.isChecked() and not self.w.btn_enable_comp.isChecked():
@@ -862,7 +800,7 @@ class HandlerClass:
     def tool_changed(self, tool):
         self.current_tool = tool
         self.w.lineEdit_tool_in_spindle.setText(str(tool))
-        LOG.debug(f"Tool changed to {self.current_tool}")
+        LOG.debug(f"Tool changed to {tool}")
         self.update_tool_info(tool)
 
     def program_loaded(self, filename):
@@ -882,7 +820,7 @@ class HandlerClass:
                 # determine if loaded file is to be Z compensated
                 comp_file = self.zlevel.program_loaded(filename)
                 self.comp_enable = False if comp_file is None else True
-                if comp_file is None:
+                if self.w.btn_enable_comp.isChecked() and comp_file is None:
                     self.add_status(f"No compensation file for {filename}", WARNING)
                 if self.w.btn_enable_comp.isChecked() and self.comp_enable:
                     self.add_status(f"Z level compensation ON using {comp_file}")
@@ -1041,11 +979,6 @@ class HandlerClass:
                 self.add_status('Select a utility from the drop down list')
                 self.w.btn_utils.setChecked(False)
                 return
-        elif index == TAB_ABOUT:
-            if title == 'ABOUT':
-                self.add_status('Select an ABOUT topic from the drop down list')
-                self.w.btn_about.setChecked(False)
-                return
         self.w.mdihistory.MDILine.spindle_inhibit(spindle_inhibit)
         self.h['spindle-inhibit'] = spindle_inhibit
         self.w.main_tab_widget.setCurrentIndex(index)
@@ -1135,10 +1068,11 @@ class HandlerClass:
         self.w.btn_pause.setEnabled(True)
         self.add_status("Program manually aborted")
         ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
-        if self.current_tool > 0:
+        tool = int(self.w.lineEdit_tool_in_spindle.text())
+        if tool > 0:
             tis = float(self.w.lineEdit_acc_time.text())
-            if self.tool_db.update_tool_time(self.current_tool, tis) is None:
-                self.add_status(f'Update tool {self.current_tool} time in spindle error', WARNING)
+            if self.tool_db.update_tool_time(tool, tis) is None:
+                self.add_status(f'Update tool {tool} time in spindle error', WARNING)
 
     def btn_pause_pressed(self):
         if STATUS.is_on_and_idle(): return
@@ -1328,25 +1262,12 @@ class HandlerClass:
 
     def btn_goto_location_clicked(self):
         dest = self.w.sender().property('location')
-        man_mode = True if STATUS.is_man_mode() else False
         if dest == 'zero':
-            x = 0
-            y = 0
-        elif dest == 'home':
-            x = self.w.lbl_home_x.text()
-            y = self.w.lbl_home_y.text()
-        elif dest == 'sensor':
-            x = self.w.lineEdit_sensor_x.text()
-            y = self.w.lineEdit_sensor_y.text()
-        else:
-            return
-        if dest == 'zero':
-            cmd = ['G90', 'G53 G0 Z0', f'G0 X{x} Y{y}']
-        else:
-            cmd = ['G90', 'G53 G0 Z0', f'G53 G0 X{x} Y{y}']
-        ACTION.CALL_BACKGROUND_MDI(cmd, label=f'Moving to {dest}', timeout=30)
-        if man_mode:
-            ACTION.SET_MANUAL_MODE()
+            ACTION.CALL_MDI_WAIT('G90 G53 G0 Z0\nG0 X0 Y0', time=30, mode_return=True)
+        elif dest in ['home', 'sensor']:
+            x = self.w[f'lineEdit_{dest}_x'].text()
+            y = self.w[f'lineEdit_{dest}_y'].text()
+            ACTION.CALL_MDI_WAIT(f'G90 G53 G0 Z0\nG53 G0 X{x} Y{y}', time=30, mode_return=True)
 
     def btn_ref_laser_clicked(self):
         if not self.w.btn_laser_on.isChecked():
@@ -1606,7 +1527,8 @@ class HandlerClass:
         if not tools:
             self.add_status("No tool selected to delete", WARNING)
             return
-        if tools[0] == self.current_tool:
+        tool = int(self.w.linrEdit_tool_in_spindle.text())
+        if tools[0] == tool:
             ACTION.CALL_MDI('M61 Q0 G43', mode_return=True)
         self.w.tooloffsetview.delete_tools()
         self.add_status(f"Deleted tool {tools[0]}")
@@ -1639,8 +1561,8 @@ class HandlerClass:
     def btn_unload_tool_pressed(self):
         ACTION.CALL_MDI_WAIT(f'M61 Q{0} G43', mode_return=True)
 
-    def show_db_help_page(self):
-        self.setup_utils.show_help_page(self.db_helpfile)
+    def show_db_help(self):
+        self.setup_utils.show_help(self.db_helpfile)
 
     # STATUS tab
     def btn_clear_status_clicked(self):
@@ -1724,6 +1646,13 @@ class HandlerClass:
     #####################
     # GENERAL FUNCTIONS #
     #####################
+    def show_about(self):
+        fname = os.path.join(HELP, 'about.html')
+        self.setup_utils.show_help(fname)
+
+    def show_probe_help(self, fname):
+        self.setup_utils.show_help(fname)
+
     def tool_data_changed(self, new, old, roles):
         row = new.row()
         col = new.column()
@@ -1803,28 +1732,10 @@ class HandlerClass:
         power = int(self.w.lineEdit_max_power.text())
         if power <= 0:
             self.w.lineEdit_max_power.setText(str(self.max_spindle_power))
-            self.add_status("Max spindle power must be >0 - discarding change", WARNING)
+            self.add_status("Max spindle power must be > 0 - discarding change", WARNING)
         else:
             self.max_spindle_power = power
         self.w.lineEdit_max_power.clearFocus()
-
-    def max_volts_edited(self):
-        volts = int(self.w.lineEdit_max_volts.text())
-        if volts <= 0:
-            self.w.lineEdit_max_volts.setText(str(self.max_spindle_volts))
-            self.add_status("Max spindle volts must be >0 - discarding change", WARNING)
-        else:
-            self.max_spindle_volts = volts
-        self.w.lineEdit_max_volts.clearFocus()
-
-    def max_amps_edited(self):
-        amps = int(self.w.lineEdit_max_amps.text())
-        if amps <= 0:
-            self.w.lineEdit_max_amps.setText(str(self.max_spindle_amps))
-            self.add_status("Max spindle amps must be >0 - discarding change.", WARNING)
-        else:
-            self.max_spindle_amps = amps
-        self.w.lineEdit_max_amps.clearFocus()
 
     def show_selected_axis(self, obj):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on(): return
@@ -1911,6 +1822,8 @@ class HandlerClass:
         if self.zlevel is not None:
             self.w.btn_enable_comp.setEnabled(not state)
         self.w.btn_goto_sensor.setEnabled(not state)
+        self.w.btn_goto_zero.setEnabled(not state)
+        self.w.btn_goto_home.setEnabled(not state)
         self.w.btn_touchoff.setEnabled(not state)
         self.w.groupBox_jog_pads.setEnabled(not state)
         self.w.btn_cycle_start.setEnabled(state)
@@ -1957,10 +1870,11 @@ class HandlerClass:
         if self.h['runtime-start'] is True:
             self.h['runtime-start'] = False
             self.add_status(f"Run timer stopped at {self.w.lineEdit_runtime.text()}")
-            if self.current_tool > 0:
+            tool = int(self.w.lineEdit_tool_in_spindle.text())
+            if tool > 0:
                 tis = float(self.w.lineEdit_acc_time.text())
-                if self.tool_db.update_tool_time(self.current_tool, tis) is None:
-                    self.add_status(f'Update tool {self.current_tool} time in spindle error', WARNING)
+                if self.tool_db.update_tool_time(tool, tis) is None:
+                    self.add_status(f'Update tool {tool} time in spindle error', WARNING)
 
     def get_status(self):
         status = {
@@ -1969,7 +1883,7 @@ class HandlerClass:
             "progress": self.w.progressBar.value(),
             "feed": self.w.lbl_feedrate.text(),
             "rpm": self.h.hal.get_value('spindle.0.speed-out'),
-            "tool": self.current_tool,
+            "tool": int(self.w.lineEdit_tool_in_spindle.text()),
             "runtime": self.w.lineEdit_runtime.text()}
         return status
 

@@ -26,8 +26,8 @@ class Connections():
         self.w.btn_ref_laser.clicked.connect(self.parent.btn_ref_laser_clicked)
         self.w.btn_ref_camera.clicked.connect(self.parent.btn_ref_camera_clicked)
         self.w.btn_goto_zero.clicked.connect(self.parent.btn_goto_location_clicked)
+        self.w.btn_goto_home.clicked.connect(self.parent.btn_goto_location_clicked)
         self.w.btn_rewind_a.clicked.connect(self.parent.btn_rewind_clicked)
-        self.w.btn_go_home.clicked.connect(self.parent.btn_goto_location_clicked)
         # tool frame buttons
         self.w.btn_goto_sensor.clicked.connect(self.parent.btn_goto_location_clicked)
         self.w.btn_touchoff.pressed.connect(self.parent.btn_touchoff_pressed)
@@ -47,7 +47,7 @@ class Connections():
         self.w.btn_delete_tool.pressed.connect(self.parent.btn_delete_tool_pressed)
         self.w.btn_load_tool.pressed.connect(self.parent.btn_load_tool_pressed)
         self.w.btn_unload_tool.pressed.connect(self.parent.btn_unload_tool_pressed)
-        self.w.btn_db_help.pressed.connect(self.parent.show_db_help_page)
+        self.w.btn_db_help.pressed.connect(self.parent.show_db_help)
         # graphic display buttons
         self.w.btn_alpha_mode.clicked.connect(lambda state: self.w.gcodegraphics.set_alpha_mode(state))
         self.w.btn_dimensions.clicked.connect(lambda state: self.parent.btn_dimensions_changed(state))
@@ -71,8 +71,7 @@ class Connections():
         self.w.spinBox_duration.valueChanged.connect(self.parent.status_duration_changed)
         # lineEdits
         self.w.lineEdit_max_power.editingFinished.connect(self.parent.max_power_edited)
-        self.w.lineEdit_max_volts.editingFinished.connect(self.parent.max_volts_edited)
-        self.w.lineEdit_max_amps.editingFinished.connect(self.parent.max_amps_edited)
         # misc
+        self.w.btn_about.pressed.connect(self.parent.show_about)
         self.w.gcode_viewer.percentDone.connect(lambda percent: self.parent.percent_done_changed(percent))
         self.w.gcodegraphics.percentLoaded.connect(lambda percent: self.parent.percent_loaded_changed(percent))

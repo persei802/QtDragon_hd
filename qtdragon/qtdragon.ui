@@ -592,7 +592,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="btn_about">
+             <widget class="QPushButton" name="btn_about">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -605,23 +605,14 @@
                 <height>40</height>
                </size>
               </property>
-              <property name="toolTip">
-               <string>Press and hold for a list of ABOUT topics</string>
-              </property>
               <property name="text">
                <string>ABOUT</string>
               </property>
               <property name="checkable">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-              <property name="index" stdset="0">
-               <number>9</number>
-              </property>
-              <property name="title" stdset="0">
-               <string>ABOUT</string>
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -2753,7 +2744,7 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>1</number>
+                <number>7</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
                 <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
@@ -7133,7 +7124,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>09:52:29 AM</string>
+                       <string>03:08:17 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -7904,7 +7895,7 @@ SCOPE</string>
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lbl_home_x">
+                              <widget class="QLineEdit" name="lineEdit_home_x">
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                                  <horstretch>0</horstretch>
@@ -7941,7 +7932,7 @@ SCOPE</string>
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lbl_home_y">
+                              <widget class="QLineEdit" name="lineEdit_home_y">
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                                  <horstretch>0</horstretch>
@@ -8771,170 +8762,6 @@ SCOPE</string>
                                </property>
                                <property name="text">
                                 <string>WATTS</string>
-                               </property>
-                               <property name="alignment">
-                                <set>Qt::AlignCenter</set>
-                               </property>
-                              </widget>
-                             </item>
-                            </layout>
-                           </item>
-                           <item>
-                            <layout class="QHBoxLayout" name="horizontalLayout_32">
-                             <property name="spacing">
-                              <number>4</number>
-                             </property>
-                             <property name="topMargin">
-                              <number>0</number>
-                             </property>
-                             <item>
-                              <widget class="QLabel" name="label_6">
-                               <property name="minimumSize">
-                                <size>
-                                 <width>0</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>16777215</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="text">
-                                <string>MAX SPINDLE VOLTS</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLineEdit" name="lineEdit_max_volts">
-                               <property name="sizePolicy">
-                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                                 <horstretch>0</horstretch>
-                                 <verstretch>0</verstretch>
-                                </sizepolicy>
-                               </property>
-                               <property name="minimumSize">
-                                <size>
-                                 <width>70</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>70</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="text">
-                                <string>100</string>
-                               </property>
-                               <property name="maxLength">
-                                <number>8</number>
-                               </property>
-                               <property name="alignment">
-                                <set>Qt::AlignCenter</set>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLabel" name="label_7">
-                               <property name="minimumSize">
-                                <size>
-                                 <width>60</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>60</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="text">
-                                <string>VOLTS</string>
-                               </property>
-                               <property name="alignment">
-                                <set>Qt::AlignCenter</set>
-                               </property>
-                              </widget>
-                             </item>
-                            </layout>
-                           </item>
-                           <item>
-                            <layout class="QHBoxLayout" name="horizontalLayout_33">
-                             <property name="spacing">
-                              <number>4</number>
-                             </property>
-                             <property name="topMargin">
-                              <number>0</number>
-                             </property>
-                             <item>
-                              <widget class="QLabel" name="label_9">
-                               <property name="minimumSize">
-                                <size>
-                                 <width>0</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>16777215</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="text">
-                                <string>MAX SPINDLE AMPS</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLineEdit" name="lineEdit_max_amps">
-                               <property name="sizePolicy">
-                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                                 <horstretch>0</horstretch>
-                                 <verstretch>0</verstretch>
-                                </sizepolicy>
-                               </property>
-                               <property name="minimumSize">
-                                <size>
-                                 <width>70</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>70</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="text">
-                                <string>10</string>
-                               </property>
-                               <property name="maxLength">
-                                <number>4</number>
-                               </property>
-                               <property name="alignment">
-                                <set>Qt::AlignCenter</set>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLabel" name="label_46">
-                               <property name="minimumSize">
-                                <size>
-                                 <width>60</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>60</width>
-                                 <height>30</height>
-                                </size>
-                               </property>
-                               <property name="text">
-                                <string>AMPS</string>
                                </property>
                                <property name="alignment">
                                 <set>Qt::AlignCenter</set>
@@ -10162,25 +9989,6 @@ SCOPE</string>
                  <item>
                   <widget class="QStackedWidget" name="stackedWidget_utils"/>
                  </item>
-                </layout>
-               </widget>
-               <widget class="QWidget" name="main_tab_About">
-                <layout class="QVBoxLayout" name="layout_about_pages">
-                 <property name="spacing">
-                  <number>4</number>
-                 </property>
-                 <property name="leftMargin">
-                  <number>4</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>4</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
                 </layout>
                </widget>
               </widget>
@@ -14818,7 +14626,7 @@ ZERO</string>
                  </widget>
                 </item>
                 <item row="5" column="2">
-                 <widget class="QPushButton" name="btn_go_home">
+                 <widget class="QPushButton" name="btn_goto_home">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -15817,7 +15625,7 @@ OFF</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="SpindleBar" name="spindle_power">
+                  <widget class="QProgressBar" name="spindle_power">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -15836,6 +15644,9 @@ OFF</string>
                      <height>30</height>
                     </size>
                    </property>
+                   <property name="toolTip">
+                    <string>Percentage of maximum spindle power</string>
+                   </property>
                    <property name="value">
                     <number>24</number>
                    </property>
@@ -15853,6 +15664,9 @@ OFF</string>
                    </property>
                    <property name="format">
                     <string>POWER %p%</string>
+                   </property>
+                   <property name="level" stdset="0">
+                    <string>'low'</string>
                    </property>
                   </widget>
                  </item>
@@ -16534,11 +16348,6 @@ OFF</string>
    <class>Gauge</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.round_gauge</header>
-  </customwidget>
-  <customwidget>
-   <class>SpindleBar</class>
-   <extends>QProgressBar</extends>
-   <header>lib/spindle_bar</header>
   </customwidget>
  </customwidgets>
  <resources>
