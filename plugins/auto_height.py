@@ -53,7 +53,7 @@ class Auto_Measure(QWidget, Common):
         self.w = self.parent.w
         self.settings = QSettings('qtdragon', 'plugins')
         self.dialog_code = 'CALCULATOR'
-        self.helpfile = 'height_measure_help.html'
+        self.helpfile = os.path.join(HELP, 'height_measure_help.html')
         self.stat = linuxcnc.stat()
         self.send_dict = {}
         self.line_list = ['pos_x1', 'pos_y1', 'pos_z1', 'pos_x2', 'pos_y2', 'pos_z2',
@@ -82,6 +82,13 @@ class Auto_Measure(QWidget, Common):
             self[f'lineEdit_{line}'].installEventFilter(self.event_filter)
         self.event_filter.set_line_list(self.line_list)
         self.event_filter.set_parms(('_auto_height_', True))
+        # signal connections
+        self.chk_enable_set.stateChanged.connect(self.chk_enable_changed)
+        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
+        self.btn_set_wp.clicked.connect(self.set_position_clicked)
+        self.btn_set_machine.clicked.connect(self.set_position_clicked)
+        self.btn_start.clicked.connect(self.start)
+        self.btn_help.pressed.connect(lambda: self.parent.show_help(self.helpfile))
 
     def _hal_init(self):
         self.actionbutton_abort.hal_init()
@@ -92,14 +99,6 @@ class Auto_Measure(QWidget, Common):
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
-
-        # signal connections
-        self.chk_enable_set.stateChanged.connect(self.chk_enable_changed)
-        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
-        self.btn_set_wp.clicked.connect(self.set_position_clicked)
-        self.btn_set_machine.clicked.connect(self.set_position_clicked)
-        self.btn_start.clicked.connect(self.start)
-        self.btn_help.pressed.connect(self.show_help)
 
         self.default_style = self.lineEdit_search_vel.styleSheet()
 
@@ -196,10 +195,6 @@ class Auto_Measure(QWidget, Common):
             self.parent.add_status(f'Z Safe height must be > {_max}', WARNING)
             return False
         return True
-
-    def show_help(self):
-        fname = os.path.join(HELP, self.helpfile)
-        self.parent.show_help_page(fname)
 
     def autoheight_return(self, data):
         rtn_dict = json.loads(data)

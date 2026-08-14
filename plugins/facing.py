@@ -53,7 +53,7 @@ class Facing(QWidget, Common):
         self.parent = parent
         self.settings = QSettings('qtdragon', 'plugins')
         self.calculate_pass = None
-        self.helpfile = 'facing_help.html'
+        self.helpfile = os.path.join(HELP, 'facing_help.html')
         self.default_style = ''
         self.geometry = None
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
@@ -111,7 +111,7 @@ class Facing(QWidget, Common):
         self.btn_preview.pressed.connect(lambda: self.create_program('preview'))
         self.btn_save.pressed.connect(lambda: self.create_program('save'))
         self.btn_send.pressed.connect(lambda: self.create_program('send'))
-        self.btn_help.pressed.connect(self.show_help)
+        self.btn_help.pressed.connect(lambda: self.parent.show_help(self.helpfile))
 
     def _hal_init(self):
         def homed_on_status():
@@ -498,10 +498,6 @@ class Facing(QWidget, Common):
     def next_line(self, text):
         self.gcode.append(f"N{self.line_num} {text}")
         self.line_num += 5
-
-    def show_help(self):
-        fname = os.path.join(HELP, self.helpfile)
-        self.parent.show_help_page(fname)
 
     # required code for subscriptable objects
     def __getitem__(self, item):

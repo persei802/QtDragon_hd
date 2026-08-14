@@ -212,7 +212,7 @@ class ZLevel(QWidget, Common):
         self.settings = QSettings('qtdragon', 'plugins')
         self.shm = None
         self.user_path = os.path.expanduser('~/linuxcnc/nc_files')
-        self.helpfile = 'zlevel_help.html'
+        self.helpfile = os.path.join(HELP, 'zlevel_help.html')
         self.dialog_code = 'CALCULATOR'
         self.kbd_code = 'KEYBOARD'
         self.tool_code = 'TOOLCHOOSER'
@@ -272,7 +272,7 @@ class ZLevel(QWidget, Common):
         self.rbtn_steps.clicked.connect(lambda state: self.steps_changed(state))
         self.rbtn_offset.clicked.connect(lambda state: self.steps_changed(state))
         self.btn_save_gcode.pressed.connect(self.save_gcode)
-        self.btn_help.pressed.connect(self.show_help)
+        self.btn_help.pressed.connect(lambda: self.parent.show_help(self.helpfile))
 
         # instantiate the surface map
         self.surfaceMap = SurfaceMap(self.layout_surfacemap, self)
@@ -404,10 +404,6 @@ class ZLevel(QWidget, Common):
                 self.parent.add_status(e, ERROR)
                 return False
         return True
-
-    def show_help(self):
-        fname = os.path.join(HELP, self.helpfile)
-        self.parent.show_help_page(fname)
 
 ## Calls from handler
     def program_loaded(self, fname):

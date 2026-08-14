@@ -17,6 +17,7 @@ from qtpy.QtCore import QSettings
 from qtpy.QtGui import QIntValidator, QDoubleValidator
 from qtpy.QtWidgets import QFileDialog, QLineEdit, QWidget
 from qtvcp.core import Info, Status, Action, Tool, Path
+
 from lib.event_filter import EventFilter
 from plugins.utils_mixin import Common
 
@@ -48,8 +49,7 @@ class Hole_Enlarge(QWidget, Common):
         super(Hole_Enlarge, self).__init__()
         self.parent = parent
         self.settings = QSettings('qtdragon', 'plugins')
-        self.helpfile = 'hole_enlarge_help.html'
-        self.geometry = None
+        self.helpfile = os.path.join(HELP, 'hole_enlarge_help.html')
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         self.unit_text = ""
         self.angle_inc = 4
@@ -100,7 +100,7 @@ class Hole_Enlarge(QWidget, Common):
         self.chk_direction.stateChanged.connect(lambda state: self.direction_changed(state))
         self.btn_save.pressed.connect(lambda: self.create_program('save'))
         self.btn_send.pressed.connect(lambda: self.create_program('send'))
-        self.btn_help.pressed.connect(self.show_help)
+        self.btn_help.pressed.connect(lambda: self.parent.show_help(self.helpfile))
 
     def _hal_init(self):
         def homed_on_status():
@@ -275,11 +275,6 @@ class Hole_Enlarge(QWidget, Common):
     def next_line(self, text):
         self.gcode.append(f"N{self.line_num} {text}")
         self.line_num += 5
-
-    def show_help(self):
-        if self.parent is None: return
-        fname = os.path.join(HELP, self.helpfile)
-        self.parent.show_help_page(fname)
 
     # required code for subscriptable objects
     def __getitem__(self, item):

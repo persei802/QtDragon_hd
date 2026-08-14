@@ -63,7 +63,7 @@ class Rapid_Rotary(QWidget):
         self.convert = None
         self.input_file = None
         self.output_file = None
-        self.help_file = "rapid_rotary_help.html"
+        self.helpfile = os.path.join(HELP, "rapid_rotary_help.html")
         self.temp_file = None
         self.z0_offset = 0.0
         self.wrap_all = ""
@@ -98,7 +98,7 @@ class Rapid_Rotary(QWidget):
         self.mouse_filter_out.mouse_clicked.connect(self.get_output_file)
         self.btn_convert.pressed.connect(self.start_convert)
         self.btn_send.pressed.connect(self.send_to_linuxcnc)
-        self.btn_help.pressed.connect(self.show_help)
+        self.btn_help.pressed.connect(lambda: self.parent.show_help(self.helpfile))
         self.cmb_units.activated.connect(lambda idx: self.change_units(idx))
 
     def _hal_init(self):
@@ -224,10 +224,6 @@ class Rapid_Rotary(QWidget):
 
     def send_to_linuxcnc(self):
         ACTION.OPEN_PROGRAM(self.output_file)
-
-    def show_help(self):
-        fname = os.path.join(HELP, self.help_file)
-        self.parent.show_help_page(fname)
 
     def make_temp(self):
         _tmp = tempfile.mkstemp(prefix='rapid_rotary', suffix='.ngc')

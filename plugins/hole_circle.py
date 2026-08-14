@@ -147,9 +147,8 @@ class Hole_Circle(QWidget, Common):
     def __init__(self, parent=None):
         super(Hole_Circle, self).__init__()
         self.parent = parent
-        self.geometry = None
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
-        self.helpfile = 'hole_circle_help.html'
+        self.helpfile = os.path.join(HELP, 'hole_circle_help.html')
         self.mdi_cmd = ''
         self.hole_list = list()
         self.settings = QSettings('qtdragon', 'plugins')
@@ -200,7 +199,7 @@ class Hole_Circle(QWidget, Common):
         self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         self.btn_save.pressed.connect(lambda: self.create_program('save'))
         self.btn_send.pressed.connect(lambda: self.create_program('send'))
-        self.btn_help.pressed.connect(self.show_help)
+        self.btn_help.pressed.connect(lambda: self.parent.show_help(self.helpfile))
         self.btn_goto_hole.pressed.connect(self.goto_hole)
         self.report.hole_selected.connect(self.hole_selected)
 
@@ -330,10 +329,6 @@ class Hole_Circle(QWidget, Common):
         self.next_line(f'G0 X{self.center_x} Y{self.center_y}')
         self.post_amble()
 
-    def show_help(self):
-        fname = os.path.join(HELP, self.helpfile)
-        self.parent.show_help_page(fname)
-       
     def validate(self):
         if not self.check_float_blanks(self.float_inputs): return False
         if not self.check_int_blanks(self.int_inputs): return False

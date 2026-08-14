@@ -16,8 +16,8 @@ import sys
 import os
 from lib.event_filter import EventFilter
 from qtpy import uic
-from qtpy.QtCore import QSettings
-from qtpy.QtWidgets import QWidget
+from qtpy.QtCore import QSettings, Signal, Slot
+from qtpy.QtWidgets import QWidget, QLabel
 from qtvcp.core import Info, Status
 
 INFO = Info()
@@ -37,6 +37,15 @@ Macro buttons are preserved between sessions
 '''
 }
 
+
+class ClickableLabel(QLabel):
+    label_clicked = Signal(int)
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def mousePressEvent(self, event):
+        self.label_clicked.emit(self.property('index'))
+        super().mousePressEvent(event)
 
 class CustomMacros(QWidget):
     def __init__(self, parent=None):
@@ -63,6 +72,10 @@ class CustomMacros(QWidget):
         self.event_filter.set_kbd_list(['cmd1', 'cmd2', 'cmd3', 'text'])
         self.event_filter.set_parms(('_macros_', True))
         self.prefill_labels()
+
+        # mouse press events from clickable labels
+        for i in range(20):
+            self[f'lbl_macro{i}'].label_clicked.connect(lambda idx: self.spinbox.setValue(idx))
 
     def _hal_init(self):
         def homed_on_status():

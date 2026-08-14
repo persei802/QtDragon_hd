@@ -429,7 +429,7 @@
        </property>
        <property name="text">
         <string>Macro buttons defined in the INI file cannot be edited.
-Custom Macro buttons are saved in the qtdragon.pref file.</string>
+Custom Macro buttons are saved in the settings file.</string>
        </property>
       </widget>
      </item>
@@ -463,7 +463,7 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QLabel" name="lbl_macro0">
+      <widget class="ClickableLabel" name="lbl_macro0">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -485,10 +485,13 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
+       <property name="index" stdset="0">
+        <number>0</number>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro1">
+      <widget class="ClickableLabel" name="lbl_macro1">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -510,10 +513,13 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
+       <property name="index" stdset="0">
+        <number>1</number>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro2">
+      <widget class="ClickableLabel" name="lbl_macro2">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -535,10 +541,13 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
+       <property name="index" stdset="0">
+        <number>2</number>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro3">
+      <widget class="ClickableLabel" name="lbl_macro3">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -560,10 +569,13 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
+       <property name="index" stdset="0">
+        <number>3</number>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro4">
+      <widget class="ClickableLabel" name="lbl_macro4">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -585,10 +597,13 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
+       <property name="index" stdset="0">
+        <number>4</number>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro5">
+      <widget class="ClickableLabel" name="lbl_macro5">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -610,10 +625,13 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
+       <property name="index" stdset="0">
+        <number>5</number>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro6">
+      <widget class="ClickableLabel" name="lbl_macro6">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -635,10 +653,13 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
+       <property name="index" stdset="0">
+        <number>6</number>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro7">
+      <widget class="ClickableLabel" name="lbl_macro7">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -660,10 +681,13 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
+       <property name="index" stdset="0">
+        <number>7</number>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro8">
+      <widget class="ClickableLabel" name="lbl_macro8">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -682,10 +706,13 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
+       <property name="index" stdset="0">
+        <number>8</number>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro9">
+      <widget class="ClickableLabel" name="lbl_macro9">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -703,6 +730,9 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+       <property name="index" stdset="0">
+        <number>9</number>
        </property>
       </widget>
      </item>
@@ -711,7 +741,7 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="QLabel" name="lbl_macro10">
+      <widget class="ClickableLabel" name="lbl_macro10">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -732,11 +762,14 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+       <property name="index" stdset="0">
+        <number>10</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro11">
+      <widget class="ClickableLabel" name="lbl_macro11">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -757,11 +790,14 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+       <property name="index" stdset="0">
+        <number>11</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro12">
+      <widget class="ClickableLabel" name="lbl_macro12">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -782,11 +818,14 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+       <property name="index" stdset="0">
+        <number>12</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro13">
+      <widget class="ClickableLabel" name="lbl_macro13">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -807,11 +846,14 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+       <property name="index" stdset="0">
+        <number>13</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro14">
+      <widget class="ClickableLabel" name="lbl_macro14">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -832,11 +874,14 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+       <property name="index" stdset="0">
+        <number>14</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro15">
+      <widget class="ClickableLabel" name="lbl_macro15">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -857,11 +902,14 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+       <property name="index" stdset="0">
+        <number>15</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro16">
+      <widget class="ClickableLabel" name="lbl_macro16">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -882,11 +930,14 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+       <property name="index" stdset="0">
+        <number>16</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro17">
+      <widget class="ClickableLabel" name="lbl_macro17">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -907,11 +958,14 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+       <property name="index" stdset="0">
+        <number>17</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro18">
+      <widget class="ClickableLabel" name="lbl_macro18">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -932,11 +986,14 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+       <property name="index" stdset="0">
+        <number>18</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_macro19">
+      <widget class="ClickableLabel" name="lbl_macro19">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -957,6 +1014,9 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+       <property name="index" stdset="0">
+        <number>19</number>
        </property>
       </widget>
      </item>
@@ -964,6 +1024,13 @@ Custom Macro buttons are saved in the qtdragon.pref file.</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClickableLabel</class>
+   <extends>QLabel</extends>
+   <header>plugins/custom_macros</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
