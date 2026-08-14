@@ -122,3 +122,11 @@ Jul. 29/26 v 2.2.5
     - all plugin input parameter data now saved to a settings file
     - added indicator to ZCOMP ENABLE button to indicate state of comp_enable HAL pin
     - prepared all modules for migration to Qt6
+
+Aug. 14/26 v 2.2.6
+    - unified all basic probe help files to a single file
+    - unified all about help files to a single file
+    - plugin manager handles showing help files for all other modules
+    - basic probe now uses zmq to communicate with probe_subprog
+    - code improvements to probe_routines
+    
