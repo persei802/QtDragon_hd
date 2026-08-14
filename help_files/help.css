@@ -1,12 +1,35 @@
-body {
-    font-family: "Lato", sans-serif;
+html {
+    scroll-behavior: smooth; /* Enables smooth scrolling */
 }
 
-h2, h3 {
+.back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #A0A0A0;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 18px;
+/*    display: none;  Hidden by default */
+}
+
+.back-to-top:hover {
+    background-color: #555;
+}
+
+body {
+    font-family: "Lato", sans-serif;
+/*    background: url("images/dark_metal.png") center / cover fixed no-repeat;*/
+    background: light_grey;
+}
+
+h1 {
 /*    background: #c0c0f0;*/
     background: #add8e6;
     border-bottom: 1px solid #8080c0;
-    color: black;
+    color: blue;
 }
 
 ul.no-bullets {
@@ -63,4 +86,6 @@ th, td {
 p {
     margin-bottom: 1em;
     overflow: hidden;
+    color: black;
+}
 }

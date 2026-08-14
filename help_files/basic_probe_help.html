@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basic Probe Help</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+<div class = "main">
+<style>
+    p {
+    color: black;
+    font-size: 14pt;
+}
+</style>
+<a id="top"></a>
+<h2 id=h2>Index</h2>
+<ul>
+    <li><a href="#extra probe depth">Extra Probe Depth</a></li>
+    <li><a href="#max xy">Max XY Distance</a></li>
+    <li><a href="#retract">Retract</a></li>
+    <li><a href="#max z">Max Z Distance</a></li>
+    <li><a href="#z clearance">Z Clearance</a></li>
+    <li><a href="#stepoff">Stepoff Distance</a></li>
+	<li><a href="#xy clearance">XY Clearance</a></li>
+	<li><a href="#edge width">Edge Width</a></li>
+    <li><a href="#start end">Start and End Positions</a></li>
+    <li><a href="#offsets">Tool Length Offsets</a></li>
+</ul>
+
+<h1 id="extra probe depth">EXTRA PROBE DEPTH</h1>
+<p>The Extra Depth feature is used for adding additional depth the the probing routine past the predefined probing depth, as set by the probe
+tool diameter in the tool table. This is useful for avoiding chamfers, radii, rough edges or other abnormalities near the edge of the
+workpiece to be probed. Caution should be exercised not to exceed the depth available between the desired probe depth and the main probe
+body and the workpiece surface as this will result in a crash.</p>
+<center><img src="images/extra_depth.png" alt="extra probe depth"></center>
+
+<h1 id="max xy">MAX XY DISTANCE</h1>
+<p>Max XY Distance is the distance the probe will move before stopping with an error unless it is triggered by contacting an object.</p>
+<p>The distance between the probe starting position and the workpiece should be less than the Max XY Distance when probing in the X and Y directions
+in order to be within the travel range.</p>
+
+<h1 id="retract">RETRACT</h1>
+<p>Retract is the distance the probe backs off from the workpiece after making contact. It will then either continue with the slow
+probe movement or come to rest or return to the top of the workpiece to the probe Z0 position or Z Clearance position,
+depending on the probing routine that was selected. </p>
+<center><img src="images/retract.png" alt="Retract"></center>
+
+<h1 id="max z">MAX Z DISTANCE</h1>
+<p>Max Z Distance is the distance the probe will move before stopping with an error unless triggered by contacting an object.</p>
+<p>The distance between the probe starting position and the workpiece must be less than the Max Z Distance when probing in the Z direction
+in order to be within the travel range.</p>
+
+<h1 id="z clearance">Z CLEARANCE</h1>
+<p>The Z Clearance is the height above the workpiece at which the probe will traverse during subsequent probing positioning moves.
+Caution should be used when setting so as to  avoid work holding fixtures, clamps or other obstructions.</p>
+<center><img src="images/z_clearance.png" alt="z clearance"></center>
+
+<h1 id="stepoff">STEPOFF DISTANCE</h1>
+<p>Stepoff is the distance the probe will travel from the start position before moving down to probe the side of the workpiece.
+The distance entered must be greater than the distance between the probe in the start position and the edge of the workpiece.
+If the probe is obstructed by the workpiece surface during it's Z down positioning, an error will be triggered.</p>
+<center><img src="images/stepoff.png" alt="Stepoff"></center>
+
+<h1 id="xy clearance">XY CLEARANCE</h1>
+<p>When probing inside or outside corners, this is the distance perpendicular to the edge probe direction. This is to clear
+a corner radius or other feature that might otherwise result in an incorrect corner location. This value combined with the Stepoff 
+value will result in diagonal moves between probe operations. When moving from one side of the corner to the other, the spindle
+is first raised to the Z Clearance height.</p>
+<center><img src="images/xy_clearance.png" alt="Retract"></center>
+
+<h1 id="edge width">EDGE WIDTH</h1>
+<p>When probing a skewed edge, this is the distance between the edge probe cycles, whether they are verical or horizontal. This 
+distance is used in the calculation of the skew angle, so the greater it can be made, the more accurate the skew angle calculation
+will be.</p>
+<center><img src="images/edge_width.png" alt="edge width"></center>
+
+<h1 id="start end">Probe Start and End Positions</h1>
+<p>This is a 3d representation of probe starting and finishing points of inside probing.
+The probe starting placement is approximately on the intersection of edges.
+The green cross-hair is the finishing position after probing.</p>
+<center><img src="images/inside_corners_3d_image.png" alt="inside corners 3d"></center>
+
+<h1 id="offsets">TOOL LENGTH OFFSETS</h1>
+<p>Tool length offset (TLO) can be done by manually measuring each tool and entering that value into the tool table or by using the
+Basic Probe Tool Measure utility. With this method, an electronic tool sensor must be used.</p>
+<p>The basic principle of this utility is that each tool has a length relative to a reference tool. The reference tool could be the 
+spindle nose, or some other tool, so long as it is the shortest tool. Probe distances are measured from the Z axis homed position in
+machine coordinates. The sequence of steps to measure tool offsets are as follows:</p>
+<ul>
+    <li>Select TOOL MEASURE from the probe routines selector.</li>
+    <li>Position the spindle at the tool sensor location and move Z up to Z0 in machine coordinates (G53)</li>
+    <li>Load the spindle with the reference tool or use the spindle with no tool installed.</li>
+    <li>Enter that tool number into the REFERENCE TOOL field and press Return. </li>
+    <li>Press MEASURE TOOL and select the tool corresponding to the reference tool from the Tool Chooser dialog.</li>
+    <li>Once the Probe signal is triggered, the refence value is entered into the tool measure diagram.</li>
+    <li>Now insert a tool to be measured and press MEASURE TOOL again.</li>
+    <li>Once the probe signal is triggered, the tool length offset is calculated and entered into the tool table.</li>
+    <li>** Once all the tools have been measured, do not change the REFERENCE TOOL or all the tools will have to be
+	measured again. The tool offsets are based on the offset of the reference tool.</li>
+</ul>
+<p>NOTE : This procedure will result in positive numbers for tool length offsets because it is calculated by subtracting the distance
+the measured tool travelled from the distance the reference tool travelled. This is the safest way because if tool offsets are
+inadvertantly applied with G43, the Z0 plane raises by that amount instead of lowering. If the spindle is then directed to travel to
+Z0, it could dive into the workpiece or the machine table. This also assumes that the Z axis homed position is at the top end of
+spindle travel.</p>
+<a href="#top" class="back-to-top">&#8679;</a>
+</body>
+</html>

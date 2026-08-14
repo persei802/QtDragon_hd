@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body id="top">
+
+<!-- Anchor at the top -->
+<a id="back-to-top" href="#top">?</a>
+<h2 id=h2>Index</h2>
+<ul>
+    <li><a href="#facing">Surface Facing</a></li>
+    <li><a href="#height">Workpiece Height</a></li>
+    <li><a href="#hole_circle">Hole Circle</a></li>
+    <li><a href="#hole_enlarge">Hole Enlarge</a></li>
+    <li><a href="#rotary">Rapid Rotary</a></li>
+    <li><a href="#zlevel">ZLevel Compensation</a></li>
+	<li><a href="#tooldb">Tool Database</a></li>
+</ul>
+
+<h1 id="facing">FACING UTILITY</h1>
+<p>This program creates a gcode file that can be loaded into Linuxcnc to run a rectangular facing operation.
+The actual area covered will be Size_x by Size_y plus half the diameter of the tool on all 4 sides.
+This means that the facing routine will not work in a pocket unless the tool diameter is taken into account.</p>
+<ul>
+    <li>The machine should be X and Y zeroed at the lower left corner of the workpiece</li>
+    <li>The program is designed to run the selected raster pattern at a Z value of 0 in machine units</li>
+    <li>The feedrate for Z travel defaults to 1/2 the feedrate entered for X and Y</li>
+    <li>The parameter units are set to whatever mode the machine is currently in, either metric or imperial</li>
+</ul>
+<h3>Validation of Inputs</h3>
+<ul>
+    <li>checks that there are no blank entries</li>
+    <li>checks that the spindle RPM is between the min and max ratings</li>
+    <li>checks that the feedrate is less than the maximum feedrate</li>
+    <li>checks that safe Z travel > 0</li>
+    <li>checks that the tool diameter > 0</li>
+    <li>checks that stepover is not larger than tool diameter</li>
+</ul>
+<button>PREVIEW TOOLPATH</button>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>displays a toolpath preview without generating any gcode</li>
+    <li>the start point is marked with a green dot, the end point with a red dot</li>
+    <li>a final profile path is not shown even if that option is checked</li>
+    <li>a final profile is only shown when gcode is generated</li>
+</ul>
+<button>SEND TO LINUXCNC</button>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>creates a gcode program according to the Raster setting</li>
+    <li>creates a temporary file and loads it to linuxcnc</li>
+    <li>invalid parameters are shown with a red border and the program will not be created</li>
+    <li>the temporary file is automatically deleted when Linuxcnc exits</li>
+</ul>
+<button>SAVE AS PROGRAM</button>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>creates a gcode program according to the Raster setting</li>
+    <li>opens a dialog window to get a file to save to</li>
+    <li>invalid parameters are shown with a red border and the program will not be created</li>
+</ul>
+
+<h1 id="height">WORKPIECE HEIGHT UTILITY</h1>
+<p>This program probes 2 user specified locations in the Z axis and calculates the difference in heights.</p>
+<button>Enable Probe Position Set Buttons</button>
+<ul>
+    <li>when checked, the SET buttons are enabled</li>
+    <li>this allows the user to automatically fill in the X, Y and Z parameters with the current position as displayed on the DROs.</li>
+</ul>
+<button>Autofill Workpiece Height on Main Screen</button>
+<ul>
+    <li>when checked, the calculated height is automatically transferred to the Workpiece Height field in the main screen.</li>
+</ul>
+<button>Workpiece Probe P1</button>
+<ul>
+    <li>the X, Y and Z coordinates specify where the first probing routine should start, in current WCS</li>
+</ul>
+<button>Machine Probe P2</button>
+<ul>
+    <li>the X, Y and Z coordinates specify where the second probing routine should start, in current WCS</li>
+</ul>
+<h3>Parameter Validation</h3>
+<p>Before running the probe routines, probe parameters are checked to make sure no problems will occur.
+Any 2 points within the machine operating volume can be specified.</p>
+<p>The units are set to whatever the machine units are defined as in the INI file.</p>
+<ul>
+    <li>search velocity must be greater than 0.0</li>
+    <li>probe velocity must be greater than 0.0</li>
+    <li>maximum probe distance must be greater than 0.0</li>
+    <li>retract distance must be greater than 0.0 and less than maximum probe distance</li>
+    <li>Z safe height must be greater than P1 Z height</li>
+    <li>P1 Z height must be greater than P2 Z height</li>
+</ul>
+<button>START PROBING</button>
+<ul>
+    <li>probe parameters are read from SETTINGS -> PROBE and checked for validity</li>
+    <li>if any errors are detected while checking validity, the probe routine will not run</li>
+    <li>any errors detected will be highlighted with red text in SETTINGS -> PROBE</li>
+    <li>the machine will jog to the first location and then probe down and record the Z1 position</li>
+    <li>the machine then jogs to the second location and probes down and records the Z2 position</li>
+    <li>the difference in probed values is reported as Calculated Workpiece Height</li>
+</ul>
+<div class=admonition>
+    <table>
+	    <td class='icon'><div class="title">Warning</div></td>
+		<td class='content'>Setting incorrect values can lead to crashes into fixtures on the machine work surface. 
+                            Initial testing with no tool and safe heights is recommended.</td>
+	</table>
+</div>
+<p></p>
+<button>ABORT PROBING</button>
+<ul>
+    <li>causes all jog and probe routines currently executing to stop</li>
+</ul>
+
+<h1 id="hole_circle">HOLE CIRCLE UTILITY</h1>
+<p>This program creates a gcode file that can be loaded into linuxnc to run a hole circle operation. It
+can use G81, G82 or G83 canned drill cycles by selecting the appropriate checkbox.</p>
+<p>The center of the hole circle can be offset from the current XY zero point.</p>
+<p>The Z zero should be set to the top of the workpiece to be drilled.
+<p>The parameter units are set to whatever mode the machine is currently in, either metric or imperial.</p>
+</p>
+<h3>Validation of Inputs</h3>
+<ul>
+    <li>checks that there are no blank entries</li>
+    <li>checks that the spindle RPM is between min and max rated speed</li>
+    <li>checks that the number of holes is > 0</li>
+    <li>checks that circle radius is > 0</li>
+    <li>checks that safe Z travel > 0</li>
+    <li>checks that hole retract height is between 0 and safe Z travel height</li>
+    <li>checks that drill depth is > 0</li>
+    <li>checks that drill feedrate is > 0</li>
+</ul>
+<button>SAVE AS PROGRAM</button>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>invalid parameters are shown with a red border and the program will not be created</li>
+    <li>creates a gcode program according to the drill pattern in the preview</li>
+    <li>opens a dialog window to get a file to save name</li>
+</ul>
+<button>SEND TO LINUXCNC</button>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>invalid parameters are shown with a red border and the program will not be created</li>
+    <li>creates a gcode program according to the pattern in the preview</li>
+    <li>creates a temporary file and loads it to Linuxcnc</li>
+    <li>the temporary file is automatically deleted when Linuxcnc exits</li>
+</ul>
+<button>GOTO HOLE</button>
+<p>Whenever a new drill gcode program is created, a list of hole angles and XY coordinates is displayed in the TABLE tab. 
+Clicking on the Hole column of a table row transfers the hole data to the GOTO HOLE button. Pressing the GOTO HOLE button
+will jog the machine to the specified hole location.</p>
+
+<h1 id="hole_enlarge">HOLE ENLARGE UTILITY</h1>
+<p>This program creates a gcode file that can be loaded into Linuxnc to run a spiral hole enlargement program.
+It is for cases where a hole that has already been made needs to be slightly enlarged for whatever reason.</p>
+<p>Machining will begin at the current radius of the hole and will then proceed to spiral outward to the desired
+final radius.</p>
+<p>The parameter units are set to whatever mode the machine is currently in, either metric or imperial.</p>
+<h3>Validation of Inputs</h3>
+<ul>
+    <li>checks that the tool number is > 0</li>
+    <li>checks that the tool diameter is > 0</li>
+    <li>checks that the spindle RPM is within operating range and adjusts if necessary</li>
+    <li>checks that the start diameter > 0</li>
+    <li>checks that the final diameter > start diameter</li>
+    <li>checks that the number of spiral loops > 0</li>
+    <li>checks that the cut depth > 0</li>
+    <li>checks that the Z safe travel height > 0</li>
+    <li>checks that the feed rate > 0</li>
+</ul>
+<p>If the parameters contain invalid fields, that field is shown with a red border.</p>
+<button>SAVE AS PROGRAM</button>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>creates a gcode program according to the parameter setting and the checkboxes</li>
+    <li>opens a dialog window to get a save filename</li>
+	<li>the program can be koaded from the FILE page on the main screen</li>
+</ul>
+<button>SEND TO LINUXCNC</button>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>creates a gcode program according to the parameter setting and the checkboxes</li>
+    <li>creates a temporary file and loads it to Linuxcnc</li>
+    <li>the temporary file is automatically deleted when Linuxcnc exits</li>
+</ul>
+
+<h1 id="rotary">RAPID ROTARY UTILITY</h1>
+<p>This program converts G-code from G94 (units per minute feed rate mode) to G93 (Inverse time mode). 
+The main difference between these two modes is that in G93, for every linear or arc move (G1, G2, or G3), that command must also specify 
+how much time it should take to make that move. Using G93 is advantageous when a move has both linear and rotary components. 
+The reason is that linear moves have units of distance while rotary moves are measured in degrees and many CAM software packages only 
+specify feed rates in distance units. However, if you had a rotation move at the same time as a linear move, the controller (e.g., LinuxCNC) 
+would move both axes at the same rate. For this reason, inverse time mode is used. </p>
+<p>This application does not alter any of the positions in the G-code movement commands. Instead, it converts from G94 to G93 by 
+calculating the distance the tool travels for each line and using the last feed rate specified to calculate the time it should take 
+the tool to complete that movement.  For rotary moves, the program uses the Z-axis position (as the radius value) to convert from 
+rotational units (angles) to distance. This allows for constant tool tip feed rates even for complex geometries and results in 
+slower A-axis rotations when machining larger diameter sections of a part and faster A-axis rotations when machining smaller diameter 
+sections.</p>
+<h3>Typical Workflow</h3>
+<ul>
+    <li>Generate the g-code (.ngc) for your part using your CAM software with a compatible post processor.</li>
+    <li>In the Rapid Rotary utility, select the input file and output file by clicking on the filename fields.</li>
+    <li>If the Z0 point is the A axis, set Z0 offset to 0. If the Z0 point is the surface of the cylindrical workpiece, set the Z0 offset
+        to the diameter of the workpiece.</li>
+    <li>Select either IMPERIAL or METRIC in the units combobox.</li>
+    <li>Select the wrap conversion type from the conversion type combobox</li>
+    <li>If all input parameters are valid, the CONVERT button will be enabled</li>
+    <li>Press the CONVERT TO G93 button</li>
+    <li>If the conversion succeeded with no errors, the converted file is saved and the SEND TO LINUXCNC button is enabled.</li>
+    <li>The converted file can be opened from the FILE page of the main menu or by pressing SEND TO LINUXCNC</li>
+    <li>Manually inspect and/or test the output .ngc to be sure there are no errors or bugs in the converted file and that it is 
+        safe to run on your machine.</li>
+</ul>
+<h3>Features</h3>
+<ul>
+    <li>Supports up to four axes (X,Y,Z,A)</li>
+    <li>Supports G01, G02, G03 movement commands (G02 and G03 are not typically used in rotary jobs however)</li>
+</ul>
+<h3>Limitations</h3>
+<ul>
+    <li>Requires a space between X, Y, Z, A, I, J entities in the G-code (e.g, X12Y34 is not supported, it must be X12 Y34)
+    [this can be configured in your post processor</li>
+    <li>Requires the input file to use G94 (units per minute feed rate mode) and it must be specified in the preamble section</li>
+    <li>Requires G17, G18 or G19 (plane select) to be specified in the preamble section of the input file</li>
+    <li>If a comment is found on a line, denoted by '(' the rest of the line is ignored and the comment is copied into the output file</li>
+</ul>
+<button>CONVERT TO G93</button>
+<p>The file specified on INPUT FILE is read and parsed to convert G94 commands to G93 commands. The result
+is written to the file specified by OUTPUT FILE.</p>
+<button>SEND TO LINUXCNC</button>
+<p>The converted file is loaded into Linuxcnc. </p>
+
+<h1 id="zlevel">Z LEVEL COMP UTILITY</h1>
+<p>QtDragon can compensate for Z level height changes using it's own gcode generation code for probing. 
+An external program like G-code Ripper is not required, but can be used if so desired.</p>
+<p>Z level compensation is a bed levelling/distortion correction function typically used in 3D printing or engraving.
+It uses a HAL non-realtime component which utilizes the external offsets feature of LinuxCNC.</p>
+<p>Whenever a gcode program is loaded:</p>
+<ul>
+    <li>zlevel determines the currently loaded program file and looks for a related probe result file</li>
+    <li>for example, if <i>some_file.ngc</i> is loaded, it looks for a file called <i>probe_some_file.txt</i></li>
+    <li>if it exists, the data is read and sent to the compensation module via a shared memory structure</li>
+    <li>a surface map is created and displayed in the zlevel module</li>
+    <li>if the COMP ENABLE button is checked, the compensation module sends offset data to the Z axis</li>
+</ul>
+
+<h3>Creating a Probe File</h3>
+<ul>
+    <li>from the FILE page, load the gcode program which needs to be level compensated</li>
+    <li>the X and Y dimensions are automatically calculated and shown in the parameter frame in the X and Y size fields</li>
+    <li>enter the number of desired probe points for each axis</li>
+    <li>ensure that the selected zero reference point is the same as that of the gcode program</li>
+    <li>before a program is saved or sent to linuxcnc, the input parameters are checked for errors</li>
+    <li>any errors that are found are highlighted with a red border</li>
+</ul>
+<button>SAVE PROGRAM</button>
+<p>The input data parameters are checked and if found valid, a dialog box prompts for a save filename. The probe program is calculated
+and saved to the specified filename. If the returned save file name doesn't start with 'probe_', it is added. 
+When the file is loaded and run, it will produce a file with the same name but ending with <i>.txt</i>. This is the compensation
+data file and contains the XY probe coordinates and the Z level at that location.</p>
+<h3>Surface Map</h3>
+<p>When a gcode program is loaded into linuxcnc, this module checks for a file of the same name
+prefixed with <i>probe_</i>. If found, the data is analyzed and a reference plane is calculated using
+a least squares algorithm. The reference plane is used to create a compensation map which is sent to
+the compensation subprogram via a shared memory structure and also to create a graphical surface map.
+The probed points and contour lines are overlayed on the surface map. Clicking on one of the points
+will show that points location and the probed Z value as well as the compensation amount that will be
+applied if Z Compensation is enabled.</p>
+<h3>Sample postgui HAL file for combined spindle raise and Z Level compensation</h3>
+<div class="code-block">
+    <pre class="hal"># load a summing component for adding spindle lift and Z compensation</pre>
+    <pre class="hal">loadrt scaled_s32_sums</pre>
+    <pre class="hal">addf scaled-s32-sums.0 servo-thread</pre>
+    <pre class="hal"> </pre>
+    <pre class="hal">loadusr -Wn compensate python3 lib/compensate.py</pre>
+    <pre class="hal"> </pre>
+    <pre class="hal"># Z level compensation</pre>
+    <pre class="hal">net compensate-on    compensate.enable <= zlevel.enable</pre>
+    <pre class="hal">setp compensate.scale 1000</pre>
+    <pre class="hal"> </pre>
+    <pre class="hal"># add Z level and scaled spindle raise level values together</pre>
+    <pre class="hal">net eoffset-count    scaled-s32-sums.0.in0   <= qtdragon.eoffset-count</pre>
+    <pre class="hal">net comp-count       scaled-s32-sums.0.in1   => compensate.counts</pre>
+    <pre class="hal">net zaxis-eoffset    scaled-s32-sums.0.out-s => axis.z.eoffset-counts</pre>
+    <pre class="hal">setp scaled-s32-sums.0.scale0 1000</pre>
+    <pre class="hal">setp axis.z.eoffset-enable True</pre>
+    <pre class="hal">setp axis.z.eoffset-scale 0.001</pre>
+</div>
+
+<h1 id="tooldb">TOOL DATABASE</h1>
+<p>The tool database utility enables the user to store additional information about the tools listed in the LinuxCNC tool.tbl file.
+This extra information is kept in a SQLITE database. On startup, the program checks if the database exists and creates one if needed.
+If the database exists, it is updated with any new information in the tool.tbl file. If the tool.tbl contains tools not in the database,
+they are added. If the database contains tools not in the tool.tbl, they are deleted. Interaction between the handler program and the
+database manager ensures it is always synchronized with the linuxcnc tool table.</p>
+
+<h3>Usage</h3>
+    <ul>
+    <li>At LinuxCNC startup, a list of available tool icons is generated from any .png files found in the <i>tool_icons</i> folder.</li>
+    <li>The <i>tool_icons</i> must be .png images. This enables them to have transparent backgrounds.</li>
+    <li>The preferred icon size is 160 x 270 pixels.</li>
+    <li>Adding or deleting a tool in the Linuxcnc tool table is reflected in the database table.</li>
+    </ul>
+<h3>Tool Table Buttons</h3>
+<p><button>ADD TOOL</button> Inserts a new tool table entry to the top of the list with the tool number
+preset to the value in the NEXT AVAILABLE field. The tool can be renumbered by editing the <i>tool</i> column
+of the tool table. Even though LinuxCNC allows duplicate tool numbers, the database does not. Adding a tool with a tool number 
+already in the database will overwrite the previous data.</p>
+<p><button>DELETE TOOL</button> Removes the checked tool from the tool table and updates the database. The 
+NEXT AVAILABLE field is updated and the tool table is reloaded into LinuxCNC. If there were multiple tools with the
+same number, they are all deleted.</p>
+<p><button>LOAD TOOL</button> The checked tool is virtually loaded into the spindle by a M61Qn command and
+the labels in the TOOL panel of the main page are updated. If the tool has an associated icon, it is also 
+displayed in the TOOL panel.</p>
+<p>A tool can also be loaded by clicking on a tool in the tree view of the database tab and pressing LOAD TOOL</p>
+<p><button>UNLOAD TOOL</button> The tool currently in the spindle is virtually removed by a M61Q0 command.</p>
+<p><button>EXPORT TABLE</button> A file dialog pops up to select either a .csv file or .html file. The csv file
+can be imported to a spreadsheet application. The html file can be loaded from the FILE page or viewed in a
+web browser.</p>
+
+<h3>Tool Database Tree View</h3>
+<p>All tools from the tool table are shown in the tree view and organized by category. Tools are assigned to a different
+group by dragging and dropping onto the desired group or by selecting the tool, then selecting the group on the Group combobox
+pressing UPDATE TOOL DATA.</p>
+
+<h3>Tool Categories</h3>
+<p>Tool categories can be created and deleted to suit the user's requirements. To create a new category, click on the 
+TOOL GROUP combobox in the Tool Geometry frame and type the name of the category. Pressing RETURN adds it to the tree view.
+To delete a category, first remove all the tools the select that category in the TOOL GROUP combobox. Then right click the 
+combobox and select <i>Remove group</i>. The category is then removed from the tree view. A group can be deleted only after
+all the tools have been removed.</p>
+
+<h3>Tool Data</h3>
+<p>This frame contains information from the tool table as well as custom data. The data from the tool table is for reference only
+and cannot be modified from the DATABASE tab, only the TOOL TABLE tab, as these data are sourced from the LinuxCNC tool table.
+This data includes Tool number, diameter, Z offset and tool comment.</p>
+
+<h3>Material Data</h3>
+<p>Each tool can have specific parameters associated with a material. For example, the recommened feedrate could be different for
+MDF and steel. To add a new material, type the name into the material combobox and press Return. Then select a tool from the tree view
+and right click the Material combobox and select which material is to be associated with that tool. The specific data can be entered
+and saved to the database by pressing the Update Tool Data button. If a material is to be removed, the right click context menu
+has an entry to remove the selected material from the selected tool, but will not be deleted from the database until no other tools
+use that material.</p>
+
+<h3>Updating the Database</h3>
+<p>To store the custom data into the database, select a tool from the tree view, then enter all the pertinent data in the 
+tool geometry frame and press UPDATE when done. A tool icon can also be selected. The image files must be stored in the tool_icons
+folder in the CONFIG directory.  </p>
+
+<div class=admonition>
+    <table>
+	    <td class='icon'><div class="title">Note</div></td>
+		<td class='content'>The tool database file in the CONFIG directory is called <i>tool_database.db</i>. 
+		It is advised to maintain regular backups of this file. If it becomes lost or corrupted, all 
+		information the user has entered may be lost and will have to be re-entered in a new database.</td>
+	</table>
+</div>
+
+<a id="back-to-top" href="#top">?</a>
+</body>
+</html>
