@@ -521,7 +521,6 @@ class Tool_Database(QWidget):
     def __init__(self, parent=None):
         super(Tool_Database, self).__init__()
         self.parent = parent
-        self.helpfile = 'tooldb_help.html'
         self.database = os.path.join(PATH.CONFIGPATH, DB_NAME)
         self.unit_labels = ['tlo_unit', 'diameter_unit', 'flute_unit', 'stepover_unit', 'depth_unit']
         self.dialog_code = 'CALCULATOR'

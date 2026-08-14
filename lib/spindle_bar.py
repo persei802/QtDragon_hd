@@ -14,11 +14,11 @@
 #
 # used to capture left click events for spindle power bar
 
-from PyQt5.QtWidgets import QProgressBar, QMenu, QAction
-from PyQt5.QtCore import Qt, QPoint, pyqtSignal
+from qtpy.QtWidgets import QProgressBar, QMenu, QAction
+from qtpy.QtCore import Qt, QPoint, Signal
 
 class SpindleBar(QProgressBar):
-    role_changed = pyqtSignal(str)
+    role_changed = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)

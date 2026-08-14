@@ -16,8 +16,8 @@
 
 import sys
 import os
-from PyQt5.QtCore import QEvent, QObject, Qt
-from PyQt5 import QtWidgets
+from qtpy.QtCore import QEvent, QObject, Qt
+from qtpy import QtWidgets
 from qtvcp.core import Action
 from qtvcp import logger
 

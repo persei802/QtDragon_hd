@@ -45,22 +45,29 @@ class WebPage(QWebEnginePage):
         return super().acceptNavigationRequest(url, navtype, mainframe)
 
 
-class ShowHelp(QObject):
-    def __init__(self, dialog):
+# utilities that have a Help page, use this to display the page
+class ShowHelp(QDialog):
+    def __init__(self):
         super(ShowHelp, self).__init__()
-        layout = QVBoxLayout(dialog)
-        dialog.setWindowTitle('Utility Help')
-        dialog.setWindowFlags(Qt.WindowStaysOnTopHint)
+        layout = QVBoxLayout()
         self.webview = QWebEngineView()
+        self.webpage = QWebEnginePage()
+        self.webview.setPage(self.webpage)
+        self.setWindowTitle('QtDragon Help')
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
         bbox = QDialogButtonBox()
         bbox.addButton(QDialogButtonBox.Ok)
         layout.addWidget(self.webview)
         layout.addWidget(bbox)
+        self.setLayout(layout)
+        self.hide()
 
-        bbox.accepted.connect(dialog.accept)
+        bbox.accepted.connect(self.accept)
 
-    def load_url(self, url):
-        self.webview.load(url)
+    def load_page(self, fname):
+        url = QUrl("file:///" + fname)
+        self.webpage.load(url)
+        self.show()
 
 
 class Plugin_Manager(QWidget):
@@ -133,10 +140,7 @@ class Setup_Utils():
         self.installed_modules = list()
         self.doc_index = 0
         self.util_list = []
-        # setup help file viewer
-        self.dialog = QDialog()
-        self.help_page = ShowHelp(self.dialog)
-        self.dialog.hide()
+        self.help = ShowHelp()
         # install plugin manager to handler UI
         self.plugins = Plugin_Manager(self.parent)
         self.w.stackedWidget_utils.addWidget(self.plugins)
@@ -252,6 +256,7 @@ class Setup_Utils():
         except Exception as e:
             self.parent.add_status(f"Could not find default PDF file - {e}", ERROR)
 
+# Calls from external modules
     def show_html(self, fname):
         url = QUrl("file:///" + fname)
         self.web_page_setup.load(url)
@@ -295,13 +300,11 @@ class Setup_Utils():
         self.gcode_properties.setPlainText(text)
         self.doc_viewer.setCurrentIndex(3)
 
-    def show_help_page(self, page):
-        url = QUrl("file:///" + page)
-        self.help_page.load_url(url)
-        self.dialog.show()
-
     def get_util_list(self):
         return self.util_list
+
+    def show_help(self, fname):
+        self.help.load_page(fname)
 
     # pass status message from utility to handler
     def add_status(self, msg, level=None):
