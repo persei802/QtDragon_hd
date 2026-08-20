@@ -130,3 +130,6 @@ Aug. 14/26 v 2.2.6
     - basic probe now uses zmq to communicate with probe_subprog
     - code improvements to probe_routines
     
+Aug. 20/26 v 2.2.7
+    - added SETTING to enable/disable auto tool touchoff during M6 remap
+    - added M6 remap code to python folder
