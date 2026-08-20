@@ -7124,7 +7124,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>03:08:17 PM</string>
+                       <string>11:47:14 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -7466,6 +7466,34 @@ TO FILE</string>
                         </widget>
                        </item>
                        <item>
+                        <widget class="QCheckBox" name="chk_auto_touchoff">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Enable auto tool touchoff after a tool change</string>
+                         </property>
+                         <property name="text">
+                          <string>TOOL TOUCHOFF AFTER M6</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
                         <widget class="QCheckBox" name="chk_override_limits">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -7727,7 +7755,7 @@ SCOPE</string>
                        </sizepolicy>
                       </property>
                       <property name="currentIndex">
-                       <number>0</number>
+                       <number>2</number>
                       </property>
                       <property name="usesScrollButtons">
                        <bool>false</bool>
@@ -9190,6 +9218,9 @@ SCOPE</string>
                                </property>
                                <property name="clearButtonEnabled">
                                 <bool>false</bool>
+                               </property>
+                               <property name="val" stdset="0">
+                                <string>sensor_height</string>
                                </property>
                               </widget>
                              </item>
@@ -16426,12 +16457,12 @@ OFF</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mdi_buttonGroup"/>
  </buttongroups>
 </ui>

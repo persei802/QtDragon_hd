@@ -18,7 +18,7 @@ from send2trash import send2trash
 from connections import Connections
 from lib.event_filter import EventFilter
 
-from qtpy.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt, QUrl
+from qtpy.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt, QUrl, Signal, Slot
 from qtpy.QtGui import QSyntaxHighlighter, QTextCharFormat, QIntValidator, QRegExpValidator, QFont, QColor, QIcon, QPixmap
 from qtpy.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QMenu, QAction, QToolButton
 
@@ -44,7 +44,7 @@ QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
 STYLES = os.path.join(PATH.HANDLERDIR, 'style_rc')
-VERSION = '2.2.6'
+VERSION = '2.2.7'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -244,6 +244,9 @@ class HandlerClass:
         self.axis_a_list = ["dro_axis_a", "lbl_max_angular", "lbl_max_angular_vel", "angular_increment",
                             "action_zero_a", "btn_rewind_a", "action_home_a", "widget_angular_jog", "axis_a_height"]
 
+        self.remap_parms = ['work_height', 'sensor_height', 'sensor_x', 'sensor_y',
+                            'search_vel', 'probe_vel', 'max_probe', 'retract', 'zsafe']
+
         self.gcode_titles = ["GCODE", "MDI INPUT"]
 
         STATUS.connect('general', self.dialog_return)
@@ -319,18 +322,26 @@ class HandlerClass:
         self.w.setWindowFlags(Qt.FramelessWindowHint)
         # instantiate color highlighter for machine log
         self.highlighter = Highlighter(self.w.machine_log.logText)
-
         # connect all signals to corresponding slots
-        connect = Connections(self, self.w)
+        connect = Connections(self)
         self.w.tooloffsetview.tablemodel.layoutChanged.connect(self.get_checked_tools)
         self.w.tooloffsetview.tablemodel.dataChanged.connect(lambda new, old, roles: self.tool_data_changed(new, old, roles))
         self.w.statusbar.messageChanged.connect(self.statusbar_changed)
         self.w.stackedWidget_gcode.currentChanged.connect(self.gcode_widget_changed)
         self.w.lineEdit_tool_in_spindle.returnPressed.connect(self.tool_edit_finished)
+        for item in self.remap_parms:
+            widget = self.w[f'lineEdit_{item}']
+            widget.returnPressed.connect(lambda i=item: self.input_changed(i))
 
     #############################
     # SPECIAL FUNCTIONS SECTION #
     #############################
+
+    def init_m6_remap(self):
+        self.auto_touchoff_changed(self.w.chk_auto_touchoff.isChecked())
+        for item in self.remap_parms:
+            val = self.w[f'lineEdit_{item}'].text()
+            ACTION.CALL_MDI(f'#<_{item}> = {val}')
 
     def init_pins(self):
         # spindle control pins
@@ -370,7 +381,7 @@ class HandlerClass:
         pin.value_changed.connect(self.update_runtime)
         pin = QHAL.newpin("runtime-minutes", Qhal.HAL_U32, Qhal.HAL_IN)
         pin = QHAL.newpin("runtime-hours", Qhal.HAL_U32, Qhal.HAL_IN)
-
+        # initialize some pins
         self.h['runtime-start'] = False
         self.h['runtime-pause'] = False
         self.h['comp_enable'] = False
@@ -749,6 +760,9 @@ class HandlerClass:
             if rtn is None: return
             LOG.debug(f'message return: {message}')
             obj.setText(rtn)
+            name = obj.objectName().replace('lineEdit_', '')
+            if name in self.remap_parms:
+                self.input_changed(name)
         elif handler_code and name == self.tool_code:
             if rtn is None: return
             self.w.lineEdit_tool_in_spindle.setText(str(rtn))
@@ -869,6 +883,7 @@ class HandlerClass:
         # enable camera buttons according to SETTINGS
         self.w.btn_ref_camera.setEnabled(self.w.chk_use_camera.isChecked())
         self.add_status("All axes homed")
+        self.init_m6_remap()
 
     def not_all_homed(self, obj, unhomed):
         self.w.btn_home_all.setText("HOME\nALL")
@@ -1639,6 +1654,19 @@ class HandlerClass:
         self.w.lineEdit_touch_height.setReadOnly(not self.w.chk_touchplate.isChecked())
         self.w.lineEdit_sensor_height.setReadOnly(not self.w.chk_auto_toolsensor.isChecked())
         self.w.lineEdit_gauge_height.setReadOnly(not self.w.chk_manual_toolsensor.isChecked())
+
+    def auto_touchoff_changed(self, state):
+        v = 1 if state else 0
+        s = f'#<_auto_touchoff> = {v}'
+        ACTION.CALL_MDI(s)
+
+    def input_changed(self, val):
+        if val == 'sensor_height':
+            sh = self.w.lineEdit_sensor_height.text()
+            self.probe.set_ts_height(sh)
+        obj = self.w[f'lineEdit_{val}']
+        ACTION.CALL_MDI(f"#<_{val}> = {obj.text()}")
+        obj.clearFocus()
 
     def status_duration_changed(self, value):
         self.status_timeout = int(value * 1000)

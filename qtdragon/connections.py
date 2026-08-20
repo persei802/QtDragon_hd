@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
 class Connections():
-    def __init__(self, parent, widget):
-        self.w = widget
+    def __init__(self, parent):
+#        self.w = widget
         self.parent = parent
+        self.w = parent.w
         # DRO buttons
         self.w.btn_show_macros.clicked.connect(self.parent.show_macros_clicked)
         self.w.systemtoolbutton.toggled.connect(lambda state: self.parent.systemtoolbutton_toggled(state))
@@ -62,6 +63,7 @@ class Connections():
         self.w.chk_touchplate.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
         self.w.chk_manual_toolsensor.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
         self.w.chk_auto_toolsensor.stateChanged.connect(lambda state: self.parent.touchoff_changed(state))
+        self.w.chk_auto_touchoff.stateChanged.connect(lambda state: self.parent.auto_touchoff_changed(state))
         # sliders
         self.w.cam_diameter.valueChanged.connect(lambda value: self.parent.cam_dia_changed(value))
         self.w.cam_rotate.valueChanged.connect(lambda value: self.parent.cam_rot_changed(value))
