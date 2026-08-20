@@ -312,7 +312,7 @@ class BasicProbe(QWidget, _HalWidgetBase):
     def read_stdout(self):
         qba = self.proc.readAllStandardOutput()
         line = qba.data()
-        print('Stdout: ', line)
+#        print('Stdout: ', line)
 
     def read_stderror(self):
         qba = self.proc.readAllStandardError()
@@ -377,7 +377,7 @@ class BasicProbe(QWidget, _HalWidgetBase):
                         self[f'status_{key}'].setText(val)
             if 'ts_status' in reply:
                 ts_status = reply['ts_status']
-                print('ts_status ', ts_status)
+#                print('ts_status ', ts_status)
                 for key in ts_status.keys():
                     if ts_status[key] is not None:
                         val = ts_status[key]
@@ -511,6 +511,11 @@ class BasicProbe(QWidget, _HalWidgetBase):
                 data = TOOL.GET_TOOL_INFO(self.data_dict['tool_number'])
                 self.tool_db.update_tool_table(data[0], (data[4], data[11], data[15]))
         ACTION.CALL_MDI('G53 G0 Z0')
+
+    def set_ts_height(self, th):
+        self.lineEdit_ts_height.setText(th)
+        self.ts_z = float(th)
+        self.data_dict['ts_z'] = self.ts_z
 
     ##############################
     # required class boiler code #
