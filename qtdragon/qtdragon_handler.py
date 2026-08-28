@@ -1542,7 +1542,7 @@ class HandlerClass:
         if not tools:
             self.add_status("No tool selected to delete", WARNING)
             return
-        tool = int(self.w.linrEdit_tool_in_spindle.text())
+        tool = int(self.w.lineEdit_tool_in_spindle.text())
         if tools[0] == tool:
             ACTION.CALL_MDI('M61 Q0 G43', mode_return=True)
         self.w.tooloffsetview.delete_tools()
