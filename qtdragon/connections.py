@@ -2,11 +2,9 @@
 
 class Connections():
     def __init__(self, parent):
-#        self.w = widget
         self.parent = parent
         self.w = parent.w
         # DRO buttons
-        self.w.btn_show_macros.clicked.connect(self.parent.show_macros_clicked)
         self.w.systemtoolbutton.toggled.connect(lambda state: self.parent.systemtoolbutton_toggled(state))
         # jog buttons
         self.w.jog_xy.joy_btn_pressed.connect(self.parent.jog_xy_pressed)
@@ -52,6 +50,7 @@ class Connections():
         # graphic display buttons
         self.w.btn_alpha_mode.clicked.connect(lambda state: self.w.gcodegraphics.set_alpha_mode(state))
         self.w.btn_dimensions.clicked.connect(lambda state: self.parent.btn_dimensions_changed(state))
+        self.w.btn_marker.pressed.connect(self.parent.toggle_macros)
         # checkboxes
         self.w.chk_run_from_line.stateChanged.connect(lambda state: self.parent.chk_run_from_line_changed(state))
         self.w.chk_inhibit_selection.stateChanged.connect(lambda state: self.w.gcodegraphics.set_inhibit_selection(state))

@@ -2744,10 +2744,16 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>7</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
-                <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0">
                  <property name="spacing">
                   <number>4</number>
                  </property>
@@ -2764,7 +2770,7 @@ color: black;</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <layout class="QHBoxLayout" name="layout_graphics">
+                  <layout class="QHBoxLayout" name="layout_graphics" stretch="0,0,0">
                    <property name="spacing">
                     <number>4</number>
                    </property>
@@ -2777,7 +2783,7 @@ color: black;</string>
                    <item>
                     <widget class="GCodeGraphics" name="gcodegraphics">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -2819,629 +2825,513 @@ color: black;</string>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QFrame" name="group1_macro_buttons">
-                     <property name="minimumSize">
-                      <size>
-                       <width>88</width>
-                       <height>0</height>
-                      </size>
-                     </property>
+                    <widget class="QFrame" name="frm_macro_buttons">
                      <property name="maximumSize">
                       <size>
-                       <width>88</width>
+                       <width>16777215</width>
                        <height>16777215</height>
                       </size>
                      </property>
-                     <layout class="QVBoxLayout" name="verticalLayout_17">
+                     <property name="frameShape">
+                      <enum>QFrame::StyledPanel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Raised</enum>
+                     </property>
+                     <layout class="QHBoxLayout" name="horizontalLayout_29">
                       <property name="spacing">
-                       <number>6</number>
+                       <number>4</number>
                       </property>
                       <property name="leftMargin">
-                       <number>4</number>
+                       <number>0</number>
                       </property>
                       <property name="topMargin">
-                       <number>8</number>
+                       <number>0</number>
                       </property>
                       <property name="rightMargin">
-                       <number>4</number>
+                       <number>0</number>
                       </property>
                       <property name="bottomMargin">
-                       <number>4</number>
+                       <number>0</number>
                       </property>
                       <item>
-                       <widget class="ActionButton" name="btn_macro0">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
+                       <widget class="QWidget" name="group1_macro_buttons" native="true">
                         <property name="minimumSize">
                          <size>
-                          <width>0</width>
+                          <width>80</width>
                           <height>0</height>
                          </size>
                         </property>
                         <property name="maximumSize">
                          <size>
-                          <width>16777215</width>
+                          <width>80</width>
                           <height>16777215</height>
                          </size>
                         </property>
-                        <property name="text">
-                         <string>MACRO 0</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>0</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO0</string>
-                        </property>
+                        <layout class="QVBoxLayout" name="verticalLayout_17">
+                         <property name="spacing">
+                          <number>4</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro0">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 0</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro1">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 1</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro2">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 2</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro3">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 3</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro4">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 4</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro5">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 5</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro6">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 6</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro7">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 7</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro8">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 8</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro9">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 9</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
                        </widget>
                       </item>
                       <item>
-                       <widget class="ActionButton" name="btn_macro1">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
+                       <widget class="QWidget" name="group2_macro_buttons" native="true">
                         <property name="minimumSize">
                          <size>
-                          <width>0</width>
+                          <width>80</width>
                           <height>0</height>
                          </size>
                         </property>
                         <property name="maximumSize">
                          <size>
-                          <width>16777215</width>
+                          <width>80</width>
                           <height>16777215</height>
                          </size>
                         </property>
-                        <property name="text">
-                         <string>MACRO 1</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>1</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO1</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro2">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 2</string>
-                        </property>
-                        <property name="mdi_command_action" stdset="0">
-                         <bool>false</bool>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>2</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO2</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro3">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 3</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>3</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO3</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro4">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 4</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>4</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO4</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro5">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 5</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>5</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO5</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro6">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 6</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>6</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO6</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro7">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 7</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>7</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO7</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro8">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 8</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>8</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO8</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro9">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 9</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>9</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO9</string>
-                        </property>
+                        <layout class="QVBoxLayout" name="verticalLayout_45">
+                         <property name="spacing">
+                          <number>4</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro10">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 10</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro11">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 11</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro12">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 12</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro13">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 13</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro14">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 14</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro15">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 15</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro16">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 16</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro17">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 17</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro18">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 18</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_macro19">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>MACRO 19</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
                        </widget>
                       </item>
                      </layout>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QFrame" name="group2_macro_buttons">
+                    <widget class="QPushButton" name="btn_marker">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="minimumSize">
                       <size>
-                       <width>88</width>
-                       <height>0</height>
+                       <width>30</width>
+                       <height>30</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>88</width>
-                       <height>16777215</height>
+                       <width>30</width>
+                       <height>30</height>
                       </size>
                      </property>
-                     <layout class="QVBoxLayout" name="verticalLayout_45">
-                      <property name="leftMargin">
-                       <number>4</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>8</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>4</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>4</number>
-                      </property>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro10">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 10</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>10</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO10</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro11">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 11</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>11</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO11</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro12">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 12</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>12</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO12</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro13">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 13</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>13</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO13</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro14">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 14</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>14</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO14</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro15">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 15</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>15</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO15</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro16">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 16</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>16</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO16</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro17">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 17</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>17</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO17</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro18">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 18</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>18</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO18</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="ActionButton" name="btn_macro19">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>MACRO 19</string>
-                        </property>
-                        <property name="ini_mdi_command_action" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="ini_mdi_number" stdset="0">
-                         <number>19</number>
-                        </property>
-                        <property name="ini_mdi_key" stdset="0">
-                         <string>MACRO19</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="iconSize">
+                      <size>
+                       <width>24</width>
+                       <height>24</height>
+                      </size>
+                     </property>
                     </widget>
                    </item>
                   </layout>
@@ -7124,7 +7014,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>11:47:14 AM</string>
+                       <string>04:23:12 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -13773,6 +13663,9 @@ RUNTIME</string>
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="text">
                    <string>HOME
 ALL</string>
@@ -13838,6 +13731,9 @@ ALL</string>
                     <width>16777215</width>
                     <height>50</height>
                    </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string>Zero axis Y</string>
@@ -13953,6 +13849,9 @@ ALL</string>
                     <width>16777215</width>
                     <height>50</height>
                    </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string>Zero axis X</string>
@@ -14103,6 +14002,9 @@ ALL</string>
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="text">
                    <string>REFY</string>
                   </property>
@@ -14152,6 +14054,9 @@ ALL</string>
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="toolTip">
                    <string>Show distance to go</string>
                   </property>
@@ -14197,6 +14102,9 @@ ALL</string>
                     <width>16777215</width>
                     <height>50</height>
                    </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string>Home axis Z</string>
@@ -14248,6 +14156,9 @@ ALL</string>
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="toolTip">
                    <string>Home axis Y</string>
                   </property>
@@ -14298,6 +14209,9 @@ ALL</string>
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="toolTip">
                    <string>Home axis X</string>
                   </property>
@@ -14347,6 +14261,9 @@ ALL</string>
                     <width>16777215</width>
                     <height>50</height>
                    </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string>Zero axis Z</string>
@@ -14506,6 +14423,9 @@ ALL</string>
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="text">
                    <string>REFZ</string>
                   </property>
@@ -14555,6 +14475,9 @@ ALL</string>
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="toolTip">
                    <string>Show absolute coordinates</string>
                   </property>
@@ -14597,6 +14520,9 @@ ALL</string>
                     <width>16777215</width>
                     <height>50</height>
                    </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
                   </property>
                   <property name="text">
                    <string>REFX</string>
@@ -14641,6 +14567,9 @@ ALL</string>
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="toolTip">
                    <string>Go to workpiece zero reference</string>
                   </property>
@@ -14675,6 +14604,9 @@ ZERO</string>
                     <width>16777215</width>
                     <height>50</height>
                    </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string>Go to machine Home position</string>
@@ -14711,6 +14643,9 @@ HOME</string>
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="toolTip">
                    <string>Set laser crosshair reference</string>
                   </property>
@@ -14743,6 +14678,9 @@ LASER</string>
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="text">
                    <string>REF
 CAMERA</string>
@@ -14771,6 +14709,9 @@ CAMERA</string>
                     <width>16777215</width>
                     <height>90</height>
                    </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string>Home axis A</string>
@@ -14822,6 +14763,9 @@ CAMERA</string>
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="toolTip">
                    <string>Rewind A axis to original HOME position</string>
                   </property>
@@ -14857,6 +14801,9 @@ TO ZERO</string>
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="text">
                    <string>  A</string>
                   </property>
@@ -14869,67 +14816,6 @@ TO ZERO</string>
                     <width>30</width>
                     <height>30</height>
                    </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QPushButton" name="btn_show_macros">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>SHOW
-MACROS</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="3">
-                 <widget class="SystemToolButton" name="systemtoolbutton">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>SELECT
-WCS</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <property name="autoExclusive">
-                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -14953,6 +14839,9 @@ WCS</string>
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
                   <property name="text">
                    <string>LASER
 OFF</string>
@@ -14973,6 +14862,77 @@ ON</string>
                   <property name="false_state_string" stdset="0">
                    <string>LASER
 OFF</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="SystemToolButton" name="systemtoolbutton">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>90</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
+                  <property name="text">
+                   <string>G54</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>false</bool>
+                  </property>
+                  <property name="autoExclusive">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="ActionButton" name="actionbutton_rel">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>90</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
+                  <property name="text">
+                   <string>REL</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="autoExclusive">
+                   <bool>true</bool>
+                  </property>
+                  <property name="dro_relative_action" stdset="0">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>

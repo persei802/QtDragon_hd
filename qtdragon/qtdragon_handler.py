@@ -18,7 +18,7 @@ from send2trash import send2trash
 from connections import Connections
 from lib.event_filter import EventFilter
 
-from qtpy.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt, QUrl, Signal, Slot
+from qtpy.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt, QUrl, QPropertyAnimation, QEasingCurve, Signal, Slot
 from qtpy.QtGui import QSyntaxHighlighter, QTextCharFormat, QIntValidator, QRegExpValidator, QFont, QColor, QIcon, QPixmap
 from qtpy.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QMenu, QAction, QToolButton
 
@@ -44,7 +44,7 @@ QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
 STYLES = os.path.join(PATH.HANDLERDIR, 'style_rc')
-VERSION = '2.2.7'
+VERSION = '2.2.8'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -220,7 +220,7 @@ class HandlerClass:
         self.comp_enable = False
         self.current_loaded_program = None
         self.first_turnon = True
-        self.macros_defined = list()
+        self.macros_defined = []
         self.pause_timer = QTimer()
         self.source_file = ''
         self.destination_file = ''
@@ -508,6 +508,13 @@ class HandlerClass:
         # default styles for feedrate and statusbar
         self.feedrate_style = self.w.lbl_feedrate.styleSheet()
         self.statusbar_style = self.w.statusbar.styleSheet()
+        # sliding macro button frame
+        self.macros_open = False
+        self.w.btn_marker.setText("◀")
+        self.w.frm_macro_buttons.setMaximumWidth(0)
+        self.animation = QPropertyAnimation(self.w.frm_macro_buttons, b"maximumWidth")
+        self.animation.setDuration(300)
+        self.animation.setEasingCurve(QEasingCurve.InOutCubic)
 
     def init_gcode_editor(self):
         self.w.gcodeeditor.editor.setCaretForegroundColor(Qt.yellow)
@@ -619,20 +626,34 @@ class HandlerClass:
         # macro buttons defined in INI under [MDI_COMMAND_LIST]
         for i in range(20):
             button = self.w[f'btn_macro{i}']
-            key = button.property('ini_mdi_key')
-            if key == '' or INFO.get_ini_mdi_command(key) is None:
-                # fallback to legacy nth line
-                key = button.property('ini_mdi_number')
-            try:
-                code = INFO.get_ini_mdi_command(key)
-                if code is None: raise Exception
-                self.macros_defined.append(i)
-            except:
+            key = f'MACRO{i}'
+            cmd = INFO.get_ini_mdi_command(key)
+            if cmd is None:
                 button.setText('')
                 button.setEnabled(False)
-        self.w.group1_macro_buttons.hide()
-        self.w.group2_macro_buttons.hide()
-        self.show_macros_clicked(self.w.btn_show_macros.isChecked())
+            else:
+                label = INFO.get_ini_mdi_label(key)
+                lbl = label.replace(r'\n', '\n')
+                tip = cmd.replace(';','\n')
+                tooltip = f'MDI CMD MACRO{key}:\n{tip}'
+                button.setText(lbl)
+                button.setToolTip(tooltip)
+                button.setProperty('ini_mdi_cmd', cmd)
+                self.macros_defined.append(i)
+                button.pressed.connect(lambda i=i: self.macro_btn_pressed(i))
+        # check if any macros are in groups 1 or 2. If not, hide that group.
+        show = False
+        for i in range(10):
+            if i in self.macros_defined:
+                show = True
+                break
+        self.w.group1_macro_buttons.setVisible(show)
+        show = False
+        for i in range(10, 20):
+            if i in self.macros_defined:
+                show = True
+                break
+        self.w.group2_macro_buttons.setVisible(show)
 
     def init_adjustments(self):
         # modify the status adjustment bars to have custom icons
@@ -799,8 +820,6 @@ class HandlerClass:
     def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
         self.w.systemtoolbutton.setText(sys)
-        txt = sys.replace('.', '_')
-        self.w["action_" + txt.lower()].setChecked(True)
         self.add_status(f"User system changed to {sys}")
 
     def metric_mode_changed(self, mode):
@@ -1027,6 +1046,24 @@ class HandlerClass:
         self.w.gcodegraphics.show_extents_option = state
         self.w.gcodegraphics.clear_live_plotter()
 
+    def toggle_macros(self):
+        if self.macros_open:
+            self.animation.setStartValue(self.w.frm_macro_buttons.width())
+            self.animation.setEndValue(0)
+            self.w.btn_marker.setText("◀")
+            self.macros_open = False
+        else:
+            self.animation.setStartValue(self.w.frm_macro_buttons.width())
+            self.animation.setEndValue(200)
+            self.w.btn_marker.setText("▶")
+            self.macros_open = True
+        self.animation.start()
+
+    def macro_btn_pressed(self, idx):
+        cmds = self.w[f'btn_macro{idx}'].property('ini_mdi_cmd').split(';')
+        for cmd in cmds:
+            ACTION.CALL_MDI_WAIT(cmd, time=30, mode_return=True)
+
     # gcode frame
     def cmb_program_history_activated(self):
         filename = self.w.cmb_program_history.currentText()
@@ -1225,24 +1262,6 @@ class HandlerClass:
             self.add_status("Invalid touchoff method specified", WARNING)
 
     # DRO frame
-    def show_macros_clicked(self, state):
-        if state and not STATUS.is_auto_mode():
-            show = False
-            for i in range(10):
-                if self.w[f'btn_macro{i}'].text() != '':
-                    show = True
-                self.w[f'btn_macro{i}'].setEnabled(bool(self.w[f'btn_macro{i}'].text() != ''))
-            self.w.group1_macro_buttons.setVisible(show)
-            show = False
-            for i in range(10, 20):
-                if self.w[f'btn_macro{i}'].text() != '':
-                    show = True
-                self.w[f'btn_macro{i}'].setEnabled(bool(self.w[f'btn_macro{i}'].text() != ''))
-            self.w.group2_macro_buttons.setVisible(show)
-        else:
-            self.w.group1_macro_buttons.hide()
-            self.w.group2_macro_buttons.hide()
-
     def systemtoolbutton_toggled(self, state):
         if state:
             STATUS.emit('dro-reference-change-request', 1)
@@ -1853,11 +1872,10 @@ class HandlerClass:
         self.w.btn_goto_zero.setEnabled(not state)
         self.w.btn_goto_home.setEnabled(not state)
         self.w.btn_touchoff.setEnabled(not state)
+        self.w.btn_marker.setEnabled(not state)
         self.w.groupBox_jog_pads.setEnabled(not state)
         self.w.btn_cycle_start.setEnabled(state)
         self.w.lineEdit_spindle_raise.setReadOnly(state)
-        if self.w.btn_show_macros.isChecked():
-            self.show_macros_clicked(not state)
         if state:
             self.w.btn_main.setChecked(True)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
@@ -1865,6 +1883,8 @@ class HandlerClass:
             self.w.btn_edit_gcode.setChecked(False)
             self.w.gcode_viewer.readOnlyMode()
             self.w.stackedWidget_gcode.setCurrentIndex(0)
+            if self.macros_open:
+                self.toggle_macros()
         else:
             i = 1 if STATUS.is_mdi_mode() else 0
             self.w.stackedWidget_gcode.setCurrentIndex(i)
