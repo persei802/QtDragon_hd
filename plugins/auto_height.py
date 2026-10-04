@@ -51,7 +51,7 @@ class Auto_Measure(QWidget, Common):
         super(Auto_Measure, self).__init__()
         self.parent = parent
         self.w = self.parent.w
-        self.settings = QSettings('qtdragon', 'plugins')
+        self.settings = QSettings(os.path.join(HERE, 'settings.ini'), QSettings.IniFormat)
         self.dialog_code = 'CALCULATOR'
         self.helpfile = os.path.join(HELP, 'height_measure_help.html')
         self.stat = linuxcnc.stat()

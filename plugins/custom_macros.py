@@ -23,6 +23,7 @@ from qtvcp.core import Info, Status
 INFO = Info()
 STATUS = Status()
 WARNING = 1
+ERROR = 2
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 PLUGIN_INFO = {
@@ -53,10 +54,10 @@ class CustomMacros(QWidget):
         self.parent = parent #reference to setup_utils
         self.h = parent.parent # reference to handler
         self.w = parent.w # reference to handler widgets
-        self.settings = QSettings('qtdragon', 'plugins')
+        self.settings = QSettings(os.path.join(HERE, 'settings.ini'), QSettings.IniFormat)
         self.kbd_code = 'KEYBOARD'
-        self.old_value = 0
-        self.custom_macros = []
+        self.old_index = 0
+        self.custom_macros = {}
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'custom_macros.ui')
         try:
@@ -72,11 +73,18 @@ class CustomMacros(QWidget):
         self.event_filter.set_kbd_list(['cmd1', 'cmd2', 'cmd3', 'text'])
         self.event_filter.set_parms(('_macros_', True))
         self.prefill_labels()
-
         # mouse press events from clickable labels
         for i in range(20):
-            self[f'lbl_macro{i}'].label_clicked.connect(lambda idx: self.spinbox.setValue(idx))
-
+            self[f'lbl_macro{i}'].label_clicked.connect(lambda idx: self.label_pressed(idx))
+        # signal connections
+        self.btn_apply.pressed.connect(self.apply_command)
+        self.btn_clear.pressed.connect(self.clear_lines)
+        self.chk_use_keyboard.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
+        # connect all buttons to macro handler - it won't get called if the button is disabled
+        for i in range(20):
+            if i in self.h.macros_defined: continue
+            self.w[f'btn_macro{i}'].pressed.connect(lambda i=i: self.h.macro_btn_pressed(i))
+                
     def _hal_init(self):
         def homed_on_status():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
@@ -84,21 +92,11 @@ class CustomMacros(QWidget):
         STATUS.connect('general', self.dialog_return)
         STATUS.connect('state_off', lambda w: self.setEnabled(False))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
-
         self.default_style = self.lineEdit_cmd1.styleSheet()
-        self.btn_apply.pressed.connect(self.apply_command)
-        self.btn_clear.pressed.connect(self.clear_lines)
-        self.spinbox.valueChanged.connect(self.spin_value_changed)
-        self.chk_use_keyboard.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
-
-        self.spinbox.setValue(0)
-        self.spin_value_changed(0)
 
     def closing_cleanup__(self):
         # save all custom macros to settings file
-        for key in self.custom_macros:
-            self.spinbox.setValue(int(key))
-            text = self.assemble_command()
+        for key, text in self.custom_macros.items():
             self.settings.setValue(f'macros/{key}', text)
         self.settings.sync()
 
@@ -106,28 +104,24 @@ class CustomMacros(QWidget):
         # prefill INI macro labels
         for i in self.h.macros_defined:
             self[f'lbl_macro{i}'].setText(self.w[f'btn_macro{i}'].text())
-            cmds = self.w[f'btn_macro{i}'].get_command_text()
-            for cmd in cmds:
-                self[f'lbl_macro{i}'].setText(cmd)
         # prefill custom macro labels
         self.settings.beginGroup('macros')
-        macro_list = {}
         keys = self.settings.allKeys()
-        for key in keys:
-            macro_list[key] = self.settings.value(key)
-        for key in macro_list:
-            self.custom_macros.append(key)
-            text = macro_list[key]
-            line = text.split(',')
-            cmds = line[0]
-            lbl = line[1].replace(r'\n', '\n')
-            tip = cmds.replace(';','\n')
-            tooltip = f'MDI CMD MACRO{key}:\n{tip}'
-            self[f'lbl_macro{key}'].setText(lbl)
-            self.w[f'btn_macro{key}'].set_mdi_command(True)
-            self.w[f'btn_macro{key}'].set_command_text(cmds)
-            self.w[f'btn_macro{key}'].setText(lbl)
-            self.w[f'btn_macro{key}'].setToolTip(tooltip)
+        try:
+            for key in keys:
+                text = self.settings.value(key)
+                self.custom_macros[int(key)] = text
+                line = text.split(',')
+                cmds = line[0]
+                lbl = line[1].replace(r'\n', '\n')
+                tip = cmds.replace(';','\n')
+                tooltip = f'MDI CMD MACRO{key}:\n{tip}'
+                self[f'lbl_macro{key}'].setText(lbl)
+                self.w[f'btn_macro{key}'].setProperty('ini_mdi_cmd', cmds)
+                self.w[f'btn_macro{key}'].setText(lbl)
+                self.w[f'btn_macro{key}'].setToolTip(tooltip)
+        except Exception as e:
+            self.parent.add_status(f'Prefill error: {e}', ERROR)
         self.settings.endGroup()
 
     def dialog_return(self, w, message):
@@ -142,36 +136,44 @@ class CustomMacros(QWidget):
                 obj.setText(rtn)
 
     def apply_command(self):
-        i = self.spinbox.value()
+        i = self.old_index
         line = self.assemble_command()
         if line is None:
-            self.custom_macros.remove(str(i))
-            self.w[f'btn_macro{i}'].set_mdi_command(False)
-            self.w[f'btn_macro{i}'].set_command_text('')
+            if i in self.custom_macros:
+                self.custom_macros.pop(i)
+                self.settings.remove(f'macros/{i}')
             self.w[f'btn_macro{i}'].setText('')
             self.w[f'btn_macro{i}'].setToolTip('Not defined')
             self.w[f'btn_macro{i}'].setEnabled(False)
             self[f'lbl_macro{i}'].setText('')
-            self.settings.remove(f'macros/{str(i)}')
         else:
-            self.custom_macros.append(str(i))
+            if self.lineEdit_text.text() == '':
+                self.parent.add_status('Macro button text is blank', WARNING)
+                return
+            self.custom_macros[i] = line
             text = line.split(',')
             cmd = text[0]
             tip = cmd.replace(';','\n')
             lbl = text[1].replace(r'\n', '\n')
             tooltip = f'MDI CMD MACRO{i}:\n{tip}'
             self[f'lbl_macro{i}'].setText(lbl)
-            self.w[f'btn_macro{i}'].set_mdi_command(True)
-            self.w[f'btn_macro{i}'].set_command_text(cmd)
+            self.w[f'btn_macro{i}'].setProperty('ini_mdi_cmd', cmd)
             self.w[f'btn_macro{i}'].setText(lbl)
             self.w[f'btn_macro{i}'].setToolTip(tooltip)
-        self.h.show_macros_clicked(self.w.btn_show_macros.isChecked())
+            self.w[f'btn_macro{i}'].setEnabled(True)
+        self.check_empty_groups()
 
     def clear_lines(self):
         self.lineEdit_cmd1.clear()
         self.lineEdit_cmd2.clear()
         self.lineEdit_cmd3.clear()
         self.lineEdit_text.clear()
+
+    def set_all_readonly(self, state):
+        self.lineEdit_cmd1.setReadOnly(state)
+        self.lineEdit_cmd2.setReadOnly(state)
+        self.lineEdit_cmd3.setReadOnly(state)
+        self.lineEdit_text.setReadOnly(state)
 
     def assemble_command(self):
         text = self.lineEdit_text.text()
@@ -188,26 +190,45 @@ class CustomMacros(QWidget):
         command = f'{cmd1};{cmd2};{cmd3},{text}'
         return command
 
-    def spin_value_changed(self, idx):
-        self[f'lbl_macro{self.old_value}'].setStyleSheet('')
-        self.old_value = idx
-        self.lineEdit_cmd1.clear()
-        self.lineEdit_cmd2.clear()
-        self.lineEdit_cmd3.clear()
-        self.lineEdit_text.clear()
+    def label_pressed(self, idx):
+        self[f'lbl_macro{self.old_index}'].setStyleSheet('')
+        self.old_index = idx
+        self.clear_lines()
         if idx in self.h.macros_defined:
+            self.set_all_readonly(True)
             self[f'lbl_macro{idx}'].setStyleSheet("border: 1px solid red;")
-            key = self.w[f'btn_macro{idx}'].property('ini_mdi_key')
-            text = INFO.get_ini_mdi_command(key)
+            text = self.w[f'btn_macro{idx}'].property('ini_mdi_cmd')
             self.btn_apply.setEnabled(False)
+            self.btn_clear.setEnabled(False)
         else:
+            self.set_all_readonly(False)
             self[f'lbl_macro{idx}'].setStyleSheet("border: 1px solid cyan;")
-            text = self.w[f'btn_macro{idx}'].get_command_text()
+            text = self.w[f'btn_macro{idx}'].property('ini_mdi_cmd')
             self.btn_apply.setEnabled(True)
-        cmds = text.split(';')
-        for i in range(len(cmds)):
-            self[f'lineEdit_cmd{i+1}'].setText(cmds[i])
+            self.btn_clear.setEnabled(True)
+        if text is not None:
+            cmds = text.split(';')
+            for i in range(len(cmds)):
+                self[f'lineEdit_cmd{i+1}'].setText(cmds[i])
         self.lineEdit_text.setText(self.w[f'btn_macro{idx}'].text())
+
+    def check_empty_groups(self):
+        show = False
+        for i in range(10):
+            if self.w[f'btn_macro{i}'].text():
+                show = True
+                break
+        self.w.group1_macro_buttons.setVisible(show)
+        show = False
+        for i in range(10, 20):
+            if self.w[f'btn_macro{i}'].text():
+                show = True
+                break
+        self.w.group2_macro_buttons.setVisible(show)
+        if self.w.group1_macro_buttons.isHidden() and self.w.group2_macro_buttons.isHidden():
+            self.w.btn_marker.hide()
+        else:
+            self.w.btn_marker.show()
 
     # required code for subscriptable objects
     def __getitem__(self, item):

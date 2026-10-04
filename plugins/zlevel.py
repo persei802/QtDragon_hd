@@ -209,7 +209,8 @@ class ZLevel(QWidget, Common):
         super(ZLevel, self).__init__()
         self.parent = parent
         self.parent.parent.zlevel = self
-        self.settings = QSettings('qtdragon', 'plugins')
+        self.settings = QSettings(os.path.join(HERE, 'settings.ini'), QSettings.IniFormat)
+        self.gcode = []
         self.shm = None
         self.user_path = os.path.expanduser('~/linuxcnc/nc_files')
         self.helpfile = os.path.join(HELP, 'zlevel_help.html')
@@ -366,9 +367,13 @@ class ZLevel(QWidget, Common):
             probe = program.replace('ngc', 'txt')
             probe_name = os.path.join(path, probe)
             saveFile = os.path.join(path, program)
-            self.calculate_gcode(saveFile, probe_name)
-            ACTION.OPEN_PROGRAM(saveFile)
-            self.parent.add_status(f'Saved probe program to {saveFile}')
+            self.calculate_gcode(probe_name)
+            if self.gcode:
+                with open(saveFile, 'w') as f:
+                    f.write('\n'.join(self.gcode))
+                self.parent.add_status(f"Saved probe program to {saveFile}")
+            else:
+                self.parent.add_status("No gcode data to save", WARNING)
         else:
             self.parent.add_status('Probe program save cancelled')
 
@@ -423,23 +428,26 @@ class ZLevel(QWidget, Common):
         else:
             probe_results = os.path.join(path, f"probe_{base.replace('ngc', 'txt')}")
         self.lbl_probe_program.setText(fname)
-        if os.path.isfile(probe_results):
-            self.lbl_probe_result.setText(probe_results)
-            self.probe_results = probe_results
-            # create probe points file and plot maps
-            points = self.load_probe_file(probe_results)
-            self.surfaceMap.set_points(points)
-            plane = self.fit_plane(points)
-            comp_map = self.generate_map(points, plane)
-            grid = self.build_grid(comp_map)
-            if points is not None:
-                self.write_shared_memory(grid)
-                data = self.get_plot_data(comp_map)
-                self.surfaceMap.plot_surface(data)
-                self.surfaceMap.add_probe_points(data)
-                self.surfaceMap.add_contours(data)
-        else:
-            self.lbl_probe_result.setText('No probe result file found')
+        if not os.path.isfile(probe_results):
+            self.lbl_probe_result.setText('No probe results found')
+            return None
+        if os.path.getsize(probe_results) == 0:
+            self.lbl_probe_result.setText('Probe result file is empty')
+            return None
+        self.lbl_probe_result.setText(probe_results)
+        self.probe_results = probe_results
+        # create probe points file and plot maps
+        points = self.load_probe_file(probe_results)
+        self.surfaceMap.set_points(points)
+        plane = self.fit_plane(points)
+        comp_map = self.generate_map(points, plane)
+        grid = self.build_grid(comp_map)
+        if points is not None:
+            self.write_shared_memory(grid)
+            data = self.get_plot_data(comp_map)
+            self.surfaceMap.plot_surface(data)
+            self.surfaceMap.add_probe_points(data)
+            self.surfaceMap.add_contours(data)
         return self.probe_results
 
     def set_comp_area(self, data):
@@ -558,7 +566,8 @@ class ZLevel(QWidget, Common):
         self.shm[HEADER_SIZE:HEADER_SIZE + (MAX_NX * MAX_NY * 8)] = z_bytes.tobytes()
         struct.pack_into("I", self.shm, 0, version + 1)
 
-    def calculate_gcode(self, fname, pname):
+    def calculate_gcode(self, pname):
+        self.gcode = []
         # get start point
         zref = self.cmb_zero_ref.currentIndex()
         if zref == 2:
@@ -567,39 +576,38 @@ class ZLevel(QWidget, Common):
         else:
             x_start = 0 if zref == 0 or zref == 3 else -self.size_x
             y_start = 0 if zref == 3 or zref == 4 else -self.size_y
+        unit_code = "G21" if INFO.MACHINE_IS_METRIC else "G20"
         # opening preamble
-        self.line_num = 5
-        self.file = open(fname, 'w')
-        self.file.write("%\n")
-        self.file.write(f"({self.lineEdit_comment.text()})\n")
-        self.file.write(f"(Area: X {self.size_x} by Y {self.size_y})\n")
-        self.file.write(f"(Steps: X {self.steps_x} by Y {self.steps_y})\n")
-        self.file.write(f"(Safe Z travel height {self.z_safe})\n")
-        self.file.write(f"(XY Zero point is {self.reference[zref]})\n")
-        self.next_line("G17 G40 G49 G64 G90 P0.03")
-        self.next_line("G92.1")
-        self.next_line(f"M6 T{self.probe_tool}")
-        self.next_line(f"G0 Z{self.z_safe}")
+        self.gcode.append("%")
+        self.gcode.append(f"({self.lineEdit_comment.text()})")
+        self.gcode.append(f"(Area: X {self.size_x} by Y {self.size_y})")
+        self.gcode.append(f"(Steps: X {self.steps_x} by Y {self.steps_y})")
+        self.gcode.append(f"(Safe Z travel height {self.z_safe})")
+        self.gcode.append(f"(XY Zero point is {self.reference[zref]})")
+        self.gcode.append("G17 G40 G49 G64 G90 P0.03")
+        self.gcode.append("G92.1")
+        self.gcode.append(unit_code)
+        self.gcode.append(f"M6 T{self.probe_tool}")
+        self.gcode.append(f"G0 Z{self.z_safe}")
         # main section
-        self.next_line(f"(PROBEOPEN {pname})")
-        self.next_line("#100 = 0")
-        self.next_line(f"O100 while [#100 LE {self.steps_y - 1}]")
-        self.next_line(f"  G0 Y[{y_start} + {self.y_inc:.3f} * #100]")
-        self.next_line("  #200 = 0")
-        self.next_line(f"  O200 while [#200 LE {self.steps_x - 1}]")
-        self.next_line(f"    G0 X[{x_start} + {self.x_inc:.3f} * #200]")
-        self.next_line(f"    G0 Z{self.start_height}")
-        self.next_line(f"    G38.2 Z-{self.max_probe} F{self.probe_vel}")
-        self.next_line(f"    G0 Z{self.z_safe}")
-        self.next_line("    #200 = [#200 + 1]")
-        self.next_line("  O200 endwhile")
-        self.next_line("  #100 = [#100 + 1]")
-        self.next_line("O100 endwhile")
-        self.next_line("(PROBECLOSE)")
+        self.gcode.append(f"(PROBEOPEN {pname})")
+        self.gcode.append("#100 = 0")
+        self.gcode.append(f"O100 while [#100 LE {self.steps_y - 1}]")
+        self.gcode.append(f"  G0 Y[{y_start} + {self.y_inc:.3f} * #100]")
+        self.gcode.append("  #200 = 0")
+        self.gcode.append(f"  O200 while [#200 LE {self.steps_x - 1}]")
+        self.gcode.append(f"    G0 X[{x_start} + {self.x_inc:.3f} * #200]")
+        self.gcode.append(f"    G0 Z{self.start_height}")
+        self.gcode.append(f"    G38.2 Z-{self.max_probe} F{self.probe_vel}")
+        self.gcode.append(f"    G0 Z{self.z_safe}")
+        self.gcode.append("    #200 = [#200 + 1]")
+        self.gcode.append("  O200 endwhile")
+        self.gcode.append("  #100 = [#100 + 1]")
+        self.gcode.append("O100 endwhile")
+        self.gcode.append("(PROBECLOSE)")
         # closing section
-        self.next_line("M2")
-        self.file.write("%\n")
-        self.file.close()
+        self.gcode.append("M2")
+        self.gcode.append("%")
 
     def validate(self):
         if not self.check_int_blanks(self.int_inputs): return False
@@ -623,10 +631,6 @@ class ZLevel(QWidget, Common):
             self.parent.add_status(f"Steps Y must be between 2 and {MAX_NY}", WARNING)
             return False
         return True
-
-    def next_line(self, text):
-        self.file.write(f"N{self.line_num} " + text + "\n")
-        self.line_num += 5
 
     def set_unit_labels(self):
         unit = "MM" if INFO.MACHINE_IS_METRIC else "IN"

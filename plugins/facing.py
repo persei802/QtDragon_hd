@@ -51,11 +51,10 @@ class Facing(QWidget, Common):
     def __init__(self, parent=None):
         super(Facing, self).__init__()
         self.parent = parent
-        self.settings = QSettings('qtdragon', 'plugins')
+        self.settings = QSettings(os.path.join(HERE, 'settings.ini'), QSettings.IniFormat)
         self.calculate_pass = None
         self.helpfile = os.path.join(HELP, 'facing_help.html')
         self.default_style = ''
-        self.geometry = None
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'facing.ui')
@@ -263,21 +262,20 @@ class Facing(QWidget, Common):
         comment = self.lineEdit_comment.text()
         unit_code = 'G21' if INFO.MACHINE_IS_METRIC else 'G20'
         units_text = 'Metric' if INFO.MACHINE_IS_METRIC else 'Imperial'
-        self.line_num = 5
         # opening preamble
         self.gcode.append("%")
         self.gcode.append(f"({comment})")
         self.gcode.append(f"(**NOTE - All units are {units_text})")
         self.gcode.append(f"(Area: X {self.size_x} by Y {self.size_y})")
         self.gcode.append(f"(Tool Diameter {self.diameter} with Stepover {self.stepover})\n")
-        self.next_line(f"G40 G49 G64 P0.03 M6 T{self.tool}")
-        self.next_line("G17")
-        self.next_line(unit_code)
+        self.gcode.append(f"G40 G49 G64 P0.03 M6 T{self.tool}")
+        self.gcode.append("G17")
+        self.gcode.append(unit_code)
         if self.chk_mist.isChecked():
-            self.next_line("M7")
+            self.gcode.append("M7")
         if self.chk_flood.isChecked():
-            self.next_line("M8")
-        self.next_line(f"S{self.spindle} M3")
+            self.gcode.append("M8")
+        self.gcode.append(f"S{self.spindle} M3")
         if self.rbtn_raster_0.isChecked():
             self.calculate_pass = self.raster_0
         elif self.rbtn_raster_45.isChecked():
@@ -296,22 +294,22 @@ class Facing(QWidget, Common):
             if zlevel <= self.last_z:
                 zlevel = self.last_z
                 last_pass = True
-            self.next_line(f"G0 Z{self.safe_z}")
-            self.next_line("G0 X0.0 Y0.0")
-            self.next_line(f"G1 Z{zlevel:.3f} F{self.z_feedrate}")
+            self.gcode.append(f"G0 Z{self.safe_z}")
+            self.gcode.append("G0 X0.0 Y0.0")
+            self.gcode.append(f"G1 Z{zlevel:.3f} F{self.z_feedrate}")
             self.calculate_pass()
             if last_pass is True: break
             zlevel -= self.stepdown
         # final profile
         if self.chk_profile.isChecked():
             self.gcode.append("(Profile pass)")
-            self.next_line(f"G0 Z{self.safe_z}")
-            self.next_line("G0 X0.0 Y0.0")
-            self.next_line(f"G1 Z{self.last_z} F{self.z_feedrate}")
-            self.next_line(f"G1 X{self.size_x} F{self.xy_feedrate}")
-            self.next_line(f"G1 Y{self.size_y}")
-            self.next_line("G1 X0")
-            self.next_line("G1 Y0")
+            self.gcode.append(f"G0 Z{self.safe_z}")
+            self.gcode.append("G0 X0.0 Y0.0")
+            self.gcode.append(f"G1 Z{self.last_z} F{self.z_feedrate}")
+            self.gcode.append(f"G1 X{self.size_x} F{self.xy_feedrate}")
+            self.gcode.append(f"G1 Y{self.size_y}")
+            self.gcode.append("G1 X0")
+            self.gcode.append("G1 Y0")
         # closing section
         self.post_amble()
         return True
@@ -348,66 +346,66 @@ class Facing(QWidget, Common):
         x = (0.0, self.size_x)
         next_x = self.size_x
         next_y = 0.0
-        self.next_line(f"G1 X{next_x} F{self.xy_feedrate}")
+        self.gcode.append(f"G1 X{next_x} F{self.xy_feedrate}")
         while next_y < self.size_y:
             i ^= 1
             next_y = min(next_y + self.stepover, self.size_y)
             next_x = x[i]
-            self.next_line(f"Y{next_y}")
-            self.next_line(f"X{next_x}")
+            self.gcode.append(f"Y{next_y}")
+            self.gcode.append(f"X{next_x}")
 
     def raster_45(self):
         start, end = self.calculate_points()
         step = self.stepover * 1.4142
-        self.next_line(f"G1 Y{start[0].y()} F{self.xy_feedrate}")
+        self.gcode.append(f"G1 Y{start[0].y()} F{self.xy_feedrate}")
         # calculate toolpath
         i = 0
         while 1:
             x = end[i].x()
             y = end[i].y()
-            self.next_line(f"G1 X{x:.3f} Y{y:.3f}")
+            self.gcode.append(f"G1 X{x:.3f} Y{y:.3f}")
             if y == 0.0: # bottom edge
                 if x + step > self.size_x:
-                    self.next_line(f"G1 X{self.size_x:.3f}")
+                    self.gcode.append(f"G1 X{self.size_x:.3f}")
             elif x == self.size_x: # right edge
                 if y + step > self.size_y:
-                    self.next_line(f"G1 X{self.size_x:.3f} Y{self.size_y:.3f}")
+                    self.gcode.append(f"G1 X{self.size_x:.3f} Y{self.size_y:.3f}")
                     break
             else:
                 self.parent.add_status('Error computing toolpath preview', ERROR)
                 return
             i += 1
             if i == len(start): break
-            self.next_line(f"G1 X{end[i].x():.3f} Y{end[i].y():.3f}")
+            self.gcode.append(f"G1 X{end[i].x():.3f} Y{end[i].y():.3f}")
             x = start[i].x()
             y = start[i].y()
-            self.next_line(f"G1 X{x:.3f} Y{y:.3f}")
+            self.gcode.append(f"G1 X{x:.3f} Y{y:.3f}")
             if x == 0.0: # left edge
                 if y + step > self.size_y:
-                    self.next_line(f"G1 Y{self.size_y:.3f}")
+                    self.gcode.append(f"G1 Y{self.size_y:.3f}")
             elif y == self.size_y: # top edge
                 if x + step > self.size_x:
-                    self.next_line(f"G1 X{self.size_x:.3f} Y{self.size_y:.3f}")
+                    self.gcode.append(f"G1 X{self.size_x:.3f} Y{self.size_y:.3f}")
                     break
             else:
                 self.parent.add_status('Error computing toolpath preview', ERROR)
                 return
             i += 1
             if i == len(start): break
-            self.next_line(f"G1 X{start[i].x():.3f} Y{start[i].y():.3f}")
+            self.gcode.append(f"G1 X{start[i].x():.3f} Y{start[i].y():.3f}")
 
     def raster_90(self):
         i = 1
         y = (0.0, self.size_y)
         next_x = 0.0
         next_y = self.size_y
-        self.next_line(f"G1 Y{next_y} F{self.xy_feedrate}")
+        self.gcode.append(f"G1 Y{next_y} F{self.xy_feedrate}")
         while next_x < self.size_x:
             i ^= 1
             next_y = y[i]
             next_x = min(next_x + self.stepover, self.size_x)
-            self.next_line(f"X{next_x}")
-            self.next_line(f"Y{next_y}")
+            self.gcode.append(f"X{next_x}")
+            self.gcode.append(f"Y{next_y}")
 
     def update_preview(self):
         if not self.validate(): return
@@ -494,10 +492,6 @@ class Facing(QWidget, Common):
             self.path.lineTo(x, y[i])
             i ^= 1
             self.path.lineTo(x, y[i])
-
-    def next_line(self, text):
-        self.gcode.append(f"N{self.line_num} {text}")
-        self.line_num += 5
 
     # required code for subscriptable objects
     def __getitem__(self, item):

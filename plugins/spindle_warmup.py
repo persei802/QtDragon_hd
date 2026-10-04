@@ -65,8 +65,7 @@ class Spindle_Warmup(QWidget, Common):
     def __init__(self, parent=None):
         super(Spindle_Warmup, self).__init__()
         self.parent = parent
-        self.settings = QSettings('qtdragon', 'plugins')
-        self.line_num = 0
+        self.settings = QSettings(os.path.join(HERE, 'settings.ini'), QSettings.IniFormat)
         self.rpm = []
         self.geometry = None
         # Load the widgets UI file:
@@ -205,28 +204,23 @@ class Spindle_Warmup(QWidget, Common):
     def calculate_gcode(self):
         self.gcode = []
         comment = self.lineEdit_comment.text()
-        self.line_num = 5
         # opening preamble
         self.gcode.append("%")
         self.gcode.append(f"({comment})")
         self.gcode.append(f"(Warm up duration is {self.duration} minutes in {self.steps} steps)")
-        self.next_line("G40 G49 G64 P0.03")
-        self.next_line("G17")
+        self.gcode.append("G40 G49 G64 P0.03")
+        self.gcode.append("G17")
         if self.chk_mist.isChecked():
-            self.next_line("M7")
+            self.gcode.append("M7")
         if self.chk_flood.isChecked():
-            self.next_line("M8")
+            self.gcode.append("M8")
         for i in range(self.steps):
-            self.next_line(f"S{self.rpm[i]} M3")
-            self.next_line(f"G4 P{self.interval * 60:.2f}")
-        self.next_line("M9")
-        self.next_line("M5")
-        self.next_line("M2")
+            self.gcode.append(f"S{self.rpm[i]} M3")
+            self.gcode.append(f"G4 P{self.interval * 60:.2f}")
+        self.gcode.append("M9")
+        self.gcode.append("M5")
+        self.gcode.append("M2")
         self.gcode.append("%")
-
-    def next_line(self, text):
-        self.gcode.append(f"N{self.line_num} {text}")
-        self.line_num += 5
 
     # required code for subscriptable objects
     def __getitem__(self, item):

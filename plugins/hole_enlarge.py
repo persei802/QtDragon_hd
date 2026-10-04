@@ -48,12 +48,11 @@ class Hole_Enlarge(QWidget, Common):
     def __init__(self, parent=None):
         super(Hole_Enlarge, self).__init__()
         self.parent = parent
-        self.settings = QSettings('qtdragon', 'plugins')
+        self.settings = QSettings(os.path.join(HERE, 'settings.ini'), QSettings.IniFormat)
         self.helpfile = os.path.join(HELP, 'hole_enlarge_help.html')
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         self.unit_text = ""
         self.angle_inc = 4
-        self.line_num = 0
 
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'hole_enlarge.ui')
@@ -219,7 +218,6 @@ class Hole_Enlarge(QWidget, Common):
         unit_text = 'Metric' if INFO.MACHINE_IS_METRIC else 'Imperial'
         comment = self.lineEdit_comment.text()
         unit_code = 'G21' if INFO.MACHINE_IS_METRIC else 'G20'
-        self.line_num = 5
         # opening preamble
         self.gcode.append("%")
         self.gcode.append(f"({comment})")
@@ -228,37 +226,62 @@ class Hole_Enlarge(QWidget, Common):
         self.gcode.append(f"(Depth of cut is {self.cut_depth})")
         self.gcode.append(f"(Hole center at X{self.center_x} Y{self.center_y})")
         self.gcode.append(f"(All units are {unit_text})\n")
-        self.next_line(f"G40 G49 G64 P0.03 M6 T{self.tool}")
-        self.next_line("G17")
-        self.next_line(unit_code)
+        self.gcode.append(f"G40 G49 G64 P0.03 M6 T{self.tool}")
+        self.gcode.append("G17")
+        self.gcode.append(unit_code)
         if self.chk_mist.isChecked():
-            self.next_line("M7")
+            self.gcode.append("M7")
         if self.chk_flood.isChecked():
-            self.next_line("M8")
-        self.next_line(f"G0 Z{self.safe_z}")
-        offset = (self.start_dia - self.tool_dia) / 2
-        self.next_line(f"G0 X{self.center_x} Y{self.center_y}")
-        self.next_line("G92 X0 Y0")
-        self.next_line(f"G0 X{offset}")
-        self.next_line(f"M3 S{self.spindle}")
-        self.next_line("G91")
-        self.next_line(f"G1 Z-{self.safe_z + self.cut_depth} F{self.feed / 2}")
-        self.next_line(f"F{self.feed}")
-        steps = int((360 * self.loops) / self.angle_inc)
-        inc = (self.final_dia - self.start_dia) / (2 * steps)
-        angle = self.angle_inc if self.chk_direction.isChecked() else -self.angle_inc
+            self.gcode.append("M8")
+        self.gcode.append(f"G0 Z{self.safe_z}")
+        start = (self.start_dia - self.tool_dia) / 2
+        # move to start point of spiral
+        self.gcode.append(f"G0 X{self.center_x + start} Y{self.center_y}")
+        self.gcode.append(f"M3 S{self.spindle}")
+        self.gcode.append("G91")
+        self.gcode.append(f"G1 Z-{self.safe_z + self.cut_depth} F{self.feed / 2}")
+        self.gcode.append(f"F{self.feed}")
         # create the spiral
+        steps = int((360 * self.loops) / self.angle_inc)
+        dr = (self.final_dia - self.start_dia) / (2 * steps)
+        angle = self.angle_inc if self.chk_direction.isChecked() else -self.angle_inc
+        self.gcode.append("#1 = 1")
+        self.gcode.append(f"#2 = {start}")
+        self.gcode.append("#3 = 0")
+        self.gcode.append("#8 = [#2 * COS[#3]]")
+        self.gcode.append("#9 = [#2 * SIN[#3]]")
         self.gcode.append(f"(Create spiral with {self.loops} loops)")
-        self.next_line(f"o100 repeat [{steps}]")
-        self.next_line(f"g91 g1 @{inc:8.4f} ^{angle}")
-        self.next_line("o100 endrepeat")
+        # WHILE LOOP
+        self.gcode.append(f"O100 WHILE [#1 LT {steps}]")
+        self.gcode.append(f"#2 = [{start} + [#1 * {dr}]]")
+        self.gcode.append(f"#3 = [#1 * {angle}]")
+        self.gcode.append("#4 = [#2 * COS[#3]]")
+        self.gcode.append("#5 = [#2 * SIN[#3]]")
+        self.gcode.append("#6 = [#4 - #8]")
+        self.gcode.append("#7 = [#5 - #9]")
+        self.gcode.append(f"G1 X#6 Y#7")
+        self.gcode.append("#8 = #4")
+        self.gcode.append("#9 = #5")
+        self.gcode.append("#1 = [#1 + 1]")
+        self.gcode.append("O100 ENDWHILE")
+        # ENDWHILE
         # final profile pass
-        self.next_line("G90")
-        offset = (self.final_dia - self.tool_dia) / 2
+        self.gcode.append("G90")
         direction = "G3" if self.chk_direction.isChecked() else "G2"
+        radius = (self.final_dia - self.tool_dia) / 2
         self.gcode.append("(Profile pass)")
-        self.next_line(f"{direction} I{-offset:8.4f} F{self.feed}")
-        self.next_line("G92.1")
+        self.gcode.append(f"F{self.feed}")
+        self.gcode.append(f"G0 X{self.center_x + radius} Y{self.center_y}")
+        if direction == "G2":
+            self.gcode.append(f"{direction} X{self.center_x} Y{self.center_y - radius} I{-radius} J0")
+            self.gcode.append(f"{direction} X{self.center_x - radius} Y{self.center_y} I0 J{radius}")
+            self.gcode.append(f"{direction} X{self.center_x} Y{self.center_y + radius} I{radius} J0")
+            self.gcode.append(f"{direction} X{self.center_x + radius} Y{self.center_y} I0 J{-radius}")
+        else:
+            self.gcode.append(f"{direction} X{self.center_x} Y{self.center_y + radius} I{-radius} J0")
+            self.gcode.append(f"{direction} X{self.center_x - radius} Y{self.center_y} I0 J{-radius}")
+            self.gcode.append(f"{direction} X{self.center_x} Y{self.center_y - radius} I{radius} J0")
+            self.gcode.append(f"{direction} X{self.center_x + radius} Y{self.center_y} I0 J{radius}")
         self.post_amble()
         return True
 
@@ -271,10 +294,6 @@ class Hole_Enlarge(QWidget, Common):
     def direction_changed(self, state):
         text = "CCW" if state else "CW"
         self.chk_direction.setText(text)
-
-    def next_line(self, text):
-        self.gcode.append(f"N{self.line_num} {text}")
-        self.line_num += 5
 
     # required code for subscriptable objects
     def __getitem__(self, item):

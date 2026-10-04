@@ -151,7 +151,7 @@ class Hole_Circle(QWidget, Common):
         self.helpfile = os.path.join(HELP, 'hole_circle_help.html')
         self.mdi_cmd = ''
         self.hole_list = list()
-        self.settings = QSettings('qtdragon', 'plugins')
+        self.settings = QSettings(os.path.join(HERE, 'settings.ini'), QSettings.IniFormat)
         # Load the widgets UI file:
         self.filename = os.path.join(HERE, 'hole_circle.ui')
         try:
@@ -292,7 +292,6 @@ class Hole_Circle(QWidget, Common):
         comment = self.lineEdit_comment.text()
         unit_code = 'G21' if INFO.MACHINE_IS_METRIC else 'G20'
         units_text = 'Metric' if INFO.MACHINE_IS_METRIC else 'Imperial'
-        self.line_num = 5
         # opening preamble
         self.gcode.append('%')
         self.gcode.append(f'({comment})')
@@ -300,33 +299,33 @@ class Hole_Circle(QWidget, Common):
         self.gcode.append(f'(**NOTE - All units are {units_text})')
         self.gcode.append(f'(Circle origin at X{self.center_x} Y{self.center_y})')
         self.gcode.append('(Z origin at top of workpiece)')
-        self.next_line('G40 G49 G64 P0.03')
-        self.next_line('G17')
-        self.next_line(unit_code)
+        self.gcode.append('G40 G49 G64 P0.03')
+        self.gcode.append('G17')
+        self.gcode.append(unit_code)
         if self.chk_mist.isChecked():
-            self.next_line('M7')
+            self.gcode.append('M7')
         if self.chk_flood.isChecked():
-            self.next_line('M8')
-        self.next_line(f'M6 T{self.tool}')
-        self.next_line(f'G0 Z{self.safe_z}')
+            self.gcode.append('M8')
+        self.gcode.append(f'M6 T{self.tool}')
+        self.gcode.append(f'G0 Z{self.safe_z}')
         if self.chk_use_tlo.isChecked():
-            self.next_line('G43')
-        self.next_line(f'S{self.spindle} M3')
-        self.next_line(f'G0 X{self.hole_list[0][0]:.3f} Y{self.hole_list[0][1]:.3f}')
-        self.next_line(f'G0 Z{self.retract}')
+            self.gcode.append('G43')
+        self.gcode.append(f'S{self.spindle} M3')
+        self.gcode.append(f'G0 X{self.hole_list[0][0]:.3f} Y{self.hole_list[0][1]:.3f}')
+        self.gcode.append(f'G0 Z{self.retract}')
         # main section
         if self.chk_g83.isChecked():
-            self.next_line(f'G98 G83 R{self.retract} Z-{self.depth} Q{self.peck} F{self.drill_feed}')
+            self.gcode.append(f'G98 G83 R{self.retract} Z-{self.depth} Q{self.peck} F{self.drill_feed}')
         elif self.chk_g82.isChecked():
-            self.next_line(f'G98 G82 R{self.retract} Z-{self.depth} P{self.dwell} F{self.drill_feed}')
+            self.gcode.append(f'G98 G82 R{self.retract} Z-{self.depth} P{self.dwell} F{self.drill_feed}')
         else:
-            self.next_line(f'G98 G81 R{self.retract} Z-{self.depth} F{self.drill_feed}')
+            self.gcode.append(f'G98 G81 R{self.retract} Z-{self.depth} F{self.drill_feed}')
         for i in range(1, self.num_holes):
-            self.next_line(f'X{self.hole_list[i][0]:.3f} Y{self.hole_list[i][1]:.3f}')
-        self.next_line('G80')
+            self.gcode.append(f'X{self.hole_list[i][0]:.3f} Y{self.hole_list[i][1]:.3f}')
+        self.gcode.append('G80')
         # closing section - return to circle center
-        self.next_line(f'G0 Z{self.safe_z}')
-        self.next_line(f'G0 X{self.center_x} Y{self.center_y}')
+        self.gcode.append(f'G0 Z{self.safe_z}')
+        self.gcode.append(f'G0 X{self.center_x} Y{self.center_y}')
         self.post_amble()
 
     def validate(self):
@@ -379,10 +378,6 @@ class Hole_Circle(QWidget, Common):
         y = self.btn_goto_hole.property('pos_y')
         ACTION.CALL_MDI('G53 G0 Z0')
         ACTION.CALL_MDI(f'G90 G0 X{x} Y{y}')
-
-    def next_line(self, text):
-        self.gcode.append(f"N{self.line_num} {text}")
-        self.line_num += 5
 
     # required code for subscriptable objects
     def __getitem__(self, item):

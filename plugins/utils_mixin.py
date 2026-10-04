@@ -15,7 +15,7 @@ import tempfile
 import atexit
 
 from qtvcp.core import Info
-from PyQt5.QtWidgets import QFileDialog, QLineEdit
+from qtpy.QtWidgets import QFileDialog, QLineEdit
 
 INFO = Info()
 
@@ -32,13 +32,14 @@ class Common():
         self.dialog_code = 'CALCULATOR'
         self.kbd_code = 'KEYBOARD'
         self.tool_code = 'TOOLCHOOSER'
+        self.geometry = None
 
     def post_amble(self):
-        self.next_line("G90")
-        self.next_line(f"G0 Z{self.safe_z}")
-        self.next_line("M9")
-        self.next_line("M5")
-        self.next_line("M2")
+        self.gcode.append("G90")
+        self.gcode.append(f"G0 Z{self.safe_z}")
+        self.gcode.append("M9")
+        self.gcode.append("M5")
+        self.gcode.append("M2")
         self.gcode.append("%")
 
     def check_float_blanks(self, items):
@@ -62,6 +63,9 @@ class Common():
             self[name] = int(text)
             widget.setStyleSheet(self.default_style)
         return True
+
+    def save_gcode_file(self, gcode, fname, ending):
+        ACTION.SAVE_PROGRAM(gcode, fname)
 
     def save_program_file(self, parent, caption, directory, filter):
         dialog = QFileDialog(parent, caption, directory, filter)
