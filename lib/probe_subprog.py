@@ -142,7 +142,6 @@ class ProbeSubprog(QObject, ProbeRoutines, ToolRoutines):
     def CALL_MDI_WAIT(self, code):
         self.cmd.mode(linuxcnc.MODE_MDI)
         for line in code.split("\n"):
-            print(f'MDI_WAIT Command {line}', flush=True)
             self.cmd.mdi(line)
             result = self.cmd.wait_complete(self.timeout)
             try:

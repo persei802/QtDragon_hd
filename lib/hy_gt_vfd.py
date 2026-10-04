@@ -158,7 +158,6 @@ def set_motor_off():
     global motor_is_on, retries
     if not motor_is_on: return
     motor_is_on = False
-    h['at-speed'] = False
     error = True
     for i in range(retries):
         time.sleep(delay)
@@ -175,12 +174,14 @@ def set_motor_speed():
     global last_speed, retries
     speed = h['speed-cmd']
     if speed == last_speed: return
-    last_speed = speed
     if speed > max_speed:
+        last_speed = max_speed
         speed_cmd = 10000
     elif speed < min_speed:
+        last_speed = min_speed
         speed_cmd = int((min_speed / max_speed) * 10000)
     else:
+        last_speed = speed
         speed_cmd = int((speed / max_speed) * 10000)
     error = True
     for i in range(retries):
@@ -229,14 +230,11 @@ def get_vfd_data():
         h['fault-info-code'] = data
 
 def set_atspeed():
-    speed_cmd = h['speed-cmd']
-    speed_fb = h['speed-fb']
-    if speed_cmd == 0: 
-        h['at-speed'] = False
-    elif abs((speed_cmd - speed_fb) / speed_cmd) <= 0.02:
-        h['at-speed'] = True
+    global last_speed
+    if h['speed-cmd'] == 0.0:
+        h['at-speed'] = h['speed-fb'] == 0.0
     else:
-        h['at-speed'] = False
+        h['at-speed'] = (last_speed * 1.02 > h['speed-fb'] > last_speed * 0.98)
 
 ## start
 currentState = INIT
@@ -265,14 +263,12 @@ try:
                 LOG.info("State : VFD RUNNING")
                 prevState = currentState
             get_vfd_data()
-            if not h['forward'] and not h['reverse']:
-                set_motor_off()
-            elif h['spindle-on'] is True:
+            if h['spindle-on'] is True:
                 set_motor_on()
                 set_motor_speed()
-                set_atspeed()
             else:
                 set_motor_off()
+            set_atspeed()
 
         elif currentState == ERROR:
             LOG.info("State : VFD ERROR")
