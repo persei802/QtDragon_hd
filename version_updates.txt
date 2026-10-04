@@ -133,3 +133,10 @@ Aug. 14/26 v 2.2.6
 Aug. 20/26 v 2.2.7
     - added SETTING to enable/disable auto tool touchoff during M6 remap
     - added M6 remap code to python folder
+
+Oct. 4/26 v 2.2.8
+    - moved QSettings file to CONFIG directory
+    - removed adding Nxxx style line numbers from all plugin utilities that created gcode
+    - added sliding macro button widget to preview page - eliminates Show Macros button
+    - fixed zlevel program save error
+    
