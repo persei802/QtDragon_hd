@@ -2744,7 +2744,7 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>0</number>
+                <number>4</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
                 <property name="sizePolicy">
@@ -6040,77 +6040,16 @@ AVAILABLE</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QTabWidget" name="tabWidget_status">
-                   <property name="currentIndex">
-                    <number>0</number>
+                  <widget class="MachineLog" name="machine_log">
+                   <property name="machine_log_option" stdset="0">
+                    <bool>true</bool>
                    </property>
-                   <widget class="QWidget" name="tab_machine">
-                    <attribute name="title">
-                     <string>MACHINE</string>
-                    </attribute>
-                    <attribute name="toolTip">
-                     <string>Display history of status messages</string>
-                    </attribute>
-                    <layout class="QVBoxLayout" name="verticalLayout_6">
-                     <property name="spacing">
-                      <number>4</number>
-                     </property>
-                     <property name="leftMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="topMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="rightMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="bottomMargin">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="MachineLog" name="machine_log">
-                       <property name="machine_log_option" stdset="0">
-                        <bool>true</bool>
-                       </property>
-                       <property name="machine_log_severity_option" stdset="0">
-                        <bool>false</bool>
-                       </property>
-                       <property name="integrator_log_option" stdset="0">
-                        <bool>false</bool>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                   <widget class="QWidget" name="tab_integrator">
-                    <attribute name="title">
-                     <string>SYSTEM</string>
-                    </attribute>
-                    <layout class="QVBoxLayout" name="verticalLayout_9">
-                     <item>
-                      <widget class="MachineLog" name="integrator_log">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="integrator_log_option" stdset="0">
-                        <bool>true</bool>
-                       </property>
-                       <property name="documentTitle" stdset="0">
-                        <string>Integrator Log</string>
-                       </property>
-                       <property name="readOnly" stdset="0">
-                        <bool>true</bool>
-                       </property>
-                       <property name="placeholderText" stdset="0">
-                        <string>Integrator Log</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
+                   <property name="machine_log_severity_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="integrator_log_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -7014,7 +6953,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>04:23:12 PM</string>
+                       <string>12:55:51 PM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -16418,11 +16357,11 @@ OFF</string>
  </slots>
  <buttongroups>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mdi_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="mdi_buttonGroup"/>
  </buttongroups>
 </ui>
