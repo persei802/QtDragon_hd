@@ -140,3 +140,8 @@ Oct. 4/26 v 2.2.8
     - added sliding macro button widget to preview page - eliminates Show Macros button
     - fixed zlevel program save error
     
+Oct. 25/26 v 2.2.9
+    - updated HAL signal names to new standard
+    - updated how gcode properties are displayed
+    - removed SYSTEM tab from Status page
+    
