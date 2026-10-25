@@ -124,17 +124,17 @@ def init_serial():
  
 # Create HAL pins
 def init_pins():
-    h.newpin('speed-cmd', hal.HAL_FLOAT, hal.HAL_IN)
-    h.newpin('speed-fb', hal.HAL_FLOAT, hal.HAL_OUT)
-    h.newpin('speed-rps', hal.HAL_FLOAT, hal.HAL_OUT)
-    h.newpin('spindle-on', hal.HAL_BIT, hal.HAL_IN)
-    h.newpin('forward', hal.HAL_BIT, hal.HAL_IN)
-    h.newpin('reverse', hal.HAL_BIT, hal.HAL_IN)
-    h.newpin('at-speed', hal.HAL_BIT, hal.HAL_OUT)
-    h.newpin('output-current', hal.HAL_FLOAT, hal.HAL_OUT)
-    h.newpin('output-voltage', hal.HAL_FLOAT, hal.HAL_OUT)
-    h.newpin('fault-info-code', hal.HAL_U32, hal.HAL_OUT)
-    h.newpin('modbus-errors', hal.HAL_U32, hal.HAL_OUT)
+    h.newpin('speed-cmd', hal.Type.REAL, hal.HAL_IN)
+    h.newpin('speed-fb', hal.Type.REAL, hal.HAL_OUT)
+    h.newpin('speed-rps', hal.Type.REAL, hal.HAL_OUT)
+    h.newpin('spindle-on', hal.Type.BOOL, hal.HAL_IN)
+    h.newpin('forward', hal.Type.BOOL, hal.HAL_IN)
+    h.newpin('reverse', hal.Type.BOOL, hal.HAL_IN)
+    h.newpin('at-speed', hal.Type.BOOL, hal.HAL_OUT)
+    h.newpin('output-current', hal.Type.REAL, hal.HAL_OUT)
+    h.newpin('output-voltage', hal.Type.REAL, hal.HAL_OUT)
+    h.newpin('fault-info-code', hal.Type.UINT, hal.HAL_OUT)
+    h.newpin('modbus-errors', hal.Type.UINT, hal.HAL_OUT)
     h['modbus-errors'] = 0
     h.ready()
 

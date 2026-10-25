@@ -12,7 +12,6 @@
 # GNU General Public License for more details.
 import sys
 import os
-import re
 import importlib
 
 from qtpy import uic
@@ -276,26 +275,15 @@ class Setup_Utils():
         self.doc_viewer.setCurrentIndex(2)
 
     def show_gcode_properties(self, props):
-        lines = props.split('\n')
-        # convert huge numbers to scientific notation
-        for index, line in enumerate(lines):
-            numbers = re.findall(r'-?\d+\.?\d*', line)
-            for num in numbers:
-                value = float(num)
-                if abs(value) > 100000:
-                    data = f'{value:.3e}'
-                    line = line.replace(num, data)
-            lines[index] = line
-        # arrange lines into 2 columns
         col_width = 30
-        for index, line in enumerate(lines):
-            parts = line.split(':')
-            if len(parts) < 2: continue
-            key = parts[0] + ':'
-            while len(key) < col_width:
-                key += ' '
-            line = key + parts[1]
-            lines[index] = line
+        lines = []
+        for name, prop in props:
+            while len(name) < col_width:
+                name += ' '
+            if type(prop) is str:
+                lines.append(name + prop)
+            elif type(prop) is list:
+                lines.append(name + f"[{' '.join(prop)}]")
         text = "\n".join(lines)
         self.gcode_properties.setPlainText(text)
         self.doc_viewer.setCurrentIndex(3)

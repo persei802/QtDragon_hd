@@ -239,7 +239,7 @@ class BasicProbe(QWidget, _HalWidgetBase):
         # create HAL pin for simulated probe signal
         oldname = self.HAL_GCOMP_.comp.getprefix()
         self.HAL_GCOMP_.comp.setprefix('qtbasicprobe')
-        self.probe_out = self.HAL_GCOMP_.newpin("probe-out", hal.HAL_BIT, hal.HAL_OUT)
+        self.probe_out = self.HAL_GCOMP_.newpin("probe-out", hal.Type.BOOL, hal.Dir.OUT)
         self.HAL_GCOMP_.comp.setprefix(oldname)
 
     def _hal_cleanup(self):

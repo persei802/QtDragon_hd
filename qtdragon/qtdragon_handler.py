@@ -44,7 +44,7 @@ QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
 STYLES = os.path.join(PATH.HANDLERDIR, 'style_rc')
-VERSION = '2.2.8'
+VERSION = '2.2.9'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -345,42 +345,42 @@ class HandlerClass:
 
     def init_pins(self):
         # spindle control pins
-        pin = QHAL.newpin("spindle-amps", Qhal.HAL_FLOAT, Qhal.HAL_IN)
+        pin = QHAL.newpin("spindle-amps", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = QHAL.newpin("spindle-volts", Qhal.HAL_FLOAT, Qhal.HAL_IN)
+        pin = QHAL.newpin("spindle-volts", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = QHAL.newpin("modbus-fault", Qhal.HAL_U32, Qhal.HAL_IN)
+        pin = QHAL.newpin("modbus-fault", QHAL.HAL_UINT, QHAL.HAL_IN)
         pin.value_changed.connect(lambda data: self.w.lbl_modbus_fault.setText(hex(data)))
-        pin = QHAL.newpin("modbus-errors", Qhal.HAL_U32, Qhal.HAL_IN)
+        pin = QHAL.newpin("modbus-errors", QHAL.HAL_UINT, QHAL.HAL_IN)
         pin.value_changed.connect(lambda data: self.w.lbl_modbus_errors.setText(str(data)))
-        QHAL.newpin("spindle-inhibit", Qhal.HAL_BIT, Qhal.HAL_OUT)
+        QHAL.newpin("spindle-inhibit", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         # external offset control pins
-        QHAL.newpin("eoffset-count", Qhal.HAL_S32, Qhal.HAL_OUT)
-        pin = QHAL.newpin("eoffset-value", Qhal.HAL_FLOAT, Qhal.HAL_IN)
+        QHAL.newpin("eoffset-count", QHAL.HAL_SINT, QHAL.HAL_OUT)
+        pin = QHAL.newpin("eoffset-value", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.value_changed.connect(self.eoffset_value_changed)
         # Z level compensation
-        QHAL.newpin("comp_enable", Qhal.HAL_BIT, Qhal.HAL_OUT)
+        QHAL.newpin("comp_enable", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         # MPG axis select pins
-        pin = QHAL.newpin("axis-select-x", Qhal.HAL_BIT, Qhal.HAL_IN)
+        pin = QHAL.newpin("axis-select-x", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(self.show_selected_axis)
-        pin = QHAL.newpin("axis-select-y", Qhal.HAL_BIT, Qhal.HAL_IN)
+        pin = QHAL.newpin("axis-select-y", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(self.show_selected_axis)
-        pin = QHAL.newpin("axis-select-z", Qhal.HAL_BIT, Qhal.HAL_IN)
+        pin = QHAL.newpin("axis-select-z", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(self.show_selected_axis)
-        pin = QHAL.newpin("axis-select-a", Qhal.HAL_BIT, Qhal.HAL_IN)
+        pin = QHAL.newpin("axis-select-a", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(self.show_selected_axis)
         # MPG encoder disable
-        QHAL.newpin("mpg-disable", Qhal.HAL_BIT, Qhal.HAL_OUT)
+        QHAL.newpin("mpg-disable", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         # MPG increment
-        pin = QHAL.newpin("mpg_increment", Qhal.HAL_FLOAT, Qhal.HAL_IN)
+        pin = QHAL.newpin("mpg_increment", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.value_changed.connect(lambda data: self.w.lineEdit_mpg_increment.setText(str(data * 4)))
         # program runtimer
-        pin = QHAL.newpin("runtime-start", Qhal.HAL_BIT, Qhal.HAL_OUT)   
-        pin = QHAL.newpin("runtime-pause", Qhal.HAL_BIT, Qhal.HAL_OUT)
-        pin = QHAL.newpin("runtime-seconds", Qhal.HAL_U32, Qhal.HAL_IN)
+        pin = QHAL.newpin("runtime-start", QHAL.HAL_BOOL, QHAL.HAL_OUT)   
+        pin = QHAL.newpin("runtime-pause", QHAL.HAL_BOOL, QHAL.HAL_OUT)
+        pin = QHAL.newpin("runtime-seconds", QHAL.HAL_UINT, QHAL.HAL_IN)
         pin.value_changed.connect(self.update_runtime)
-        pin = QHAL.newpin("runtime-minutes", Qhal.HAL_U32, Qhal.HAL_IN)
-        pin = QHAL.newpin("runtime-hours", Qhal.HAL_U32, Qhal.HAL_IN)
+        pin = QHAL.newpin("runtime-minutes", QHAL.HAL_UINT, QHAL.HAL_IN)
+        pin = QHAL.newpin("runtime-hours", QHAL.HAL_UINT, QHAL.HAL_IN)
         # initialize some pins
         self.h['runtime-start'] = False
         self.h['runtime-pause'] = False
@@ -950,26 +950,15 @@ class HandlerClass:
             'gcode_units':"Gcode Units:"
         }
         if not props: return
-        text = ''
+        text = []
         for i in props:
-            text += f'{property_names[i]} {props[i]}\n'
+            text.append((property_names[i], props[i]))
         self.setup_utils.show_gcode_properties(text)
-        # update estimated runtime
-        value, units = props['run'].split(' ')
-        if units == 'Seconds':
-            runtime = float(value)
-        elif units == 'Minutes':
-            runtime = float(value) * 60
-        else:
-            self.w.lineEdit_runtime_estimate.setText('')
-            return
-        hours, remainder = divmod(int(runtime), 3600)
-        minutes, seconds = divmod(remainder, 60)
-        text = f'{hours:02d}:{minutes:02d}:{seconds:02d}'
-        self.w.lineEdit_runtime_estimate.setText(text)
-        # send data to zlevel compensation module
-        zdata = (props['x'], props['y'], props['gcode_units'])
+        # show estimated runtime in Tool panel
+        self.w.lineEdit_runtime_estimate.setText(props.get("run", "?"))
+        # send bounds data to zlevel compensation module
         if self.zlevel is None: return
+        zdata = (props['x'], props['y'], props['gcode_units'])
         self.zlevel.set_comp_area(zdata)
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
@@ -1603,16 +1592,11 @@ class HandlerClass:
         STATUS.emit('update-machine-log', None, 'DELETE')
 
     def btn_save_log_pressed(self):
-        if self.w.tabWidget_status.currentIndex() == 1:
-            text = self.w.integrator_log.getLogText()
-            target = "system"
-        else:
-            text = self.w.machine_log.getLogText()
-            target = "machine"
+        text = self.w.machine_log.getLogText()
         current_datetime = datetime.datetime.now()
         timestamp = current_datetime.strftime("%Y%m%d_%H%M%S")
-        filename = f"{target}_{timestamp}.txt"
-        self.add_status(f"Saving {target} log to {filename}")
+        filename = f"status_{timestamp}.txt"
+        self.add_status(f"Saving Status log to {filename}")
         with open(filename, 'w') as f:
             f.write(text)
 

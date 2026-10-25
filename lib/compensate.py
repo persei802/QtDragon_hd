@@ -115,10 +115,10 @@ class SurfaceMap:
 class HALComp:
     def __init__(self):
         self.h = hal.component("compensate")
-        self.h.newpin("enable", hal.HAL_BIT, hal.HAL_IN)
-        self.h.newpin("clear", hal.HAL_BIT, hal.HAL_OUT)
-        self.h.newpin("scale", hal.HAL_S32, hal.HAL_IN)
-        self.h.newpin("z-offset", hal.HAL_S32, hal.HAL_OUT)
+        self.h.newpin("enable", hal.Type.BOOL, hal.HAL_IN)
+        self.h.newpin("clear", hal.Type.BOOL, hal.HAL_OUT)
+        self.h.newpin("scale", hal.Type.SINT, hal.HAL_IN)
+        self.h.newpin("z-offset", hal.Type.SINT, hal.HAL_OUT)
         self.h.ready()
         self.map = SurfaceMap()
         self.stat = linuxcnc.stat()
