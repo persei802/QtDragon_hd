@@ -283,7 +283,7 @@ class Setup_Utils():
             if type(prop) is str:
                 lines.append(name + prop)
             elif type(prop) is list:
-                lines.append(name + f"[{' '.join(prop)}]")
+                lines.append(name + str(prop))
         text = "\n".join(lines)
         self.gcode_properties.setPlainText(text)
         self.doc_viewer.setCurrentIndex(3)

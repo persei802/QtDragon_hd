@@ -1,5 +1,12 @@
 <RCC>
   <qresource prefix="images">
+    <file>images/RapidRotary_icon.png</file>
+    <file>style_rc/machine_off.png</file>
+    <file>style_rc/machine_on.png</file>
+    <file>style_rc/arrow_down.png</file>
+    <file>style_rc/arrow_left.png</file>
+    <file>style_rc/arrow_right.png</file>
+    <file>style_rc/arrow_up.png</file>
     <file>images/backspace.png</file>
     <file>images/spindle_fwd.png</file>
     <file>images/spindle_pause.png</file>
@@ -12,7 +19,6 @@
     <file>images/stop.png</file>
     <file>images/zero.png</file>
     <file>images/home.png</file>
-    <file>images/Tool_measure.png</file>
     <file>images/silver_dragon.png</file>
     <file>images/Right_arrow.png</file>
     <file>images/Left_arrow.png</file>

@@ -20,7 +20,7 @@ from lib.event_filter import EventFilter
 
 from qtpy.QtCore import QObject, QEvent, QSize, QRegExp, QTimer, Qt, QUrl, QPropertyAnimation, QEasingCurve, Signal, Slot
 from qtpy.QtGui import QSyntaxHighlighter, QTextCharFormat, QIntValidator, QRegExpValidator, QFont, QColor, QIcon, QPixmap
-from qtpy.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QMenu, QAction, QToolButton
+from qtpy.QtWidgets import QWidget, QCheckBox, QLineEdit, QStyle, QDialog, QMenu, QAction, QToolButton, QApplication
 
 from qtvcp.widgets.gcode_editor import GcodeEditor, GcodeEditor as GCODE
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
@@ -44,7 +44,7 @@ QHAL = Qhal()
 HELP = os.path.join(PATH.CONFIGPATH, "help_files")
 IMAGES = os.path.join(PATH.HANDLERDIR, 'images')
 STYLES = os.path.join(PATH.HANDLERDIR, 'style_rc')
-VERSION = '2.2.9'
+VERSION = '2.3.0'
 
 # constants for main pages
 TAB_MAIN = 0
@@ -65,9 +65,9 @@ ERROR = 2
 WARNING_COLOR = "yellow"
 ERROR_COLOR = "red"
 
-RUN_COLOR = 'green'
-PAUSE_COLOR = 'yellow'
-STOP_COLOR = 'red'
+RUN_COLOR = '#00FF00'
+PAUSE_COLOR = '#FFFF00'
+STOP_COLOR = '#FF0000'
 
 
 class Highlighter(QSyntaxHighlighter):
@@ -184,6 +184,8 @@ class HandlerClass:
         self.zlevel = None
         self.mdiPanel = None
         # some global variables
+        self.gradient1 = None
+        self.gradient2 = None
         self.status_timeout = 10000
         self.dialog_code = 'CALCULATOR'
         self.kbd_code = 'KEYBOARD'
@@ -196,6 +198,7 @@ class HandlerClass:
         self.next_available = 0
         self.start_line = 0
         self.feedrate_style = ''
+        self.btn_style = ''
         self.statusbar_style = ''
         self.stat_warnings = 0
         self.stat_errors = 0
@@ -342,6 +345,8 @@ class HandlerClass:
         for item in self.remap_parms:
             val = self.w[f'lineEdit_{item}'].text()
             ACTION.CALL_MDI(f'#<_{item}> = {val}')
+        ACTION.SET_MANUAL_MODE()
+        self.w.manual_mode_button.setChecked(True)
 
     def init_pins(self):
         # spindle control pins
@@ -456,7 +461,6 @@ class HandlerClass:
         self.w.lbl_max_angular.setText(f"{self.max_angular_velocity}")
         self.w.lineEdit_min_rpm.setText(f"{self.min_spindle_rpm}")
         self.w.lineEdit_max_rpm.setText(f"{self.max_spindle_rpm}")
-        self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {STOP_COLOR};')
         # gcode file history
         self.w.cmb_program_history.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.cmb_program_history.setMaxVisibleItems(10)
@@ -507,6 +511,7 @@ class HandlerClass:
         self.pause_timer.timeout.connect(self.spindle_pause_timer)
         # default styles for feedrate and statusbar
         self.feedrate_style = self.w.lbl_feedrate.styleSheet()
+        self.btn_style = self.w.btn_pause.styleSheet()
         self.statusbar_style = self.w.statusbar.styleSheet()
         # sliding macro button frame
         self.macros_open = False
@@ -584,8 +589,6 @@ class HandlerClass:
         from lib.plugin_manager import Setup_Utils
         self.setup_utils = Setup_Utils(self)
         self.util_list = self.setup_utils.get_util_list()
-        # designer doesn't allow adding buttons not derived from QAbstractButton class
-        self.w.page_buttonGroup.addButton(self.w.btn_utils)
         menu = QMenu(self.w.btn_utils)
         for util in self.util_list:
             action = QAction(util, self.w.btn_utils)
@@ -614,7 +617,7 @@ class HandlerClass:
         self.event_filter.set_line_list(line_list)
         self.event_filter.set_tool_list('tool_in_spindle')
         self.event_filter.set_parms(('_handler_', False))
-        self.event_filter.set_dialog_mode(self.w.chk_use_handler_calculator.isChecked())
+        self.event_filter.set_dialog_mode(self.w.chk_use_calculator.isChecked())
 
     def init_web_server(self):
         from lib.monitor_server import MonitorServer
@@ -818,8 +821,11 @@ class HandlerClass:
             self.w.lineEdit_eoffset.setText(f"{data:.3f}")
 
     def user_system_changed(self, data):
-        sys = self.system_list[int(data) - 1]
+        self.system_index = int(data) - 1
+        sys = self.system_list[self.system_index]
         self.w.systemtoolbutton.setText(sys)
+        sys = sys.replace('.', '_').lower()
+        self.w[f'action_{sys}'].setChecked(True)
         self.add_status(f"User system changed to {sys}")
 
     def metric_mode_changed(self, mode):
@@ -886,9 +892,7 @@ class HandlerClass:
 
     def all_homed(self, obj):
         self.w.btn_home_all.setText("ALL\nHOMED")
-        self.w.btn_home_all.setProperty('homed', True)
-        self.w.btn_home_all.style().unpolish(self.w.btn_home_all)
-        self.w.btn_home_all.style().polish(self.w.btn_home_all)
+        self.w.btn_home_all.setStyleSheet(self.btn_style)
         if self.first_turnon is True:
             self.first_turnon = False
             if self.w.chk_reload_tool.isChecked():
@@ -897,8 +901,6 @@ class HandlerClass:
             if self.last_loaded_program is not None and self.w.chk_reload_program.isChecked():
                 if os.path.isfile(self.last_loaded_program):
                     ACTION.OPEN_PROGRAM(self.last_loaded_program)
-        ACTION.SET_MANUAL_MODE()
-        self.w.manual_mode_button.setChecked(True)
         # enable camera buttons according to SETTINGS
         self.w.btn_ref_camera.setEnabled(self.w.chk_use_camera.isChecked())
         self.add_status("All axes homed")
@@ -906,9 +908,7 @@ class HandlerClass:
 
     def not_all_homed(self, obj, unhomed):
         self.w.btn_home_all.setText("HOME\nALL")
-        self.w.btn_home_all.setProperty('homed', False)
-        self.w.btn_home_all.style().unpolish(self.w.btn_home_all)
-        self.w.btn_home_all.style().polish(self.w.btn_home_all)
+        self.w.btn_home_all.setStyleSheet(f"color: {STOP_COLOR};")
 
     def update_runtime(self):
         hours = self.h['runtime-hours']
@@ -923,11 +923,10 @@ class HandlerClass:
         if not STATUS.is_auto_mode(): return
         if state:
             self.w.btn_pause.setText('  RESUME')
-            self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {PAUSE_COLOR};')
+            self.w.btn_pause.setStyleSheet(f'color: {PAUSE_COLOR};')
         else:
             self.w.btn_pause.setText('  PAUSE')
-            self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {RUN_COLOR};')
-        self.add_status(f'Program paused set {state}')
+            self.w.btn_pause.setStyleSheet(self.btn_style)
 
     def add_external_status(self, message, option):
         level = option.get('LEVEL', STATUS.DEFAULT)
@@ -986,22 +985,11 @@ class HandlerClass:
         title = btn.property("title")
         if index is None: return
         spindle_inhibit = False
-        if STATUS.is_auto_mode() and index != TAB_SETTINGS:
-            self.add_status("Cannot switch pages while in AUTO mode", WARNING)
-            self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
-            self.w.btn_main.setChecked(True)
-            self.w.groupBox_preview.setTitle(self.w.btn_main.property("title"))
-            return
         if index == TAB_FILE:
             self.w.stackedWidget_file.setCurrentIndex(0)
         elif index == TAB_PROBE:
             spindle_inhibit = self.w.chk_inhibit_spindle.isChecked()
             ACTION.CALL_MDI_WAIT("M5", mode_return=True)
-        elif index == TAB_UTILS:
-            if title == "UTILITIES":
-                self.add_status('Select a utility from the drop down list')
-                self.w.btn_utils.setChecked(False)
-                return
         self.w.mdihistory.MDILine.spindle_inhibit(spindle_inhibit)
         self.h['spindle-inhibit'] = spindle_inhibit
         self.w.main_tab_widget.setCurrentIndex(index)
@@ -1079,8 +1067,7 @@ class HandlerClass:
         if self.current_loaded_program is None:
             self.add_status("No program has been loaded", WARNING)
             return
-        self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {RUN_COLOR};')
-        self.w.lbl_feedrate.setStyleSheet("color: #00FF00;")
+        self.w.lbl_feedrate.setStyleSheet(f"color: {RUN_COLOR};")
         if self.start_line <= 1:
             ACTION.RUN(0)
         else:
@@ -1097,7 +1084,6 @@ class HandlerClass:
         self.h['runtime-start'] = True
 
     def btn_stop_pressed(self):
-        self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {STOP_COLOR};')
         if self.w.btn_pause_spindle.isChecked():
             self.h['spindle-inhibit'] = False
             self.h['eoffset-count'] = 0
@@ -1107,6 +1093,7 @@ class HandlerClass:
         self.update_runtime()
         self.w.btn_pause.setText('PAUSE')
         self.w.btn_pause.setEnabled(True)
+        self.w.btn_pause.setStyleSheet(self.btn_style)
         self.add_status("Program manually aborted")
         ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
         tool = int(self.w.lineEdit_tool_in_spindle.text())
@@ -1897,7 +1884,6 @@ class HandlerClass:
             return False
 
     def stop_timer(self):
-        self.w.lbl_pgm_color.setStyleSheet(f'Background-color: {STOP_COLOR};')
         self.w.lbl_feedrate.setStyleSheet(self.feedrate_style)
         if self.h['runtime-start'] is True:
             self.h['runtime-start'] = False

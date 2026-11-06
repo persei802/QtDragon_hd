@@ -375,7 +375,7 @@
                <number>3</number>
               </property>
               <property name="title" stdset="0">
-               <string>TOOL TABLE</string>
+               <string>TOOL MANAGER</string>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">page_buttonGroup</string>
@@ -547,7 +547,7 @@
                <number>7</number>
               </property>
               <property name="title" stdset="0">
-               <string>SETTINGS AND OFFSETS</string>
+               <string>SETTINGS</string>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">page_buttonGroup</string>
@@ -589,6 +589,9 @@
               <property name="title" stdset="0">
                <string>UTILITIES</string>
               </property>
+              <attribute name="buttonGroup">
+               <string notr="true">page_buttonGroup</string>
+              </attribute>
              </widget>
             </item>
             <item>
@@ -2429,7 +2432,8 @@ color: black;</string>
                       </property>
                       <property name="icon">
                        <iconset>
-                        <normaloff>:/images/images/arrow_up.png</normaloff>:/images/images/arrow_up.png</iconset>
+                        <normaloff>:/images/images/arrow_up.png</normaloff>
+                        <normalon>:/images/style_rc/arrow_up.png</normalon>:/images/images/arrow_up.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -2467,7 +2471,8 @@ color: black;</string>
                       </property>
                       <property name="icon">
                        <iconset>
-                        <normaloff>:/images/images/arrow_down.png</normaloff>:/images/images/arrow_down.png</iconset>
+                        <normaloff>:/images/images/arrow_down.png</normaloff>
+                        <normalon>:/images/style_rc/arrow_down.png</normalon>:/images/images/arrow_down.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -2505,7 +2510,8 @@ color: black;</string>
                       </property>
                       <property name="icon">
                        <iconset>
-                        <normaloff>:/images/images/arrow_left.png</normaloff>:/images/images/arrow_left.png</iconset>
+                        <normaloff>:/images/images/arrow_left.png</normaloff>
+                        <normalon>:/images/style_rc/arrow_left.png</normalon>:/images/images/arrow_left.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -2534,7 +2540,8 @@ color: black;</string>
                       </property>
                       <property name="icon">
                        <iconset>
-                        <normaloff>:/images/images/arrow_right.png</normaloff>:/images/images/arrow_right.png</iconset>
+                        <normaloff>:/images/images/arrow_right.png</normaloff>
+                        <normalon>:/images/style_rc/arrow_right.png</normalon>:/images/images/arrow_right.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -2744,7 +2751,7 @@ color: black;</string>
                 <number>0</number>
                </property>
                <property name="currentIndex">
-                <number>4</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="main_tab_Preview">
                 <property name="sizePolicy">
@@ -6953,7 +6960,7 @@ TO FILE</string>
                        <number>2</number>
                       </property>
                       <property name="text">
-                       <string>12:55:51 PM</string>
+                       <string>10:22:44 AM</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -7267,7 +7274,7 @@ TO FILE</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QCheckBox" name="chk_use_handler_calculator">
+                        <widget class="QCheckBox" name="chk_use_calculator">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -10432,11 +10439,19 @@ ACTIVE</string>
                    <height>0</height>
                   </size>
                  </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::ClickFocus</enum>
+                 </property>
                  <property name="toolTip">
                   <string>Toggle machine state</string>
                  </property>
                  <property name="text">
                   <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="qtdragon.qrc">
+                   <normaloff>:/images/style_rc/machine_off.png</normaloff>
+                   <normalon>:/images/style_rc/machine_on.png</normalon>:/images/style_rc/machine_off.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -11685,7 +11700,7 @@ ACTIVE</string>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_28" stretch="0,0,1,0">
+            <layout class="QVBoxLayout" name="verticalLayout_28" stretch="0,1,0">
              <property name="spacing">
               <number>4</number>
              </property>
@@ -11729,28 +11744,6 @@ ACTIVE</string>
                  <width>24</width>
                  <height>24</height>
                 </size>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="lbl_pgm_color">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>4</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>4</height>
-                </size>
-               </property>
-               <property name="autoFillBackground">
-                <bool>true</bool>
-               </property>
-               <property name="text">
-                <string/>
                </property>
               </widget>
              </item>
@@ -13677,6 +13670,10 @@ ALL</string>
                   <property name="toolTip">
                    <string>Zero axis Y</string>
                   </property>
+                  <property name="styleSheet">
+                   <string notr="true">color: #FF0000;
+font: 12pt &quot;Lato Heavr&quot;;</string>
+                  </property>
                   <property name="text">
                    <string>  Y</string>
                   </property>
@@ -13794,6 +13791,12 @@ ALL</string>
                   </property>
                   <property name="toolTip">
                    <string>Zero axis X</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color: #00FF00;
+font: 12pt &quot;Lato Heavy&quot;;
+
+</string>
                   </property>
                   <property name="text">
                    <string>  X</string>
@@ -14206,6 +14209,10 @@ ALL</string>
                   </property>
                   <property name="toolTip">
                    <string>Zero axis Z</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color: #0000FF;
+font: 12pt &quot;Lato Heavy&quot;;</string>
                   </property>
                   <property name="text">
                    <string>  Z</string>
@@ -14742,6 +14749,10 @@ TO ZERO</string>
                   </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color: #FF00FF;
+font: 12pt &quot;Lato Heavy&quot;;</string>
                   </property>
                   <property name="text">
                    <string>  A</string>
@@ -15370,7 +15381,7 @@ OFF</string>
                   </size>
                  </property>
                  <property name="text_template" stdset="0">
-                  <string>Rapid Override =  %s%%</string>
+                  <string>Rapid =  %s%%</string>
                  </property>
                  <property name="step_rate" stdset="0">
                   <number>10</number>
@@ -15395,7 +15406,7 @@ OFF</string>
                   <bool>true</bool>
                  </property>
                  <property name="text_template" stdset="0">
-                  <string>Feedrate Override =  %s%%</string>
+                  <string>Feedrate =  %s%%</string>
                  </property>
                  <property name="step_rate" stdset="0">
                   <number>10</number>
@@ -15420,7 +15431,7 @@ OFF</string>
                   <bool>true</bool>
                  </property>
                  <property name="text_template" stdset="0">
-                  <string>Spindle Override =  %s%%</string>
+                  <string>Spindle =  %s%%</string>
                  </property>
                  <property name="step_rate" stdset="0">
                   <number>10</number>
@@ -15601,7 +15612,30 @@ OFF</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="LED" name="led_at_speed">
+                  <widget class="QLabel" name="lbl_atspeed">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>30</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>30</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>AT
+SPEED</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="LED" name="led_atspeed">
                    <property name="minimumSize">
                     <size>
                      <width>30</width>
@@ -15614,9 +15648,6 @@ OFF</string>
                      <height>30</height>
                     </size>
                    </property>
-                   <property name="toolTip">
-                    <string>At speed indicator</string>
-                   </property>
                    <property name="pin_name" stdset="0">
                     <string>hal_led_atspeed</string>
                    </property>
@@ -15624,8 +15655,11 @@ OFF</string>
                     <color>
                      <red>0</red>
                      <green>255</green>
-                     <blue>1</blue>
+                     <blue>0</blue>
                     </color>
+                   </property>
+                   <property name="currentstate" stdset="0">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -16356,12 +16390,12 @@ OFF</string>
   <slot>chk_enable_spindle_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mdi_buttonGroup"/>
   <buttongroup name="preset_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>

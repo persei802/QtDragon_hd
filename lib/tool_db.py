@@ -521,10 +521,11 @@ class Tool_Database(QWidget):
     def __init__(self, parent=None):
         super(Tool_Database, self).__init__()
         self.parent = parent
+        self.w = parent.w
         self.database = os.path.join(PATH.CONFIGPATH, DB_NAME)
         self.unit_labels = ['tlo_unit', 'diameter_unit', 'flute_unit', 'stepover_unit', 'depth_unit']
         self.dialog_code = 'CALCULATOR'
-        self.text_dialog_code = 'KEYBOARD'
+        self.keyboard_code = 'KEYBOARD'
         self.geometry = None
         self.default_style = ''
         self.red_border = "border: 2px solid red;"
@@ -554,11 +555,13 @@ class Tool_Database(QWidget):
         self.event_filter.set_line_list(line_list)
         self.event_filter.set_kbd_list(['part_number'])
         self.event_filter.set_parms(('_tooldb_', True))
+        mode = self.w.chk_use_calculator.isChecked()
+        self.event_filter.set_dialog_mode(mode)
 
         # signal connections
         self.btn_update_tool.pressed.connect(self.btn_update_pressed)
         self.treeWidget.itemClicked.connect(self.on_item_clicked)
-        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
+        self.w.chk_use_calculator.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         self.chk_expand_all.stateChanged.connect(lambda state: self.expand_all(state))
         self.cmb_icon.activated.connect(self.display_tool_icon)
         
@@ -796,7 +799,7 @@ class Tool_Database(QWidget):
             elif back:
                 newobj = self.event_filter.findBack()
                 self.event_filter.show_calc(newobj, True)
-        elif code and name == self.text_dialog_code:
+        elif code and name == self.keyboard_code:
             obj.setStyleSheet(self.default_style)
             if rtn is None: return
             obj.setText(rtn)

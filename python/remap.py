@@ -1,11 +1,9 @@
-from interpreter import *
 import emccanon
+from interpreter import INTERP_OK, INTERP_EXECUTE_FINISH, INTERP_ERROR
+
+throw_exceptions = 1
 
 def m6_remap(self, **words):
-    if not self.task:
-        yield INTERP_OK
-        return
-
     current_tool = self.current_tool
     selected_tool = self.selected_tool
     current_pocket = self.current_pocket
@@ -24,6 +22,9 @@ def m6_remap(self, **words):
     except InterpreterException as e:
         self.set_errormsg(f"M6 remap error: {e}")
         yield INTERP_ERROR
+        return
+    if not self.task:
+        yield INTERP_OK
         return
     yield INTERP_EXECUTE_FINISH
     # M6 is now complete
@@ -83,3 +84,4 @@ def m6_remap(self, **words):
         yield INTERP_ERROR
 
     yield INTERP_OK
+    return
