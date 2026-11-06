@@ -485,14 +485,7 @@ QPushButton#btn_home_all[homed=false] {
 }
 
 #action_machine_on {
-  background: none;
-  background-image: url("qtdragon/style_rc/machine_off.png");
-  border: none;
-}
-
-#action_machine_on:checked {
-  background: none;
-  background-image: url("qtdragon/style_rc/machine_on.png");
+  background: transparent;
   border: none;
 }
 
@@ -502,26 +495,6 @@ QPushButton#btn_home_all[homed=false] {
 
 #action_spindle_rev {
   qproperty-spindle_down_action: true;
-}
-
-#action_zero_x {
-  font: 12pt "Lato Heavy";
-  color: #00FF00;
-}
-
-#action_zero_y {
-  font: 12pt "Lato Heavy";
-  color: #FF0000;
-}
-
-#action_zero_z {
-  font: 12pt "Lato Heavy";
-  color: #0000FF;
-}
-
-#action_zero_a {
-  font: 12pt "Lato Heavy";
-  color: #FF00FF;
 }
 
 /** LineEdits **/
