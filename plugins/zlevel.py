@@ -208,6 +208,7 @@ class ZLevel(QWidget, Common):
     def __init__(self, parent=None):
         super(ZLevel, self).__init__()
         self.parent = parent
+        self.w = parent.w
         self.parent.parent.zlevel = self
         self.settings = QSettings(os.path.join(HERE, 'settings.ini'), QSettings.IniFormat)
         self.gcode = []
@@ -263,13 +264,15 @@ class ZLevel(QWidget, Common):
         self.event_filter.set_kbd_list(['probe_program', 'comment'])
         self.event_filter.set_tool_list('probe_tool')
         self.event_filter.set_parms(('_zlevel_', True))
+        mode = self.w.chk_use_calculator.isChecked()
+        self.event_filter.set_dialog_mode(mode)
 
         # populate combobox
         self.cmb_zero_ref.addItems(self.reference)
         self.cmb_zero_ref.setCurrentIndex(2)
 
         # signal connections
-        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
+        self.w.chk_use_calculator.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         self.rbtn_steps.clicked.connect(lambda state: self.steps_changed(state))
         self.rbtn_offset.clicked.connect(lambda state: self.steps_changed(state))
         self.btn_save_gcode.pressed.connect(self.save_gcode)

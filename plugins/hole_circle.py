@@ -147,6 +147,7 @@ class Hole_Circle(QWidget, Common):
     def __init__(self, parent=None):
         super(Hole_Circle, self).__init__()
         self.parent = parent
+        self.w = parent.w
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
         self.helpfile = os.path.join(HELP, 'hole_circle_help.html')
         self.mdi_cmd = ''
@@ -195,8 +196,10 @@ class Hole_Circle(QWidget, Common):
         self.event_filter.set_kbd_list('comment')
         self.event_filter.set_parms(('_hole_circle_', True))
         self.event_filter.set_tool_list('tool')
+        mode = self.w.chk_use_calculator.isChecked()
+        self.event_filter.set_dialog_mode(mode)
         # signal connections
-        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
+        self.w.chk_use_calculator.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         self.btn_save.pressed.connect(lambda: self.create_program('save'))
         self.btn_send.pressed.connect(lambda: self.create_program('send'))
         self.btn_help.pressed.connect(lambda: self.parent.show_help(self.helpfile))

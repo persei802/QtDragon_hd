@@ -72,6 +72,8 @@ class CustomMacros(QWidget):
         self.lineEdit_text.installEventFilter(self.event_filter)
         self.event_filter.set_kbd_list(['cmd1', 'cmd2', 'cmd3', 'text'])
         self.event_filter.set_parms(('_macros_', True))
+        mode = self.w.chk_use_calculator.isChecked()
+        self.event_filter.set_dialog_mode(mode)
         self.prefill_labels()
         # mouse press events from clickable labels
         for i in range(20):
@@ -79,7 +81,7 @@ class CustomMacros(QWidget):
         # signal connections
         self.btn_apply.pressed.connect(self.apply_command)
         self.btn_clear.pressed.connect(self.clear_lines)
-        self.chk_use_keyboard.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
+        self.w.chk_use_calculator.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         # connect all buttons to macro handler - it won't get called if the button is disabled
         for i in range(20):
             if i in self.h.macros_defined: continue
@@ -120,9 +122,11 @@ class CustomMacros(QWidget):
                 self.w[f'btn_macro{key}'].setProperty('ini_mdi_cmd', cmds)
                 self.w[f'btn_macro{key}'].setText(lbl)
                 self.w[f'btn_macro{key}'].setToolTip(tooltip)
+                self.w[f'btn_macro{key}'].setEnabled(True)
         except Exception as e:
             self.parent.add_status(f'Prefill error: {e}', ERROR)
         self.settings.endGroup()
+        self.check_empty_groups()
 
     def dialog_return(self, w, message):
         rtn = message['RETURN']

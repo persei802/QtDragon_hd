@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1112</width>
-    <height>628</height>
+    <width>977</width>
+    <height>606</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,7 +35,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QFrame" name="frame_parameters">
+      <widget class="QWidget" name="widget_parameters" native="true">
        <property name="minimumSize">
         <size>
          <width>440</width>
@@ -56,7 +56,7 @@
          <number>4</number>
         </property>
         <property name="topMargin">
-         <number>12</number>
+         <number>4</number>
         </property>
         <property name="rightMargin">
          <number>4</number>
@@ -1391,44 +1391,13 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QCheckBox" name="chk_use_calc">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="focusPolicy">
-             <enum>Qt::ClickFocus</enum>
-            </property>
-            <property name="toolTip">
-             <string>Use Calculator dialog for input</string>
-            </property>
-            <property name="text">
-             <string>CALCULATOR</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </item>
        </layout>
       </widget>
      </item>
      <item>
-      <widget class="QFrame" name="frame_preview">
+      <widget class="QWidget" name="widget_preview" native="true">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <property name="spacing">
          <number>4</number>

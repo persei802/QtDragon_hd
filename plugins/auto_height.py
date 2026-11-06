@@ -82,9 +82,11 @@ class Auto_Measure(QWidget, Common):
             self[f'lineEdit_{line}'].installEventFilter(self.event_filter)
         self.event_filter.set_line_list(self.line_list)
         self.event_filter.set_parms(('_auto_height_', True))
+        mode = self.w.chk_use_calculator.isChecked()
+        self.event_filter.set_dialog_mode(mode)
         # signal connections
         self.chk_enable_set.stateChanged.connect(self.chk_enable_changed)
-        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
+        self.w.chk_use_calculator.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         self.btn_set_wp.clicked.connect(self.set_position_clicked)
         self.btn_set_machine.clicked.connect(self.set_position_clicked)
         self.btn_start.clicked.connect(self.start)

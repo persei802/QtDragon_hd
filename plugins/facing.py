@@ -51,6 +51,7 @@ class Facing(QWidget, Common):
     def __init__(self, parent=None):
         super(Facing, self).__init__()
         self.parent = parent
+        self.w = parent.w
         self.settings = QSettings(os.path.join(HERE, 'settings.ini'), QSettings.IniFormat)
         self.calculate_pass = None
         self.helpfile = os.path.join(HELP, 'facing_help.html')
@@ -94,6 +95,8 @@ class Facing(QWidget, Common):
         self.event_filter.set_kbd_list('comment')
         self.event_filter.set_tool_list('tool')
         self.event_filter.set_parms(('_facing_', True))
+        mode = self.w.chk_use_calculator.isChecked()
+        self.event_filter.set_dialog_mode(mode)
 
         # setup graphics preview
         self.scene = QGraphicsScene()
@@ -105,7 +108,7 @@ class Facing(QWidget, Common):
         self.pen.setCosmetic(True)
 
         # signal connections
-        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
+        self.w.chk_use_calculator.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         self.lineEdit_tool.editingFinished.connect(self.load_tool)
         self.btn_preview.pressed.connect(lambda: self.create_program('preview'))
         self.btn_save.pressed.connect(lambda: self.create_program('save'))

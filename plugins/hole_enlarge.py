@@ -48,6 +48,7 @@ class Hole_Enlarge(QWidget, Common):
     def __init__(self, parent=None):
         super(Hole_Enlarge, self).__init__()
         self.parent = parent
+        self.w = parent.w
         self.settings = QSettings(os.path.join(HERE, 'settings.ini'), QSettings.IniFormat)
         self.helpfile = os.path.join(HELP, 'hole_enlarge_help.html')
         self.tmpl = '.3f' if INFO.MACHINE_IS_METRIC else '.4f'
@@ -92,10 +93,12 @@ class Hole_Enlarge(QWidget, Common):
         self.event_filter.set_kbd_list('comment')
         self.event_filter.set_tool_list('tool')
         self.event_filter.set_parms(('_enlarge_', True))
+        mode = self.w.chk_use_calculator.isChecked()
+        self.event_filter.set_dialog_mode(mode)
 
         # signal connections
         self.lineEdit_tool.editingFinished.connect(self.load_tool)
-        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
+        self.w.chk_use_calculator.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
         self.chk_direction.stateChanged.connect(lambda state: self.direction_changed(state))
         self.btn_save.pressed.connect(lambda: self.create_program('save'))
         self.btn_send.pressed.connect(lambda: self.create_program('send'))

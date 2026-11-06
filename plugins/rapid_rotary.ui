@@ -85,7 +85,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>RapidRotary_icon.png</pixmap>
+           <pixmap resource="../qtdragon/qtdragon.qrc">:/images/images/RapidRotary_icon.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>true</bool>
@@ -603,6 +603,8 @@ HELP</string>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../qtdragon/qtdragon.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -65,6 +65,7 @@ class Spindle_Warmup(QWidget, Common):
     def __init__(self, parent=None):
         super(Spindle_Warmup, self).__init__()
         self.parent = parent
+        self.w = parent.w
         self.settings = QSettings(os.path.join(HERE, 'settings.ini'), QSettings.IniFormat)
         self.rpm = []
         self.geometry = None
@@ -92,6 +93,13 @@ class Spindle_Warmup(QWidget, Common):
         self.event_filter.set_line_list(self.inputs)
         self.event_filter.set_kbd_list('comment')
         self.event_filter.set_parms(('_warmup_', True))
+        mode = self.w.chk_use_calculator.isChecked()
+        self.event_filter.set_dialog_mode(mode)
+
+        # signal connections
+        self.w.chk_use_calculator.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
+        self.btn_send.pressed.connect(lambda: self.create_program('send'))
+        self.btn_save.pressed.connect(lambda: self.create_program('save'))
 
     def _hal_init(self):
         def homed_on_status():
@@ -101,13 +109,7 @@ class Spindle_Warmup(QWidget, Common):
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
-        # signal connections
-        self.chk_use_calc.stateChanged.connect(lambda state: self.event_filter.set_dialog_mode(state))
-        self.btn_send.pressed.connect(lambda: self.create_program('send'))
-        self.btn_save.pressed.connect(lambda: self.create_program('save'))
-
         self.default_style = self.lineEdit_start.styleSheet()
-
         for line in self.inputs:
             self[f'lineEdit_{line}'].setText(self.settings.value(f'spindle_warmup/{line}', '0', str))
 
