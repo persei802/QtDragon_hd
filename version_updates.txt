@@ -145,3 +145,7 @@ Oct. 25/26 v 2.2.9
     - updated how gcode properties are displayed
     - removed SYSTEM tab from Status page
     
+Nov. 6/26 v 2.3.0
+    - use Calculator checkbox on SETTINGS page applies to all plugin utilites
+    - change colors of Pause button and Feedrate status depending on program state
+    - 
